@@ -29,6 +29,7 @@ function hrefToString(href: Props['href']): string | null {
 
 export default function MapIntentLink({
   href,
+  prefetch = false,
   onMouseEnter,
   onFocus,
   onTouchStart,
@@ -38,8 +39,8 @@ export default function MapIntentLink({
 }: Props) {
   const router = useRouter();
   const preload = useCallback(() => {
-    void preloadMapSurface();
     const target = hrefToString(href);
+    if (target?.split(/[?#]/)[0] === '/map') void preloadMapSurface();
     if (target) {
       (router.prefetch as (href: string) => void)(target);
     }
@@ -49,6 +50,7 @@ export default function MapIntentLink({
     <Link
       {...props}
       href={href}
+      prefetch={prefetch}
       onMouseEnter={(event: MouseEvent<HTMLAnchorElement>) => {
         preload();
         onMouseEnter?.(event);

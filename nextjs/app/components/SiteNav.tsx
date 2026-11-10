@@ -1,7 +1,7 @@
 'use client';
 
 import { BRAND_WORDMARK } from '@/lib/constants';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { appScroller } from '@/lib/dom/appScroller';
 import Image from '@/app/components/SiteImage';
 import { useTranslation } from '@/lib/i18n';
@@ -20,6 +20,7 @@ export default function SiteNav() {
   const { t, lang } = useTranslation();
   const pathname = usePathname();
   const activePage = pageSlugFromPath(pathname);
+  const [prefetchHome, setPrefetchHome] = useState(false);
   const reading = activePage === 'news-article' || activePage === 'restaurant';
   const progressRef = useRef<HTMLSpanElement>(null);
   const navRef = useRef<HTMLElement>(null);
@@ -181,7 +182,12 @@ export default function SiteNav() {
         {/* Center: Logo */}
         <div className={styles.home}>
           {/* The home hero observes this header to reveal its logo after scrolling. */}
-          <Link href="/" className={styles.logo} aria-label="Eat This — Start" data-nav-logo="">
+          <Link href="/" className={styles.logo} aria-label="Eat This — Start" data-nav-logo=""
+            prefetch={prefetchHome ? null : false}
+            onPointerEnter={() => setPrefetchHome(true)}
+            onPointerDown={() => setPrefetchHome(true)}
+            onFocus={() => setPrefetchHome(true)}
+          >
             <Image
               {...BRAND_WORDMARK}
               alt="Eat This"

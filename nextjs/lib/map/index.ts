@@ -16,9 +16,8 @@ export { getOpenStatus } from './openingHours';
 
 // Data sources
 export { useMapData } from './useMapData';
-export { useUserLocation, hasGeolocationPermission } from './useUserLocation';
+export { useUserLocation } from './useUserLocation';
 export type { UserLocation } from './useUserLocation';
-export { useFavorites } from './useFavorites';
 export { useUnlockedMustEats } from './useUnlockedMustEats';
 
 // List/filter logic
@@ -35,5 +34,5 @@ export type { SheetView } from './useMapSheet';
 export { useMapDeepLinks } from './useMapDeepLinks';
 
 // Entitlement tier (drives anon/starter/all-Berlin promotion surfaces)
-export { useUserTier, showsPackPromos } from './useUserTier';
+export { showsPackPromos } from './useUserTier';
 export type { UserTier } from './useUserTier';

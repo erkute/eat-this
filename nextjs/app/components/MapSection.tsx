@@ -3,21 +3,17 @@ import { useRef, useState, useMemo, useCallback, useEffect, useLayoutEffect } fr
 import type { MapRef, ViewStateChangeEvent } from 'react-map-gl/maplibre';
 import type { MapRestaurant, MapMustEat, MapCategory } from '@/lib/types';
 import {
-  useMapData,
   useUserLocation,
-  hasGeolocationPermission,
-  useUnlockedMustEats,
-  useFavorites,
   useMapFilters,
   useMapSheet,
   useMapDeepLinks,
   useMapFilterUrl,
-  useUserTier,
   buildPeekMustEatMap,
-  resolveUnlockedMustEatIds,
 } from '@/lib/map';
 import { useTranslation } from '@/lib/i18n';
-import { useAuth } from '@/lib/auth';
+import { useMapLocationFollow } from '@/lib/map/useMapLocationFollow';
+import { useMapListAnchor, useMapListReturn } from '@/lib/map/useMapListReturn';
+import { useMapAccount } from '@/lib/map/useMapAccount';
 import MapSectionBody from './map/MapSectionBody';
 import type { InitialMapData } from '@/lib/map/server-initial-map-data';
 import { prefetchRestaurantDetail } from '@/lib/map/useRestaurantDetail';
@@ -27,9 +23,6 @@ import { pollUntilMapReady } from '@/lib/map/pollUntilMapReady';
 import { basemapTileTemplate, preloadSpotTiles } from '@/lib/map/tilePreload';
 import { berlinNow } from '@/lib/map/openingHours';
 import {
-  resolveListReturn,
-  rowRevealOffset,
-  rowRevealTop,
   phoneListMidVisiblePx,
   type DetailOrigin,
 } from '@/lib/map/phoneSheetSnaps';
@@ -42,7 +35,7 @@ import {
   type ListCenter,
 } from '@/lib/map/listCenter';
 import { isPhoneViewport, isSheetViewport } from '@/lib/map/viewport';
-import { useMapCamera, getUserLocationZoom } from '@/lib/map/useMapCamera';
+import { useMapCamera } from '@/lib/map/useMapCamera';
 import { useMapStarterPrompt } from '@/lib/map/useMapStarterPrompt';
 import { useDetailSelection, type DetailOpeners } from '@/lib/map/useDetailSelection';
 
@@ -51,14 +44,6 @@ import { useDetailSelection, type DetailOpeners } from '@/lib/map/useDetailSelec
    short enough that the move still reads as the answer to what was typed.
    Was 450 ms; taken down to 300 on 22.08.2026 because the wait read as lag. */
 const SEARCH_REFIT_DELAY_MS = 300;
-
-/* How long the list keeps re-aiming at the row a closed detail belongs to, and
-   how many frames it has to sit still before that counts as arrived. ~1s is
-   long enough for a list that is still settling (rows appended behind the
-   window, a re-sort) to stop moving, short enough that a row which never
-   settles gives up before it turns into a fight. */
-const ROW_REVEAL_MAX_FRAMES = 60;
-const ROW_REVEAL_SETTLED_FRAMES = 3;
 
 interface Props {
   isActive?: boolean;
@@ -81,36 +66,14 @@ export default function MapSection({
     [renderedAt]
   );
   const mapRef = useRef<MapRef>(null);
-  // Set true synchronously in any click handler that flies the camera so
-  // the slow auto-locate Promise can't overwrite the user's selection.
-  const userInteractedRef = useRef(false);
-  // Camera follows the visitor's position — see the follow-mode effect.
-  const followingRef = useRef(false);
   const mapTrackedRef = useRef(false);
   const { t } = useTranslation();
 
-  const { user, loading: authLoading } = useAuth();
-  const uid = user?.uid ?? null;
-  const revealViewer = useRef({ uid, authLoading });
-  if (revealViewer.current.uid !== uid || revealViewer.current.authLoading !== authLoading) {
-    revealViewer.current = { uid, authLoading };
-  }
-
-  // Die Karte ist offen: jeder Spot, für jeden. Ein Konto ändert nur, welche
-  // Must-Eat-Karten offen liegen.
-
   const {
-    restaurants,
-    mustEats,
-    categories,
-    revealedMustEatIds,
-    fullCatalog,
-    dataUid,
-    loading: mapDataLoading,
-    error: mapDataError,
-    refetch: refetchMapData,
-    mergeMustEat,
-  } = useMapData({ uid, authLoading, initialMapData });
+    uid, guest, cardViewerKey, restaurants, mustEats, categories,
+    revealedMustEatIds, unlockedIds, favoriteIds, toggleFavorite, userTier, reveal,
+    loading: mapDataLoading, error: mapDataError, refetch: refetchMapData,
+  } = useMapAccount(initialMapData);
   const initialRestaurant = useMemo(() => {
     if (!initialRestaurantSlug || !initialMapData) return null;
     return (
@@ -118,53 +81,14 @@ export default function MapSection({
       null
     );
   }, [initialMapData, initialRestaurantSlug]);
-  const {
-    location,
-    loading: locating,
-    error: locationError,
-    request: requestLocation,
-    watch: watchLocation,
-    permitted: locationPermitted,
-  } = useUserLocation();
-  const { unlockedIds: storedUnlockedIds, unlock } = useUnlockedMustEats(authLoading ? null : uid);
-  // Free-and-open map: anon visitors see exactly the server-revealed set
-  // face-up — the 10 curated cards.
-  // Everything else stays card-back until revealed on site (50 m). Authed
-  // users keep the stored Firestore unlock set ∪ the public anon face-up
-  // set — what a guest sees open on /must-eats never flips back after signup
-  // ("publicly face-up means face-up everywhere"). Shared helper — the SAME
-  // face-up computation drives the /must-eats gallery, the profile collection
-  // and the /home teaser.
-  const publicFaceUpIds = useMemo(
-    () =>
-      initialMapData
-        ? resolveUnlockedMustEatIds({
-            uid: null,
-            storedUnlockedIds: new Set<string>(),
-            revealedMustEatIds: new Set<string>(initialMapData.revealedMustEatIds),
-          })
-        : undefined,
-    [initialMapData]
-  );
-  const unlockedIds = useMemo(
-    () =>
-      resolveUnlockedMustEatIds({ uid, storedUnlockedIds: !authLoading && dataUid === uid ? storedUnlockedIds : new Set<string>(), revealedMustEatIds, publicFaceUpIds }),
-    [uid, authLoading, dataUid, storedUnlockedIds, revealedMustEatIds, publicFaceUpIds]
-  );
-  const { favoriteIds, toggle: toggleFavorite } = useFavorites(uid);
-  /* Der Server entscheidet mit: `fullCatalog` kennt den Admin-Zugang, den der
-     Entitlement-Listener nie sieht — und bis Auth durch ist, ist niemand ein
-     Gast (siehe resolveUserTier). */
-  const userTier = useUserTier(uid, { fullCatalog, dataUid, authLoading });
+  const geolocation = useUserLocation();
+  const { location, loading: locating, error: locationError } = geolocation;
 
   useEffect(() => {
     if (!isActive || mapTrackedRef.current) return;
     mapTrackedRef.current = true;
     trackEvent('map_opened', { tier: userTier });
   }, [isActive, userTier]);
-
-  /* Das Nachladen bei neuen Karten (Kauf, Starter Pack, Einladung) haengt seit
-     dem 06.09.2026 in useMapData selbst — dort bekommt es auch das Profil. */
 
   // Swipe the open detail down past peek → close it (back to the list). The
   // close logic lives in the handlers below, so route the sheet's dismiss
@@ -194,32 +118,7 @@ export default function MapSection({
   const sheetViewRef = useRef(sheetView);
   sheetViewRef.current = sheetView;
 
-  /* In-flow phone list: the sheet's snap vocabulary maps onto window-scroll
-     anchors. peek = the list's CSS resting overlap (scroll 0), mid = up to half a viewport of
-     list visible, full = list top parked 40px below the viewport top — same
-     constants the tablet drag-sheet uses (MID_VISIBLE_PX / FULL_TOP_PX). */
-  const listAnchorY = useCallback(
-    (target: 'peek' | 'mid' | 'full'): number | null => {
-      const el = sheetElRef.current;
-      if (!el) return null;
-      const listTopDoc = el.getBoundingClientRect().top + window.scrollY;
-      const h = window.innerHeight;
-      // peek: desiredTop = h ⇒ target scroll ≤ 0 ⇒ clamps to 0 (CSS overlap).
-      const desiredTop =
-        target === 'peek' ? h : target === 'mid' ? Math.max(40, h - phoneListMidVisiblePx(h)) : 40;
-      return Math.max(0, Math.round(listTopDoc - desiredTop));
-    },
-    [sheetElRef]
-  );
-
-  const scrollListToAnchor = useCallback(
-    (target: 'peek' | 'mid' | 'full', behavior: ScrollBehavior = 'smooth') => {
-      const top = listAnchorY(target);
-      if (top == null) return;
-      window.scrollTo({ top, behavior });
-    },
-    [listAnchorY]
-  );
+  const scrollListToAnchor = useMapListAnchor(sheetElRef);
 
   /* Die Sheet aus dem Weg räumen — das, was ein Tipp auf die Karte tut.
      Für die Detailansicht heißt das „auf peek einklappen" (Name plus die drei
@@ -266,90 +165,6 @@ export default function MapSection({
     (origin: DetailOrigin) =>
       origin === 'map' && sheetView === 'detail' && snap !== 'peek' && isSheetViewport(),
     [sheetView, snap]
-  );
-
-  /* Put one specific row on screen — the spot whose detail just closed, when
-     that detail was opened FROM the list. Only works while that row is
-     rendered, which is what listFocusId below is for; returns false when it
-     is not (the filter changed underneath) so the caller can fall back to the
-     raw scroll offset. A deep link never comes here: its row was never on
-     screen, so closing lands at the top of the list instead.
-
-     Aimed for a few frames rather than once. The list may still be settling
-     when the detail closes — rows appended behind the window, a re-sort after
-     a position fix — and one scrollTo aims into a document that has not
-     finished moving. Re-deriving the target from the row itself until it
-     stops moving is the same medicine ScrollRestorer takes on soft navs.
-
-     Instant rather than smooth, for the same reason it is over there: with
-     `scroll-behavior: smooth` document-wide, a smooth scroll re-issued every
-     frame restarts its own animation and never arrives. The list simply appears
-     already standing at the spot, which is the point.
-
-     `rememberedTop` is where the row sat on screen when it was tapped (see
-     listRowTopRef): with it the row comes back to that place — clamped so it
-     is fully visible — instead of to the generic "a little above the middle". */
-  const rowRevealCancelRef = useRef<(() => void) | null>(null);
-  const scrollListToRow = useCallback(
-    (id: string | null, rememberedTop?: number | null): boolean => {
-      if (!id || typeof document === 'undefined') return false;
-      const findRow = () => document.querySelector<HTMLElement>(`[data-list-row="${id}"]`);
-      if (!findRow()) return false;
-
-      rowRevealCancelRef.current?.();
-      let frames = 0;
-      let settled = 0;
-      let raf = 0;
-      const cancel = () => {
-        cancelAnimationFrame(raf);
-        window.removeEventListener('wheel', cancel);
-        window.removeEventListener('touchstart', cancel);
-        rowRevealCancelRef.current = null;
-      };
-      rowRevealCancelRef.current = cancel;
-      /* The moment the user touches the list, it is theirs. */
-      window.addEventListener('wheel', cancel, { passive: true });
-      window.addEventListener('touchstart', cancel, { passive: true });
-
-      const tick = () => {
-        const row = findRow();
-        if (!row) return cancel();
-        /* Phones scroll the window (in-flow list), tablet and desktop the
-           panel's own port. */
-        const port = isPhoneViewport() ? null : contentRef.current;
-        let target: number;
-        let current: number;
-        if (port) {
-          const offset =
-            row.getBoundingClientRect().top - port.getBoundingClientRect().top + port.scrollTop;
-          target = Math.max(0, Math.round(offset - rowRevealTop(port.clientHeight, rememberedTop)));
-          current = port.scrollTop;
-        } else {
-          if (!isPhoneViewport()) return cancel();
-          const minY = listAnchorY('mid');
-          if (minY == null) return cancel();
-          target = rowRevealOffset(
-            row.getBoundingClientRect().top + window.scrollY,
-            window.innerHeight,
-            minY,
-            rememberedTop
-          );
-          current = window.scrollY;
-        }
-        if (Math.abs(current - target) > 1) {
-          settled = 0;
-          if (port) port.scrollTop = target;
-          else window.scrollTo({ top: target, behavior: 'instant' as ScrollBehavior });
-        } else if (++settled >= ROW_REVEAL_SETTLED_FRAMES) {
-          return cancel();
-        }
-        if (++frames >= ROW_REVEAL_MAX_FRAMES) return cancel();
-        raf = requestAnimationFrame(tick);
-      };
-      tick();
-      return true;
-    },
-    [contentRef, listAnchorY]
   );
 
   /* Where the map is looking, once the user has moved it — the list sorts by
@@ -406,7 +221,7 @@ export default function MapSection({
   });
   useMapStarterPrompt({
     active: isActive,
-    guest: !authLoading && !user,
+    guest,
     spotId: selectedRestaurant?._id ?? selectedMustEat?.restaurant._id ?? null,
     detailOpen: sheetView === 'detail',
   });
@@ -583,159 +398,17 @@ export default function MapSection({
     reapplySnap(target);
   }, [sheetView, selectedRestaurant?._id, selectedMustEat?._id, setSnap, reapplySnap, sheetElRef]);
 
-  /* Scroll-restore for back-nav (list → detail → list):
-     - listScrollRef captures the list's scrollTop just before a detail opens
-       (in handleRestaurantClick / handleMustEatClick).
-     - On return to the list view, the useLayoutEffect below restores it so
-       the user lands where they left off, not at the top.
-     - Filter / sort changes reset it to 0 so a new filter always starts at
-       the top of the new result set. */
-  const listScrollRef = useRef(0);
-  /* Where the tapped row sat on screen (viewport top on phones, port top on
-     tablet/desktop) when its detail opened. The raw scroll offset alone is not
-     enough to put it back: the list can be re-sorted (a position fix
-     arrives) while the detail is open — restoring
-     the old scrollY then lands somewhere else, often with the row clamped to
-     the very bottom of the screen. The row itself is the anchor; this is only
-     where on screen it belongs. */
-  const listRowTopRef = useRef<number | null>(null);
-  /* Where the open detail came from. A marker tap hands the map back on close —
-     camera and all — a list row hands the list back. Set on a fresh open only:
-     paging inside the detail and the must-eat ↔ restaurant hop keep the origin
-     of the detail they grew out of. */
-  const detailOriginRef = useRef<DetailOrigin>('list');
-  /* Desktop: a marker tap unfolds a hidden panel to show the detail. Closing
-     it folds the panel back, so the map is as it was. */
   const panelHiddenBeforeDetailRef = useRef(false);
-  /* The spot whose detail was closed last. Two jobs, both about the row rather
-     than the selection: RestaurantList keeps that row rendered even when it
-     sits past the windowed budget (it counts the "selection" into the budget),
-     and it is the row the list scrolls to. Not `selectedRestaurant` — closing
-     the detail drops the selection, and reviving it there would make every
-     "is a detail open?" check downstream lie. */
-  const [listFocusId, setListFocusId] = useState<string | null>(null);
-  const listFocusIdRef = useRef(listFocusId);
-  listFocusIdRef.current = listFocusId;
-  const prevFiltersRef = useRef({ category, bezirk, price, openOnly, search });
-  useEffect(() => {
-    if (sheetView !== 'list') return;
-    const prev = prevFiltersRef.current;
-    const next = { category, bezirk, price, openOnly, search };
-    prevFiltersRef.current = next;
-    const filtersChanged =
-      prev.category !== next.category ||
-      prev.bezirk !== next.bezirk ||
-      prev.price !== next.price ||
-      prev.openOnly !== next.openOnly ||
-      prev.search !== next.search;
-    if (!filtersChanged) return;
-    listScrollRef.current = 0;
-    /* A different result set: the row that was worth pointing at may not even
-       be in it any more. */
-    setListFocusId(null);
-    if (isPhoneViewport()) {
-      /* In-flow list: the new result set starts at the list top. If the user
-         was scrolled deeper than that, park the window at the 'full' anchor
-         (list top just below the viewport top) so the fresh set is visible;
-         shallower positions stay put. */
-      const sheet = sheetElRef.current;
-      if (sheet) {
-        const listTopDoc = sheet.getBoundingClientRect().top + window.scrollY;
-        const fullY = Math.max(0, Math.round(listTopDoc - 40));
-        if (window.scrollY > fullY) window.scrollTo(0, fullY);
-      }
-      return;
-    }
-    const el = contentRef.current;
-    if (el) el.scrollTop = 0;
-  }, [sheetView, category, bezirk, price, openOnly, search, contentRef, sheetElRef]);
-
-  /* Which view handed us this render. Only a return FROM a detail may move the
-     list — the map's own first paint (list peeking under the map) and every
-     later re-run must leave the scroll exactly where it is. */
-  const listReturnFromRef = useRef<'list' | 'detail'>(initialRestaurant ? 'detail' : 'list');
-
-  useLayoutEffect(() => {
-    const cameFromDetail = listReturnFromRef.current === 'detail';
-    listReturnFromRef.current = sheetView;
-    if (sheetView !== 'list') return;
-    const action = resolveListReturn(
-      listScrollRef.current,
-      cameFromDetail,
-      detailOriginRef.current
-    );
-    if (action === 'stay') return;
-    if (action === 'toMap') {
-      /* Back to the map the spot was tapped on. Phones: the in-flow detail may
-         have been scrolled, and in list geometry any scroll > 0 is the list
-         coming up — park the window at the map stop before paint. Tablet snap
-         and desktop panel are handled in handleRestaurantClose; the camera
-         flies back there too. */
-      listAnchorPendingRef.current = false;
-      if (isPhoneViewport()) window.scrollTo(0, 0);
-      return;
-    }
-    if (isPhoneViewport()) {
-      if (action === 'toList') {
-        /* Opened from a deep link (the home page's must-eat cards, a hub or
-           article link): there is no list position to go back to, and the
-           detail leaves the window at ~0 — which in list geometry is the MAP
-           stop. So the button labelled "Liste" delivered the bare map, and the
-           list had to be fished back up by hand. Scroll to it instead. 'mid'
-           is the anchor that matches the snap state the close handlers already
-           set on phones, so the chrome and the scroll agree.
-
-           To the TOP of the list, not to the spot's row: the row was never on
-           screen, so there is no place to come back to — and aiming at it
-           dropped a visitor from the home page deep into the list with the
-           spot as its last line, everything else above them (user, 04.09.2026).
-           Instant, like the restore below: the list simply stands there when
-           the detail is gone.
-
-           Unless a pushed detail entry is about to be popped (the URL sync
-           below): ScrollRestorer re-applies the popped entry's saved position
-           as part of that traversal, and for a spot opened from a marker that
-           position IS the map stop. Scrolling now would visibly bounce off it,
-           so the popstate handler does it instead — after the restorer has had
-           its turn. */
-        if (detailEntryPushedRef.current && !detailClosedBySearchRef.current) {
-          listAnchorPendingRef.current = true;
-          return;
-        }
-        scrollListToAnchor('mid', 'instant');
-        return;
-      }
-      /* Phone details start at the top of the in-flow document. Restore the
-         list position before paint so closing does not flash a blank canvas
-         into iOS Safari's browser-chrome backdrop. The row is the anchor
-         (scrollListToRow's first pass runs synchronously, so this too lands
-         before paint); the raw offset is only the fallback for a row the
-         list no longer renders. */
-      if (scrollListToRow(listFocusIdRef.current, listRowTopRef.current)) return;
-      window.scrollTo(0, listScrollRef.current);
-      return;
-    }
-    /* Tablet sheet / desktop panel already show the list on close — but the
-       panel's own scroller may still stand wherever the detail left it. Deep
-       link: the top of the list, same reasoning as on phones. Otherwise the
-       row that was tapped. */
-    const el = contentRef.current;
-    if (action !== 'restore') {
-      if (el) el.scrollTop = 0;
-      return;
-    }
-    if (scrollListToRow(listFocusIdRef.current, listRowTopRef.current)) return;
-    if (!el) return;
-    el.scrollTop = listScrollRef.current;
-  }, [
+  const { focusId: listFocusId, remember: rememberListReturn, returnToRow, getOrigin: getDetailOrigin } = useMapListReturn({
     sheetView,
+    initialDetail: Boolean(initialRestaurant),
+    sheetElRef,
     contentRef,
-    scrollListToAnchor,
-    scrollListToRow,
-    detailEntryPushedRef,
-    detailClosedBySearchRef,
-    listAnchorPendingRef,
-  ]);
+    filterKey: JSON.stringify([category, bezirk, price, openOnly, search]),
+    listCenter,
+    history: { detailEntryPushedRef, detailClosedBySearchRef, listAnchorPendingRef },
+    scrollToAnchor: scrollListToAnchor,
+  });
 
   const restaurantMustEats = useMemo(() => {
     if (!selectedRestaurant) return [];
@@ -769,6 +442,14 @@ export default function MapSection({
     initialRestaurantId: initialRestaurant?._id,
   });
 
+  const { locate: handleLocateMe, userInteractedRef, stopFollowing } = useMapLocationFollow({
+    isActive,
+    detailId: selectedRestaurant?._id ?? selectedMustEat?._id ?? null,
+    geolocation,
+    mapRef,
+    camera: { flyToSpot, getFlyPadding, getFlyPaddingRef },
+  });
+
   /* A detail opening over the list: note where it came from, so closing it
      can hand back exactly that — the list at the tapped row (its scroll
      offset, and where on screen the row sat), or the map with the camera the
@@ -779,21 +460,11 @@ export default function MapSection({
      back to (a marker tap). */
   const rememberListOrigin = useCallback(
     (origin: DetailOrigin, rowId: string | null) => {
-      detailOriginRef.current = origin;
       panelHiddenBeforeDetailRef.current = desktopPanelHidden;
-      /* The camera as the user left it, before any open-fly or the phone
-         canvas resize moves it. */
       rememberCamera(origin === 'map');
-      listScrollRef.current = isPhoneViewport()
-        ? window.scrollY
-        : (contentRef.current?.scrollTop ?? 0);
-      const row = rowId ? document.querySelector<HTMLElement>(`[data-list-row="${rowId}"]`) : null;
-      listRowTopRef.current = row
-        ? row.getBoundingClientRect().top -
-          (isPhoneViewport() ? 0 : (contentRef.current?.getBoundingClientRect().top ?? 0))
-        : null;
+      rememberListReturn(origin, rowId);
     },
-    [desktopPanelHidden, rememberCamera, contentRef]
+    [desktopPanelHidden, rememberCamera, rememberListReturn]
   );
 
   const handleRestaurantClick = useCallback(
@@ -862,23 +533,7 @@ export default function MapSection({
       }
       return true;
     },
-    [
-      setDesktopPanelHidden,
-      mapTapOnlyDismisses,
-      collapseSheetToPeek,
-      rememberListOrigin,
-      setSelectedRestaurant,
-      setSelectedMustEat,
-      flyToSpot,
-      getFlyPadding,
-      pinTapFlyPadding,
-      phoneDetailFlyPadding,
-      setSearch,
-      setSheetView,
-      setSnap,
-      sheetView,
-      sheetElRef,
-    ]
+    [mapTapOnlyDismisses, userInteractedRef, sheetView, setDesktopPanelHidden, setSearch, setSelectedRestaurant, setSelectedMustEat, phoneDetailFlyPadding, setSheetView, setSnap, collapseSheetToPeek, rememberListOrigin, sheetElRef, flyToSpot, pinTapFlyPadding, getFlyPadding]
   );
 
   /* In welche Richtung zuletzt geblättert wurde — dorthin lädt der Effekt
@@ -903,7 +558,7 @@ export default function MapSection({
       const sc = document.querySelector('[data-detail-scroll]');
       if (sc) (sc as HTMLElement).scrollTop = 0;
     },
-    [mustEatPagerAdjacent, setSelectedMustEat, flyToSpot, detailFlyPadding, unlockedIds]
+    [mustEatPagerAdjacent.prev, mustEatPagerAdjacent.next, userInteractedRef, unlockedIds, setSelectedMustEat, flyToSpot, detailFlyPadding]
   );
 
   /* Solange ein Must-Eat-Detail offen ist, liegt die Kachel des nächsten
@@ -962,20 +617,7 @@ export default function MapSection({
       if (isMobile) setSnap('full');
       flyToSpot(m.restaurant, { duration: 500, padding: detailFlyPadding() });
     },
-    [
-      setDesktopPanelHidden,
-      unlockedIds,
-      rememberListOrigin,
-      setSelectedRestaurant,
-      setSelectedMustEat,
-      flyToSpot,
-      detailFlyPadding,
-      selectedRestaurant,
-      setSearch,
-      setSheetView,
-      setSnap,
-      sheetView,
-    ]
+    [userInteractedRef, setDesktopPanelHidden, selectedRestaurant, unlockedIds, sheetView, rememberListOrigin, setSearch, setSelectedRestaurant, setSelectedMustEat, setSheetView, setSnap, flyToSpot, detailFlyPadding]
   );
 
   const handleRestaurantClose = useCallback(() => {
@@ -985,9 +627,9 @@ export default function MapSection({
        when it was opened FROM a row. A marker tap hands the map back instead,
        and a focus row there only made the list render every row down to the
        spot (88 of 88 for a Kreuzberg pin) without ever scrolling to it. */
-    setListFocusId(detailOriginRef.current === 'map' ? null : (r?._id ?? null));
+    returnToRow(r?._id ?? null);
     setSheetView('list');
-    if (detailOriginRef.current === 'map') {
+    if (getDetailOrigin() === 'map') {
       /* Opened from a marker: hand the MAP back, as it was. The list drops to
          its resting peek (tablet snap; phones scroll to the map stop in the
          layout effect above), a desktop panel that was folded away folds
@@ -1018,18 +660,7 @@ export default function MapSection({
         eventData: ROW_RETURN_FLIGHT,
       });
     }
-  }, [
-    setDesktopPanelHidden,
-    selectedRestaurant,
-    setSelectedRestaurant,
-    handBackCamera,
-    flyToSpot,
-    getFlyPadding,
-    setSheetView,
-    snap,
-    setSnap,
-    reapplySnap,
-  ]);
+  }, [selectedRestaurant, setSelectedRestaurant, returnToRow, setSheetView, getDetailOrigin, snap, setSnap, reapplySnap, setDesktopPanelHidden, handBackCamera, flyToSpot, getFlyPadding]);
 
   const handleViewRestaurantFromMustEat = useCallback(() => {
     if (!selectedMustEat) return;
@@ -1052,7 +683,7 @@ export default function MapSection({
     // restaurant the dish belongs to, which is the only spot on screen the
     // must-eat was ever about. Unless the chain began at a marker: then the
     // map comes back and no row is the target (see handleRestaurantClose).
-    setListFocusId(detailOriginRef.current === 'map' ? null : (m?.restaurant._id ?? null));
+    returnToRow(m?.restaurant._id ?? null);
     setSheetView('list');
     // Same nudge as handleRestaurantClose: peek → mid so the list is usable;
     // phones always reset (stale 'full' would keep the full-snap UI state active).
@@ -1063,19 +694,10 @@ export default function MapSection({
         duration: 350,
         padding: getFlyPadding(nextSnap),
         // Back at a row, the list keeps its order; a marker chain hands the map back.
-        eventData: detailOriginRef.current === 'map' ? undefined : ROW_RETURN_FLIGHT,
+        eventData: getDetailOrigin() === 'map' ? undefined : ROW_RETURN_FLIGHT,
       });
     }
-  }, [
-    selectedMustEat,
-    setSelectedMustEat,
-    selectedRestaurant,
-    flyToSpot,
-    getFlyPadding,
-    setSheetView,
-    snap,
-    setSnap,
-  ]);
+  }, [selectedMustEat, setSelectedMustEat, selectedRestaurant, returnToRow, setSheetView, snap, setSnap, flyToSpot, getFlyPadding, getDetailOrigin]);
 
   // Point the sheet's swipe-down-dismiss at the right close handler for
   // whichever detail is open (must-eat stacked on a restaurant, or plain).
@@ -1100,7 +722,7 @@ export default function MapSection({
     const userGesture = e.originalEvent != null;
     if (userGesture) {
       userInteractedRef.current = true;
-      followingRef.current = false;
+      stopFollowing();
     }
     const follows = listFollowsMove({
       userGesture,
@@ -1112,21 +734,7 @@ export default function MapSection({
     listFollowsMapRef.current = true;
     const next = { lat: e.viewState.latitude, lng: e.viewState.longitude };
     setListCenter((prev) => (sameCenter(prev, next) ? prev : next));
-  }, []);
-
-  /* A re-sorted list starts over: the rows under the old scroll offset are
-     other rows now. Tablet and desktop scroll their panel to the top, the way
-     a map app's results do when the map moves. Phones are left alone — the map
-     is only draggable while the list sits at its resting stop below it, and
-     that IS the top of the list. The focus row goes with it: it belonged to
-     the old order. */
-  useEffect(() => {
-    if (!listCenter || sheetViewRef.current !== 'list') return;
-    setListFocusId(null);
-    if (isPhoneViewport()) return;
-    const el = contentRef.current;
-    if (el) el.scrollTop = 0;
-  }, [listCenter, contentRef]);
+  }, [stopFollowing, userInteractedRef]);
 
   const handleMapClick = useCallback(() => {
     const isMobile = isSheetViewport();
@@ -1229,7 +837,7 @@ export default function MapSection({
       setBezirk(name);
       revealListForFilter();
     },
-    [setBezirk, revealListForFilter]
+    [userInteractedRef, setBezirk, revealListForFilter]
   );
   const handleCategoryChange = useCallback(
     (c: MapCategory) => {
@@ -1238,7 +846,7 @@ export default function MapSection({
       /* 'All' is a reset, not a result set worth surfacing. */
       if (c !== 'All') revealListForFilter();
     },
-    [setCategory, revealListForFilter]
+    [userInteractedRef, setCategory, revealListForFilter]
   );
   const handlePriceChange = useCallback(
     (id: string | null) => {
@@ -1246,7 +854,7 @@ export default function MapSection({
       setPrice(id);
       if (id !== null) revealListForFilter();
     },
-    [setPrice, revealListForFilter]
+    [userInteractedRef, setPrice, revealListForFilter]
   );
   const handleOpenOnlyChange = useCallback(
     (v: boolean) => {
@@ -1254,181 +862,16 @@ export default function MapSection({
       setOpenOnly(v);
       if (v) revealListForFilter();
     },
-    [setOpenOnly, revealListForFilter]
+    [userInteractedRef, setOpenOnly, revealListForFilter]
   );
 
   const handleUnlock = useCallback(async () => {
     if (!selectedMustEat) return false;
-    // Anon taps never reach this handler — useMustEatDetailState routes
-    // in-range guests to the login gate instead.
-    if (!uid || authLoading) return false;
-    const requestViewer = revealViewer.current;
-    // The reveal response carries the full card data (covered cards ship
-    // stripped) — merge it so the open detail and the list peek flip face-up.
-    const full = await unlock(selectedMustEat._id);
-    if (full && revealViewer.current === requestViewer) {
-      mergeMustEat(full);
-      setSelectedMustEat(full);
-      return true;
-    }
-    return false;
-  }, [selectedMustEat, setSelectedMustEat, uid, authLoading, unlock, mergeMustEat]);
-
-  /* Follow the visitor for as long as the map is on screen. `location` used
-     to be one fix, taken when the map came up — often on the way there,
-     from a cold cell estimate — and the avatar marker stood on that point
-     no matter how far the visitor walked. The covered cards measure against
-     it too: the 50 m gate of the must-eat detail, and the shake of the
-     covered cards in the restaurant detail once the visitor is within reach
-     (MustEatMiniCard). Whoever stood in the doorway was still "too far"
-     against the stale point. The watcher keeps it current and stops when
-     the map goes inactive.
-     Gated on `locationPermitted`: the proof the origin holds the permission,
-     so watchPosition raises no dialog (the one thing the map is built to
-     never do unprompted — see hasGeolocationPermission). A FIX is not
-     required: underground the first request times out, and the watcher is
-     what picks up the position once the phone finds one again (see
-     useUserLocation.permitted). Keyed on the grant, not on the fix, so its
-     own updates do not restart it. */
-  const [watchRound, setWatchRound] = useState(0);
-  useEffect(() => {
-    if (!isActive || !locationPermitted) return;
-    let stop = watchLocation();
-    /* iOS Safari haelt einen Beobachter nach Bildschirmsperre oder
-       App-Wechsel oft still, ohne Fehler: er liefert einfach nichts mehr.
-       Zurueck im Vordergrund startet er deshalb neu. */
-    const onVisibility = () => {
-      if (document.visibilityState !== 'visible') return;
-      stop();
-      stop = watchLocation();
-    };
-    document.addEventListener('visibilitychange', onVisibility);
-    return () => {
-      document.removeEventListener('visibilitychange', onVisibility);
-      stop();
-    };
-    // watchRound: der Standort-Knopf startet den Beobachter neu (handleLocateMe).
-  }, [isActive, locationPermitted, watchLocation, watchRound]);
-
-  /* Jeder Tipp holt einen frischen Fix. Bis 26.09.2026 flog der Knopf mit
-     einem Fix nur zu dem zurueck, den es schon gab — kam der aus der U-Bahn
-     und lieferte der Beobachter seitdem nichts, stand der Avatar fest, und
-     der Knopf tat sichtbar nichts (Betreiber: „keine neuer Abruf. Ist
-     eingefroren"). Die Kamera geht sofort zum bekannten Punkt, der Tipp
-     schaltet den Folgemodus ein, und der neue Fix holt sie nach.
-
-     Laeuft der Beobachter schon, fragt der Knopf NICHT per
-     getCurrentPosition. WebKit beantwortet eine Einzelabfrage neben einem
-     laufenden watchPosition nicht, sie laeuft in ihren Timeout (im
-     iOS-Simulator gemessen, 27.09.2026) — auf dem iPhone kam sie als
-     „blockiert" zurueck, waehrend der Avatar laengst dastand. Stattdessen
-     startet der Tipp den Beobachter neu: ein frischer watchPosition liefert
-     in WebKit sofort die aktuelle Position. Die Einzelabfrage bleibt fuer
-     den Fall ohne Freigabe (sie stellt die Frage) und ohne Fix (sie meldet,
-     dass keiner kommt) — ihr Fix landet in `location`, und der Folgemodus
-     fliegt hin. */
-  const handleLocateMe = useCallback(async () => {
-    userInteractedRef.current = true;
-    followingRef.current = true;
-    if (location) {
-      flyToSpot(location, { zoom: getUserLocationZoom(), duration: 600, padding: getFlyPadding() });
-    }
-    if (location && locationPermitted) {
-      setWatchRound((round) => round + 1);
-      return;
-    }
-    await requestLocation();
-  }, [location, locationPermitted, requestLocation, flyToSpot, getFlyPadding]);
-
-  /* Folgemodus: die Kamera geht mit dem Besucher mit, wie in jeder
-     Navi-App (Betreiber, 15.10.2026: „ich will, dass die Kamera sich
-     mitbewegt"). An geht er, wenn die Karte zum Besucher fliegt — Standort-
-     Knopf, Auto-Zentrierung, Rueckkehr auf die Map. Aus geht er, sobald der
-     Besucher die Karte selbst bewegt oder einen Spot oeffnet: wer sich
-     umsieht, dem zieht kein neuer Fix die Kamera unter der Hand weg. Der
-     Knopf schaltet ihn wieder ein — im offenen Detail (Must-Eat: „Standort
-     freigeben") nur fuer den einen Fix, der den Tipp beantwortet. Reduced
-     Motion springt MapLibre von selbst, statt zu fliegen. */
-  const followedLocationRef = useRef(location);
-  useEffect(() => {
-    if (location === followedLocationRef.current) return;
-    followedLocationRef.current = location;
-    if (!location || !isActive || !followingRef.current) return;
-    if (sheetViewRef.current === 'detail') followingRef.current = false;
-    flyToSpot(location, { zoom: getUserLocationZoom(), duration: 800, padding: getFlyPadding() });
-  }, [location, isActive, flyToSpot, getFlyPadding]);
-  useEffect(() => {
-    if (selectedRestaurant || selectedMustEat) followingRef.current = false;
-  }, [selectedRestaurant, selectedMustEat]);
-
-  /* Default camera = the user's position. Request it once on mount and, as
-     soon as it resolves, centre the map there — unless the user already
-     interacted, a deep-link is steering the camera (?r/?me/?bezirk/?cat all
-     set userInteractedRef, but they may consume AFTER the location resolves,
-     so check the URL too), or the position is outside Berlin. When the
-     location is denied/unavailable the canvas default stays: every spot,
-     framed (see initialCamera in useMapCamera). Polls mapRef like the
-     deep-link effects — a granted permission can resolve before the canvas
-     mounts. */
-  const autoLocatedRef = useRef(false);
-  useEffect(() => {
-    if (!isActive) return;
-    if (autoLocatedRef.current) return;
-    autoLocatedRef.current = true;
-    let cancelled = false;
-    let completed = false;
-    let cancelPoll = () => {};
-    const params = new URLSearchParams(window.location.search);
-    const hasDeepLink = ['r', 'me', 'bezirk', 'cat'].some((p) => params.has(p));
-    /* Only for an EXISTING grant — otherwise this fires the system permission
-       dialog on first paint with no context (see hasGeolocationPermission).
-       Silent on top of that, so even a grant that later fails (GPS off, indoors)
-       cannot raise a toast nobody asked for; the canvas default, every spot,
-       simply stands. Asking is the locate button's job. */
-    void hasGeolocationPermission()
-      .then((granted) => {
-        if (cancelled) return { location: null, error: null };
-        if (!granted) {
-          completed = true;
-          return { location: null, error: null };
-        }
-        return requestLocation({ silent: true });
-      })
-      .then(({ location: loc }) => {
-        if (cancelled) return;
-        if (!loc || hasDeepLink) {
-          completed = true;
-          return;
-        }
-        const inBerlin = loc.lat > 52.3 && loc.lat < 52.7 && loc.lng > 12.9 && loc.lng < 13.8;
-        if (!inBerlin) {
-          completed = true;
-          return;
-        }
-        cancelPoll = pollUntilMapReady({
-          mapRef,
-          shouldStop: () => userInteractedRef.current,
-          onStopped: () => {
-            completed = true;
-          },
-          onTimeout: () => {
-            completed = true;
-          },
-          onReady: () => {
-            completed = true;
-            followingRef.current = true;
-            flyToSpot(loc, { zoom: getUserLocationZoom(), duration: 600, padding: getFlyPaddingRef.current() });
-          },
-        });
-      });
-    return () => {
-      cancelled = true;
-      cancelPoll();
-      // Deactivation/unmount before a terminal outcome should not consume the
-      // one-shot attempt. A later activation may safely request/centre again.
-      if (!completed) autoLocatedRef.current = false;
-    };
-  }, [isActive, requestLocation, flyToSpot, getFlyPaddingRef]);
+    const full = await reveal(selectedMustEat._id);
+    if (!full) return false;
+    setSelectedMustEat(full);
+    return true;
+  }, [selectedMustEat, setSelectedMustEat, reveal]);
 
   /* Move the camera onto a match set. Shared by the structured-filter refit
      and the search refit below. */
@@ -1551,17 +994,6 @@ export default function MapSection({
     return () => window.removeEventListener('scroll', onScroll);
   }, [isActive]);
 
-  const prevActiveRef = useRef(false);
-  useEffect(() => {
-    const justActivated = isActive && !prevActiveRef.current;
-    prevActiveRef.current = isActive;
-    if (!justActivated) return;
-    if (selectedRestaurant || selectedMustEat) return;
-    if (!location) return;
-    followingRef.current = true;
-    flyToSpot(location, { zoom: getUserLocationZoom(), duration: 400, padding: getFlyPadding() });
-  }, [isActive, selectedRestaurant, selectedMustEat, location, flyToSpot, getFlyPadding]);
-
   // Deep-links: ?r=<slug> opens a restaurant detail; ?bezirk=<slug> also moves
   // the camera onto that district. Both poll mapRef so the camera moves don't
   // no-op before the canvas finishes mounting. The filters themselves belong
@@ -1623,7 +1055,7 @@ export default function MapSection({
       restaurantMustEats={restaurantMustEats}
       selectedRestaurant={selectedRestaurant}
       listFocusId={listFocusId}
-      detailOrigin={sheetView === 'detail' ? detailOriginRef.current : 'list'}
+      detailOrigin={sheetView === 'detail' ? getDetailOrigin() : 'list'}
       selectedMustEat={selectedMustEat ? mustEats.find(card => card._id === selectedMustEat._id) ?? null : null}
       primaryMustEats={primaryMustEats}
       unlockedIds={unlockedIds}
@@ -1632,7 +1064,7 @@ export default function MapSection({
       location={location}
       locationError={locationError}
       uid={uid}
-      cardViewerKey={uid ? `${uid}:${authLoading ? 'pending' : 'ready'}` : 'guest'}
+      cardViewerKey={cardViewerKey}
       userTier={userTier}
       mapDataLoading={mapDataLoading}
       mapDataError={mapDataError}

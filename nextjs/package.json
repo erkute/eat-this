@@ -98,6 +98,9 @@
     },
     "@sentry/bundler-plugins": {
       "glob": "^14.0.2"
+    },
+    "@typescript-eslint/typescript-estree": {
+      "minimatch": "^11.0.5"
     }
   }
 }

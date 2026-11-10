@@ -56,7 +56,7 @@ for (const [choice, label] of [
     await expect
       .poll(async () => (await context.cookies()).find((c) => c.name === 'cookieConsent')?.value)
       .toBe(`${choice}.${CONSENT_VERSION}`);
-    await expect(page.locator('#cookieConsent')).toHaveCount(0);
+    await expect(page.locator('#cookieConsent')).toBeHidden();
     await expect.poll(() => receipts).toBe(1);
   });
 }

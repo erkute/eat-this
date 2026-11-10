@@ -7,7 +7,7 @@ export const CHANNELS = [
   ['referral', 'Andere Websites'],
   ['none', 'Ohne externen Verweis'],
 ] as const;
-export type Channel = (typeof CHANNELS)[number][0];
+type Channel = (typeof CHANNELS)[number][0];
 const within = (host: string, domain: string) => host === domain || host.endsWith(`.${domain}`);
 /** Kampagnen senden nur eine feste Kategorie; keine UTM-Texte werden gespeichert. */
 export function channelOf(referrer: unknown, hint: unknown): Channel {

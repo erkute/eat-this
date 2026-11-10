@@ -297,3 +297,14 @@ it('keeps logout suppression when the provider remounts', async () => {
   expect(vi.mocked(fetch).mock.calls.filter(([, init]) => init?.method === 'POST')).toHaveLength(1);
   replacement.unmount();
 });
+
+it('keeps cookie cleanup alive when the visitor navigates away', async () => {
+  const { fetchMock } = stubPremiumAccess([]);
+  const { result, unmount } = mountAuth();
+  await act(async () => { mocks.emitIdToken!(null); });
+  await waitFor(() => expect(result.current.loading).toBe(false));
+  expect(fetchMock).toHaveBeenCalledWith('/api/auth/premium-access', {
+    method: 'DELETE', keepalive: true,
+  });
+  unmount();
+});

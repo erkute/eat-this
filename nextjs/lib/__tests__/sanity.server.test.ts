@@ -1,13 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('../sanity', () => ({
-  client: { fetch: vi.fn() },
+  client: { fetch: vi.fn(), config: vi.fn(() => ({ projectId: 'test', dataset: 'production' })) },
 }));
 
+vi.mock('@sanity/client', () => ({ createClient: vi.fn() }));
+import { createClient } from '@sanity/client';
 import { client } from '../sanity';
 import { SANITY_REVALIDATE_SECONDS } from '../constants';
 import {
   getAllRestaurantSlugs,
+  getBezirkBySlug,
   getArticleBySlug,
   getAllArticleSlugs,
   getStaticPage,
@@ -188,4 +191,14 @@ describe('getRestaurantPageData', () => {
     expect(result?.mustEats).toEqual([]);
     expect(result?.siblings).toEqual([]);
   });
+});
+
+
+it('recovers district metadata after a transient Sanity socket timeout', async () => {
+  const retry = vi.fn().mockResolvedValue({ _id: 'mitte', name: 'Mitte' });
+  vi.mocked(createClient).mockReturnValue({ fetch: retry } as never);
+  mockFetch.mockRejectedValueOnce(Object.assign(new Error('Socket timed out on request to https://cdn.sanity.io'), { code: 'ESOCKETTIMEDOUT' }));
+  await expect(getBezirkBySlug('mitte')).resolves.toEqual({ _id: 'mitte', name: 'Mitte' });
+  expect(createClient).toHaveBeenCalledWith(expect.objectContaining({ maxRetries: 0 }));
+  expect(retry).toHaveBeenCalledWith(...mockFetch.mock.calls.at(-1)!);
 });

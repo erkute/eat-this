@@ -11,7 +11,7 @@ const INTERNAL_LOCALE_HEADER = 'x-eat-this-internal-locale';
 const STAGING_AUTH_COOKIE = '__Host-eatthis_staging_auth';
 const STAGING_AUTH_COOKIE_MAX_AGE = 60 * 60 * 12;
 
-// 410 body for permanently closed spots. No inline CSS (CSP forbids it) —
+// 410 body for permanently closed spots. Plain HTML without inline CSS —
 // plain semantic HTML; crawlers read the 410 status, humans get a link home.
 const GONE_HTML = `<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="robots" content="noindex"><title>Nicht mehr verfügbar – Eat This</title></head><body><h1>Dieser Spot ist dauerhaft geschlossen</h1><p>Die Seite gibt es nicht mehr. Entdecke andere Berliner Spots:</p><p><a href="https://www.eatthisdot.com/">Zur Startseite</a></p></body></html>`;
 

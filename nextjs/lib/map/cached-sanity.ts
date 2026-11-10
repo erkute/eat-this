@@ -1,4 +1,4 @@
-import { client } from '@/lib/sanity';
+import { readSanity } from '@/lib/sanity-read';
 import { SANITY_LIVE_SURFACE_SECONDS } from '@/lib/constants';
 import { mapRestaurantsQuery, mapMustEatsQuery } from './queries';
 import { allCategoriesQuery } from '@/lib/queries';
@@ -39,7 +39,7 @@ const MAP_CACHE_OPTIONS = {
 /** Nur die Karten, ohne den Spot-Katalog. Dieselbe Abfrage mit denselben
  *  Optionen wie in `getCachedMapData`, also derselbe Eintrag im Data Cache. */
 export function getCachedMustEats(): Promise<MapMustEat[]> {
-  return client.fetch<MapMustEat[]>(mapMustEatsQuery, {}, MAP_CACHE_OPTIONS);
+  return readSanity<MapMustEat[]>(mapMustEatsQuery, {}, MAP_CACHE_OPTIONS);
 }
 
 /* Nexts Data Cache fasst gleichzeitige Anfragen nicht zusammen, solange sein
@@ -56,9 +56,9 @@ function readCatalog() {
   // Cache each Sanity request in Next's shared Data Cache. Unlike a module
   // variable, these tagged entries can be invalidated across warm instances.
   return Promise.all([
-    client.fetch<MapRestaurant[]>(mapRestaurantsQuery, {}, MAP_CACHE_OPTIONS),
+    readSanity<MapRestaurant[]>(mapRestaurantsQuery, {}, MAP_CACHE_OPTIONS),
     getCachedMustEats(),
-    client.fetch<CategoryDef[]>(allCategoriesQuery, {}, MAP_CACHE_OPTIONS),
+    readSanity<CategoryDef[]>(allCategoriesQuery, {}, MAP_CACHE_OPTIONS),
   ]);
 }
 

@@ -44,7 +44,7 @@ for (const motion of ['no-preference', 'reduce'] as const) {
       let compact = false;
       const deadline = performance.now() + 3000;
       const sample = () => {
-        if (!el.isConnected || performance.now() > deadline) { resolve(compact); return; }
+        if (!el.isConnected || !el.getClientRects().length || performance.now() > deadline) { resolve(compact); return; }
         compact ||= !el.classList.contains('expanded');
         requestAnimationFrame(sample);
       };
@@ -52,10 +52,12 @@ for (const motion of ['no-preference', 'reduce'] as const) {
     }));
     await page.locator('#cookieAccept').click();
     expect(await probe).toBe(false);
-    await expect(card).toHaveCount(0);
+    await expect(card).toBeHidden();
+    await expect(page.locator('html')).not.toHaveAttribute('data-consent-gate');
     await page.reload();
     await expect(page.locator('h1')).toBeVisible();
-    await expect(card).toHaveCount(0);
+    await expect(card).toBeHidden();
+    await expect(page.locator('html')).not.toHaveAttribute('data-consent-gate');
   });
 }
 

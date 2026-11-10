@@ -65,8 +65,40 @@ afterEach(() => {
   gate.pending = null;
   cleanup();
   document.body.innerHTML = '';
+  document.documentElement.removeAttribute('data-consent-pending');
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
+});
+
+it('preloads only nearby individual photos after the consent question closes', async () => {
+  document.documentElement.setAttribute('data-consent-pending', '');
+  document.body.innerHTML = '<section data-hub-magazine><img loading="lazy" src="/cover.webp"><img loading="lazy" src="/distant.webp"></section>';
+  vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue([{}] as unknown as DOMRectList);
+  const observed: Element[] = [];
+  let notify!: IntersectionObserverCallback;
+  vi.stubGlobal('IntersectionObserver', class {
+    constructor(callback: IntersectionObserverCallback) { notify = callback; }
+    observe(target: Element) { observed.push(target); }
+    unobserve() {}
+    disconnect() {}
+  });
+  render(<HubMotion />);
+  const [near, distant] = document.querySelectorAll('img');
+  expect(observed).toEqual([]);
+  expect(near.loading ?? near.getAttribute('loading')).toBe('lazy');
+  await act(async () => { document.documentElement.removeAttribute('data-consent-pending'); });
+  expect(observed).toEqual([near, distant]);
+  act(() => notify([{
+    target: near,
+    isIntersecting: true,
+    intersectionRatio: 1,
+    boundingClientRect: near.getBoundingClientRect(),
+    intersectionRect: near.getBoundingClientRect(),
+    rootBounds: null,
+    time: 0,
+  }], {} as IntersectionObserver));
+  expect(near.loading).toBe('eager');
+  expect(distant.loading ?? distant.getAttribute('loading')).toBe('lazy');
 });
 
 it.each([false, true])(

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { presetQuery, groqImageUrl, sanitySrcSet, sanityImageSize, coverImageScale } from './sanity-image-presets';
+import { presetQuery, groqImageUrl, sanitySrcSet, sanityImageSize, coverImageScale, sanityCroppedSources } from './sanity-image-presets';
 
 // These assertions pin the EXACT query strings the hand-written GROQ
 // projections used before the refactor. If any byte changes, a projection's
@@ -60,6 +60,21 @@ describe('coverImageScale', () => {
   it('keeps the slot width for portrait photos and unknown dimensions', () => {
     expect(coverImageScale('https://cdn.sanity.io/images/p/d/photo-1200x1600.jpg', 3 / 4)).toBe(1);
     expect(coverImageScale(undefined, 3 / 4)).toBe(1);
+  });
+});
+
+describe('sanityCroppedSources', () => {
+  it('caps a landscape original at the width left after the portrait crop', () => {
+    const image = sanityCroppedSources('https://cdn.sanity.io/images/p/d/photo-1600x1200.jpg?w=1600', [300, 600, 1200, 1600], 3 / 4)!;
+    expect(image.src).toContain('?w=600&h=800&fit=crop&crop=center');
+    expect(image.srcSet.split(', ')).toHaveLength(3);
+    expect(image.srcSet).toContain('w=900&h=1200&fit=crop&crop=center&auto=format&q=80 900w');
+    expect(image.srcSet).not.toContain('1600w');
+  });
+
+  it('keeps non-Sanity and unknown-size images on their original loading path', () => {
+    expect(sanityCroppedSources('/photo-1600x1200.jpg', [300], 1)).toBeUndefined();
+    expect(sanityCroppedSources('https://cdn.sanity.io/photo.jpg', [300], 1)).toBeUndefined();
   });
 });
 

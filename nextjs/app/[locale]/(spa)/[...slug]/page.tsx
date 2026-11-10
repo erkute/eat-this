@@ -3,9 +3,7 @@ import type { Metadata, Viewport } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { OG_CARD_VERSION, SITE_URL } from '@/lib/constants';
 import { INDEXABLE_ROBOTS, buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
-import { getAllNewsArticles, getStaticPage } from '@/lib/sanity.server';
-import { serializeJsonLd } from '@/lib/json-ld';
-import { localeUrl } from '@/lib/locale-url';
+import { getStaticPage } from '@/lib/sanity.server';
 
 // 24 Stunden. Die Frist ist nicht der Weg, auf dem Inhalte live gehen — das ist
 // der Sanity-Webhook auf /api/revalidate. Hintergrund und Bedingung an dieser
@@ -20,9 +18,7 @@ interface PageProps {
 // Whitelist of slugs this catch-all renders. Anything else 404s instead of
 // silently dropping the user on the home view. /profile is dispatched by the
 // dedicated /[locale]/profile/page.tsx route — it never reaches this catch-all.
-const VALID_SLUGS = new Set(['news', 'about', 'contact', 'impressum', 'datenschutz', 'agb']);
-
-const STATIC_SLUGS = new Set(['about', 'contact', 'impressum', 'datenschutz', 'agb']);
+const VALID_SLUGS = new Set(['about', 'contact', 'impressum', 'datenschutz', 'agb']);
 
 function exactTopSlug(slug: string[]): string | undefined {
   return slug.length === 1 ? slug[0] : undefined;
@@ -35,16 +31,6 @@ type SlugMeta = {
 };
 
 const PAGE_META: Record<string, SlugMeta> = {
-  news: {
-    de: {
-      title: 'News',
-      description: 'Aktuelle Restaurant-News, Empfehlungen und Storys aus Berlins Food-Szene.',
-    },
-    en: {
-      title: 'News',
-      description: "Latest restaurant news, recommendations and stories from Berlin's food scene.",
-    },
-  },
   about: {
     de: {
       title: 'Über mich',
@@ -130,7 +116,7 @@ export async function generateViewport({ params }: PageProps): Promise<Viewport>
   };
 }
 
-// Catch-all for /news and the static pages in VALID_SLUGS. Each top-slug
+// Catch-all for the static pages in VALID_SLUGS. Each top-slug
 // renders only its own section. More-specific routes (/map, /news/[slug], …)
 // take priority via Next.js routing precedence.
 export default async function SPACatchAllPage({ params }: PageProps) {
@@ -140,62 +126,11 @@ export default async function SPACatchAllPage({ params }: PageProps) {
   const top = exactTopSlug(slug);
   if (!top || !VALID_SLUGS.has(top)) notFound();
 
-  if (top === 'news') {
-    const [{ default: NewsSection }, articles] = await Promise.all([
-      import('@/app/components/NewsSection'),
-      getAllNewsArticles(),
-    ]);
-    const activeLocale = locale === 'en' ? 'en' : 'de';
-    const de = activeLocale === 'de';
-    const jsonLd = serializeJsonLd({
-      '@context': 'https://schema.org',
-      '@graph': [
-        {
-          '@type': 'BreadcrumbList',
-          itemListElement: [
-            {
-              '@type': 'ListItem',
-              position: 1,
-              name: 'Eat This Berlin',
-              item: localeUrl(activeLocale, '/'),
-            },
-            {
-              '@type': 'ListItem',
-              position: 2,
-              name: de ? 'Auf dem Teller' : 'On the plate',
-              item: localeUrl(activeLocale, '/news'),
-            },
-          ],
-        },
-        {
-          '@type': 'ItemList',
-          name: de ? 'Restaurant-News aus Berlin' : 'Berlin restaurant news',
-          numberOfItems: articles.length,
-          itemListElement: articles.map((article, index) => ({
-            '@type': 'ListItem',
-            position: index + 1,
-            name: de ? article.titleDe || article.title : article.title,
-            url: localeUrl(activeLocale, `/news/${article.slug}`),
-          })),
-        },
-      ],
-    });
-    return (
-      <>
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
-        <NewsSection articles={articles} locale={activeLocale} />
-      </>
-    );
-  }
-  if (STATIC_SLUGS.has(top)) {
-    const activeLocale = locale === 'en' ? 'en' : 'de';
-    const [{ default: StaticPages }, page] = await Promise.all([
-      import('@/app/components/StaticPages'),
-      getStaticPage(top, activeLocale),
-    ]);
-    if (!page) notFound();
-    return <StaticPages doc={page} locale={activeLocale} />;
-  }
-
-  notFound();
+  const activeLocale = locale === 'en' ? 'en' : 'de';
+  const [{ default: StaticPages }, page] = await Promise.all([
+    import('@/app/components/StaticPages'),
+    getStaticPage(top, activeLocale),
+  ]);
+  if (!page) notFound();
+  return <StaticPages doc={page} locale={activeLocale} />;
 }

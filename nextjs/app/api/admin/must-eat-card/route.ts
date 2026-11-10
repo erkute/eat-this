@@ -14,6 +14,7 @@ import {
   writeMustEatCard,
 } from '@/lib/must-eat/card-admin.server';
 import { checkRateLimitFailClosed } from '@/lib/rateLimit';
+import { attachMustEatCardVersion, type MustEatDraft } from '@/lib/must-eat/card-draft.server';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -54,15 +55,22 @@ export async function POST(request: Request) {
       const form = await request.formData();
       const image = form.get('image');
       upload = image instanceof File && image.size > 0 ? image : null;
-      fields = Object.fromEntries([...form.entries()].filter(([, value]) => typeof value === 'string'));
+      fields = Object.fromEntries(
+        [...form.entries()].filter(([, value]) => typeof value === 'string')
+      );
     } else {
       fields = (await request.json()) as Record<string, unknown>;
     }
   } catch {
-    return studioJson({ error: 'invalid_body', message: 'Die Anfrage war unvollständig.' }, 400, cors);
+    return studioJson(
+      { error: 'invalid_body', message: 'Die Anfrage war unvollständig.' },
+      400,
+      cors
+    );
   }
 
-  const field = (name: string) => (typeof fields[name] === 'string' ? (fields[name] as string) : '');
+  const field = (name: string) =>
+    typeof fields[name] === 'string' ? (fields[name] as string) : '';
   const id = field('id').replace(/^drafts\./, '');
   const projectId = field('projectId');
   const dataset = field('dataset');
@@ -83,35 +91,50 @@ export async function POST(request: Request) {
 
   // Der Spot kommt aus Sanity, nicht aus der Anfrage: Entwurf vor Fassung.
   let restaurantId: string | null = null;
+  let selected: MustEatDraft;
+  const targetSanity = sanity.withConfig({ projectId, dataset, apiVersion: '2024-01-01' });
   try {
-    const rows = await sanity
-      .withConfig({ projectId, dataset, apiVersion: '2024-01-01' })
-      .fetch<{ _id: string; restaurantId: string | null }[]>(
-        `*[_type == "mustEat" && _id in [$id, "drafts." + $id]]{_id, "restaurantId": restaurantRef._ref}`,
-        { id }
-      );
+    const rows = await targetSanity.fetch<MustEatDraft[]>(
+      `*[_type == "mustEat" && _id in [$id, "drafts." + $id]]`,
+      { id }
+    );
     const row = rows.find((r) => r._id.startsWith('drafts.')) ?? rows[0];
     if (!row) {
       return studioJson(
-        { error: 'not_found', message: 'Diese Must Eat gibt es noch nicht — erst den Spot wählen.' },
+        {
+          error: 'not_found',
+          message: 'Diese Must Eat gibt es noch nicht — erst den Spot wählen.',
+        },
         404,
         cors
       );
     }
-    restaurantId = row.restaurantId;
+    selected = row;
+    restaurantId = row.restaurantRef?._ref ?? null;
   } catch (error) {
     Sentry.captureException(error, { extra: { source: 'admin-must-eat-card' } });
-    return studioJson({ error: 'sanity_failed', message: 'Sanity war nicht erreichbar.' }, 502, cors);
+    return studioJson(
+      { error: 'sanity_failed', message: 'Sanity war nicht erreichbar.' },
+      502,
+      cors
+    );
   }
 
   if (!isForm) {
     try {
       // Die Prüfung vor dem Veröffentlichen braucht kein Vorschaubild.
-      const card = await readMustEatCard(id, { preview: fields.preview !== false });
+      const card = await readMustEatCard(id, {
+        preview: fields.preview !== false,
+        version: selected.cardVersion,
+      });
       return studioJson({ ...card, spotId: restaurantId }, 200, cors);
     } catch (error) {
       Sentry.captureException(error, { extra: { source: 'admin-must-eat-card' } });
-      return studioJson({ error: 'read_failed', message: 'Die Karte ließ sich nicht laden.' }, 500, cors);
+      return studioJson(
+        { error: 'read_failed', message: 'Die Karte ließ sich nicht laden.' },
+        500,
+        cors
+      );
     }
   }
 
@@ -138,6 +161,7 @@ export async function POST(request: Request) {
   try {
     const card = await writeMustEatCard({
       id,
+      currentVersion: selected.cardVersion,
       restaurantId,
       text: {
         dish: field('dish'),
@@ -147,12 +171,28 @@ export async function POST(request: Request) {
       },
       image: upload ? Buffer.from(await upload.arrayBuffer()) : null,
     });
+    await attachMustEatCardVersion(targetSanity, selected, card.version!);
     return studioJson({ ...card, spotId: restaurantId }, 200, cors);
   } catch (error) {
+    if (error && typeof error === 'object' && 'statusCode' in error && error.statusCode === 409) {
+      return studioJson(
+        {
+          error: 'conflict',
+          message:
+            'Der Entwurf wurde inzwischen geändert. Bitte neu laden und die Karte erneut speichern.',
+        },
+        409,
+        cors
+      );
+    }
     if (error instanceof MustEatCardError) {
       return studioJson({ error: 'invalid_card', message: error.message }, 400, cors);
     }
     Sentry.captureException(error, { extra: { source: 'admin-must-eat-card' } });
-    return studioJson({ error: 'write_failed', message: 'Die Karte ließ sich nicht speichern.' }, 500, cors);
+    return studioJson(
+      { error: 'write_failed', message: 'Die Karte ließ sich nicht speichern.' },
+      500,
+      cors
+    );
   }
 }

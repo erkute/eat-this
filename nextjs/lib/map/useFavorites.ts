@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback, useRef, useMemo, useSyncExternalStore } from 'react';
 import { useLocale } from 'next-intl';
 import { auth, getDb } from '@/lib/firebase/config';
 import { useLoginModal } from '@/lib/auth';
@@ -108,13 +108,72 @@ function emptyState(ownerUid: string | null, loading: boolean): FavoritesState {
   return { ownerUid, favoriteIds: new Set(), favorites: [], loading };
 }
 
+/** One account owns one snapshot and one pending write set across all surfaces. */
+function createFavoriteStore(uid: string | null) {
+  const initial = emptyState(uid, !!uid);
+  let state = initial;
+  let users = 0;
+  let stop: (() => void) | undefined;
+  let started = false;
+  const listeners = new Set<() => void>();
+  const store = {
+    inFlight: { current: new Set<string>() },
+    pendingRead: {
+      current: null as { uid: string; changed: Set<string>; entries?: FavoriteEntry[] } | null,
+    },
+    getSnapshot: () => state,
+    getServerSnapshot: () => initial,
+    subscribe: (listener: () => void) => {
+      listeners.add(listener);
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+    setState: (update: FavoritesState | ((value: FavoritesState) => FavoritesState)) => {
+      state = typeof update === 'function' ? update(state) : update;
+      listeners.forEach((listener) => listener());
+    },
+    acquire: (start: () => (() => void) | undefined) => {
+      users += 1;
+      if (!started) {
+        started = true;
+        stop = start();
+      }
+      return () => {
+        users -= 1;
+        // StrictMode may immediately reacquire the same account.
+        queueMicrotask(() => {
+          if (users !== 0) return;
+          stop?.();
+          started = false;
+          if (favoriteStores.get(uid) === store) favoriteStores.delete(uid);
+        });
+      };
+    },
+  };
+  return store;
+}
+
+const favoriteStores = new Map<string | null, ReturnType<typeof createFavoriteStore>>();
+function favoriteStore(uid: string | null) {
+  if (typeof window === 'undefined') return createFavoriteStore(uid);
+  let store = favoriteStores.get(uid);
+  if (!store) {
+    store = createFavoriteStore(uid);
+    favoriteStores.set(uid, store);
+  }
+  return store;
+}
+
 export function useFavorites(uid: string | null): UseFavoritesResult {
   const locale = useLocale();
   const { open: openLoginModal } = useLoginModal();
   // Per-uid localStorage cache so a returning user sees their saved spots
   // instantly on first paint instead of waiting on auth-resolve + the Firestore
   // read. The live getDocs reconciles + refreshes the cache right after.
-  const [state, setState] = useState<FavoritesState>(() => emptyState(uid, !!uid));
+  const store = useMemo(() => favoriteStore(uid), [uid]);
+  const state = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getServerSnapshot);
+  const { setState, inFlight, pendingRead } = store;
   /* Die Sprache haengt nicht am Ladeeffekt — sie beschriftet nur die
      Fehlermeldung des eingeloesten Herzens. Ueber einen Ref, damit ein
      Sprachwechsel nicht die Favoritenliste neu liest. */
@@ -123,104 +182,106 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
   /* Spots, deren Herz gerade zum Server unterwegs ist: ein zweiter Tipp
      wuerde gegen den optimistischen Stand umschalten, nicht gegen den
      gespeicherten. */
-  const inFlight = useRef(new Set<string>());
-  const pendingRead = useRef<{ uid: string; changed: Set<string>; entries?: FavoriteEntry[] } | null>(null);
 
-  useEffect(() => {
-    if (!uid) {
-      setState(emptyState(null, false));
-      return;
-    }
-    const read: NonNullable<typeof pendingRead.current> = { uid, changed: new Set<string>() };
-    pendingRead.current = read;
-    const key = `eatthis_favorites_${uid}`;
+  useEffect(
+    () =>
+      store.acquire(() => {
+        if (!uid) {
+          setState(emptyState(null, false));
+          return;
+        }
+        const read: NonNullable<typeof pendingRead.current> = { uid, changed: new Set<string>() };
+        pendingRead.current = read;
+        const key = `eatthis_favorites_${uid}`;
 
-    // 1) Atomically replace the previous owner's state with this uid's cache
-    // (or a clean loading state). `ownerUid` also prevents the render between
-    // a prop change and this effect from exposing the previous account.
-    let cached: FavoriteEntry[] | null = null;
-    try {
-      const raw = window.localStorage.getItem(key);
-      if (raw) {
-        cached = parseFavoriteCache(JSON.parse(raw) as unknown);
-        if (!cached) window.localStorage.removeItem(key);
-      }
-    } catch {
-      try {
-        window.localStorage.removeItem(key);
-      } catch {
-        /* unavailable storage */
-      }
-    }
-    setState(
-      cached
-        ? {
-            ownerUid: uid,
-            favoriteIds: new Set(cached.map((entry) => entry.restaurantId)),
-            favorites: cached,
-            loading: false,
+        // 1) Atomically replace the previous owner's state with this uid's cache
+        // (or a clean loading state). `ownerUid` also prevents the render between
+        // a prop change and this effect from exposing the previous account.
+        let cached: FavoriteEntry[] | null = null;
+        try {
+          const raw = window.localStorage.getItem(key);
+          if (raw) {
+            cached = parseFavoriteCache(JSON.parse(raw) as unknown);
+            if (!cached) window.localStorage.removeItem(key);
           }
-        : emptyState(uid, true)
-    );
+        } catch {
+          try {
+            window.localStorage.removeItem(key);
+          } catch {
+            /* unavailable storage */
+          }
+        }
+        setState(
+          cached
+            ? {
+                ownerUid: uid,
+                favoriteIds: new Set(cached.map((entry) => entry.restaurantId)),
+                favorites: cached,
+                loading: false,
+              }
+            : emptyState(uid, true)
+        );
 
-    // 2) Live read — show as soon as it lands.
-    //    Firestore SDK is code-split (see getDb) so it stays out of first-load.
-    let active = true;
-    let hearted = false;
-    void (async () => {
-      try {
-        /* Erst das Herz von vor dem Login einloesen, dann lesen: umgekehrt
+        // 2) Live read — show as soon as it lands.
+        //    Firestore SDK is code-split (see getDb) so it stays out of first-load.
+        let active = true;
+        let hearted = false;
+        void (async () => {
+          try {
+            /* Erst das Herz von vor dem Login einloesen, dann lesen: umgekehrt
            kaeme die Liste vom Stand vor dem Schreiben zurueck, und der gerade
            vergebene Spot waere im ersten Bild wieder leer. */
-        hearted = await settlePendingHeart(uid, localeRef.current);
-        if (!active) return;
-        const [{ collection, getDocs }, db] = await Promise.all([
-          import('firebase/firestore'),
-          getDb(),
-        ]);
-        if (!active) return;
-        const snap = await getDocs(collection(db, 'users', uid, 'favorites'));
-        if (!active) return;
-        const entries: FavoriteEntry[] = snap.docs.flatMap((d) => {
-          const entry = parseFavoriteEntry(d.data() as unknown, d.id);
-          return entry ? [{ ...entry, note: entry.note ?? '' }] : [];
-        });
-        read.entries = entries;
-        setState((current) => {
-          if (current.ownerUid !== uid) return current;
-          // A read started before a tap must not undo that tap when it arrives.
-          const next = [
-            ...entries.filter((entry) => !read.changed.has(entry.restaurantId)),
-            ...current.favorites.filter((entry) => read.changed.has(entry.restaurantId)),
-          ];
-          try {
-            window.localStorage.setItem(key, JSON.stringify(next));
+            hearted = await settlePendingHeart(uid, localeRef.current);
+            if (!active) return;
+            const [{ collection, getDocs }, db] = await Promise.all([
+              import('firebase/firestore'),
+              getDb(),
+            ]);
+            if (!active) return;
+            const snap = await getDocs(collection(db, 'users', uid, 'favorites'));
+            if (!active) return;
+            const entries: FavoriteEntry[] = snap.docs.flatMap((d) => {
+              const entry = parseFavoriteEntry(d.data() as unknown, d.id);
+              return entry ? [{ ...entry, note: entry.note ?? '' }] : [];
+            });
+            read.entries = entries;
+            setState((current) => {
+              if (current.ownerUid !== uid) return current;
+              // A read started before a tap must not undo that tap when it arrives.
+              const next = [
+                ...entries.filter((entry) => !read.changed.has(entry.restaurantId)),
+                ...current.favorites.filter((entry) => read.changed.has(entry.restaurantId)),
+              ];
+              try {
+                window.localStorage.setItem(key, JSON.stringify(next));
+              } catch {
+                /* quota */
+              }
+              return {
+                ownerUid: uid,
+                favoriteIds: new Set(next.map((entry) => entry.restaurantId)),
+                favorites: next,
+                loading: false,
+              };
+            });
+            if (pendingRead.current === read) pendingRead.current = null;
+            if (hearted) markProfileHintSeen();
           } catch {
-            /* quota */
+            if (active) {
+              setState((current) =>
+                current.ownerUid === uid ? { ...current, loading: false } : current
+              );
+              if (hearted) markProfileHintSeen();
+            }
           }
-          return {
-            ownerUid: uid,
-            favoriteIds: new Set(next.map((entry) => entry.restaurantId)),
-            favorites: next,
-            loading: false,
-          };
-        });
-        if (pendingRead.current === read) pendingRead.current = null;
-        if (hearted) markProfileHintSeen();
-      } catch {
-        if (active) {
-          setState((current) =>
-            current.ownerUid === uid ? { ...current, loading: false } : current
-          );
-          if (hearted) markProfileHintSeen();
-        }
-      }
-    })();
-    return () => {
-      active = false;
-      if (pendingRead.current === read) pendingRead.current = null;
-    };
-  }, [uid]);
+        })();
+        return () => {
+          active = false;
+          if (pendingRead.current === read) pendingRead.current = null;
+        };
+      }),
+    [uid, store, setState, pendingRead]
+  );
 
   const visibleState = state.ownerUid === uid ? state : emptyState(uid, !!uid);
   const { favoriteIds, favorites, loading } = visibleState;
@@ -250,17 +311,16 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
       // The heart write goes through /api/heart (Admin SDK), which is the single
       // writer of both the favorite doc and the public restaurants/{id}.heartCount
       // aggregate — the two move in one transaction so the count can't drift.
-      // (Replaces the old client-side setDoc/deleteDoc + the removed Cloud
-      // Function trigger.)
       /* Optimistisch: das Herz fuellt sich beim Tippen, nicht erst nach
          /api/heart — in der Map stand es sonst bis zur Antwort leer da.
          Scheitert der Aufruf, springt es zurueck. */
       if (inFlight.current.has(r._id)) return false;
-      const adding = !favoriteIds.has(r._id);
-      let previous = favorites.find((favorite) => favorite.restaurantId === r._id);
+      const latest = store.getSnapshot();
+      const adding = !latest.favoriteIds.has(r._id);
+      let previous = latest.favorites.find((favorite) => favorite.restaurantId === r._id);
       /* Leer heisst erst nach dem Laden „noch keiner": waehrend die Liste
          laedt, lieber kein Hinweis als ein falscher. */
-      const firstSpot = !loading && favoriteIds.size === 0;
+      const firstSpot = !latest.loading && latest.favoriteIds.size === 0;
       const apply = (hearted: boolean) =>
         setState((current) => {
           if (current.ownerUid !== uid) return current;
@@ -327,7 +387,7 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
       }
       return true;
     },
-    [uid, favoriteIds, favorites, loading, locale, openLoginModal]
+    [uid, store, setState, inFlight, pendingRead, locale, openLoginModal]
   );
 
   const updateNote = useCallback(
@@ -349,7 +409,7 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
         return { ...current, favorites: next };
       });
     },
-    [uid]
+    [uid, setState]
   );
 
   /* „War da" — dieselbe Mechanik wie die Notiz: ein eigenes Feld auf dem
@@ -386,7 +446,7 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
         throw err;
       }
     },
-    [uid]
+    [uid, setState]
   );
 
   return { favoriteIds, favorites, toggle, updateNote, setVisited, loading };

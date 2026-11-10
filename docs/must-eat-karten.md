@@ -58,8 +58,10 @@ Die App zeigt nicht die Figma-Datei, sondern exportierte Bilder. **Jede Änderun
    npx tsx scripts/replace-must-eat-cards.ts --cards <ordner> --dry-run
    npx tsx scripts/replace-must-eat-cards.ts --cards <ordner> --apply
    ```
+   Das Skript speichert eine unveränderliche private Kartenfassung und wählt sie im Sanity-Entwurf über `cardVersion` aus. Erst das Veröffentlichen dieses Entwurfs aktiviert die Änderung. Dafür braucht `--apply` einen Sanity-Write-Token.
    Der Probelauf muss jede Karte zuordnen (z. B. „39 von 39 Karten“). Nach `--apply` meldet ein zweiter Probelauf `changed: 0`.
    Für einen reinen Bild-/Logo-Austausch bei beiden Aufrufen `--images-only` ergänzen: Dann bleiben die vorhandenen Texte in Firestore erhalten.
+   Im Studio gilt derselbe Ablauf: „Karte speichern“ bereitet die Fassung vor; „Veröffentlichen“ aktiviert Karteninhalt und Spot-Zuordnung zusammen. Alte Fassungen bleiben für noch gültige Cache-Antworten lesbar.
 5. **Aufräumen** (optional): `scripts/prune-must-eat-images.ts --dry-run`, dann `--apply`. Das löscht alte Bilder, auf die nichts mehr zeigt, und prüft danach jede Karte. Danach gibt es keinen schnellen Rückweg zu den alten Bildern mehr.
 
 Alle drei Skripte arbeiten mit `.env.local`, also auf **prod**.

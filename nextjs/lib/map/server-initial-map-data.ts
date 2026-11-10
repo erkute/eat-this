@@ -18,6 +18,7 @@ import { unstable_cache } from 'next/cache';
 import { hydrateAuthorizedMustEats, readPrivateMustEatContent } from '@/lib/must-eat/private-store';
 import type { MapRestaurant, MapMustEat } from '@/lib/types';
 import type { CategoryDef } from '@/lib/categories';
+import { mustEatContentKey } from '@/lib/must-eat/contentKey';
 
 export interface InitialMapData {
   restaurants: MapRestaurant[];
@@ -61,9 +62,9 @@ async function composeInitialAnonMapMetadata(): Promise<InitialMapData> {
  * roughly 95% of the server time on the four surfaces that call this, with
  * Sanity already served from the Data Cache in single-digit milliseconds.
  *
- * `privateMustEats` is written by the card scripts and the Studio's card route,
- * and a Firestore write fires no webhook. The `mustEat` tag covers edits to the
- * public metadata in Sanity; for card changes the TTL bounds the staleness.
+ * Publishing a card selects an immutable content key in Sanity. That key is
+ * part of the cache arguments; the `mustEat` webhook also invalidates the tag.
+ * Base cards without a selected revision use the same bounded cache.
  */
 const readPublicMustEatContent = unstable_cache(
   readPrivateMustEatContent,
@@ -90,6 +91,13 @@ export function getPublicMustEatIds(): Promise<Set<string>> {
       publicMustEatIdsInFlight = null;
     });
   return publicMustEatIdsInFlight;
+}
+
+/** Image requests may select only the content referenced by published metadata. */
+export async function getPublishedMustEatContentKey(id: string): Promise<string> {
+  const card = (await getCachedMustEats()).find((candidate) => candidate._id === id);
+  if (!card) throw new Error('Must-Eat is not published');
+  return mustEatContentKey(card._id, card.cardVersion);
 }
 
 /**

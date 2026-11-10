@@ -4,6 +4,7 @@ import { initializeApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
 import { readFile } from 'node:fs/promises';
+import { mustEatContentKey } from '../lib/must-eat/contentKey';
 
 const projectId = 'demo-eat-this-quality';
 if (
@@ -21,8 +22,8 @@ const catalog = createClient({
   useCdn: true,
   perspective: 'published',
 });
-const cards = await catalog.fetch<Array<{ _id: string; restaurantId: string }>>(
-  '*[_type == "mustEat" && defined(restaurantRef._ref)]{_id, "restaurantId": restaurantRef._ref}'
+const cards = await catalog.fetch<Array<{ _id: string; cardVersion?: string; restaurantId: string }>>(
+  '*[_type == "mustEat" && defined(restaurantRef._ref)]{_id, cardVersion, "restaurantId": restaurantRef._ref}'
 );
 if (cards.length === 0) throw new Error('No public Must-Eat metadata available for UI fixtures');
 
@@ -36,7 +37,7 @@ const db = getFirestore(app);
 for (let offset = 0; offset < cards.length; offset += 400) {
   const batch = db.batch();
   for (const card of cards.slice(offset, offset + 400)) {
-    batch.set(db.collection('privateMustEats').doc(card._id), {
+    batch.set(db.collection('privateMustEats').doc(mustEatContentKey(card._id, card.cardVersion)), {
       dish: 'CI Testgericht',
       description: 'Synthetische Karte für den Browser-Test.',
       descriptionEn: 'Synthetic card for the browser test.',

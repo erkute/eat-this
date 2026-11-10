@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
+  attachVersion: vi.fn(),
   captureException: vi.fn(),
   checkRateLimitFailClosed: vi.fn(),
   fetch: vi.fn(),
@@ -11,6 +12,8 @@ const mocks = vi.hoisted(() => ({
   withTargetConfig: vi.fn(),
   writeMustEatCard: vi.fn(),
 }));
+
+vi.mock('@/lib/must-eat/card-draft.server', () => ({ attachMustEatCardVersion: mocks.attachVersion }));
 
 vi.mock('@sentry/nextjs', () => ({ captureException: mocks.captureException }));
 vi.mock('@/lib/rateLimit', () => ({ checkRateLimitFailClosed: mocks.checkRateLimitFailClosed }));
@@ -33,6 +36,7 @@ const URL = 'https://www.eatthisdot.com/api/admin/must-eat-card';
 const STUDIO_ORIGIN = 'https://eat-this.sanity.studio';
 const TARGET = { projectId: 'ehwjnjr2', dataset: 'production' };
 const CARD = {
+  version: 'a'.repeat(64),
   dish: 'Banh Mi Vegan',
   description: 'Baguette, Tofu',
   descriptionEn: 'Baguette, tofu',
@@ -73,8 +77,8 @@ describe('POST /api/admin/must-eat-card', () => {
     mocks.checkRateLimitFailClosed.mockResolvedValue(true);
     mocks.firebaseServesDataset.mockReturnValue(true);
     mocks.fetch.mockResolvedValue([
-      { _id: 'card-1', restaurantId: 'spot-old' },
-      { _id: 'drafts.card-1', restaurantId: 'spot-1' },
+      { _id: 'card-1', _rev: 'pub', _type: 'mustEat', restaurantRef: { _ref: 'spot-old' } },
+      { _id: 'drafts.card-1', _rev: 'draft', _type: 'mustEat', restaurantRef: { _ref: 'spot-1' } },
     ]);
     mocks.readMustEatCard.mockResolvedValue(CARD);
     mocks.writeMustEatCard.mockResolvedValue(CARD);
@@ -114,7 +118,7 @@ describe('POST /api/admin/must-eat-card', () => {
     expect(response.status).toBe(200);
     expect(await response.json()).toMatchObject({ dish: 'Banh Mi Vegan', spotId: 'spot-1' });
     expect(mocks.withTargetConfig).toHaveBeenCalledWith(expect.objectContaining(TARGET));
-    expect(mocks.readMustEatCard).toHaveBeenCalledWith('card-1', { preview: true });
+    expect(mocks.readMustEatCard).toHaveBeenCalledWith('card-1', { preview: true, version: undefined });
   });
 
   it('answers 404 for a Must Eat the dataset does not know', async () => {
@@ -132,10 +136,11 @@ describe('POST /api/admin/must-eat-card', () => {
     expect(call.restaurantId).toBe('spot-1');
     expect(call.text).toEqual({ dish: 'Banh Mi Vegan', description: 'Baguette', descriptionEn: 'Baguette', price: '' });
     expect(Buffer.isBuffer(call.image)).toBe(true);
+    expect(mocks.attachVersion).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ _id: 'drafts.card-1', _rev: 'draft' }), CARD.version);
   });
 
   it('needs a spot before saving', async () => {
-    mocks.fetch.mockResolvedValue([{ _id: 'drafts.card-1', restaurantId: null }]);
+    mocks.fetch.mockResolvedValue([{ _id: 'drafts.card-1', restaurantRef: null }]);
     const response = await POST(saveRequest());
     expect(response.status).toBe(400);
     expect(mocks.writeMustEatCard).not.toHaveBeenCalled();

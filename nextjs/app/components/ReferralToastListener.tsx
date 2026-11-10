@@ -8,16 +8,9 @@ import { takePendingStarterCard } from '@/lib/auth/pendingStarterCard';
 import { announceStarterPackGranted, settleArrival } from '@/lib/auth/signInArrival';
 import { trackEvent } from '@/lib/analytics';
 import { notify } from '@/lib/notice';
+import { confirmReferral } from '@/lib/referral/confirm';
 
-// Einmal pro Browser-Session UND Konto — gesetzt erst, wenn der Server
-// geantwortet hat (siehe unten).
-//
-// Der Riegel haengt am uid, nicht bloss an der Session: sessionStorage
-// ueberlebt den Kontowechsel im selben Tab. Wer dort erst als A angemeldet
-// war und sich dann als B neu anmeldet, trug den Riegel von A schon —
-// Bs Einladung wurde nie bestaetigt. Beim Testlauf am 31.08.2026 genau so
-// passiert: kein einziger Aufruf im Server-Log, und nichts, was darauf
-// hingewiesen haette.
+// Abschluss wird je Konto erst nach bestätigtem Server-Ergebnis gespeichert.
 const sessionKey = (uid: string) => `referralConfirmFired:${uid}`;
 const starterKey = (uid: string) => `starterPackFired:${uid}`;
 
@@ -45,90 +38,63 @@ export default function ReferralToastListener() {
   const langRef = useRef(lang);
   langRef.current = lang;
 
-  /* Die zwei Dinge, die nach einer Anmeldung serverseitig passieren muessen:
-     die Einladung bestaetigen und das Starter Pack einloesen. Beide haengen an
-     DIESEM einen Auth-Listener und nicht an zweien — `onAuthStateChanged`
-     feuert auch bei jedem Token-Refresh, ein zweiter Listener waere also ein
-     zweiter Flug pro Refresh.
-
-     Getrennte Riegel, weil die Fristen verschieden sind: die Einladung ist an
-     ACCOUNT_FRESHNESS_MS gebunden und muss frueh gelingen, das Starter Pack
-     kennt keine Frist und darf beliebig oft nachfassen, bis es sitzt. */
   useEffect(() => {
-    let inFlight = false;
-    return onAuthStateChanged(auth, async (user) => {
-      if (!user || inFlight) return;
+    let controller: AbortController | null = null;
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      controller?.abort();
+      controller = null;
+      if (!user) return;
+      const current = new AbortController();
+      controller = current;
+      const { signal } = current;
       const flag = sessionFlag(sessionKey(user.uid));
       const starter = sessionFlag(starterKey(user.uid));
-      /* Jeder Ausgang ohne Vergabe sagt dem wartenden Weg ins Profil, dass
-         keine Tour kommt (signInArrival). */
       if (starter.seen) settleArrival(user.uid, false);
-      if (flag.seen && starter.seen) return;
-      inFlight = true;
-      let granted = false;
-      try {
-        const idToken = await user.getIdToken();
+      void (async () => {
+        let granted = false;
         if (!starter.seen) {
-          /* Ein Konto bekommt sein Pack genau einmal — die Route haelt das
-             ueber die Doc-ID fest, dieser Riegel spart nur den Request.
-
-             Die Karte, die der Gast auf der Map angetippt hat, faehrt mit:
-             die Anmelde-Tafel hat „diese ist dabei" versprochen, und die
-             Route legt sie offen ins Pack (siehe pendingStarterCard). */
-          const mustEatId = takePendingStarterCard();
-          /* `granted` heisst: frisches Konto, die Einblendung geht auf
-             (SignInReward ueber signInArrival). */
-          const res = await fetch('/api/starter-pack', {
-            method: 'POST',
-            headers: {
-              authorization: `Bearer ${idToken}`,
-              'content-type': 'application/json',
-            },
-            body: JSON.stringify(mustEatId ? { mustEatId } : {}),
-          });
-          if (res.ok) {
-            starter.mark();
-            /* Nur die echte Vergabe zaehlt — `already_claimed` ist ein
-               Wiederkehrer, kein Schritt im Trichter. Das ist die Stufe
-               „Konto → 20 Karten"; ohne sie endet der gezaehlte Weg bei
-               `sign_up`, und ob das Pack ankam, wuesste niemand. */
-            const outcome = (await res.json().catch(() => null)) as {
-              granted?: boolean;
-              faceUpIds?: unknown;
-            } | null;
-            if (outcome?.granted === true) {
-              trackEvent('starter_pack_granted');
-              announceStarterPackGranted(
-                Array.isArray(outcome.faceUpIds)
-                  ? outcome.faceUpIds.filter((id): id is string => typeof id === 'string')
-                  : []
-              );
-              granted = true;
+          try {
+            const idToken = await user.getIdToken();
+            if (signal.aborted) return;
+            const mustEatId = takePendingStarterCard();
+            const res = await fetch('/api/starter-pack', {
+              method: 'POST',
+              headers: {
+                authorization: `Bearer ${idToken}`,
+                'content-type': 'application/json',
+              },
+              body: JSON.stringify(mustEatId ? { mustEatId } : {}),
+              signal,
+            });
+            if (res.ok && !signal.aborted) {
+              const outcome = await res.json();
+              starter.mark();
+              if (outcome?.granted === true) {
+                trackEvent('starter_pack_granted');
+                announceStarterPackGranted(
+                  Array.isArray(outcome.faceUpIds)
+                    ? outcome.faceUpIds.filter(
+                        (id: unknown): id is string => typeof id === 'string'
+                      )
+                    : []
+                );
+                granted = true;
+              }
             }
+          } catch {
+            // Die Einladung wird unabhängig vom Starter-Pack erneut versucht.
           }
-          settleArrival(user.uid, granted);
+          if (!signal.aborted) settleArrival(user.uid, granted);
         }
-        if (flag.seen) return;
-        await fetch('/api/referral/confirm', {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ idToken }),
-        });
-        /* Der Riegel faellt ERST hier. Er lag vorher vor dem Request: ein
-           einziger Netzwerkfehler verbrannte damit den einzigen Versuch
-           dieser Browser-Session, und der Nachholversuch kam erst in der
-           naechsten — da war das Konto aelter als ACCOUNT_FRESHNESS_MS, die
-           Route raeumte den Cookie ab und vergab nichts. Ein abgebrochener
-           Request kostete die Einladung endgueltig, ohne Meldung. */
-        flag.mark();
-      } catch {
-        // Netzwerkfehler: Riegel bleibt offen, der naechste Auth-Wechsel oder
-        // Seitenaufruf versucht es erneut.
-        if (!granted) settleArrival(user.uid, false);
-      } finally {
-        inFlight = false;
-      }
+        if (!flag.seen && (await confirmReferral(() => user.getIdToken(), signal))) {
+          if (!signal.aborted) flag.mark();
+        }
+      })();
     });
+    return () => {
+      controller?.abort();
+      unsubscribe();
+    };
   }, []);
 
   // Toast the INVITER when a new 'invited' bonus doc arrives. The first
@@ -165,10 +131,12 @@ export default function ReferralToastListener() {
           snap.docChanges().forEach((chg) => {
             if (chg.type !== 'added' || seen.has(chg.doc.id)) return;
             seen.add(chg.doc.id);
-            if (chg.doc.data().source === 'invited') {
-              /* Eine Karte, keine Spots: seit dem 06.09.2026 zahlt die
-                 Einladung in Must-Eat-Karten, die Spots liegen fuer jeden
-                 frei. */
+            const bonus = chg.doc.data();
+            if (
+              bonus.source === 'invited' &&
+              Array.isArray(bonus.mustEatIds) &&
+              bonus.mustEatIds.length > 0
+            ) {
               notify('inviteCard', langRef.current, { duration: 5000 });
             }
           });

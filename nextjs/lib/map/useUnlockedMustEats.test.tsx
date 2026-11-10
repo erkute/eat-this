@@ -5,7 +5,7 @@ import type { MapMustEat } from '@/lib/types';
 const firebase = vi.hoisted(() => ({ auth: { currentUser: null as null | { uid: string; getIdToken: () => Promise<string> } } }));
 vi.mock('@/lib/firebase/config', () => ({ auth: firebase.auth, getDb: async () => ({}) }));
 vi.mock('firebase/firestore', () => ({ collection: vi.fn((_db, ...parts: string[]) => ({ path: parts.join('/') })), getDocs: vi.fn(async () => ({ docs: [] })) }));
-import { collection } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import { useUnlockedMustEats } from './useUnlockedMustEats';
 const deferred = <T,>() => {
   let resolve!: (value: T) => void;
@@ -17,6 +17,17 @@ beforeEach(() => { localStorage.clear(); firebase.auth.currentUser = user('A'); 
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 
 describe('account-bound reveal responses', () => {
+  it('keeps a successful reveal when an older initial snapshot arrives later', async () => {
+    const snapshot = deferred<{ docs: [] }>();
+    vi.mocked(getDocs).mockReturnValueOnce(snapshot.promise as unknown as ReturnType<typeof getDocs>);
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ mustEat: { _id: 'new-card' } }))));
+    const page = renderHook(() => useUnlockedMustEats('A'));
+    await waitFor(() => expect(getDocs).toHaveBeenCalled());
+    await act(async () => { await page.result.current.unlock('new-card'); });
+    await act(async () => { snapshot.resolve({ docs: [] }); });
+    expect(page.result.current.unlockedIds.has('new-card')).toBe(true);
+    expect(localStorage.getItem('eatthis_unlocked_v2_A')).toContain('new-card');
+  });
   it('accepts a current-account reveal and stores it only in that account cache', async () => {
     const card = { _id: 'card', image: '/CURRENT_ACCOUNT_CARD' };
     vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ mustEat: card }), { status: 200 })));

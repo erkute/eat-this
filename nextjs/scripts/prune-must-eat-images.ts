@@ -73,9 +73,13 @@ async function main() {
   const db = getFirestore(app);
   const bucket = getStorage(app).bucket(bucketName);
 
-  const snapshot = await db.collection(COLLECTION).get();
+  const [snapshot, versions] = await Promise.all([
+    db.collection(COLLECTION).get(),
+    db.collectionGroup('versions').get(),
+  ]);
+  const documents = [...snapshot.docs, ...versions.docs.filter((doc) => doc.ref.path.startsWith(`${COLLECTION}/`))];
   const referenced = new Map<string, string>();
-  for (const document of snapshot.docs) {
+  for (const document of documents) {
     const path = document.data().imageObjectPath;
     if (typeof path !== 'string' || !path.startsWith(OBJECT_PREFIX)) {
       throw new Error(`Datensatz ${document.id} hat keinen brauchbaren imageObjectPath`);
@@ -114,7 +118,7 @@ async function main() {
   for (const [id, list] of [...byMustEat].sort()) {
     const bytes = list.reduce((sum, entry) => sum + entry.size, 0);
     total += bytes;
-    const owned = snapshot.docs.some((document) => document.id === id);
+    const owned = documents.some((document) => document.ref.path.split('/')[1] === id);
     console.log(
       `  ${apply ? 'loesche  ' : 'wuerde loeschen'} ${id}: ${list.length} Objekt(e), ${kb(bytes)}${owned ? '' : ' — Karte existiert nicht mehr'}`
     );
@@ -130,7 +134,7 @@ async function main() {
 
   // Gegenprobe: jedes referenzierte Bild muss noch da sein und stimmen.
   let verified = 0;
-  for (const document of snapshot.docs) {
+  for (const document of documents) {
     const data = document.data();
     const [buffer] = await bucket.file(data.imageObjectPath).download();
     if (crypto.createHash('sha256').update(buffer).digest('hex') !== data.imageSha256) {
@@ -138,7 +142,7 @@ async function main() {
     }
     verified += 1;
   }
-  console.log(`Nachher: ${verified}/${snapshot.size} Karten heruntergeladen und geprueft`);
+  console.log(`Nachher: ${verified}/${documents.length} Karten heruntergeladen und geprueft`);
   console.log(
     JSON.stringify({ status: 'applied', project: projectId, deleted: orphans.length, freed: total })
   );

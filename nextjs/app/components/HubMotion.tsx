@@ -4,6 +4,7 @@ import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { appScroller } from '@/lib/dom/appScroller';
 import { onFirstView } from '@/lib/home/dealIn';
+import { afterConsentGate } from '@/lib/map/afterConsentGate';
 
 /* Bewusst ohne ScrollTrigger: das Plugin hält ab dem Registrieren eine
    leere requestAnimationFrame-Schleife am Laufen, für die ganze Sitzung und
@@ -162,27 +163,27 @@ function armDistrictsDeal(): () => void {
   };
 }
 
-/** Fotos vorladen, bevor die Sektionen ins Bild kommen. Der Desktop scrollt
- * in `.app-pages`; dessen Rand ist für das Vorladen maßgeblich. */
+/** Preload individual photos shortly before they enter the scroll viewport. */
 function armPreload(): () => void {
   if (typeof IntersectionObserver === 'undefined') return () => {};
   const io = new IntersectionObserver(
     (entries) => {
       for (const entry of entries) {
         if (!entry.isIntersecting) continue;
-        io.unobserve(entry.target);
-        entry.target.querySelectorAll<HTMLImageElement>('img[loading="lazy"]').forEach((img) => {
-          // Ausgeblendete Bilder bleiben lazy.
-          if (img.getClientRects().length > 0) img.loading = 'eager';
-        });
+        const img = entry.target as HTMLImageElement;
+        if (img.getClientRects().length === 0) continue;
+        io.unobserve(img);
+        img.loading = 'eager';
       }
     },
-    { root: appScroller(), rootMargin: '150% 0px' }
+    { root: appScroller(), rootMargin: '300px 0px' }
   );
-  document
-    .querySelectorAll('[data-hub-magazine], [data-hub-musteats], [data-hub-districts]')
-    .forEach((section) => io.observe(section));
-  return () => io.disconnect();
+  const cancel = afterConsentGate(() => {
+    document
+      .querySelectorAll(':is([data-hub-magazine], [data-hub-musteats], [data-hub-districts]) img[loading="lazy"]')
+      .forEach((img) => io.observe(img));
+  });
+  return () => { cancel(); io.disconnect(); };
 }
 
 export default function HubMotion() {

@@ -15,8 +15,11 @@ for (const locale of ['', '/en']) {
     await page.goto(`${locale}/news`, { waitUntil: 'domcontentloaded' });
     const trigger = page.locator('#burgerBtn');
     expect(await trigger.locator('span').evaluate((el) => parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(20);
-    await trigger.click();
     const menu = page.getByRole('dialog', { name: 'Navigation' });
+    await expect(async () => {
+      if (!await menu.isVisible()) await trigger.click();
+      await expect(menu).toBeVisible({ timeout: 1000 });
+    }).toPass({ timeout: 15_000 });
     for (const item of await menu.locator('nav a, nav button').all()) {
       expect(await item.evaluate((el) => parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(36);
     }

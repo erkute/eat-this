@@ -20,7 +20,7 @@ import {
   type CoverTone,
   type CutoutCover,
 } from '@/lib/magazineCover';
-import { sanitySrcSet, coverImageScale } from '@/lib/sanity-image-presets';
+import { sanitySrcSet, coverImageScale, sanityCroppedSources } from '@/lib/sanity-image-presets';
 import sanityImageLoader from '@/lib/sanityImageLoader';
 import styles from './MagazineCover.module.css';
 
@@ -119,7 +119,11 @@ export default function MagazineCover({
     const slotRatio = className === styles.fill ? 3 / 4
       : className === styles.systemPhoto ? 1 / .92
       : className === styles.framed ? .86 / .69 : 1;
-    const sourceScale = factor * coverImageScale(image, slotRatio);
+    const centered = !style?.objectPosition || style.objectPosition === '50% 50%';
+    const cropped = image && centered
+      ? sanityCroppedSources(image, widths.map(w => w * factor), slotRatio)
+      : undefined;
+    const sourceScale = factor * (cropped ? 1 : coverImageScale(image, slotRatio));
     return image ? (
       // Sanity serves the responsive variants itself; the App Hosting image
       // proxy would re-optimise them.
@@ -127,8 +131,8 @@ export default function MagazineCover({
       <img
         className={className}
         style={style}
-        src={sanityImageLoader({ src: image, width: widths[1] ?? widths[0] })}
-        srcSet={sanitySrcSet(image, widths.map((w) => Math.round(w * sourceScale)))}
+        src={cropped?.src ?? sanityImageLoader({ src: image, width: widths[1] ?? widths[0] })}
+        srcSet={cropped?.srcSet ?? sanitySrcSet(image, widths.map((w) => Math.round(w * sourceScale)))}
         sizes={sourceScale === 1 ? sizes : scaleSizes(sizes, sourceScale)}
         alt=""
         loading={loading}

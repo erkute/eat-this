@@ -176,7 +176,7 @@ await writeFile(
     '// GENERIERT von `npm run build:email-spots` — nicht von Hand editieren.',
     '// Die Bilder liegen unter public/pics/email/spots/<slug>.jpg.',
     '',
-    'export interface EmailSpot {',
+    'interface EmailSpot {',
     '  /** Sanity-Slug — Dateiname der Karte und Ziel des /map?r=-Links. */',
     '  slug: string;',
     '  /** Nur für den Alt-Text; im Bild steht der Name bereits gesetzt. */',

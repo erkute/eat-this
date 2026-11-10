@@ -191,23 +191,21 @@ export default function CookieConsent() {
   const { t, lang } = useTranslation();
   const [show, setShow] = useState(false);
   const [expanded, setExpanded] = useState(false);
-  // After the dismiss transition finishes we UNMOUNT the gate (closed=true).
-  // The gate is position:fixed; on iOS Safari the promoted GPU layer can
-  // linger in the bottom-URL-bar zone until a reload. Dropping it from the DOM
-  // clears that layer immediately. Reset when the gate reopens.
-  //
-  // The initial HTML is hidden by default. The head bootstrap reveals it
-  // only for an unanswered visitor, before application hydration can compete
-  // with the map renderer. Answered visitors never paint the initial gate.
+  // Keep the gate mounted after closing. Extensions can remove an overlay
+  // during its exit animation; deleting that node again crashes React's commit.
+  // display:none releases the fixed layer and excludes its controls from focus.
+  // The head bootstrap reveals the initial gate only for unanswered visitors.
   const [closed, setClosed] = useState(false);
   const [bootstrap, setBootstrap] = useState(true);
   const sections = lang === 'de' ? COOKIE_SECTIONS_DE : COOKIE_SECTIONS_EN;
+  const choiceTaken = useRef(false);
   const cardRef = useRef<HTMLDivElement | null>(null);
   const closeTimer = useRef<number | undefined>(undefined);
 
   useEffect(() => () => window.clearTimeout(closeTimer.current), []);
 
   const open = useCallback(() => {
+    choiceTaken.current = false;
     /* Die Frage, die vorher niemand beantworten konnte: WIE OFT wird gefragt?
      * Ohne sie ist die Zustimmungsquote nur der Anteil an den Antwortenden —
      * wer den Dialog sieht und einfach geht, taucht nirgends auf, und ein
@@ -292,6 +290,8 @@ export default function CookieConsent() {
   };
 
   const handleAccept = () => {
+    if (choiceTaken.current) return;
+    choiceTaken.current = true;
     writeConsent('accepted');
     recordConsent('accepted', lang);
     // Gegenstueck zu consent_gate_shown: erst beide zusammen ergeben die
@@ -313,6 +313,8 @@ export default function CookieConsent() {
   };
 
   const handleDecline = () => {
+    if (choiceTaken.current) return;
+    choiceTaken.current = true;
     const gaWasLoaded = !!(window as Window & { __gaLoaded?: boolean }).__gaLoaded;
     writeConsent('declined');
     recordConsent('declined', lang);
@@ -332,6 +334,11 @@ export default function CookieConsent() {
   useEffect(() => {
     const reopen = () => {
       clearConsent();
+      // A removed overlay needs fresh DOM before focus and scroll are locked.
+      if (!cardRef.current?.isConnected) {
+        window.location.reload();
+        return;
+      }
       setExpanded(true);
       open();
     };
@@ -345,10 +352,11 @@ export default function CookieConsent() {
     if (!bootstrap) window.dispatchEvent(new Event(CONSENT_INTERACTIVE_EVENT));
   }, [bootstrap]);
 
-  if (closed) return null;
-
   return (
-    <div className={`cookie-gate${bootstrap ? ' cookie-bootstrap' : ''}${show ? ' show' : ''}`}>
+    <div
+      className={`cookie-gate${bootstrap ? ' cookie-bootstrap' : ''}${show ? ' show' : ''}`}
+      style={closed ? { display: 'none' } : undefined}
+    >
       {/* Not a dismiss target: clicking the scrim does nothing on purpose. */}
       <div className="cookie-scrim" aria-hidden="true" />
       <div
@@ -361,10 +369,7 @@ export default function CookieConsent() {
         aria-describedby="cookieText"
         tabIndex={-1}
         onTransitionEnd={(e) => {
-          // When the dismiss transition (the card's own transform) finishes,
-          // drop the gate from the DOM so its fixed compositing layer can't
-          // keep iOS Safari's bottom bar painted solid. Guard to the card
-          // itself (not a child like the chevron) and only on the way out.
+          // Only the card's own exit transform ends the closing animation.
           if (e.target === e.currentTarget && e.propertyName === 'transform' && !show) {
             setClosed(true);
           }

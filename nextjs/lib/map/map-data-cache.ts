@@ -127,30 +127,33 @@ export function seedUidBeforeAuth(): string | null {
 
 export function clearMapDataCaches(): void {
   if (typeof window === 'undefined') return;
-  removeKeys(ANY_VERSION_CACHE_PREFIX);
-  for (const key of LEGACY_LAST_UID_KEYS) window.localStorage.removeItem(key);
-  window.localStorage.removeItem(CURRENT_LAST_UID_KEY);
+  try {
+    removeKeys(ANY_VERSION_CACHE_PREFIX);
+    for (const key of LEGACY_LAST_UID_KEYS) window.localStorage.removeItem(key);
+    window.localStorage.removeItem(CURRENT_LAST_UID_KEY);
+  } catch { /* Storage may be disabled; it must not prevent logout. */ }
 }
 
 export function reconcileMapDataCacheIdentity(uid: string | null): void {
   if (typeof window === 'undefined') return;
 
-  // v1 stored hydrated Premium Must-Eats. A browser keeps it until someone
-  // deletes it, and no server can tell whether one still does, so this sweep
-  // runs on every auth state change, signed in or not.
-  const legacyKeys: string[] = [];
-  for (let index = 0; index < window.localStorage.length; index += 1) {
-    const key = window.localStorage.key(index);
-    if (key?.startsWith(ANY_VERSION_CACHE_PREFIX) && !key.startsWith(CURRENT_CACHE_PREFIX)) {
-      legacyKeys.push(key);
+  try {
+    // Remove older cache versions on every auth change: they may contain
+    // private dish data and must not survive a sign-out or account switch.
+    const legacyKeys: string[] = [];
+    for (let index = 0; index < window.localStorage.length; index += 1) {
+      const key = window.localStorage.key(index);
+      if (key?.startsWith(ANY_VERSION_CACHE_PREFIX) && !key.startsWith(CURRENT_CACHE_PREFIX)) {
+        legacyKeys.push(key);
+      }
     }
-  }
-  for (const key of legacyKeys) window.localStorage.removeItem(key);
-  for (const key of LEGACY_LAST_UID_KEYS) window.localStorage.removeItem(key);
+    for (const key of legacyKeys) window.localStorage.removeItem(key);
+    for (const key of LEGACY_LAST_UID_KEYS) window.localStorage.removeItem(key);
 
-  const previousUid = window.localStorage.getItem(CURRENT_LAST_UID_KEY);
-  if (!uid || !previousUid || previousUid !== uid) {
-    removeKeys(CURRENT_CACHE_PREFIX);
-    window.localStorage.removeItem(CURRENT_LAST_UID_KEY);
-  }
+    const previousUid = window.localStorage.getItem(CURRENT_LAST_UID_KEY);
+    if (!uid || !previousUid || previousUid !== uid) {
+      removeKeys(CURRENT_CACHE_PREFIX);
+      window.localStorage.removeItem(CURRENT_LAST_UID_KEY);
+    }
+  } catch { /* Auth also works when the browser denies its optional cache. */ }
 }

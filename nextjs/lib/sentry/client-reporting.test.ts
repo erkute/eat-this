@@ -100,3 +100,30 @@ it('retries reporting after a failed SDK download without rejecting into the app
   await vi.dynamicImportSettled();
   expect(sdk.captureException).toHaveBeenCalledWith(nextError);
 });
+
+it('preserves the source location of startup syntax errors without an Error object', async () => {
+  const reporter = await import('./client-reporting');
+  reporter.startClientErrorReporting();
+  surface.dispatchEvent(new ErrorEvent('error', {
+    message: "Unexpected token '{'", filename: 'https://www.eatthisdot.com/_next/static/chunks/app.js',
+    lineno: 12, colno: 34,
+  }));
+  await vi.dynamicImportSettled();
+  expect(sdk.captureException).toHaveBeenCalledWith(expect.any(Error), expect.objectContaining({
+    captureContext: { extra: { source: { filename: 'https://www.eatthisdot.com/_next/static/chunks/app.js', line: 12, column: 34 } } },
+  }));
+});
+
+
+it('preserves location when Safari supplies an Error without a stack', async () => {
+  const reporter = await import('./client-reporting');
+  reporter.startClientErrorReporting();
+  const error = new SyntaxError('Unexpected token');
+  error.stack = undefined;
+  surface.dispatchEvent(new ErrorEvent('error', { error, message: error.message,
+    filename: 'https://www.eatthisdot.com/_next/static/chunks/app.js', lineno: 1, colno: 42 }));
+  await vi.dynamicImportSettled();
+  expect(sdk.captureException).toHaveBeenCalledWith(error, expect.objectContaining({
+    captureContext: { extra: { source: { filename: 'https://www.eatthisdot.com/_next/static/chunks/app.js', line: 1, column: 42 } } },
+  }));
+});

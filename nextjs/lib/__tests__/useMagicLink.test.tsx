@@ -37,6 +37,7 @@ describe('useMagicLink', () => {
 
   afterEach(() => {
     vi.unstubAllGlobals();
+    vi.restoreAllMocks();
   });
 
   it('starts in idle state', () => {
@@ -125,4 +126,17 @@ describe('useMagicLink', () => {
     expect(result.current.state).toBe('idle');
     expect(result.current.errorMessage).toBe('');
   });
+});
+
+
+it('sends the login email even when localStorage is blocked', async () => {
+  vi.spyOn(window, 'localStorage', 'get').mockImplementation(() => {
+    throw new DOMException('Access denied', 'SecurityError');
+  });
+  vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => ({}) }));
+  try {
+    const { result } = renderHook(() => useMagicLink());
+    await act(async () => { await result.current.sendLink('guest@example.com'); });
+    expect(result.current.state).toBe('sent');
+  } finally { vi.restoreAllMocks(); vi.unstubAllGlobals(); }
 });

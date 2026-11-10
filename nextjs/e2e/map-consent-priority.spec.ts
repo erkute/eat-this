@@ -15,7 +15,7 @@ test('cookie choice precedes WebGL and then releases the requested spot', async 
   expect(await hasMapStyles()).toBe(false);
   await page.screenshot({ path: `/tmp/eat-this-consent-before-choice-${test.info().project.name}.png` });
   await page.getByRole('button', { name: 'Ablehnen', exact: true }).click();
-  await expect(page.locator('#cookieConsent')).toHaveCount(0);
+  await expect(page.locator('#cookieConsent')).toBeHidden();
   await expect(page.locator('.maplibregl-canvas')).toBeVisible();
   await expect.poll(hasMapStyles).toBe(true);
   await expect(page.locator('.maplibregl-canvas')).toHaveCSS('position', 'absolute');
@@ -64,7 +64,7 @@ test('server-rendered photos prioritize the visible phone rows without delaying 
   }
   await page.getByRole('button', { name: 'Ablehnen', exact: true }).click();
   release();
-  await expect(page.locator('#cookieConsent')).toHaveCount(0);
+  await expect(page.locator('#cookieConsent')).toBeHidden();
   await expect.poll(() => loaded(fourth)).toBe(true);
 });
 

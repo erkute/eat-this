@@ -15,12 +15,12 @@ export const PAGE_GROUPS = [
   ['checkout', 'Kaufbestätigung'],
   ['other', 'Weitere Seiten'],
 ] as const;
-export type PageGroup = (typeof PAGE_GROUPS)[number][0];
+type PageGroup = (typeof PAGE_GROUPS)[number][0];
 export interface PageCount {
   key: string;
   count: number;
 }
-export interface PageRow {
+interface PageRow {
   key: string;
   group: PageGroup;
   locale: 'de' | 'en';

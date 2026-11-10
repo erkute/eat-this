@@ -12,7 +12,7 @@
 // Jetzt nimmt der Vorhang den Klick selbst an. Diese Tests nageln beide
 // Haelften fest: der Vorhang schliesst auf `click`, und ein blosses
 // `pointerdown` schliesst NICHT — genau das war das Loch.
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import { render, fireEvent, cleanup } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import { BUDDY_ASK_EVENT, consumePendingBuddyAsk } from '@/lib/buddy/homeStage';
@@ -33,8 +33,14 @@ vi.mock('@/i18n/navigation', () => ({
 
 import BuddyWidget from './BuddyWidget';
 
+// jsdom does not implement window scrolling.
+beforeEach(() => {
+  vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+});
+
 afterEach(() => {
   cleanup();
+  vi.restoreAllMocks();
   consumePendingBuddyAsk();
 });
 

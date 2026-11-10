@@ -38,7 +38,8 @@ export function useMagicLink() {
       trackEvent('login_start', { method: 'email_link' });
       setState('sending');
       setErrorMessage('');
-      localStorage.setItem('emailForSignIn', email);
+      // The email can be entered again when opening the link in a restricted browser.
+      try { localStorage.setItem('emailForSignIn', email); } catch {}
       try {
         const response = await fetch('/api/auth/send-magic-link', {
           method: 'POST',
@@ -49,7 +50,7 @@ export function useMagicLink() {
         const data = await response.json().catch(() => ({}));
 
         if (!response.ok) {
-          localStorage.removeItem('emailForSignIn');
+          try { localStorage.removeItem('emailForSignIn'); } catch {}
           const code = (data as { error?: string }).error ?? '';
           setErrorMessage(t(ERROR_KEYS[code] ?? 'errGeneric'));
           setState('error');
@@ -59,7 +60,7 @@ export function useMagicLink() {
         setState('sent');
         trackEvent('login_link_sent', { method: 'email_link' });
       } catch {
-        localStorage.removeItem('emailForSignIn');
+        try { localStorage.removeItem('emailForSignIn'); } catch {}
         setErrorMessage(t(ERROR_KEYS['network']));
         setState('error');
       }

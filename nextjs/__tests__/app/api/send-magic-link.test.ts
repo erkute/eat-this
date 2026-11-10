@@ -143,3 +143,20 @@ describe('/api/auth/send-magic-link Sprache', () => {
     )
   })
 })
+
+
+describe('/api/auth/send-magic-link input validation', () => {
+  it.each([null, [], 42, {}, { email: 123 }, { email: [] }, { email: true }])(
+    'rejects invalid payload %j before rate limiting or sending', async (body) => {
+      const { POST } = await import('@/app/api/auth/send-magic-link/route')
+      const res = await POST(new Request('https://staging.example.com/api/auth/send-magic-link', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+      }))
+      expect(res.status).toBe(400)
+      expect(mocks.checkRateLimit).not.toHaveBeenCalled()
+      expect(mocks.sendMagicLinkEmail).not.toHaveBeenCalled()
+    },
+  )
+})

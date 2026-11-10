@@ -2,7 +2,7 @@
 // nextjs/app/components/buddy/BuddyWidget.mood.test.tsx
 // Expression policy: idle while streaming with no answer text yet; the mouth
 // flap starts only once text is actually appearing.
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import { render, fireEvent, cleanup } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import { BUDDY_ASK_EVENT } from '@/lib/buddy/homeStage';
@@ -45,7 +45,15 @@ vi.mock('./useBuddyChat', () => ({
 
 import BuddyWidget from './BuddyWidget';
 
-afterEach(cleanup);
+// jsdom does not implement window scrolling.
+beforeEach(() => {
+  vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+});
+
+afterEach(() => {
+  cleanup();
+  vi.restoreAllMocks();
+});
 
 function renderOpenWidget() {
   const utils = render(

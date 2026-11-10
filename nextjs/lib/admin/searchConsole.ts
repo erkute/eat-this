@@ -66,7 +66,7 @@ export interface KeywordDay {
   impressions: number;
   position: number;
 }
-export interface KeywordPeriod {
+interface KeywordPeriod {
   start: string;
   end: string;
   queries: SearchRow[];

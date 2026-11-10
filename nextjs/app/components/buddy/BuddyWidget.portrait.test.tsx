@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import React, { StrictMode } from 'react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import { BUDDY_ASK_EVENT } from '@/lib/buddy/homeStage';
@@ -26,8 +26,14 @@ vi.mock('./useBuddyChat', () => ({
 vi.mock('@/lib/buddy/portraitMotion', () => ({ animatePortraitHandoff: handoff }));
 import BuddyWidget from './BuddyWidget';
 
+// jsdom does not implement window scrolling.
+beforeEach(() => {
+  vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+});
+
 afterEach(() => {
   cleanup();
+  vi.restoreAllMocks();
   chat.messages = [];
   handoff.mockClear();
 });

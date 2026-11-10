@@ -1,3 +1,4 @@
+import { readSanity } from './sanity-read';
 import { client } from './sanity';
 import { SANITY_REVALIDATE_SECONDS } from './constants';
 import {
@@ -34,7 +35,7 @@ import type { CategoryDef, CategoryWithStats } from './categories';
 import type { PackContents, PackContentsIndex } from './pack/packDetail';
 
 export async function getAllRestaurantSlugs(): Promise<string[]> {
-  const results = await client.fetch<{ slug: string }[]>(
+  const results = await readSanity<{ slug: string }[]>(
     allRestaurantSlugsQuery,
     {},
     { next: { revalidate: SANITY_REVALIDATE_SECONDS } }
@@ -50,7 +51,7 @@ export async function getAllRestaurantsLite(): Promise<
   // katalog-ausnahme: Das ist die Umleitungstabelle, keine Empfehlungsliste.
   // Ein alter Link auf einen inzwischen geschlossenen Laden soll auf dessen
   // Seite zeigen (die sagt, dass er zu hat), nicht ins Leere.
-  return client.fetch(
+  return readSanity(
     `*[_type == "restaurant" && defined(slug.current) && !(_id in path("drafts.**"))]{ name, "slug": slug.current, "bezirk": bezirkRef->slug.current }`,
     {},
     { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['restaurants-lite'] } }
@@ -58,7 +59,7 @@ export async function getAllRestaurantsLite(): Promise<
 }
 
 export async function getArticleBySlug(slug: string): Promise<NewsArticle | null> {
-  return client.fetch<NewsArticle | null>(
+  return readSanity<NewsArticle | null>(
     articleBySlugQuery,
     { slug },
     { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: [`article:${slug}`] } }
@@ -66,7 +67,7 @@ export async function getArticleBySlug(slug: string): Promise<NewsArticle | null
 }
 
 export async function getAllArticleSlugs(): Promise<string[]> {
-  const results = await client.fetch<{ slug: string }[]>(
+  const results = await readSanity<{ slug: string }[]>(
     allArticleSlugsQuery,
     {},
     { next: { revalidate: SANITY_REVALIDATE_SECONDS } }
@@ -75,7 +76,7 @@ export async function getAllArticleSlugs(): Promise<string[]> {
 }
 
 export async function getAllNewsArticles(): Promise<NewsArticle[]> {
-  return client.fetch<NewsArticle[]>(
+  return readSanity<NewsArticle[]>(
     allNewsArticlesQuery,
     {},
     { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['news'] } }
@@ -86,7 +87,7 @@ export async function getStaticPage(
   slug: string,
   locale: 'de' | 'en'
 ): Promise<StaticPageDoc | null> {
-  return client.fetch<StaticPageDoc | null>(
+  return readSanity<StaticPageDoc | null>(
     staticPageBySlugQuery,
     { slug, locale },
     { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: [`staticPage:${slug}`, 'staticPage'] } }
@@ -140,7 +141,7 @@ interface RestaurantPageData {
  * api/revalidate/route.ts).
  */
 export async function getRestaurantPageData(slug: string): Promise<RestaurantPageData | null> {
-  const row = await client.fetch<RestaurantPageRow | null>(
+  const row = await readSanity<RestaurantPageRow | null>(
     restaurantPageQuery,
     {
       slug,
@@ -174,7 +175,7 @@ export async function getRestaurantPageData(slug: string): Promise<RestaurantPag
 }
 
 export async function getAllBezirkeWithStats(): Promise<BezirkWithStats[]> {
-  return client.fetch<BezirkWithStats[]>(
+  return readSanity<BezirkWithStats[]>(
     allBezirkeWithStatsQuery,
     {},
     { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['bezirk', 'sitemap-bezirke'] } }
@@ -182,7 +183,7 @@ export async function getAllBezirkeWithStats(): Promise<BezirkWithStats[]> {
 }
 
 export async function getBezirkBySlug(slug: string): Promise<BezirkDoc | null> {
-  return client.fetch<BezirkDoc | null>(
+  return readSanity<BezirkDoc | null>(
     bezirkBySlugQuery,
     { slug },
     // `bezirk` (generic) catches restaurant publishes — the webhook can't
@@ -192,7 +193,7 @@ export async function getBezirkBySlug(slug: string): Promise<BezirkDoc | null> {
 }
 
 export async function getRestaurantsByBezirk(slug: string): Promise<RestaurantCard[]> {
-  return client.fetch<RestaurantCard[]>(
+  return readSanity<RestaurantCard[]>(
     restaurantsByBezirkQuery,
     { bezirkSlug: slug },
     {
@@ -205,7 +206,7 @@ export async function getRestaurantsByBezirk(slug: string): Promise<RestaurantCa
 }
 
 export async function getRestaurantsByCategory(categorySlug: string): Promise<RestaurantCard[]> {
-  return client.fetch<RestaurantCard[]>(
+  return readSanity<RestaurantCard[]>(
     restaurantsByCategoryQuery,
     { categorySlug },
     {
@@ -218,7 +219,7 @@ export async function getRestaurantsByCategory(categorySlug: string): Promise<Re
 }
 
 export async function getAllCategories(): Promise<CategoryDef[]> {
-  return client.fetch<CategoryDef[]>(
+  return readSanity<CategoryDef[]>(
     allCategoriesQuery,
     {},
     { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['category', 'category-list'] } }
@@ -234,7 +235,7 @@ export async function getAllCategories(): Promise<CategoryDef[]> {
  * ändert sich, sobald ein Restaurant die Kategorie wechselt oder schließt.
  */
 export async function getAllCategoriesWithStats(): Promise<CategoryWithStats[]> {
-  return client.fetch<CategoryWithStats[]>(
+  return readSanity<CategoryWithStats[]>(
     allCategoriesWithStatsQuery,
     {},
     { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['category', 'category-list'] } }
@@ -242,7 +243,7 @@ export async function getAllCategoriesWithStats(): Promise<CategoryWithStats[]> 
 }
 
 export async function getCategoryBySlug(slug: string): Promise<CategoryDef | null> {
-  return client.fetch<CategoryDef | null>(
+  return readSanity<CategoryDef | null>(
     categoryBySlugQuery,
     { slug },
     { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: [`category:${slug}`] } }
@@ -253,7 +254,7 @@ export async function getCategoryBySlug(slug: string): Promise<CategoryDef | nul
 export async function getLatestNewsArticles(
   limit: number
 ): Promise<{ total: number; articles: NewsArticle[] }> {
-  return client.fetch<{ total: number; articles: NewsArticle[] }>(
+  return readSanity<{ total: number; articles: NewsArticle[] }>(
     latestNewsArticlesQuery,
     { limit },
     { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['news'] } }
@@ -286,7 +287,7 @@ export async function getGuideTeaser(
   slug: string,
   locale: 'de' | 'en'
 ): Promise<GuideTeaser | null> {
-  return client.fetch<GuideTeaser | null>(
+  return readSanity<GuideTeaser | null>(
     guideTeaserBySlugQuery,
     { slug, locale },
     { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: [`article:${slug}`] } }
@@ -295,7 +296,7 @@ export async function getGuideTeaser(
 
 /** Spot + Must-Eat counts for every pack, keyed by category slug. */
 export async function getPackContents(): Promise<PackContentsIndex> {
-  const raw = await client.fetch<{
+  const raw = await readSanity<{
     categories: ({ slug: string } & PackContents)[];
     allBerlin: PackContents;
   }>(
@@ -369,7 +370,7 @@ export async function waitForFreshCdn(
   const live = JSON.stringify(await liveClient.fetch(query, params, { cache: 'no-store' }));
   const started = Date.now();
   for (;;) {
-    const cdn = JSON.stringify(await client.fetch(query, params, { cache: 'no-store' }));
+    const cdn = JSON.stringify(await readSanity(query, params, { cache: 'no-store' }));
     if (cdn === live) return 'fresh';
     if (Date.now() - started + stepMs > maxMs) return 'timeout';
     await sleep(stepMs);

@@ -87,25 +87,24 @@ function withReferrer(continueUrl: string, cookieHeader: string | null): string 
 }
 
 export async function POST(request: Request) {
-  let body: { email?: string; locale?: string; continueUrl?: string };
+  let payload: unknown;
   try {
-    body = await request.json();
+    payload = await request.json();
   } catch {
     return NextResponse.json({ error: 'invalid-json' }, { status: 400 });
   }
 
-  const email = body.email?.trim().toLowerCase();
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+    return NextResponse.json({ error: 'invalid-email' }, { status: 400 });
+  }
+  const body = payload as Record<string, unknown>;
+  const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
   if (!email || !EMAIL_RE.test(email)) {
     return NextResponse.json({ error: 'invalid-email' }, { status: 400 });
   }
 
-  // Abuse guard — this endpoint is unauthenticated and sends real email via
-  // Resend. Matches the per-email + per-IP limits the Cloud Functions use.
-  //
-  // Beide Schluessel sind gehasht. Bis zum 08.09.2026 standen hier die rohe
-  // Mailadresse und die rohe IP als Dokument-ID in `_rateLimits` — also genau
-  // die zwei Angaben, die der Rest der Seite bewusst nicht ablegt. Am Deckel
-  // aendert das nichts: der Hash trennt zwei Adressen genauso zuverlaessig.
+  // The public endpoint sends real email. Limit both address and IP;
+  // store only hashed identifiers in the rate-limit collection.
   const ip = clientIp(request);
   const [emailOk, ipOk] = await Promise.all([
     checkRateLimit(rateLimitKey('magic-link:email', email), 3, 60 * 60 * 1000),
@@ -127,7 +126,11 @@ export async function POST(request: Request) {
   // Einladenden. Ohne eigene Continue-URL landet EN auf /en: `/` ist immer
   // Deutsch.
   const continueUrl = withReferrer(
-    sanitizeContinueUrl(body.continueUrl, origin, locale === 'en' ? `${origin}/en` : `${origin}/`),
+    sanitizeContinueUrl(
+      typeof body.continueUrl === 'string' ? body.continueUrl : undefined,
+      origin,
+      locale === 'en' ? `${origin}/en` : `${origin}/`
+    ),
     request.headers.get('cookie')
   );
 

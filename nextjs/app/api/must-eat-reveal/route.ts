@@ -16,15 +16,8 @@ const num = (v: string | undefined, d: number) => {
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-// On-site reveal (50 m): persists the unlock and returns the full must-eat.
-// The map payload ships covered cards stripped (see stripCoveredMustEats), so
-// this is where a signed-in user first receives the dish content.
-//
-// The 50 m proximity can't be verified server-side (there is no trustworthy
-// location signal), so — exactly like the direct client-side Firestore write
-// this replaces — the gate is "signed-in user claims to stand at the spot".
-// The win is that the content can no longer be bulk-read from the anonymous map
-// payload, and guessed IDs for locked restaurants are rejected server-side.
+// Any signed-in account may reveal a card, without a purchase check.
+// The browser checks the 50 m proximity; the server enforces account limits.
 export async function POST(req: Request) {
   const authHeader = req.headers.get('authorization');
   const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
@@ -46,18 +39,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'invalid token' }, { status: 401 });
   }
 
-  // Per-uid rate limit: a person on a food walk reveals a handful of cards
-  // per hour; only a scraper loops over the whole catalog. Doesn't close the
-  // documented "signed-in user claims to stand at the spot" gate, but turns
-  // a 2-minute bulk harvest into days across many accounts.
-  // `deny`: hier geht bezahlter Inhalt raus. Ohne zaehlbaren Riegel lieber
-  // gar nicht — das ist dieselbe Abwaegung wie `checkRateLimitFailClosed`
-  // in lib/rateLimit.ts.
-  // 15 am Tag statt 80 (Betreiber, 02.10.2026): bei ~25 Karten holte ein
-  // Gratis-Konto den ganzen Stapel an einem Tag. Auf einem Food-Walk deckt
-  // niemand 15 auf. Die Pruefung auf den Standort bleibt bewusst weg — die
-  // Koordinaten jedes Spots stehen offen auf der Map, ein Skript schickte sie
-  // einfach mit (AGENTS.md, „Gewollte Produktlogik").
+  // Fail closed when the account quota cannot be checked: 10/minute, 15/day.
   const limit = await checkWindowedRateLimit(
     `reveal:${uid}`,
     {
@@ -87,15 +69,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'unknown must-eat' }, { status: 404 });
   }
 
-  /* Dieselbe Ableitung wie /api/map-data und die oeffentliche Deck-Seite.
-     Hier stand die Formel als DRITTE Kopie — mit demselben Admin-Zweig und
-     demselben Dreier-Verbund, nur um `mustEatId` erweitert.
-
-     Bis zum 06.09.2026 stand hier zusaetzlich eine Sichtbarkeitspruefung: der
-     Spot musste auf der Map DIESES Kontos liegen, sonst 403. Sie fiel mit der
-     Staffelung, und zwar gern — sie sperrte den staerksten Anmeldemoment aus,
-     den das Produkt hat. Wer vor einem Laden steht, darf dessen Karte
-     aufdecken, egal welcher Laden. Was bleibt, ist das Ratenlimit oben. */
+  // Preserve existing access and add the newly revealed card.
   const surface = await composeAccountSurface({ all, allMustEats, ent, unlockedIds });
 
   /* Die gerade aufgedeckte Karte kommt dazu — im Admin-Zweig liegt sie

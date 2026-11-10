@@ -72,7 +72,8 @@ function enqueueSessionMutation<T>(operation: () => Promise<T>): Promise<T> {
 }
 
 async function clearPremiumAccess(): Promise<void> {
-  const response = await fetch('/api/auth/premium-access', { method: 'DELETE' });
+  // Cookie cleanup must finish even when this page is leaving.
+  const response = await fetch('/api/auth/premium-access', { method: 'DELETE', keepalive: true });
   if (!response.ok) throw new Error('Failed to clear premium access');
 }
 

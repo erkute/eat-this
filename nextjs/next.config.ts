@@ -88,13 +88,16 @@ const nextConfig: NextConfig = {
   // Teilt Tag-Invalidierungen zwischen den Cloud-Run-Instanzen und setzt sie
   // bei jedem Aufruf neu – Begründung im Kopf von cache-handler.cjs.
   cacheHandler: path.resolve(__dirname, 'cache-handler.cjs'),
-  // Satori fonts for the composed email spot-card image — read via
-  // fs.readFile at runtime, so the tracer can't see them on its own.
+  // Only the two public OG fonts belong in the server bundle.
+  // Locally activated brand fonts in the same directory stay on this machine.
+  outputFileTracingExcludes: {
+    '*': ['./assets/fonts/NeueHaasGroteskTextPro*'],
+  },
   outputFileTracingIncludes: {
-    '/api/og/restaurant': ['./assets/fonts/**/*'],
+    '/api/og/restaurant': ['./assets/fonts/SairaCondensed-ExtraBold.ttf', './assets/fonts/Schoolbell-Regular.ttf'],
     // Die Deck-Share-Karte liest dieselben Schriften. Die Bilder (Figur,
     // Kartenrücken) liegen unter `public/` und wandern ohnehin mit.
-    '/api/og/deck': ['./assets/fonts/**/*'],
+    '/api/og/deck': ['./assets/fonts/SairaCondensed-ExtraBold.ttf', './assets/fonts/Schoolbell-Regular.ttf'],
   },
 
   images: {

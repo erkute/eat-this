@@ -12,43 +12,8 @@
 // 'default'` → 404), und die eigenen Bilder unter /pics und /buddy brauchen
 // den Optimierer weiter.
 
-import sanityImageLoader from './sanityImageLoader';
-import { sanityImageSize } from './sanity-image-presets';
-
 const SANITY_CDN = 'https://cdn.sanity.io/';
 
 export function isSanityImage(src: string): boolean {
   return src.startsWith(SANITY_CDN);
-}
-
-/* Die GROQ-Presets (lib/sanity-image-presets.ts) liefern schon eine Breite,
-   manche einen Zuschnitt (`h` + `fit=crop`). Die Breite ersetzt next/image
-   pro srcset-Stufe; die Höhe wird mitskaliert, damit der Zuschnitt sein
-   Seitenverhältnis behält. Ohne Zuschnitt ist das Ergebnis dasselbe wie beim
-   `sanityImageLoader` der rohen <img>-Stellen. */
-export function sanityNextImageLoader({
-  src,
-  width,
-  quality,
-}: {
-  src: string;
-  width: number;
-  quality?: number;
-}): string {
-  const [base, query = ''] = src.split('?', 2);
-  const preset = new URLSearchParams(query);
-  const presetW = Number(preset.get('w'));
-  const presetH = Number(preset.get('h'));
-  const fit = preset.get('fit');
-  if (!presetH || !fit) return sanityImageLoader({ src: base, width, quality });
-
-  const ratio = presetW ? presetW / presetH : width / presetH;
-  const native = sanityImageSize(base);
-  const outputWidth = native ? Math.min(width, native.width, Math.floor(native.height * ratio)) : width;
-  const params = new URLSearchParams({ w: String(outputWidth) });
-  params.set('h', String(Math.round(outputWidth / ratio)));
-  params.set('fit', fit);
-  params.set('auto', 'format');
-  params.set('q', String(quality ?? preset.get('q') ?? 80));
-  return `${base}?${params.toString()}`;
 }

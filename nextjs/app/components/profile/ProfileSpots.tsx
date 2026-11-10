@@ -8,6 +8,7 @@ import { useFavorites } from '@/lib/map/useFavorites';
 import { normalizeName } from '@/lib/normalizeName';
 import { notify } from '@/lib/notice';
 import styles from './Profile.module.css';
+import { sanityImagePosition } from '@/lib/sanity-image-presets';
 
 // Gespeicherte Spots (Firestore-Favoriten) als Ink-Tafeln mit Foto → Tipp öffnet
 // die Map. Jede Tafel trägt einen Knopf zum Entfernen, damit man Spots auch hier
@@ -117,7 +118,7 @@ export function ProfileSpotsContent({
                   {f.photo && (
                     <span
                       className={styles.spotImg}
-                      style={{ backgroundImage: `url(${f.photo})` }}
+                      style={{ backgroundImage: `url(${f.photo})`, backgroundPosition: sanityImagePosition(f.photo) }}
                     />
                   )}
                 </span>

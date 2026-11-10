@@ -1,0 +1,17 @@
+.fallback {
+  display: grid;
+  gap: 8px;
+  max-width: 100%;
+  flex-basis: 100%;
+  color: var(--et-fg);
+  font-size: 14px;
+}
+.fallback input {
+  width: 100%;
+  min-width: 0;
+  padding: 10px;
+  color: var(--et-fg);
+  background: var(--et-ground);
+  border: 1px solid var(--et-line);
+  font: inherit;
+}

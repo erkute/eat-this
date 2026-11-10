@@ -62,11 +62,20 @@ export function presetQuery(preset: ImagePresetName): string {
   return qs;
 }
 
-/** A GROQ image-URL snippet: `<path>.asset->url + "<preset query>"`.
- *  `path` is the dereference expression up to the image field, e.g.
- *  `image`, `restaurantRef->image`, `mustEatRef->restaurantRef->image`. */
+/** Carry the editor's crop and focal point in every projected image URL. */
 export function groqImageUrl(path: string, preset: ImagePresetName): string {
-  return `${path}.asset->url + "${presetQuery(preset)}"`;
+  const crop = `${path}.crop`;
+  const dim = `${path}.asset->metadata.dimensions`;
+  const left = `round(coalesce(${crop}.left, 0) * ${dim}.width)`;
+  const top = `round(coalesce(${crop}.top, 0) * ${dim}.height)`;
+  const width = `(${dim}.width - ${left} - round(coalesce(${crop}.right, 0) * ${dim}.width))`;
+  const height = `(${dim}.height - ${top} - round(coalesce(${crop}.bottom, 0) * ${dim}.height))`;
+  const hasCrop = ['left', 'top', 'right', 'bottom'].map(side => `${crop}.${side} > 0`).join(' || ');
+  return `(${path}.asset->url + "${presetQuery(preset)}" +
+    select((${hasCrop}) && defined(${dim}.width) && defined(${dim}.height) =>
+      "&rect=" + string(${left}) + "," + string(${top}) + "," + string(${width}) + "," + string(${height}), "") +
+    select(defined(${path}.hotspot.x) && defined(${path}.hotspot.y) =>
+      "${'h' in IMAGE_PRESETS[preset] ? '&crop=focalpoint' : ''}&fp-x=" + string(${path}.hotspot.x) + "&fp-y=" + string(${path}.hotspot.y), ""))`;
 }
 
 /**
@@ -137,41 +146,81 @@ export function restaurantPhotoCreditUrl(
  *  field straight through. */
 export function schemaImageUrl(url: string | null | undefined): string | undefined {
   if (!url || !url.includes('cdn.sanity.io')) return undefined;
-  return `${url.split('?')[0]}${presetQuery('schemaImage')}`;
+  const result = new URL(resizeSanityImage(url, 1200, 80));
+  result.searchParams.set('w', '1200');
+  result.searchParams.delete('h');
+  return result.toString();
 }
 
-/** Responsive `srcSet` for a raw `<img>` holding a Sanity CDN URL (projections
- *  bake a single preset width — fine for the fallback `src`, but without a
- *  srcset every viewport downloads that one size). Strips the baked query and
- *  re-derives one candidate per width, mirroring lib/sanityImageLoader.ts.
- *  Returns undefined for null/non-Sanity URLs so callers can pass it straight
- *  to the attribute. Pair it with an accurate `sizes` — a too-large `sizes`
- *  makes 2x screens pick a BIGGER candidate than the old fixed src. */
-export function sanitySrcSet(
-  url: string | null | undefined,
-  widths: number[],
-  q = 80
-): string | undefined {
-  if (!url || !url.includes('cdn.sanity.io')) return undefined;
-  const base = url.split('?')[0];
-  const nativeWidth = sanityImageSize(url)?.width;
-  const candidates = [...new Set(widths.map((w) => nativeWidth ? Math.min(w, nativeWidth) : w))];
-  return candidates.map((w) => `${base}?w=${w}&auto=format&q=${q} ${w}w`).join(', ');
+/** Responsive candidates retain all editorial transforms. */
+export function sanitySrcSet(url: string | null | undefined, widths: number[], q = 80): string | undefined {
+  if (!url?.startsWith('https://cdn.sanity.io/')) return undefined;
+  const urls = [...new Set(widths.map(width => resizeSanityImage(url, width, q)))];
+  return urls.map(src => `${src} ${new URL(src).searchParams.get('w')}w`).join(', ');
 }
 
-/** Match centered CSS object-fit: cover at the CDN, without downloading the
- * pixels outside a fixed-ratio slot or upscaling small originals. */
+/** Crop a fixed-ratio slot around the editorial focal point, inside its crop. */
 export function sanityCroppedSources(url: string, widths: number[], ratio: number) {
   const size = sanityImageSize(url);
   if (!url.startsWith('https://cdn.sanity.io/images/') || !size) return undefined;
-  const base = url.split('?')[0];
+  const [base, query] = url.split('?');
+  const params = new URLSearchParams(query);
+  const rect = params.get('rect')?.split(',').map(Number);
+  const original = base.match(/-(\d+)x(\d+)\.[a-z]+$/i);
+  if (original && (params.has('fp-x') || params.has('fp-y'))) {
+    const width = Math.min(size.width, Math.round(size.height * ratio));
+    const height = Math.min(size.height, Math.round(size.width / ratio));
+    const left = rect?.[0] ?? 0, top = rect?.[1] ?? 0;
+    const x = Number(params.get('fp-x') ?? .5) * Number(original[1]);
+    const y = Number(params.get('fp-y') ?? .5) * Number(original[2]);
+    params.set('rect', [
+      Math.round(Math.max(left, Math.min(x - width / 2, left + size.width - width))),
+      Math.round(Math.max(top, Math.min(y - height / 2, top + size.height - height))),
+      width, height,
+    ].join(','));
+    params.delete('fp-x'); params.delete('fp-y');
+  }
   const maximum = Math.max(1, Math.floor(Math.min(size.width, size.height * ratio)));
-  const candidates = [...new Set(widths.map(w => Math.max(1, Math.min(Math.round(w), maximum))))];
-  const source = (w: number) => `${base}?w=${w}&h=${Math.max(1, Math.round(w / ratio))}&fit=crop&crop=center&auto=format&q=80`;
-  return {
-    src: source(candidates[1] ?? candidates[0]),
-    srcSet: candidates.map(w => `${source(w)} ${w}w`).join(', '),
-  };
+  params.set('w', String(maximum));
+  params.set('h', String(Math.max(1, Math.round(maximum / ratio))));
+  params.set('fit', 'crop');
+  params.set('crop', 'center');
+  const source = `${base}?${params.toString()}`;
+  const candidates = [...new Set(widths.map(w => resizeSanityImage(source, Math.max(1, Math.round(w)), 80)))];
+  return { src: candidates[1] ?? candidates[0], srcSet: candidates.map(src => `${src} ${new URL(src).searchParams.get('w')}w`).join(', ') };
+}
+
+/** Resize without dropping rect, focal point, quality-independent transforms or aspect ratio. */
+export function resizeSanityImage(src: string, width: number, quality = 80): string {
+  const [base, query] = src.split('?');
+  const preset = new URLSearchParams(query);
+  const h = Number(preset.get('h')), w = Number(preset.get('w'));
+  const ratio = h && preset.get('fit') ? (w || width) / h : null;
+  const native = sanityImageSize(src);
+  const outputWidth = Math.max(1, Math.round(native ? Math.min(width, native.width, ratio ? Math.floor(native.height * ratio) : Infinity) : width));
+  const params = new URLSearchParams({ w: String(outputWidth) });
+  if (ratio) params.set('h', String(Math.max(1, Math.round(outputWidth / ratio))));
+  if (preset.has('fit')) params.set('fit', preset.get('fit')!);
+  if (preset.has('crop')) params.set('crop', preset.get('crop')!);
+  else if (ratio && preset.has('fp-x')) params.set('crop', 'focalpoint');
+  params.set('auto', 'format'); params.set('q', String(quality));
+  for (const [key, value] of preset) {
+    if (!['w', 'h', 'fit', 'crop', 'auto', 'q'].includes(key)) params.set(key, value);
+  }
+  return `${base}?${params.toString()}`;
+}
+
+/** CSS cover surfaces use the same focal point, relative to the editor's crop. */
+export function sanityImagePosition(url: string | null | undefined): string | undefined {
+  if (!url?.startsWith('https://cdn.sanity.io/')) return undefined;
+  const params = new URL(url).searchParams;
+  if (!params.has('fp-x') && !params.has('fp-y')) return undefined;
+  const match = url.split('?')[0].match(/-(\d+)x(\d+)\.[a-z]+$/i);
+  const size = sanityImageSize(url);
+  if (!match || !size) return undefined;
+  const rect = params.get('rect')?.split(',').map(Number);
+  const clamp = (n: number) => Math.max(0, Math.min(100, n));
+  return `${clamp((Number(params.get('fp-x') ?? .5) * Number(match[1]) - (rect?.[0] ?? 0)) / size.width * 100)}% ${clamp((Number(params.get('fp-y') ?? .5) * Number(match[2]) - (rect?.[1] ?? 0)) / size.height * 100)}%`;
 }
 
 /** A landscape photo cropped into a portrait slot needs more source pixels
@@ -189,6 +238,8 @@ export function coverImageScale(url: string | null | undefined, slotRatio: numbe
 export function sanityImageSize(
   url: string | null | undefined
 ): { width: number; height: number } | null {
+  const rect = url?.split('?')[1] && new URLSearchParams(url.split('?')[1]).get('rect')?.split(',').map(Number);
+  if (rect && rect.length === 4 && rect.every(Number.isFinite) && rect[2] > 0 && rect[3] > 0) return { width: rect[2], height: rect[3] };
   const match = url?.split('?')[0].match(/-(\d+)x(\d+)\.[a-z]+$/i);
   return match ? { width: Number(match[1]), height: Number(match[2]) } : null;
 }

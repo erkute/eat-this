@@ -1,4 +1,5 @@
 'use client';
+import { sanityImagePosition } from '@/lib/sanity-image-presets';
 import type { CSSProperties } from 'react';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { useRestaurantDetail, type RestaurantGalleryImage } from '@/lib/map/useRestaurantDetail';
@@ -308,6 +309,7 @@ export default function RestaurantDetail({
              there from the cache before the gallery on top of it loads. */
           '--rd-hero-image': `url(${JSON.stringify(spotPhotoSrc(r.photo))})`,
           backgroundImage: `url(${JSON.stringify(spotPhotoSrc(r.photo))})`,
+          backgroundPosition: sanityImagePosition(r.photo),
         } as CSSProperties)
       : undefined;
 

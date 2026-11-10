@@ -157,7 +157,7 @@ describe('MustEatsOnboarding', () => {
     expect(screen.queryByTestId('onb-pack')).toBeNull();
     fireEvent.click(screen.getByText('mustEats.onbNext'));
     expect(screen.getByTestId('onb-pack').getAttribute('src')).toContain(
-      '/pics/booster/booster.webp'
+      '/pics/booster/booster_pizza.webp'
     );
     expect(screen.queryByTestId('onb-flipper')).toBeNull();
   });

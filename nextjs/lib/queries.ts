@@ -1,6 +1,5 @@
 import {
   groqImageUrl,
-  presetQuery,
   publishableRestaurantImageUrl,
   restaurantPhotoCredit,
   restaurantPhotoCreditUrl,
@@ -52,8 +51,8 @@ const RESTAURANT_DETAIL_FIELDS = `
     "photoCreditUrl": ${restaurantPhotoCreditUrl('image')},
     "gallery": gallery[]{
       _key,
-      "thumb": asset->url + "${presetQuery('galleryThumb')}",
-      "full": asset->url + "${presetQuery('detailHero')}",
+      "thumb": ${groqImageUrl('@', 'galleryThumb')},
+      "full": ${groqImageUrl('@', 'detailHero')},
       alt,
       credit,
       creditUrl

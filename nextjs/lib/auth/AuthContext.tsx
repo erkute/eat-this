@@ -111,7 +111,7 @@ async function synchronizePremiumAccessWithRetry(user: User | null): Promise<boo
 // ─── Provider ──────────────────────────────────────────────────────────────
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [identity, setIdentity] = useState<{ user: User | null }>({ user: null });
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -158,7 +158,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         })
         .finally(() => {
           if (!active || currentGeneration !== generation) return;
-          setUser(firebaseUser);
+          setIdentity({ user: firebaseUser });
           setIsAdmin(admin);
           setLoading(false);
         });
@@ -297,10 +297,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const updateDisplayName = useCallback(async (name: string): Promise<void> => {
-    if (!auth.currentUser) throw new Error('Not authenticated');
-    await updateProfile(auth.currentUser, { displayName: name });
-    // Refresh local user state to reflect the updated display name
-    setUser({ ...auth.currentUser });
+    const currentUser = auth.currentUser;
+    if (!currentUser) throw new Error('Not authenticated');
+    await updateProfile(currentUser, { displayName: name });
+    // Preserve the SDK instance, including its prototype methods.
+    if (auth.currentUser === currentUser) setIdentity({ user: currentUser });
   }, []);
 
   const deleteAccount = useCallback(async (): Promise<void> => {
@@ -322,7 +323,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const value = useMemo<AuthContextValue>(
     () => ({
-      user,
+      user: identity.user,
       loading,
       isAdmin,
       prepareGoogleSignIn,
@@ -332,7 +333,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       deleteAccount,
     }),
     [
-      user,
+      identity,
       loading,
       isAdmin,
       prepareGoogleSignIn,

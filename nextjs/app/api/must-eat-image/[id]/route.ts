@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { clientIpFromXff } from '@/lib/clientIp';
 import { berlinDay, countSalt, visitorHash } from '@/lib/analytics/visitorHash';
-import { getPublicMustEatIds } from '@/lib/map/server-initial-map-data';
+import { getPublicMustEatIds, getPublishedMustEatContentKey } from '@/lib/map/server-initial-map-data';
 import { renderPrivateMustEatImage, type ImageVariant } from '@/lib/must-eat/private-image';
 import {
   PREMIUM_ACCESS_TTL_SECONDS,
@@ -150,7 +150,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     : null;
 
   try {
-    const image = await renderPrivateMustEatImage(id, variant, () =>
+    const contentKey = await getPublishedMustEatContentKey(id);
+    const image = await renderPrivateMustEatImage(contentKey, variant, () =>
       refuseWhenRateLimited(request)
     );
     return new NextResponse(new Uint8Array(image.body), {

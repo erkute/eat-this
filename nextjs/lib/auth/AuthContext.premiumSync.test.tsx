@@ -41,6 +41,8 @@ vi.mock('@/lib/map/map-data-cache', () => ({
 vi.mock('./googlePopupWarmup', () => ({ warmGooglePopup: vi.fn() }));
 
 import { AuthProvider, useAuth } from './AuthContext';
+import { auth } from '@/lib/firebase/config';
+import { updateProfile } from 'firebase/auth';
 
 const signedIn = {
   uid: 'u-1',
@@ -74,6 +76,26 @@ function mountAuth() {
 }
 
 describe('AuthContext — Sync der Bild-Sitzung', () => {
+  it('preserves SDK prototype methods and updates consumers after a name change', async () => {
+    class SdkUser {
+      uid = 'u-1';
+      displayName = 'Lukas';
+      async getIdToken() { return 'id-token'; }
+    }
+    const sdkUser = new SdkUser() as User;
+    Object.assign(auth, { currentUser: sdkUser });
+    vi.mocked(updateProfile).mockImplementationOnce(async (_user, profile) => {
+      Object.assign(sdkUser, { displayName: profile.displayName ?? null });
+    });
+    stubPremiumAccess(['ok']);
+    const { result } = mountAuth();
+    await act(async () => { mocks.emitIdToken!(sdkUser); });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    await act(async () => { await result.current.updateDisplayName('Neuer Name'); });
+    expect(result.current.user).toBe(sdkUser);
+    expect(result.current.user?.displayName).toBe('Neuer Name');
+    await expect(result.current.user?.getIdToken()).resolves.toBe('id-token');
+  });
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.emitIdToken = null;

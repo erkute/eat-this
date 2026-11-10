@@ -261,6 +261,8 @@ export interface MapRestaurant {
 
 export interface MapMustEat {
   _id: string;
+  /** Immutable private content selected by the published Sanity document. */
+  cardVersion?: string;
   // dish/image/description/price are the paid content: the server strips them
   // for covered (face-down) cards (see lib/map/stripCoveredMustEats.ts), so
   // they're only present when the card is face-up for this viewer.

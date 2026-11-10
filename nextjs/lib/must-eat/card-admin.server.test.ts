@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
   projectId: 'eat-this-8a13b' as string | undefined,
   doc: { data: undefined as Record<string, unknown> | undefined },
   set: vi.fn(),
+  versions: new Map<string, Record<string, unknown>>(),
   save: vi.fn(),
   exists: vi.fn(),
   download: vi.fn(),
@@ -14,11 +15,12 @@ vi.mock('@/lib/firebase/admin', () => ({
   getAdminProjectId: () => mocks.projectId,
   getAdminFirestore: () => ({
     collection: () => ({
-      doc: () => ({
-        get: async () => ({ data: () => mocks.doc.data }),
+      doc: (id: string) => ({
+        get: async () => ({ data: () => id.includes('/versions/') ? mocks.versions.get(id) : mocks.doc.data }),
         set: async (value: Record<string, unknown>, options: unknown) => {
-          mocks.set(value, options);
-          mocks.doc.data = { ...mocks.doc.data, ...value };
+          mocks.set(value, options, id);
+          if (id.includes('/versions/')) mocks.versions.set(id, value);
+          else mocks.doc.data = { ...mocks.doc.data, ...value };
         },
       }),
     }),
@@ -49,6 +51,7 @@ describe('Must-Eat-Karte aus dem Studio', () => {
     vi.clearAllMocks();
     mocks.projectId = 'eat-this-8a13b';
     mocks.doc.data = undefined;
+    mocks.versions.clear();
     mocks.exists.mockReturnValue(false);
     mocks.download.mockResolvedValue(await card(1026, 1410));
   });
@@ -74,12 +77,16 @@ describe('Must-Eat-Karte aus dem Studio', () => {
     const [written] = mocks.set.mock.calls[0];
     expect(written).toMatchObject({ ...TEXT, restaurantId: 'spot-1', imageObjectPath: path, schemaVersion: 1 });
     expect(state).toMatchObject({ exists: true, restaurantId: 'spot-1' });
+    expect(state.version).toMatch(/^[a-f0-9]{64}$/);
+    expect(mocks.set.mock.calls[0][2]).toBe(`card-1/versions/${state.version}`);
+    expect(mocks.doc.data).toBeUndefined();
     expect(state.preview).toMatch(/^data:image\/webp;base64,/);
   });
 
   it('behält beim Textändern das bisherige Bild', async () => {
     mocks.doc.data = { ...TEXT, imageObjectPath: 'premium/must-eats/card-1/abc.webp', imageContentType: 'image/webp', imageSha256: 'abc' };
     await writeMustEatCard({ id: 'card-1', restaurantId: 'spot-1', text: { ...TEXT, dish: 'Banh Mi' }, image: null });
+    expect(mocks.doc.data?.dish).toBe(TEXT.dish);
     expect(mocks.save).not.toHaveBeenCalled();
     expect(mocks.set.mock.calls[0][0]).toMatchObject({ dish: 'Banh Mi', imageObjectPath: 'premium/must-eats/card-1/abc.webp' });
   });

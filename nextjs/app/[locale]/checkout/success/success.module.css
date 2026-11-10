@@ -1,15 +1,10 @@
-/* Die Bestätigung nach dem Kauf — dieselbe Tafel wie die Pack-Tafeln, von
-   denen der Besucher gerade kommt: gelber Kicker, weiße Versalien, weicher
-   Fließtext, ein gelber Knopf. Die Seite steht seit 03.09.2026 auf Ink
-   (globals.css malt den Rahmen), die Tafel traegt die leise Stufe — als Ink
-   auf Ink waere sie unsichtbar. Vorher eine schräg gestellte weiße Karte mit
-   rotem Titel und roter Pille — die einzige gekippte Fläche der Site. */
+/* Bestätigung und Fehlerzustände teilen die appweiten Theme-Farben. */
 .page {
-  --conversion-ink: var(--et-ink);
-  --conversion-paper: var(--et-white);
-  --conversion-accent: var(--et-accent);
-  --conversion-soft: rgba(255, 255, 255, 0.76);
-  --conversion-quiet: rgba(255, 255, 255, 0.55);
+  --conversion-ink: var(--et-fg);
+  --conversion-paper: var(--et-fg);
+  --conversion-accent: var(--et-link);
+  --conversion-soft: var(--et-copy);
+  --conversion-quiet: var(--et-muted);
 
   min-height: 100svh;
   display: flex;
@@ -29,7 +24,7 @@
   align-items: center;
   gap: 14px;
   padding: clamp(32px, 5vw, 56px) clamp(24px, 4vw, 48px);
-  background: var(--et-ink-quiet);
+  background: var(--et-subtle);
   color: var(--conversion-paper);
   border-radius: var(--et-radius-photo);
   text-align: center;
@@ -54,8 +49,7 @@
   text-transform: uppercase;
 }
 
-/* Der Pack-Name als gelbe Kreide-Zeile, wie „467 Spots · 26 Must Eats" auf
-   der All-Berlin-Tafel. */
+/* Der Pack-Name nutzt dieselbe Akzentfarbe wie die Statuszeile. */
 .packTag {
   display: inline-block;
   color: var(--conversion-accent);
@@ -83,7 +77,7 @@
   line-height: 1.35;
 }
 
-/* Gelb auf Ink — Ink auf Ink verschwände. Hover: Papier. */
+/* Die globale Knopfvariante übernimmt beide Themes. */
 .cta {
   width: min(100%, 360px);
   margin-top: 12px;

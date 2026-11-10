@@ -62,7 +62,7 @@ export async function getArticleBySlug(slug: string): Promise<NewsArticle | null
   return readSanity<NewsArticle | null>(
     articleBySlugQuery,
     { slug },
-    { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: [`article:${slug}`] } }
+    { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: [`article:${slug}`, 'news', 'restaurant', 'bezirk', 'mustEat'] } }
   );
 }
 

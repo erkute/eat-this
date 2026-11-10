@@ -23,6 +23,19 @@ beforeEach(() => {
 });
 
 describe('private Must-Eat hydration', () => {
+  it('keeps published and draft restaurant changes independent through immutable revisions', async () => {
+    const version = 'a'.repeat(64);
+    const oldContent = { dish: 'Published', description: 'DE', descriptionEn: 'EN', price: '', restaurantId: 'r1', imageObjectPath: 'premium/must-eats/m1/old.webp', imageContentType: 'image/webp', schemaVersion: 1 as const };
+    const draftContent = { ...oldContent, dish: 'Draft', restaurantId: 'r2' };
+    const read = vi.fn(async () => ({ m1: oldContent, [`m1/versions/${version}`]: draftContent }));
+    const [beforePublish] = await hydrateAuthorizedMustEats([metadata], new Set(['m1']), read);
+    expect(beforePublish.dish).toBe('Published');
+    const [afterPublish] = await hydrateAuthorizedMustEats([{ ...metadata, cardVersion: version, restaurant: { ...metadata.restaurant, _id: 'r2' } }], new Set(['m1']), read);
+    expect(afterPublish.dish).toBe('Draft');
+    // An older cached Sanity response still selects its own consistent content.
+    const [cached] = await hydrateAuthorizedMustEats([metadata], new Set(['m1']), read);
+    expect(cached.dish).toBe('Published');
+  });
   it('hydrates only an explicitly authorized ID without exposing a storage URL', async () => {
     getAll.mockResolvedValue([
       {

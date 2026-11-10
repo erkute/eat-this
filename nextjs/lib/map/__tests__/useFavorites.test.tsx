@@ -38,6 +38,24 @@ describe('useFavorites uid isolation', () => {
     mocks.getDocs.mockImplementation(pendingSnapshot);
   });
 
+  it('shares reads, optimistic changes and rollbacks between simultaneous consumers', async () => {
+    mocks.getDocs.mockResolvedValue({ docs: [] });
+    let finish!: (response: Response) => void;
+    vi.stubGlobal('fetch', vi.fn(() => new Promise<Response>((resolve) => { finish = resolve; })));
+    const first = renderHook(() => useFavorites('shared-user'));
+    const second = renderHook(() => useFavorites('shared-user'));
+    await waitFor(() => expect(first.result.current.loading || second.result.current.loading).toBe(false));
+    expect(mocks.getDocs).toHaveBeenCalledTimes(1);
+    let write!: Promise<boolean>;
+    act(() => { write = first.result.current.toggle({ _id: 'spot', name: 'Spot' }); });
+    expect(second.result.current.favoriteIds.has('spot')).toBe(true);
+    await waitFor(() => expect(finish).toBeTypeOf('function'));
+    await act(async () => { finish(new Response(null, { status: 500 })); await write; });
+    expect(first.result.current.favoriteIds.size).toBe(0);
+    expect(second.result.current.favoriteIds.size).toBe(0);
+    vi.unstubAllGlobals();
+  });
+
   it('atomically clears the previous account on uid change and sign-out', async () => {
     window.localStorage.setItem(
       'eatthis_favorites_user-a',

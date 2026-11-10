@@ -30,7 +30,7 @@
     "audit:css-modules": "tsx scripts/audit-css-modules.ts",
     "check:embeddings": "tsx scripts/check-embeddings.ts",
     "test": "vitest run",
-    "test:rules": "npx --yes firebase-tools@14.22.0 emulators:exec --only firestore,storage --project eat-this-rules-test \"vitest run __tests__/firestore.rules.test.ts __tests__/storage.rules.test.ts\"",
+    "test:rules": "npx --yes firebase-tools@14.22.0 emulators:exec --only firestore,storage --project eat-this-rules-test \"vitest run __tests__/firestore.rules.test.ts __tests__/storage.rules.test.ts __tests__/app/api/referral-confirm.integration.test.ts\"",
     "test:watch": "vitest",
     "start:verify": "NEXT_DIST_DIR=.next-verify next start --hostname 127.0.0.1 --port 3100",
     "test:e2e": "playwright test",
@@ -45,9 +45,9 @@
     "@react-email/components": "^1.0.12",
     "@react-email/render": "^2.0.8",
     "@sanity/client": "^7.22.1",
-    "@sentry/nextjs": "^10.76.0",
+    "@sentry/nextjs": "^10.78.0",
     "dotenv": "^17.4.2",
-    "firebase": "^12.14.0",
+    "firebase": "^12.19.0",
     "firebase-admin": "^13.10.0",
     "framer-motion": "^12.40.0",
     "google-auth-library": "^10.6.2",
@@ -92,6 +92,12 @@
       "postcss": "^8.5.26"
     },
     "sharp": "^0.35.5",
-    "uuid": "^11.1.1"
+    "uuid": "^11.1.1",
+    "@firebase/firestore": {
+      "@grpc/grpc-js": "^1.14.7"
+    },
+    "@sentry/bundler-plugins": {
+      "glob": "^14.0.2"
+    }
   }
 }

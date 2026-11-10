@@ -13,8 +13,11 @@ export function guardMustEatPublish(publish: DocumentActionComponent): DocumentA
     const client = useClient({apiVersion: '2024-01-01'})
     const spot = (props.draft ?? props.published)?.restaurantRef as {_ref?: string} | undefined
     const spotId = spot?._ref
-    const [problem, setProblem] = useState<string | null>('Karte wird geprüft …')
+    const version = (props.draft ?? props.published)?.cardVersion
     const [checks, setChecks] = useState(0)
+    const key = JSON.stringify([props.id, spotId, version, checks])
+    const [result, setResult] = useState<{key: string; problem: string | null} | null>(null)
+    const problem = result?.key === key ? result.problem : 'Karte wird geprüft …'
 
     useEffect(() => {
       const onSaved = (event: Event) => {
@@ -25,16 +28,19 @@ export function guardMustEatPublish(publish: DocumentActionComponent): DocumentA
     }, [props.id])
 
     useEffect(() => {
+      const setProblem = (problem: string | null) => setResult({key, problem})
       if (!spotId) {
         setProblem('Erst den Spot wählen.')
         return
       }
+      setProblem('Karte wird geprüft …')
       let cancelled = false
       readMustEatCard(client, props.id, false)
         .then((card) => {
           if (cancelled) return
           if (!card.exists) setProblem('Erst die Karte speichern: Bild, Gericht und beide Beschreibungen.')
           else if (card.restaurantId !== spotId) setProblem('Die Karte gehört noch zum vorherigen Spot. Einmal „Karte speichern“.')
+          else if (card.version !== version) setProblem('Die Kartenfassung wird noch synchronisiert. Bitte erneut speichern.')
           else setProblem(null)
         })
         .catch((error: Error) => {
@@ -43,7 +49,7 @@ export function guardMustEatPublish(publish: DocumentActionComponent): DocumentA
       return () => {
         cancelled = true
       }
-    }, [client, props.id, spotId, checks])
+    }, [client, props.id, spotId, version, key])
 
     if (!action || !problem) return action
     return {...action, disabled: true, title: problem}

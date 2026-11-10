@@ -9,7 +9,8 @@
  * Optional: --map <json> (Standard: scripts/data/must-eat-cards.json).
  *
  * Die Karte ist die Quelle: `dish`, `description` und `descriptionEn` aus der
- * Mapping-Datei landen so in Firestore, wie sie dort stehen. Der Preis steht
+ * Mapping-Datei landen als neue Fassung in Firestore. Der Sanity-Entwurf
+ * wählt sie aus; erst Veröffentlichen aktiviert sie. Der Preis steht
  * auf keiner Karte und bleibt unberührt. Das alte Objekt im Bucket bleibt
  * liegen: der neue Pfad
  * traegt den Hash des neuen Bildes, ein Rueckweg kostet also nur ein Update
@@ -24,6 +25,8 @@ import crypto from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
+import { mustEatContentKey } from '../lib/must-eat/contentKey';
+import { attachMustEatCardVersion, type MustEatDraft } from '../lib/must-eat/card-draft.server';
 
 const COLLECTION = 'privateMustEats';
 const OBJECT_PREFIX = 'premium/must-eats/';
@@ -44,8 +47,7 @@ interface CardMapEntry {
 
 const TEXT_FIELDS = ['dish', 'description', 'descriptionEn'] as const;
 
-interface SanityMustEat {
-  _id: string;
+interface SanityMustEat extends MustEatDraft {
   order?: number;
   restaurant?: string;
 }
@@ -114,27 +116,17 @@ async function main() {
     perspective: token ? 'raw' : 'published',
     ...(token ? { token } : {}),
   });
-  // Drafts gehoeren dazu: eine noch nicht publizierte Karte hat ihren
-  // Firestore-Datensatz laengst, und ein korrigiertes Motiv dafuer wuerde
-  // sonst durch den Rost fallen. Der Praefix `drafts.` faellt weg — Firestore
-  // und der Bucket kennen nur die nackte ID; liegt ein Dokument in beiden
-  // Fassungen vor, bleibt es nach dem Entdoppeln trotzdem ein Tausch.
   const rows = await sanity.fetch<SanityMustEat[]>(
-    `*[_type == "mustEat"] | order(order asc) {
-      _id, order, "restaurant": restaurantRef->name
-    }`
+    `*[_type == "mustEat"] | order(order asc) {..., "restaurant": restaurantRef->name}`
   );
-  const mustEats = [
-    ...new Map(
-      rows.map((mustEat) => {
-        const bare = { ...mustEat, _id: mustEat._id.replace(/^drafts\./, '') };
-        return [bare._id, bare] as const;
-      })
-    ).values(),
-  ];
-  if (!token) {
-    console.log('Hinweis: kein SANITY_API_WRITE_TOKEN — Drafts bleiben unsichtbar');
+  const byId = new Map<string, SanityMustEat>();
+  for (const row of rows) {
+    const id = row._id.replace(/^drafts\./, '');
+    if (!byId.has(id) || row._id.startsWith('drafts.')) byId.set(id, row);
   }
+  const mustEats = [...byId.values()];
+  if (apply && !token)
+    throw new Error('SANITY_API_WRITE_TOKEN fehlt: Änderungen werden als Entwurf gespeichert.');
 
   const planned = mustEats
     .filter((mustEat) => typeof mustEat.order === 'number' && byOrder.has(mustEat.order))
@@ -161,29 +153,37 @@ async function main() {
 
   let changed = 0;
   for (const { mustEat, card } of planned) {
+    const id = mustEat._id.replace(/^drafts\./, '');
     const source = path.join(cardsDir, card.file);
     const image = await sharp(source)
       .resize({ width: MAX_WIDTH, withoutEnlargement: true })
       .webp({ quality: WEBP_QUALITY })
       .toBuffer();
     const imageSha256 = sha256(image);
-    const objectPath = `${OBJECT_PREFIX}${mustEat._id}/${imageSha256}.webp`;
+    const objectPath = `${OBJECT_PREFIX}${id}/${imageSha256}.webp`;
 
-    const snapshot = await db.collection(COLLECTION).doc(mustEat._id).get();
+    const snapshot = await db
+      .collection(COLLECTION)
+      .doc(mustEatContentKey(id, mustEat.cardVersion))
+      .get();
     const data = snapshot.data();
     if (!data) throw new Error(`Kein Firestore-Dokument fuer ${mustEat._id}`);
     if (data.restaurantId === undefined) {
       throw new Error(`Firestore-Dokument ${mustEat._id} hat kein restaurantId`);
     }
     const label = `${String(card.order).padStart(3, '0')} ${card.spot} — ${card.dish}`;
-    const textChanges = (imagesOnly ? [] : TEXT_FIELDS).filter((field) => data[field] !== card[field]);
+    const textChanges = (imagesOnly ? [] : TEXT_FIELDS).filter(
+      (field) => data[field] !== card[field]
+    );
     const imageChanged = data.imageObjectPath !== objectPath;
     if (!imageChanged && textChanges.length === 0) {
       console.log(`unveraendert  ${label} (${mustEat._id})`);
       continue;
     }
 
-    const text = Object.fromEntries((imagesOnly ? [] : TEXT_FIELDS).map((field) => [field, card[field]]));
+    const text = Object.fromEntries(
+      (imagesOnly ? [] : TEXT_FIELDS).map((field) => [field, card[field]])
+    );
     const what = [imageChanged && 'Bild', ...textChanges].filter(Boolean).join(', ');
     console.log(`${apply ? 'tausche     ' : 'wuerde tauschen'} ${label} (${mustEat._id}): ${what}`);
     for (const field of textChanges) {
@@ -209,16 +209,25 @@ async function main() {
         },
       });
     }
+    const current = Object.fromEntries(Object.entries(data).filter(([key]) => key !== 'updatedAt'));
+    const next = {
+      ...current,
+      ...text,
+      imageObjectPath: objectPath,
+      imageContentType: 'image/webp',
+      imageSha256,
+    };
+    const version = sha256(Buffer.from(JSON.stringify(next)));
     await db
       .collection(COLLECTION)
-      .doc(mustEat._id)
-      .update({
-        ...text,
-        imageObjectPath: objectPath,
-        imageContentType: 'image/webp',
-        imageSha256,
+      .doc(mustEatContentKey(id, version))
+      .set({
+        ...next,
         updatedAt: FieldValue.serverTimestamp(),
       });
+    const selected = { ...mustEat };
+    delete selected.restaurant;
+    await attachMustEatCardVersion(sanity, selected, version);
   }
 
   console.log(

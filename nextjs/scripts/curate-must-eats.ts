@@ -27,6 +27,7 @@ import crypto from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
+import { mustEatContentKey } from '../lib/must-eat/contentKey';
 
 const COLLECTION = 'privateMustEats';
 const OBJECT_PREFIX = 'premium/must-eats/';
@@ -141,6 +142,14 @@ async function main() {
   );
 
   for (const entry of spec.add) {
+    const existing = await sanity.fetch<string[]>(`*[_id in [$id, $draftId]]._id`, {
+      id: entry.id,
+      draftId: `drafts.${entry.id}`,
+    });
+    if (existing.length)
+      throw new Error(
+        `${entry.id} existiert bereits. Änderungen über replace-must-eat-cards oder das Studio speichern.`
+      );
     const restaurant = await sanity.fetch<{ name: string } | null>(`*[_id == $id][0]{name}`, {
       id: entry.restaurantId,
     });
@@ -193,9 +202,10 @@ async function main() {
         },
       });
     }
+    const cardVersion = sha256(Buffer.from(JSON.stringify(record)));
     await db
       .collection(COLLECTION)
-      .doc(entry.id)
+      .doc(mustEatContentKey(entry.id, cardVersion))
       .set({
         ...record,
         updatedAt: FieldValue.serverTimestamp(),
@@ -206,7 +216,7 @@ async function main() {
     const draftId = `drafts.${entry.id}`;
     if (!token) {
       console.log(
-        `         OFFEN: Sanity-Dokument ${draftId} anlegen (mustEat, restaurantRef ${entry.restaurantId}, order ${entry.order}, revealedForAnon ${entry.revealedForAnon})`
+        `         OFFEN: Sanity-Dokument ${draftId} anlegen (mustEat, restaurantRef ${entry.restaurantId}, cardVersion ${cardVersion}, order ${entry.order}, revealedForAnon ${entry.revealedForAnon})`
       );
       continue;
     }
@@ -216,6 +226,7 @@ async function main() {
       .patch(draftId, (patch) =>
         patch.set({
           _type: 'mustEat',
+          cardVersion,
           restaurantRef: { _type: 'reference', _ref: entry.restaurantId },
           order: entry.order,
           revealedForAnon: entry.revealedForAnon,
@@ -246,7 +257,7 @@ async function main() {
     );
     if (!apply) continue;
 
-    await db.collection(COLLECTION).doc(entry.id).delete();
+    await db.recursiveDelete(db.collection(COLLECTION).doc(entry.id));
     if (!token) {
       console.log(
         `         Firestore-Datensatz geloescht — OFFEN: Sanity ${entry.id} (und drafts.${entry.id}) loeschen`

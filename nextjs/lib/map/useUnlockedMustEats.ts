@@ -61,6 +61,7 @@ export function useUnlockedMustEats(uid: string | null): UseUnlockedMustEatsResu
   const viewer = useRef({ uid });
   if (viewer.current.uid !== uid) viewer.current = { uid };
 
+  const successfulReveals = useRef(new Map<string, number>());
   const [reveals, setReveals] = useState<Map<string, number>>(() => readCache(uid));
   // A warm cache means we can paint immediately; only "loading" when there's
   // nothing cached to show yet.
@@ -68,6 +69,8 @@ export function useUnlockedMustEats(uid: string | null): UseUnlockedMustEatsResu
 
   useEffect(() => {
     const requestViewer = viewer.current;
+    const additions = new Map<string, number>();
+    successfulReveals.current = additions;
     if (!uid) {
       setReveals(new Map());
       setLoading(false);
@@ -90,8 +93,11 @@ export function useUnlockedMustEats(uid: string | null): UseUnlockedMustEatsResu
         const next = new Map(
           snap.docs.map((d) => [d.id, toEpochMs((d.data() as { unlockedAt?: unknown }).unlockedAt)])
         );
+        for (const [id, at] of additions) next.set(id, at);
         setReveals(next);
         writeCache(uid, next);
+      } catch {
+        // Keep the cached and newly confirmed reveals when the initial read fails.
       } finally {
         if (active && viewer.current === requestViewer) setLoading(false);
       }
@@ -120,9 +126,11 @@ export function useUnlockedMustEats(uid: string | null): UseUnlockedMustEatsResu
       if (!r.ok || !isCurrent()) return null;
       const { mustEat } = (await r.json()) as { mustEat: MapMustEat };
       if (!isCurrent()) return null;
+      const revealedAt = Date.now();
+      successfulReveals.current.set(mustEatId, revealedAt);
       setReveals((prev) => {
         if (!isCurrent()) return prev;
-        const next = new Map(prev).set(mustEatId, Date.now());
+        const next = new Map(prev).set(mustEatId, revealedAt);
         writeCache(uid, next);
         return next;
       });

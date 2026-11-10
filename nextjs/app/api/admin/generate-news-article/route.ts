@@ -210,7 +210,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    await applyGeneratedArticle(sanity, input.documentId, current, article, input.replace);
+    await applyGeneratedArticle(sanity, input.documentId, article, input.replace);
   } catch (error) {
     Sentry.captureException(error, { extra: { source: 'admin-generate-news-article' } });
     return json(

@@ -13,6 +13,7 @@ export interface MustEatCardText {
 }
 
 export interface MustEatCard extends MustEatCardText {
+  version?: string
   exists: boolean
   /** Spot, zu dem die gespeicherte Karte gehört. */
   restaurantId: string | null

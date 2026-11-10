@@ -38,6 +38,14 @@ describe('getArticleBySlug', () => {
     expect(await getArticleBySlug('best-ramen')).toEqual(mock);
   });
 
+  it('invalidates embedded restaurant data when its source documents change', async () => {
+    mockFetch.mockResolvedValue(null as never);
+    await getArticleBySlug('best-ramen');
+    expect(mockFetch).toHaveBeenLastCalledWith(expect.any(String), { slug: 'best-ramen' }, {
+      next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['article:best-ramen', 'news', 'restaurant', 'bezirk', 'mustEat'] },
+    });
+  });
+
   it('returns null when not found', async () => {
     mockFetch.mockResolvedValue(null as never);
     expect(await getArticleBySlug('nope')).toBeNull();

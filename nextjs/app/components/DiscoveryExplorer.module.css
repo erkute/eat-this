@@ -83,3 +83,14 @@
 .districtName { font-size: 18px; }
 .hintAction { font-size: 13px; }
 }
+
+.districtList {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 16px;
+  max-width: 1000px;
+  margin: 24px auto 0;
+  padding: 0 20px 32px;
+  list-style: none;
+}

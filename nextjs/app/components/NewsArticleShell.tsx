@@ -1,3 +1,4 @@
+import { articleContent } from '@/lib/article-content';
 import Image from '@/app/components/SiteImage';
 import { PortableTextRenderer, extractHeadings } from '@/lib/PortableTextRenderer';
 import { Link } from '@/i18n/navigation';
@@ -20,7 +21,7 @@ import MagazineCover from './MagazineCover';
 import MagazineLink from './MagazineLink';
 import { articleHubLink, articleHubLabel } from '@/lib/seo/articleHubLinks';
 import { chapterShortLabel } from '@/lib/headingDeck';
-import { coverImageScale, sanitySrcSet } from '@/lib/sanity-image-presets';
+import { sanityImageSize, coverImageScale, sanitySrcSet } from '@/lib/sanity-image-presets';
 import { scaleSizes } from '@/lib/magazineCover';
 import styles from './NewsArticleShell.module.css';
 import ArticleMustEatArtwork from './ArticleMustEatArtwork';
@@ -196,8 +197,8 @@ export default function NewsArticleShell({
 
   const de = locale === 'de';
   const title = (de ? article.titleDe : article.title) || article.title || article.titleDe || '';
-  const excerpt = (de ? article.excerptDe : article.excerpt) || article.excerpt || '';
-  const content = (de ? article.contentDe : article.content) || article.content || [];
+  const excerpt = (de ? article.excerptDe : article.excerpt) || article.excerpt || article.excerptDe || '';
+  const content = articleContent(article, locale);
   const dateFormatted = formatDate(article.date, locale);
   // Die Spots eines Guides für die Zeile unter dem Kopf: nur Überschriften, die
   // einen Spot eröffnen — direkt darunter steht seine Spot-Karte. Erzählende
@@ -340,8 +341,9 @@ export default function NewsArticleShell({
   // out here instead of rendering an empty frame.
   const renderImage = (block: ArticleImageBlock) => {
     if (!block.imageUrl) return null;
-    const width = block.imageWidth || 1440;
-    const height = block.imageHeight || 1080;
+    const dimensions = sanityImageSize(block.imageUrl);
+    const width = dimensions?.width || block.imageWidth || 1440;
+    const height = dimensions?.height || block.imageHeight || 1080;
     return (
       <figure className={styles.inlineImage}>
         <Image
@@ -367,15 +369,19 @@ export default function NewsArticleShell({
       const row = images.slice(index, index + count);
       rows.push(
         <div className={styles.imageRow} data-article-image-row="" key={row[0]._key ?? index}>
-          {row.map((block, imageIndex) => (
+          {row.map((block, imageIndex) => {
+            const dimensions = sanityImageSize(block.imageUrl);
+            const width = dimensions?.width || block.imageWidth || 1440;
+            const height = dimensions?.height || block.imageHeight || 1080;
+            return (
             <figure key={block._key ?? imageIndex}
-              style={{ '--img-ratio': (block.imageWidth || 1440) / (block.imageHeight || 1080) } as React.CSSProperties}>
+              style={{ '--img-ratio': width / height } as React.CSSProperties}>
               <Image src={block.imageUrl!} alt={block.alt || ''}
-                width={block.imageWidth || 1440} height={block.imageHeight || 1080}
+                width={width} height={height}
                 sizes="(max-width: 767.98px) 100vw, (max-width: 1023.98px) 50vw, 70vw" />
               {block.caption && <figcaption>{block.caption}</figcaption>}
             </figure>
-          ))}
+          ); })}
         </div>
       );
       index += count;

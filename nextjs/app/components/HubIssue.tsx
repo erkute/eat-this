@@ -8,7 +8,7 @@ import type { RestaurantCard } from '@/lib/types';
 import { localizedCuisine } from '@/lib/cuisineLabels';
 import { normalizeName } from '@/lib/normalizeName';
 import { pickLocale } from '@/lib/i18n/pickLocale';
-import { sanitySrcSet, coverImageScale } from '@/lib/sanity-image-presets';
+import { sanityImagePosition, sanitySrcSet, coverImageScale } from '@/lib/sanity-image-presets';
 import { scaleSizes } from '@/lib/magazineCover';
 import { formatArticleDate } from '@/lib/articleDate';
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
@@ -96,7 +96,7 @@ function Photo({
       src={src}
       srcSet={sanitySrcSet(src, widths.map(w => Math.round(w * scale)))}
       sizes={scaleSizes(sizes, scale)}
-      style={position ? { objectPosition: position } : undefined}
+      style={{ objectPosition: position ?? sanityImagePosition(src) }}
       alt=""
       loading={eager ? 'eager' : 'lazy'}
       fetchPriority={eager ? 'auto' : 'low'}

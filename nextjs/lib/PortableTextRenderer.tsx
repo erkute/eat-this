@@ -1,3 +1,4 @@
+import { Link } from '@/i18n/navigation';
 import { Fragment, type ReactNode } from 'react';
 import type {
   PortableTextBlock,
@@ -21,6 +22,7 @@ type MarkDef = LinkDef | { _key: string; _type: string };
 type Block = PortableTextBlock & {
   style?: string;
   listItem?: string;
+  level?: number;
   children?: Span[];
   markDefs?: MarkDef[];
 };
@@ -49,11 +51,16 @@ function isMapLink(href: string): boolean {
 function renderLink(def: LinkDef, node: ReactNode): ReactNode {
   const href = def.href;
   if (!href) return node;
-  const internal = href.startsWith('/');
+  const internal = href.startsWith('/') && !href.startsWith('//');
   const rel = [isMapLink(href) ? 'nofollow' : null, internal ? null : 'noopener noreferrer']
     .filter(Boolean)
     .join(' ');
   const target = !internal && def.blank ? '_blank' : undefined;
+  if (internal) {
+    const explicitLocale = href.match(/^\/(de|en)(?=\/|[?#]|$)/)?.[1] as 'de' | 'en' | undefined;
+    const path = explicitLocale ? href.slice(3) || '/' : href;
+    return <Link href={path.startsWith('/') ? path : `/${path}`} locale={explicitLocale} {...(rel ? { rel } : {})}>{node}</Link>;
+  }
   return (
     <a href={href} {...(rel ? { rel } : {})} {...(target ? { target } : {})}>
       {node}
@@ -159,8 +166,7 @@ export function PortableTextRenderer({
   if (!blocks?.length) return null;
 
   const out: ReactNode[] = [];
-  let listTag: 'ol' | 'ul' | null = null;
-  let listItems: ReactNode[] = [];
+  let listBlocks: Block[] = [];
 
   // Ein Fazit ist keine weitere Kapitelüberschrift, sondern der Schluss des
   // Textes — die Überschrift wird zum Etikett, und die Absätze darunter gehören
@@ -182,12 +188,30 @@ export function PortableTextRenderer({
   };
 
   const flushList = () => {
-    if (!listTag) return;
-    const Tag = listTag;
+    if (!listBlocks.length) return;
+    let cursor = 0;
+    const levelOf = (block: Block) => Math.max(1, block.level ?? 1);
+    const renderLists = (level: number): ReactNode[] => {
+      const lists: ReactNode[] = [];
+      while (cursor < listBlocks.length && levelOf(listBlocks[cursor]) >= level) {
+        const Tag = listBlocks[cursor].listItem === 'number' ? 'ol' : 'ul';
+        const items: ReactNode[] = [];
+        while (cursor < listBlocks.length && levelOf(listBlocks[cursor]) >= level) {
+          const block = listBlocks[cursor];
+          const tag = block.listItem === 'number' ? 'ol' : 'ul';
+          if (tag !== Tag) break;
+          cursor++;
+          const nested = cursor < listBlocks.length && levelOf(listBlocks[cursor]) > level
+            ? renderLists(levelOf(listBlocks[cursor])) : null;
+          items.push(<li key={block._key ?? cursor}>{renderChildren(block.children, block.markDefs)}{nested}</li>);
+        }
+        lists.push(<Tag key={lists.length}>{items}</Tag>);
+      }
+      return lists;
+    };
     const target = sink();
-    target.push(<Tag key={`list-${target.length}`}>{listItems}</Tag>);
-    listTag = null;
-    listItems = [];
+    target.push(<Fragment key={`list-${target.length}`}>{renderLists(1)}</Fragment>);
+    listBlocks = [];
   };
 
   for (let index = 0; index < blocks.length; index++) {
@@ -231,14 +255,7 @@ export function PortableTextRenderer({
     }
 
     if (raw.listItem) {
-      const wantTag = raw.listItem === 'number' ? 'ol' : 'ul';
-      if (listTag !== wantTag) {
-        flushList();
-        listTag = wantTag;
-      }
-      listItems.push(
-        <li key={raw._key ?? listItems.length}>{renderChildren(raw.children, raw.markDefs)}</li>
-      );
+      listBlocks.push(raw);
       continue;
     }
 

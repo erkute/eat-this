@@ -6,11 +6,13 @@
 // `loader`-Prop als Funktion nicht aus einer Server-Komponente heraus
 // übergeben werden kann — hier entsteht er erst im Client-Modul.
 
+import { sanityImagePosition } from '@/lib/sanity-image-presets';
 import Image, { type ImageProps } from 'next/image';
-import { isSanityImage, sanityNextImageLoader } from '@/lib/imageLoader';
+import { isSanityImage } from '@/lib/imageLoader';
+import sanityImageLoader from '@/lib/sanityImageLoader';
 
 export default function SiteImage(props: ImageProps) {
   const sanity = typeof props.src === 'string' && isSanityImage(props.src);
   // eslint-disable-next-line jsx-a11y/alt-text -- `alt` kommt über die Props.
-  return <Image {...props} quality={props.quality ?? 80} loader={sanity ? sanityNextImageLoader : props.loader} />;
+  return <Image {...props} style={sanity ? { objectPosition: sanityImagePosition(props.src as string), ...props.style } : props.style} quality={props.quality ?? 80} loader={sanity ? sanityImageLoader : props.loader} />;
 }

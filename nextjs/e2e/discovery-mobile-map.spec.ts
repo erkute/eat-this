@@ -141,7 +141,7 @@ test('district glow cycles without a permanent tint and stops on interaction', a
   await expect(page.locator('#discovery-announcement')).toContainText('Tippen zum Entdecken');
   await expect(preview).toHaveCSS('fill', 'rgb(168, 43, 46)');
   await page.screenshot({ path: `/tmp/eat-this-map-redesign/qa/${test.info().project.name}-glow.png` });
-  await page.getByRole('link', { name: 'Mitte', exact: true }).press('Tab');
+  await page.getByRole('navigation', { name: 'Alle Bezirke', exact: true }).getByRole('link', { name: 'Mitte', exact: true }).press('Tab');
   await expect(preview).toHaveCount(0);
   // Ruhend in der Schriftfarbe (--et-fg), hell also Ink, dunkel Weiss.
   await expect(page.locator('[data-map-area="neukoelln"]')).toHaveCSS('fill', 'rgb(21, 18, 14)');

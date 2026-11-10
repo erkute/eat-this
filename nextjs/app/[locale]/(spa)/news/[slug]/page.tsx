@@ -1,3 +1,4 @@
+import { articleContent } from '@/lib/article-content';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
@@ -95,7 +96,7 @@ export default async function NewsArticlePage({ params }: PageProps) {
 
   // Dieselbe Fassung, die NewsArticleShell rendert — sonst beschriebe die
   // ItemList eine Liste, die auf dieser Seite gar nicht steht.
-  const renderedBlocks = (de ? a.contentDe : a.content) || a.content;
+  const renderedBlocks = articleContent(a, locale);
   const spotsItemList = buildArticleSpotsItemList({
     blocks: renderedBlocks,
     locale,

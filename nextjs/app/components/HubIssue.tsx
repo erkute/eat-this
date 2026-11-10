@@ -99,6 +99,7 @@ function Photo({
       style={position ? { objectPosition: position } : undefined}
       alt=""
       loading={eager ? 'eager' : 'lazy'}
+      fetchPriority={eager ? 'auto' : 'low'}
       decoding="async"
     />
   );

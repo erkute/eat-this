@@ -75,8 +75,14 @@ describe('MagazineCover', () => {
     expect(html).toContain('loading="eager"');
   });
 
+  it('keeps a small real photo in the initial HTML for later issues', () => {
+    const html = render({ cover: { look: 'silver' } });
+    expect(html).toContain('w=160&amp;h=213');
+    expect(html).not.toContain('srcSet=');
+  });
+
   it('downloads the visible portrait crop instead of hidden landscape pixels', () => {
-    const html = render({ cover: { look: 'silver' }, widths: [300, 600] });
+    const html = render({ priority: true, cover: { look: 'silver' }, widths: [300, 600] });
     expect(html).toContain('w=300&amp;h=400&amp;fit=crop&amp;crop=center');
     expect(html).toContain('w=600&amp;h=800&amp;fit=crop&amp;crop=center');
     expect(html).toContain('sizes="300px"');
@@ -87,7 +93,7 @@ describe('MagazineCover', () => {
   });
 
   it('crops a centered beauty zoom while retaining its extra resolution', () => {
-    const html = render({ cover: { look: 'beauty' }, widths: [300, 600] });
+    const html = render({ priority: true, cover: { look: 'beauty' }, widths: [300, 600] });
     expect(html).toContain('w=480&amp;h=640&amp;fit=crop');
     expect(html).toContain('sizes="calc(300px * 1.6)"');
     expect(html).toContain('scale:1.6');
@@ -96,7 +102,8 @@ describe('MagazineCover', () => {
   it("waits with its images when it is not the page's lead", () => {
     const html = render({ cover: dish });
     expect(html).not.toContain('loading="eager"');
-    expect(html).not.toContain('fetchPriority');
+    expect(html).toContain('fetchPriority="low"');
+    expect(html).not.toContain('fetchPriority="high"');
   });
 
   it('marks itself for MagazineLink', () => {

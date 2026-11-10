@@ -3,16 +3,8 @@ import { OG_CARD_VERSION, SITE_URL } from '@/lib/constants';
 import { localeUrl } from '@/lib/locale-url';
 import type { LandingFaqEntry } from '@/lib/landing/faqs';
 
-// The brand share cards (yellow EAT THIS mark). Declaring them as the page's
-// primaryImageOfPage gives Google a structured, crawlable hint for the
-// SERP/Discover thumbnail. Without it Google free-picks a random restaurant
-// photo from the image-rich hub (it's not obliged to honour og:image for
-// thumbnails), which is why the home thumbnail looked off.
-//
-// Both shapes are offered, wide first. og:image is 1200×630 because that is
-// what link previews crop to, but the square is what a SERP thumbnail wants —
-// listing only one would hand Google a card it has to crop or drop. The two
-// ImageObjects carry distinct @ids; sharing one would collide.
+// Prefer the square card for search thumbnails. Open Graph uses the wide card
+// for link previews.
 const WIDE_IMAGE_URL = `${SITE_URL}/pics/og-card.png?v=${OG_CARD_VERSION}`;
 const SQUARE_IMAGE_URL = `${SITE_URL}/pics/og-card-square.png?v=${OG_CARD_VERSION}`;
 
@@ -33,12 +25,12 @@ export function buildHomeJsonLd(faqs: LandingFaqEntry[], locale: 'de' | 'en' = '
         name: 'EAT THIS – Food Map',
         inLanguage: locale === 'de' ? 'de-DE' : 'en-US',
         isPartOf: { '@id': `${SITE_URL}/#website` },
-        primaryImageOfPage: { '@id': `${SITE_URL}/#primaryimage` },
-        image: [{ '@id': `${SITE_URL}/#primaryimage` }, { '@id': `${SITE_URL}/#squareimage` }],
+        primaryImageOfPage: { '@id': `${SITE_URL}/#squareimage` },
+        image: [{ '@id': `${SITE_URL}/#squareimage` }, { '@id': `${SITE_URL}/#wideimage` }],
       },
       {
         '@type': 'ImageObject',
-        '@id': `${SITE_URL}/#primaryimage`,
+        '@id': `${SITE_URL}/#wideimage`,
         url: WIDE_IMAGE_URL,
         contentUrl: WIDE_IMAGE_URL,
         width: 1200,

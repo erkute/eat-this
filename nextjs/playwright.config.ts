@@ -22,7 +22,7 @@ export default defineConfig({
     { name: 'mobile', use: { ...devices['Pixel 7'] } },
     {
       name: 'mobile-safari',
-      testMatch: ['checkout-theme.spec.ts', 'loading-priority.spec.ts', 'cookie-dom-resilience.spec.ts', 'private-musteat-images.spec.ts', 'sentry-regressions.spec.ts', 'iphone-landscape-regressions.spec.ts', 'magazine-archive.spec.ts', 'home-device-layout.spec.ts', 'landscape-pages.spec.ts', 'landscape-spot.spec.ts', 'map-landscape-rail.spec.ts', 'home-landscape-musteats.spec.ts', 'must-eat-gallery-zoom.spec.ts', 'touch-feedback.spec.ts', 'remy-menu.spec.ts', 'home-scroll-motion.spec.ts', 'cookie-first-paint.spec.ts', 'login-viewport.spec.ts', 'login-window.spec.ts', 'home-faq.spec.ts'],
+      testMatch: ['checkout-theme.spec.ts', 'loading-priority.spec.ts', 'cookie-dom-resilience.spec.ts', 'private-musteat-images.spec.ts', 'sentry-regressions.spec.ts', 'iphone-landscape-regressions.spec.ts', 'magazine-archive.spec.ts', 'news-loading.spec.ts', 'home-device-layout.spec.ts', 'landscape-pages.spec.ts', 'landscape-spot.spec.ts', 'map-landscape-rail.spec.ts', 'home-landscape-musteats.spec.ts', 'must-eat-gallery-zoom.spec.ts', 'touch-feedback.spec.ts', 'remy-menu.spec.ts', 'home-scroll-motion.spec.ts', 'cookie-first-paint.spec.ts', 'login-viewport.spec.ts', 'login-window.spec.ts', 'home-faq.spec.ts'],
       use: { ...devices['iPhone 13'] },
     },
     {

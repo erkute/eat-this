@@ -22,6 +22,7 @@ vi.mock('@/app/components/NewsSection', () => ({
 import SPACatchAllPage, {
   generateMetadata,
 } from '@/app/[locale]/(spa)/[...slug]/page'
+import NewsPage, { generateMetadata as newsMetadata } from '@/app/[locale]/(spa)/news/page'
 
 beforeEach(() => {
   mocks.notFound.mockClear()
@@ -53,6 +54,17 @@ describe('SPA catch-all exact path matching', () => {
     expect(mocks.getStaticPage).not.toHaveBeenCalled()
   })
 
+})
+
+describe('News index', () => {
+  it.each(['de', 'en'])('keeps localized canonical metadata for %s', async (locale) => {
+    const metadata = await newsMetadata({ params: Promise.resolve({ locale }) })
+    const canonical = `https://www.eatthisdot.com${locale === 'en' ? '/en' : ''}/news`
+    expect(metadata.title).toBe('News')
+    expect(metadata.alternates?.canonical).toBe(canonical)
+    expect(metadata.openGraph?.url).toBe(canonical)
+  })
+
   it('emits BreadcrumbList and ItemList data for the news index', async () => {
     mocks.getAllNewsArticles.mockResolvedValueOnce([
       {
@@ -64,8 +76,8 @@ describe('SPA catch-all exact path matching', () => {
       },
     ])
 
-    const element = await SPACatchAllPage({
-      params: Promise.resolve({ locale: 'de', slug: ['news'] }),
+    const element = await NewsPage({
+      params: Promise.resolve({ locale: 'de' }),
     })
     const html = renderToStaticMarkup(element)
 

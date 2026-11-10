@@ -149,4 +149,3 @@ function inlineParse(text) {
   }
   return {children, markDefs}
 }
-

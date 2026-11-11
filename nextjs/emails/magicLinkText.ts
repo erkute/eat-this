@@ -9,7 +9,7 @@ const TEXT = {
   de: {
     signOff: ['—', 'Du hast keine Anmeldung angefordert? Dann kannst du diese E-Mail ignorieren.'],
     validity: 'Dein Anmeldelink ist eine Stunde gültig und gilt nur für deine E-Mail-Adresse.',
-    loginIntro: 'Schön, dass du wieder da bist. Hier ist dein Anmeldelink:',
+    loginIntro: 'Hier ist dein Login-Link:',
     signupLead:
       'Mit deiner Anmeldung kommen 20 zusätzliche Must Eats in dein Deck.',
     signupIntro: 'Bei Eat This anmelden:',
@@ -21,7 +21,7 @@ const TEXT = {
   en: {
     signOff: ['—', 'Didn’t request a sign-in? Then you can ignore this email.'],
     validity: 'Your sign-in link is valid for one hour and only works for your email address.',
-    loginIntro: 'Good to have you back. Here’s your sign-in link:',
+    loginIntro: 'Here’s your sign-in link:',
     signupLead:
       'Sign up and add 20 additional Must Eats to your deck.',
     signupIntro: 'Sign up for Eat This:',

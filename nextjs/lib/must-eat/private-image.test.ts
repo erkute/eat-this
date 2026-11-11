@@ -131,6 +131,60 @@ describe('renderPrivateMustEatImage', () => {
     expect(image.etag).toBe('"E1"');
   });
 
+  it('serves a stored variant without downloading the original or resizing', async () => {
+    const stored: StoredImage = { body: Buffer.from('stored'), contentType: 'image/webp', etag: 'E1' };
+    const readVariant = vi.fn(async () => stored);
+    const storeVariant = vi.fn(async () => {});
+    const { render, download, resize, gate } = setup({ readVariant, storeVariant });
+    const image = await render('m1', w360, gate);
+
+    expect(image.body.toString()).toBe('stored');
+    expect(image.etag).toBe('"E1-w360-q80-webp"');
+    expect(readVariant).toHaveBeenCalledExactlyOnceWith(
+      'premium/must-eat-variants/v1/premium/must-eats/m1/aaa.webp-w360-q80-webp'
+    );
+    expect(download).not.toHaveBeenCalled();
+    expect(resize).not.toHaveBeenCalled();
+    expect(storeVariant).not.toHaveBeenCalled();
+    expect(gate).toHaveBeenCalledTimes(1);
+  });
+
+  it('stores a freshly resized variant under the path it is read from', async () => {
+    const readVariant = vi.fn(async (_path: string) => null);
+    const storeVariant = vi.fn(async () => {});
+    const { render, gate } = setup({ readVariant, storeVariant });
+    const image = await render('m1', w360, gate);
+
+    expect(image.body.toString()).toBe('orig@360');
+    expect(storeVariant).toHaveBeenCalledExactlyOnceWith(
+      readVariant.mock.calls[0]![0],
+      expect.objectContaining({ contentType: 'image/webp', etag: 'E1' })
+    );
+  });
+
+  it('still renders when the variant store cannot be read or written', async () => {
+    const readVariant = vi.fn(async () => Promise.reject(new Error('bucket down')));
+    const storeVariant = vi.fn(async () => Promise.reject(new Error('bucket down')));
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const { render, gate } = setup({ readVariant, storeVariant });
+    const image = await render('m1', w360, gate);
+    spy.mockRestore();
+
+    expect(image.body.toString()).toBe('orig@360');
+    expect(image.etag).toBe('"E1-w360-q80-webp"');
+  });
+
+  it('does not store the original when resizing fails', async () => {
+    const resize = vi.fn(async () => Promise.reject(new Error('unsupported')));
+    const storeVariant = vi.fn(async () => {});
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const { render, gate } = setup({ resize, readVariant: async () => null, storeVariant });
+    await render('m1', w360, gate);
+    spy.mockRestore();
+
+    expect(storeVariant).not.toHaveBeenCalled();
+  });
+
   it('refuses a bucket object that is not an image', async () => {
     const download = vi.fn(async () => ({ ...original(), contentType: 'text/html' }));
     const { render, gate } = setup({ download });

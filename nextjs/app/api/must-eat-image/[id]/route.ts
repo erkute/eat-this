@@ -45,7 +45,10 @@ const NO_STORE = 'private, no-store';
 // 440 is the home teaser's 2x rung (208 px slot on a phone): without it that
 // case fell through to 720 and downloaded 63 kB for a 208 px card instead of
 // 28 kB. Add rungs deliberately — every new number is another sharp run.
-const ALLOWED_WIDTHS = [90, 180, 360, 440, 720, 1200] as const;
+// 540 is the 3x rung for the 170–180 px grid cards (album, pack, gallery):
+// without it those phones fell through to 720, the slowest variant in the
+// production log (median 1.6 s of server time, 11.11.2026).
+const ALLOWED_WIDTHS = [90, 180, 360, 440, 540, 720, 1200] as const;
 
 function pickWidth(raw: string | null): number | null {
   const n = Number(raw);

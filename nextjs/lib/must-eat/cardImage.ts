@@ -6,7 +6,7 @@
    rastet dort ohnehin auf die nächste ein und wäre nur ein zweiter Cache-Eintrag. */
 
 const ROUTE_PREFIX = '/api/must-eat-image/';
-const CARD_WIDTHS = [180, 360, 440, 720] as const;
+const CARD_WIDTHS = [180, 360, 440, 540, 720] as const;
 const VERSION_LENGTH = 12;
 
 type MustEatCardWidth = (typeof CARD_WIDTHS)[number];

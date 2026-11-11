@@ -16,7 +16,34 @@ vi.mock('@/lib/must-eat/private-store', () => ({
 
 const download = vi.fn()
 const getMetadata = vi.fn()
-const file = vi.fn(() => ({ download, getMetadata }))
+// Abgelegte Varianten leben im Bucket neben den Originalen; hier ein Speicher
+// im Test, damit eine frische Instanz sie wiederfindet.
+const storedVariants = new Map<string, { body: Buffer; contentType: string; originalEtag?: string }>()
+const variantFile = (path: string) => ({
+  download: async () => {
+    const stored = storedVariants.get(path)
+    if (!stored) throw Object.assign(new Error('No such object'), { code: 404 })
+    return [stored.body]
+  },
+  getMetadata: async () => {
+    const stored = storedVariants.get(path)
+    if (!stored) throw Object.assign(new Error('No such object'), { code: 404 })
+    return [{ contentType: stored.contentType, metadata: { originalEtag: stored.originalEtag } }]
+  },
+  save: async (
+    body: Buffer,
+    options: { contentType: string; metadata: { metadata: { originalEtag?: string } } }
+  ) => {
+    storedVariants.set(path, {
+      body,
+      contentType: options.contentType,
+      originalEtag: options.metadata.metadata.originalEtag,
+    })
+  },
+})
+const file = vi.fn((path: string) =>
+  path.startsWith('premium/must-eat-variants/') ? variantFile(path) : { download, getMetadata }
+)
 vi.mock('@/lib/firebase/admin', () => ({
   getAdminStorage: () => ({ bucket: () => ({ file }) }),
 }))
@@ -36,6 +63,11 @@ vi.mock('@/lib/must-eat/premium-session', () => ({
   premiumSessionCookieName: () => 'premium_session',
   readPremiumSessionUid: () => readPremiumSessionUid(),
 }))
+
+// Die Varianten-Ablage laeuft nur auf der ausgerollten Instanz.
+vi.hoisted(() => {
+  process.env.K_SERVICE = 'test'
+})
 
 import { GET } from '@/app/api/must-eat-image/[id]/route'
 import { resetPrivateMustEatImageCache } from '@/lib/must-eat/private-image'
@@ -74,6 +106,7 @@ beforeEach(() => {
   vi.clearAllMocks()
   // Der Prozess-Cache der Route ueberlebt sonst jeden Testfall.
   resetPrivateMustEatImageCache()
+  storedVariants.clear()
   vi.stubEnv('PREMIUM_ACCESS_SIGNING_KEY', 'test-signing-key-with-enough-entropy')
   vi.stubEnv('COUNT_SALT', 'test-salt')
   checkWindowedRateLimit.mockResolvedValue({ allowed: true })
@@ -204,6 +237,26 @@ describe('/api/must-eat-image/[id]', () => {
     expect(body.byteLength).toBeLessThan(original.byteLength)
     // Das Bucket-ETag beschreibt das Original — die Variante braucht ihr eigenes.
     expect(response.headers.get('etag')).toBe('"etag-1-w180-q80-webp"')
+  })
+
+  it('serves a fresh instance the stored variant, byte-identical and without the original', async () => {
+    download.mockResolvedValue([await pngFixture()])
+    getMetadata.mockResolvedValue([{ contentType: 'image/png', etag: 'etag-1' }])
+    getPublicMustEatIds.mockResolvedValue(new Set(['m1']))
+    const get = () =>
+      GET(request(undefined, '?w=180&auto=format&q=80'), { params: Promise.resolve({ id: 'm1' }) })
+
+    const first = await get()
+    const firstBody = Buffer.from(await first.arrayBuffer())
+    resetPrivateMustEatImageCache()
+    download.mockClear()
+    const second = await get()
+
+    expect(second.status).toBe(200)
+    expect(Buffer.from(await second.arrayBuffer()).equals(firstBody)).toBe(true)
+    expect(second.headers.get('content-type')).toBe('image/webp')
+    expect(second.headers.get('etag')).toBe(first.headers.get('etag'))
+    expect(download).not.toHaveBeenCalled()
   })
 
   it('snaps the width to the allowed ladder and leaves oversized requests alone', async () => {

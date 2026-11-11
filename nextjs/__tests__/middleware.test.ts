@@ -109,12 +109,12 @@ describe('middleware: Basic Auth + X-Robots-Tag', () => {
     expect(config.matcher[0]).not.toContain('?!api|')
   })
 
-  /* Die eine Ausnahme, und sie ist genau eine: `api/og`. App Hosting streicht
-     auf jedem gematchten Pfad `s-maxage` — die OG-Karten hatten damit keinen
-     CDN-Cache, obwohl ihr Publikum ausschliesslich aus fremden Maschinen
-     besteht. Der Test haelt beide Haelften fest: dass die Bilder draussen
-     sind, und dass sonst nichts mitgerutscht ist. */
-  it('nimmt genau die OG-Bilder aus dem Matcher, sonst keine API', async () => {
+  /* Zwei Ausnahmen, und genau zwei: `api/og` und `api/must-eat-image`. App
+     Hosting streicht auf jedem gematchten Pfad `public`/`s-maxage` — OG-Karten
+     und offene Kartenbilder hatten damit keinen CDN-Cache. Der Test haelt
+     beide Haelften fest: dass die Bilder draussen sind, und dass sonst nichts
+     mitgerutscht ist. */
+  it('nimmt genau die OG- und Kartenbilder aus dem Matcher, sonst keine API', async () => {
     process.env.NEXT_PUBLIC_ENV = 'staging'
     vi.resetModules()
     const { config } = await import('@/middleware')
@@ -122,11 +122,12 @@ describe('middleware: Basic Auth + X-Robots-Tag', () => {
 
     expect(matches('/api/og/deck')).toBe(false)
     expect(matches('/api/og/restaurant')).toBe(false)
+    expect(matches('/api/must-eat-image/abc')).toBe(false)
 
     // Alles andere bleibt hinter dem Staging-Tor.
     expect(matches('/api/friends')).toBe(true)
     expect(matches('/api/map-data')).toBe(true)
-    expect(matches('/api/must-eat-image/abc')).toBe(true)
+    expect(matches('/api/must-eat-reveal')).toBe(true)
     expect(matches('/deck/' + 'a'.repeat(28))).toBe(true)
     expect(matches('/')).toBe(true)
   })

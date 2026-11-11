@@ -267,7 +267,7 @@ export const config = {
   // `__` exempts the Firebase Auth helper proxy (/__/auth/*, see rewrites() in
   // next.config.ts) from locale routing and redirects.
   //
-  // `api/og` ist die eine bewusste Ausnahme davon. App Hosting streicht auf
+  // `api/og` und `api/must-eat-image` sind die bewussten Ausnahmen davon. App Hosting streicht auf
   // JEDEM middleware-gematchten Pfad `public`/`s-maxage` und haengt `private`
   // an (gemessen auf prod, 25.08.2026) — die OG-Routen hatten damit
   // keinen CDN-Cache und rechneten jede Karte neu, gemessen 1–2,4 s pro
@@ -283,7 +283,15 @@ export const config = {
   // (`deck` — dieselbe Auskunft, die die Deck-Seite jedem Anonymen gibt).
   // Was Staging wirklich schuetzt, sind die SEITEN, und die bleiben drin:
   // ohne sie ist ein Bild ohne Zusammenhang.
+  //
+  // Die Kartenbilder kamen aus demselben Grund nie aus dem CDN, obwohl die
+  // Route offene Karten als `public` ausweist: jeder Abruf ging bis zur
+  // Instanz in us-central1 (Prod-Log 04.–11.11.2026: Median 413 ms, jedes
+  // zehnte Bild ueber 3,1 s). Verdeckte Karten bleiben geschuetzt, auch auf
+  // Staging: die Route selbst verlangt fuer sie Session und Capability und
+  // antwortet `private`. Offen liegen nur die Motive, die jeder anonyme
+  // Besucher ohnehin sieht.
   matcher: [
-    '/((?!_next|_vercel|__|api/og|css|js|pics|fonts|favicon.ico|manifest.json|robots.txt|sitemap.xml|.*\\..*).*)',
+    '/((?!_next|_vercel|__|api/og|api/must-eat-image|css|js|pics|fonts|favicon.ico|manifest.json|robots.txt|sitemap.xml|.*\\..*).*)',
   ],
 };

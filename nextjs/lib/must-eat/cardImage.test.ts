@@ -47,7 +47,7 @@ describe('mustEatCardSrcSet', () => {
     const widths = mustEatCardSrcSet('/api/must-eat-image/a')!
       .split(', ')
       .map((c) => Number(c.split(' ')[1].replace('w', '')));
-    expect(widths).toEqual([180, 360, 440, 720]);
+    expect(widths).toEqual([180, 360, 440, 540, 720]);
   });
 
   it('gibt fuer fremde Bilder kein srcset', () => {

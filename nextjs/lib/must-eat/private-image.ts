@@ -23,6 +23,14 @@ import { getPrivateMustEatContent, type PrivateMustEatContent } from './private-
      ersetzte Karte kommt also bis zu fuenf Minuten alt heraus — dieselbe
      Frist, die der oeffentliche Zweig der Route ohnehin als max-age nennt.
 
+   Der Prozess-Cache endet mit der Instanz, und die startet mehrmals am Tag
+   neu (76 Mal in den sieben Tagen bis 11.11.2026). Die ersten 20 Bilder
+   einer frischen Instanz brauchten im Median 826 ms, jedes zehnte 4,7 s; ein
+   Profil mit zwoelf Karten in 720 px wartete 20 s auf sharp. Darum liegt jede
+   gerechnete Variante zusaetzlich im Bucket, unter einem Pfad aus Original
+   und Variante: eine frische Instanz laedt dann 30 kB, statt 300 kB zu holen
+   und neu zu rechnen.
+
    Gleichzeitige Anfragen nach demselben Ding teilen sich einen Ladevorgang:
    sechs Karten auf einem Startbild-Teaser heissen einen Download, nicht
    sechs. Der Speicher pro Instanz bleibt klein — 54 Originale sind rund
@@ -125,6 +133,10 @@ interface PrivateMustEatImageDeps {
   readContent: (id: string) => Promise<PrivateMustEatContent>;
   download: (objectPath: string) => Promise<StoredImage>;
   resize: (original: StoredImage, variant: ImageVariant) => Promise<StoredImage>;
+  /** Eine frueher gerechnete Variante aus dem Bucket; `null`, wenn es sie
+   *  nicht gibt. */
+  readVariant?: (objectPath: string) => Promise<StoredImage | null>;
+  storeVariant?: (objectPath: string, image: StoredImage) => Promise<void>;
   now?: () => number;
 }
 
@@ -135,6 +147,21 @@ type PaidWorkGate = () => Promise<void>;
 
 function variantSuffix(variant: ImageVariant): string {
   return `-w${variant.width}-q${variant.quality}${variant.webp ? '-webp' : ''}`;
+}
+
+/** Ein neuer Abschnitt nach `must-eat-variants/` verwirft alle abgelegten
+ *  Varianten, wenn sich aendert, wie sharp sie rechnet. */
+const VARIANT_PREFIX = 'premium/must-eat-variants/v1/';
+
+function variantObjectPath(imageObjectPath: string, suffix: string): string {
+  return `${VARIANT_PREFIX}${imageObjectPath}${suffix}`;
+}
+
+function logVariantStoreFailure(action: string, error: unknown): void {
+  console.error(
+    `[must-eat-image] stored variant ${action} failed`,
+    error instanceof Error ? error.name : 'UnknownError'
+  );
 }
 
 function withEtag(image: StoredImage, suffix: string): RenderedMustEatImage {
@@ -173,10 +200,22 @@ export function createPrivateMustEatImageRenderer(deps: PrivateMustEatImageDeps)
     const suffix = variantSuffix(variant);
     return variants.get(`${imageObjectPath}${suffix}`, async () => {
       await gate();
+      const storedPath = variantObjectPath(imageObjectPath, suffix);
+      // Ein Fehler beim Lesen oder Ablegen kostet nur die Abkuerzung: dann
+      // wird gerechnet wie ohne Ablage.
+      const stored = await deps.readVariant?.(storedPath).catch((error: unknown) => {
+        logVariantStoreFailure('read', error);
+        return null;
+      });
+      if (stored) return withEtag(stored, suffix);
       // Das Original liegt hinter demselben Riegel — einmal gefragt reicht.
       const original = await loadOriginal(imageObjectPath, async () => {});
       try {
-        return withEtag(await deps.resize(original, variant), suffix);
+        const resized = await deps.resize(original, variant);
+        await deps.storeVariant?.(storedPath, resized).catch((error: unknown) => {
+          logVariantStoreFailure('write', error);
+        });
+        return withEtag(resized, suffix);
       } catch (error) {
         // Ein Format, das sharp nicht anfasst (SVG, animiertes GIF), ist kein
         // Grund, gar kein Bild zu liefern — dann eben das Original.
@@ -214,6 +253,36 @@ async function downloadFromBucket(objectPath: string): Promise<StoredImage> {
   };
 }
 
+/* Das ETag der Variante leitet sich vom Original ab (siehe `withEtag`); es
+   reist als Metadatum mit, damit eine abgelegte Variante dasselbe ETag
+   traegt wie eine frisch gerechnete. */
+async function readVariantFromBucket(objectPath: string): Promise<StoredImage | null> {
+  const file = getAdminStorage().bucket().file(objectPath);
+  try {
+    const [[body], [metadata]] = await Promise.all([file.download(), file.getMetadata()]);
+    const originalEtag = metadata.metadata?.originalEtag;
+    return {
+      body,
+      contentType: metadata.contentType ?? 'application/octet-stream',
+      etag: typeof originalEtag === 'string' ? originalEtag : null,
+    };
+  } catch (error) {
+    if ((error as { code?: unknown }).code === 404) return null;
+    throw error;
+  }
+}
+
+async function storeVariantInBucket(objectPath: string, image: StoredImage): Promise<void> {
+  await getAdminStorage()
+    .bucket()
+    .file(objectPath)
+    .save(image.body, {
+      resumable: false,
+      contentType: image.contentType,
+      metadata: { metadata: image.etag ? { originalEtag: image.etag } : {} },
+    });
+}
+
 async function resizeWithSharp(original: StoredImage, variant: ImageVariant): Promise<StoredImage> {
   // `withoutEnlargement`: ein kleineres Original bleibt, wie es ist —
   // Hochskalieren kostet Bytes und bringt kein Pixel dazu.
@@ -238,6 +307,13 @@ const renderer = createPrivateMustEatImageRenderer({
   readContent: getPrivateMustEatContent,
   download: downloadFromBucket,
   resize: resizeWithSharp,
+  // Nur die ausgerollte Instanz (Cloud Run setzt `K_SERVICE`) legt Varianten
+  // ab. Ein lokaler Lauf haengt an denselben Zugangsdaten wie Produktion und
+  // schriebe sonst Bilder aus der sharp-Version des Entwicklerrechners in
+  // deren Bucket.
+  ...(process.env.K_SERVICE
+    ? { readVariant: readVariantFromBucket, storeVariant: storeVariantInBucket }
+    : {}),
 });
 export const renderPrivateMustEatImage = renderer.render;
 export const resetPrivateMustEatImageCache = renderer.reset;

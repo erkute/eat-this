@@ -199,7 +199,7 @@ describe('buildHomeJsonLd', () => {
   const images = () =>
     graph().filter((node: { '@type': string }) => node['@type'] === 'ImageObject');
 
-  it('offers both share-card shapes, wide first', () => {
+  it('offers both share-card shapes', () => {
     const [wide, square] = images();
     expect([wide.width, wide.height]).toEqual([1200, 630]);
     expect([square.width, square.height]).toEqual([1200, 1200]);
@@ -211,8 +211,8 @@ describe('buildHomeJsonLd', () => {
     const [wide, square] = images();
     expect(wide['@id']).not.toBe(square['@id']);
     const page = graph().find((node: { '@type': string }) => node['@type'] === 'WebPage');
-    expect(page.image).toEqual([{ '@id': wide['@id'] }, { '@id': square['@id'] }]);
-    expect(page.primaryImageOfPage).toEqual({ '@id': wide['@id'] });
+    expect(page.image).toEqual([{ '@id': square['@id'] }, { '@id': wide['@id'] }]);
+    expect(page.primaryImageOfPage).toEqual({ '@id': square['@id'] });
   });
 });
 

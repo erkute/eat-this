@@ -23,8 +23,8 @@ function text(s:string,left:number,top:number,width:number,size:number,bold=fals
 // The same original transparent claim used by the live hero and Figma master.
 const claim=await sharp('public/pics/home/silver-hero/slogan-desktop.webp').png().toBuffer();
 const copy={
- de:{loginTitle:'Schön, dass du\nwieder da bist.',signupLead:'Mit deiner Anmeldung kommen 20 zusätzliche Must Eats in dein Deck.',loginLead:'Hier geht’s zurück zu deinem Deck und den Berliner Spots.',signupKicker:'20 ZUSÄTZLICHE MUST EATS',spotTitle:'Wo wir essen gehen.',brand:'Eat This',links:['Impressum','Datenschutz','Kontakt']},
- en:{loginTitle:'Good to have\nyou back.',signupLead:'Sign up and add 20 additional Must Eats to your deck.',loginLead:'Back to your deck and Berlin’s food spots.',signupKicker:'20 ADDITIONAL MUST EATS',spotTitle:'Where we eat.',brand:'Eat This',links:['Legal notice','Privacy','Contact']},
+ de:{loginTitle:'Schön, dass du\nwieder da bist.',signupLead:'Mit deiner Anmeldung kommen 20 zusätzliche Must Eats in dein Deck.',loginLead:'Hier geht’s zurück zu deinem Deck und den Berliner Spots.',signupKicker:'20 ZUSÄTZLICHE MUST EATS',spotTitle:'Wo wir essen gehen.',links:['Über mich','Kontakt','Impressum','Datenschutz','AGB']},
+ en:{loginTitle:'Good to have\nyou back.',signupLead:'Sign up and add 20 additional Must Eats to your deck.',loginLead:'Back to your deck and Berlin’s food spots.',signupKicker:'20 ADDITIONAL MUST EATS',spotTitle:'Where we eat.',links:['About me','Contact','Legal notice','Privacy','Terms']},
 };
 async function lineCount(value:string,width:number,size:number,line=1.3,bold=false){
  const probe=Buffer.from(await new ImageResponse(h('div',{style:{display:'flex',width:width*2,height:500,fontFamily:BRAND_FONT_NAME,fontSize:size*2,lineHeight:line,fontWeight:bold?700:400}},value),{width:width*2,height:500,fonts:faces}).arrayBuffer());
@@ -65,13 +65,27 @@ for(const locale of ['de','en'] as const){const c=copy[locale],suffix=locale==='
  const labelPng=Buffer.from(await new ImageResponse(h('div',{style:{display:'flex',fontFamily:BRAND_FONT_NAME,fontWeight:700,fontSize:36,color:COLOR.text,background:COLOR.accent,width:220,height:50,alignItems:'center',justifyContent:'center'}},label),{width:220,height:50,fonts:faces}).arrayBuffer());
  await save(`cta${suffix}`,labelPng,110,label);
  if(locale==='en'){const signUp=Buffer.from(await new ImageResponse(h('div',{style:{display:'flex',fontFamily:BRAND_FONT_NAME,fontWeight:700,fontSize:36,color:COLOR.text,background:COLOR.accent,width:220,height:50,alignItems:'center',justifyContent:'center'}},'Sign up'),{width:220,height:50,fonts:faces}).arrayBuffer());await save('cta-signup-en',signUp,110,'Sign up');}
- const small=async(value:string,w:number)=>Buffer.from(await new ImageResponse(h('div',{style:{display:'flex',fontFamily:BRAND_FONT_NAME,fontSize:24,color:COLOR.text,width:w*2,height:36}},value),{width:w*2,height:36,fonts:faces}).arrayBuffer());
- await save(`footer-brand${suffix}`,await sharp(logo).resize(320).png().toBuffer(),160,c.brand);
- for(const [i,key] of ['impressum','datenschutz','contact'].entries())await save(`footer-${key}${suffix}`,await small(c.links[i]!,140),140,c.links[i]!);
+ for(const [i,key] of ['about','contact','impressum','datenschutz','agb'].entries()){
+  const label=c.links[i]!;
+  const png=Buffer.from(await new ImageResponse(h('div',{style:{display:'flex',fontFamily:BRAND_FONT_NAME,fontSize:28,color:COLOR.text,width:280,height:40,alignItems:'center'}},label),{width:280,height:40,fonts:faces}).arrayBuffer());
+  const {info}=await sharp(png).trim().toBuffer({resolveWithObject:true});
+  // Crop horizontal whitespace while preserving a shared baseline and 14px type.
+  const cropped=await sharp(png).extract({left:-(info.trimOffsetLeft??0),top:0,width:info.width,height:40}).png().toBuffer();
+  await save(`footer-${key}${suffix}`,cropped,Math.ceil(info.width/2),label);
+ }
 }
+const footerLogo=await sharp(logo).resize(840).toBuffer({resolveWithObject:true});
+const footerClaim=await sharp(claim).resize(840).toBuffer({resolveWithObject:true});
+const footerBrand=await sharp({create:{width:840,height:footerLogo.info.height+24+footerClaim.info.height,channels:4,background:'#00000000'}}).composite([
+ {input:footerLogo.data,left:0,top:0},
+ {input:footerClaim.data,left:0,top:footerLogo.info.height+24},
+]).png().toBuffer();
+await save('footer-brand',footerBrand,420,'Eat This. We tell you what to eat.');
+const instagram=Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="${COLOR.text}" stroke-width="1.9"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" fill="${COLOR.text}" stroke="none"/></svg>`);
+await save('footer-instagram',await sharp(instagram).png().toBuffer(),28,'Instagram');
 await sharp(await ground(600,1100)).png().toFile(`${out}/mail-paper.png`);
 await sharp(logo).resize(260).png().toFile(`${out}/eat-this-logo.png`);
-// Remove artwork retired by the approved layout; keep separate spot-card exports.
+// Keep only artwork in the manifest and the separate spot-card exports.
 const keep=new Set([...Object.values(manifest).map(a=>a.id+'.png'),'mail-paper.png','eat-this-logo.png']);
 for(const f of await readdir(out))if(f.endsWith('.png')&&!keep.has(f))await unlink(`${out}/${f}`);
 await writeFile('emails/art.generated.ts',`// Generated by npm run build:email-art.\nexport const BRAND_FACE_AVAILABLE = ${isBrandFace};\nexport interface ArtAsset { id:string; width:number; height:number; alt:string; version:string }\nexport const ART = ${JSON.stringify(manifest,null,2)} as const satisfies Record<string,ArtAsset>;\n`);

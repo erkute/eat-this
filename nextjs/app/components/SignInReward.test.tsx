@@ -22,7 +22,6 @@ vi.mock('@/i18n/navigation', () => ({
 vi.mock('next/image', () => ({
   default: () => null,
 }));
-/* Der Wartescreen wird echt gerendert — nur seine Texte sind hier egal. */
 vi.mock('@/lib/i18n', () => ({
   useTranslation: () => ({ lang: 'de', t: (key: string) => key }),
 }));
@@ -204,13 +203,13 @@ describe('Ankunft nach der Anmeldung', () => {
 
   /* Hinter der Tour wechselt die Seite ins Profil — das soll man erst
      danach sehen (Betreiber, 14.10.2026). */
-  it('zeigt während der Namensabfrage einen lesbaren Wartezustand und verdeckt das Profil', async () => {
+  it('verdeckt das Profil während der Namensabfrage ohne sichtbaren Ladetext', async () => {
     let answer: (prefill: null) => void = () => {};
     identityStep.identityStepPrefill.mockReturnValue(new Promise((resolve) => (answer = resolve)));
     render(<SignInReward />);
     await arrive();
     expect(screen.getByRole('dialog').getAttribute('aria-busy')).toBe('true');
-    expect(screen.getByRole('status').textContent).toBe('Wird geladen …');
+    expect(screen.getByRole('dialog', { name: 'Dein Einstieg in Eat This' }).textContent).toBe('');
 
     await act(async () => answer(null));
     expect(screen.getByRole('dialog').parentElement?.className).toContain('layerSolid');

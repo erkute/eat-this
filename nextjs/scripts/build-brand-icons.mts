@@ -3,9 +3,13 @@ import sharp from 'sharp';
 import { writeFile } from 'node:fs/promises';
 const source = '../design/auth-mail/icon-c.png';
 const paper = '../design/auth-mail/hero-paper-square.png';
+// Center the ink and leave room for circular favicon masks.
+const centered = await sharp(source).resize(400, 400)
+  .extend({ top: 45, bottom: 67, left: 56, right: 56, extendWith: 'copy' })
+  .png().toBuffer();
 const sizes = [16, 32, 48, 64];
 // At 16/32 px the paper cracks in the letters turn into grey smudges: pull them back to ink.
-const tabIcon = (size: number) => size > 32 ? sharp(source).resize(size, size) : sharp(source).resize(size, size).linear(1.4, -100);
+const tabIcon = (size: number) => size > 32 ? sharp(centered).resize(size, size) : sharp(centered).resize(size, size).linear(1.4, -100);
 const images = await Promise.all(sizes.map(size => tabIcon(size).png().toBuffer()));
 const directory = Buffer.alloc(6 + images.length * 16);
 directory.writeUInt16LE(1, 2); directory.writeUInt16LE(images.length, 4);
@@ -18,8 +22,8 @@ for (const [i, bytes] of images.entries()) {
   offset += bytes.length;
 }
 await writeFile('public/favicon.ico', Buffer.concat([directory, ...images]));
-for (const size of [48, 192, 512]) await sharp(source).resize(size, size).png().toFile(`public/pics/favicon-${size}.png`);
-await sharp(source).resize(180, 180).png().toFile('public/apple-touch-icon.png');
+for (const size of [48, 192, 512]) await sharp(centered).resize(size, size).png().toFile(`public/pics/favicon-${size}.png`);
+await sharp(centered).resize(180, 180).png().toFile('public/apple-touch-icon.png');
 // Maskable safe zone: keep the complete wordmark inside platform crops.
 const inset = await sharp(source).resize(432, 432).png().toBuffer();
 await sharp(paper).resize(512, 512)

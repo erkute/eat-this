@@ -23,42 +23,39 @@ interface PageProps {
   params: Promise<{ locale: string }>;
 }
 
-// EN title/description for `/en` — the (spa) layout's brand-level metadata is
-// German and stays the default for `/`.
-const EN_TITLE = 'EAT THIS – Restaurants & Hidden Gems in Berlin';
-const EN_DESCRIPTION =
-  'We tell you what to eat — the curated food map with the best restaurants, cafés and bars in Berlin. Plus exclusive Must Eats on the interactive map.';
+const TITLE = 'eat this. | We know where to eat in Berlin';
+const DESCRIPTION = {
+  de: 'Pizza bei Gazzo, Kaffee bei Kolo. Entdecke Restaurants, Cafés und Bars auf unserer Berlin Food Map. Unsere Lieblingsgerichte gibt’s als Must-Eat-Karten zum Sammeln.',
+  en: 'Pizza at Gazzo, coffee at Kolo. Discover restaurants, cafés and bars on our Berlin Food Map. Our favorite dishes are featured on collectible Must Eat cards.',
+};
+const OG_IMAGE = `${SITE_URL}/pics/og-card.png?v=${OG_CARD_VERSION}`;
 
-// The Hub is the site's home page, served natively at `/` (DE) and `/en`.
-// Robots/OpenGraph base config is inherited from the (spa) layout's
-// brand-level metadata (index,follow); here we add the self-canonical +
-// hreflang alternates the layout can't express per-locale, and override
-// title/description/OG for the English home.
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
-  const en = locale === 'en';
+  const description = DESCRIPTION[locale];
   return {
-    ...(en && {
-      title: { absolute: EN_TITLE },
-      description: EN_DESCRIPTION,
-      openGraph: {
-        title: EN_TITLE,
-        description: EN_DESCRIPTION,
-        url: localeUrl('en', '/'),
-        locale: 'en_US',
-        images: [
-          {
-            url: `${SITE_URL}/pics/og-card.png?v=${OG_CARD_VERSION}`,
-            width: 1200,
-            height: 630,
-            alt: 'EAT THIS – We tell you what to eat',
-          },
-        ],
-      },
-      twitter: { title: EN_TITLE, description: EN_DESCRIPTION },
-    }),
-    alternates: buildHreflangAlternates('/', en ? 'en' : 'de'),
+    title: { absolute: TITLE },
+    description,
+    openGraph: {
+      type: 'website',
+      siteName: 'EAT THIS',
+      title: TITLE,
+      description,
+      url: localeUrl(locale, '/'),
+      locale: locale === 'en' ? 'en_US' : 'de_DE',
+      images: [
+        { url: OG_IMAGE, width: 1200, height: 630, alt: 'EAT THIS – We tell you what to eat' },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      site: '@eatthisdotcom',
+      title: TITLE,
+      description,
+      images: [OG_IMAGE],
+    },
+    alternates: buildHreflangAlternates('/', locale),
   };
 }
 

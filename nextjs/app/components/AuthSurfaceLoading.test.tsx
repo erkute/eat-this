@@ -19,8 +19,10 @@ it('keeps focus in the email confirmation until it releases the tour', async () 
 
   render(<AuthSurfaceLoading layer="tour" />);
   expect(document.activeElement).toBe(emailDialog);
+  expect(screen.getAllByRole('dialog')).toHaveLength(1);
 
   email.unmount();
   await act(async () => finishEmailLink());
   expect(document.activeElement).toBe(screen.getByRole('dialog', { name: 'Dein Einstieg in Eat This' }));
+  expect(screen.getAllByRole('dialog')).toHaveLength(1);
 });

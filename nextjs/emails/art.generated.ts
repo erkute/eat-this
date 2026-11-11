@@ -51,33 +51,40 @@ export const ART = {
     "alt": "Anmelden",
     "version": "fa739e4e"
   },
-  "footerBrand": {
-    "id": "footer-brand",
-    "width": 160,
-    "height": 40,
-    "alt": "Eat This",
-    "version": "3b21458e"
-  },
-  "footerImpressum": {
-    "id": "footer-impressum",
-    "width": 140,
-    "height": 18,
-    "alt": "Impressum",
-    "version": "8e0b4ffd"
-  },
-  "footerDatenschutz": {
-    "id": "footer-datenschutz",
-    "width": 140,
-    "height": 18,
-    "alt": "Datenschutz",
-    "version": "4076dd7a"
+  "footerAbout": {
+    "id": "footer-about",
+    "width": 65,
+    "height": 20,
+    "alt": "Über mich",
+    "version": "9adb4004"
   },
   "footerContact": {
     "id": "footer-contact",
-    "width": 140,
-    "height": 18,
+    "width": 49,
+    "height": 20,
     "alt": "Kontakt",
-    "version": "32f91242"
+    "version": "769c8e91"
+  },
+  "footerImpressum": {
+    "id": "footer-impressum",
+    "width": 70,
+    "height": 20,
+    "alt": "Impressum",
+    "version": "b289be38"
+  },
+  "footerDatenschutz": {
+    "id": "footer-datenschutz",
+    "width": 81,
+    "height": 20,
+    "alt": "Datenschutz",
+    "version": "a7715813"
+  },
+  "footerAgb": {
+    "id": "footer-agb",
+    "width": 30,
+    "height": 20,
+    "alt": "AGB",
+    "version": "c5bc6dcd"
   },
   "introSignupEn": {
     "id": "intro-signup-en",
@@ -135,32 +142,53 @@ export const ART = {
     "alt": "Sign up",
     "version": "7829b919"
   },
-  "footerBrandEn": {
-    "id": "footer-brand-en",
-    "width": 160,
-    "height": 40,
-    "alt": "Eat This",
-    "version": "3b21458e"
-  },
-  "footerImpressumEn": {
-    "id": "footer-impressum-en",
-    "width": 140,
-    "height": 18,
-    "alt": "Legal notice",
-    "version": "a17d813f"
-  },
-  "footerDatenschutzEn": {
-    "id": "footer-datenschutz-en",
-    "width": 140,
-    "height": 18,
-    "alt": "Privacy",
-    "version": "fcecfcd9"
+  "footerAboutEn": {
+    "id": "footer-about-en",
+    "width": 63,
+    "height": 20,
+    "alt": "About me",
+    "version": "50de7a4f"
   },
   "footerContactEn": {
     "id": "footer-contact-en",
-    "width": 140,
-    "height": 18,
+    "width": 52,
+    "height": 20,
     "alt": "Contact",
-    "version": "593fb7d4"
+    "version": "9b9dd4f1"
+  },
+  "footerImpressumEn": {
+    "id": "footer-impressum-en",
+    "width": 78,
+    "height": 20,
+    "alt": "Legal notice",
+    "version": "9684b9c0"
+  },
+  "footerDatenschutzEn": {
+    "id": "footer-datenschutz-en",
+    "width": 46,
+    "height": 20,
+    "alt": "Privacy",
+    "version": "5cf457f2"
+  },
+  "footerAgbEn": {
+    "id": "footer-agb-en",
+    "width": 40,
+    "height": 20,
+    "alt": "Terms",
+    "version": "be7b7709"
+  },
+  "footerBrand": {
+    "id": "footer-brand",
+    "width": 420,
+    "height": 164,
+    "alt": "Eat This. We tell you what to eat.",
+    "version": "de066bd3"
+  },
+  "footerInstagram": {
+    "id": "footer-instagram",
+    "width": 28,
+    "height": 28,
+    "alt": "Instagram",
+    "version": "d1966ff0"
   }
 } as const satisfies Record<string,ArtAsset>;

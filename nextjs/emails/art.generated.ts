@@ -13,8 +13,8 @@ export const ART = {
     "id": "intro-login",
     "width": 600,
     "height": 487,
-    "alt": "Eat This. We tell you what to eat. Schön, dass du wieder da bist. Hier geht’s zurück zu deinem Deck und den Berliner Spots.",
-    "version": "cacc64cc"
+    "alt": "Eat This. We tell you what to eat. Hier ist dein Login-Link. Hier geht’s zurück zu deinem Deck und den Berliner Spots.",
+    "version": "93387ec0"
   },
   "spotHeading": {
     "id": "spot-heading",
@@ -34,8 +34,8 @@ export const ART = {
     "id": "intro-login-mobile",
     "width": 375,
     "height": 346,
-    "alt": "Eat This. We tell you what to eat. Schön, dass du wieder da bist. Hier geht’s zurück zu deinem Deck und den Berliner Spots.",
-    "version": "b124bc2d"
+    "alt": "Eat This. We tell you what to eat. Hier ist dein Login-Link. Hier geht’s zurück zu deinem Deck und den Berliner Spots.",
+    "version": "d745120a"
   },
   "spotHeadingMobile": {
     "id": "spot-heading-mobile",
@@ -97,8 +97,8 @@ export const ART = {
     "id": "intro-login-en",
     "width": 600,
     "height": 461,
-    "alt": "Eat This. We tell you what to eat. Good to have you back. Back to your deck and Berlin’s food spots.",
-    "version": "c4b5f373"
+    "alt": "Eat This. We tell you what to eat. Here’s your sign-in link. Back to your deck and Berlin’s food spots.",
+    "version": "bb03e0ba"
   },
   "spotHeadingEn": {
     "id": "spot-heading-en",
@@ -118,8 +118,8 @@ export const ART = {
     "id": "intro-login-en-mobile",
     "width": 375,
     "height": 346,
-    "alt": "Eat This. We tell you what to eat. Good to have you back. Back to your deck and Berlin’s food spots.",
-    "version": "1568d91e"
+    "alt": "Eat This. We tell you what to eat. Here’s your sign-in link. Back to your deck and Berlin’s food spots.",
+    "version": "28be54e4"
   },
   "spotHeadingEnMobile": {
     "id": "spot-heading-en-mobile",
@@ -176,13 +176,6 @@ export const ART = {
     "height": 20,
     "alt": "Terms",
     "version": "be7b7709"
-  },
-  "footerBrand": {
-    "id": "footer-brand",
-    "width": 420,
-    "height": 164,
-    "alt": "Eat This. We tell you what to eat.",
-    "version": "de066bd3"
   },
   "footerInstagram": {
     "id": "footer-instagram",

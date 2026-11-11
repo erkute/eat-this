@@ -14,7 +14,7 @@ describe('auth mail plain-text parts', () => {
 
   it('the login part stays transactional — no product pitch', () => {
     const t = buildLoginText('https://x/verify', 'de');
-    expect(t).toContain('Schön, dass du wieder da bist');
+    expect(t).toContain('Hier ist dein Login-Link');
     expect(t).not.toContain('Starter Pack');
     expect(t).not.toContain('Must Eats');
   });
@@ -49,7 +49,7 @@ describe('auth mail plain-text parts', () => {
   it('EN: gleiche Teile, kein Deutsch', () => {
     const login = buildLoginText('https://x/v', 'en');
     const signup = buildSignupText('https://x/v', 'en');
-    expect(login).toContain('Good to have you back.');
+    expect(login).toContain('Here’s your sign-in link');
     expect(signup).toContain('20 additional Must Eats');
     for (const t of [login, signup]) {
       expect(t).toContain('https://x/v');

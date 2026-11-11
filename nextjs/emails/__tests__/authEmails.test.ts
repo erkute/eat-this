@@ -33,7 +33,7 @@ describe('approved paper auth emails',()=>{
   expect(signup).toContain('We tell you what to eat.');
   expect(signup).toContain('/pics/email/spots/');
   expect(signup).toContain('/map?r=');expect(signup).toContain('intro-signup-mobile.png');
-  expect(login).not.toContain('/pics/email/spots/');expect(login).not.toContain('20 zusätzliche');expect(login).toContain('Schön, dass du wieder da bist.');
+  expect(login).not.toContain('/pics/email/spots/');expect(login).not.toContain('20 zusätzliche');expect(login).toContain('Hier ist dein Login-Link.');
   expect(enSignup).toContain('20 additional Must Eats');expect(enSignup).toContain('alt="Sign up"');expect(enLogin).toContain('alt="Sign in"');
   for(const html of [enSignup,enLogin]){expect(html).toContain('lang="en"');expect(html).not.toMatch(/Anmelden|Anmeldelink|Datenschutz|Stunde/);expect(html).toContain('/en/datenschutz');}
  });

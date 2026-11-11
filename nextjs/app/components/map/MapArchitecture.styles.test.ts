@@ -232,9 +232,8 @@ describe('Map CSS architecture', () => {
         /* Off the top edge by --map-top-gap, so iOS 26 Safari shows what is
            under its status bar instead of filling it with the wrapper's ink. */
         top: 'var(--map-top-gap, 0px)',
-        /* lvh, not dvh: a dvh map resized with every step of Safari's
-           collapsing toolbar and slid under the list (23.09.2026). */
-        height: '100lvh',
+        /* Runtime geometry stays stable through browser-toolbar resizing. */
+        height: 'var(--map-canvas-height, 100lvh)',
         'background-color': 'var(--map-collage-paper, #fff)',
       }),
     ]);

@@ -357,12 +357,10 @@
        list there). The bottom edge it still touches, so the URL bar keeps
        the ink (below). */
     top: var(--map-top-gap, 0px);
-    /* The LARGEST viewport, not the dynamic one: 100dvh followed Safari's
-       toolbar as it collapsed and expanded during a scroll, the canvas
-       resized on every step and the map slid up and down under the list
-       (user, 23.09.2026). The list's resting edge is set against dvh on its
-       own (--frame-edge). */
-    height: 100lvh;
+    /* MapSection pins the canvas height per device width. Browser-toolbar
+       changes leave its projection stable; rotation measures it again.
+       The list's resting edge follows its own dynamic viewport. */
+    height: var(--map-canvas-height, 100lvh);
     z-index: -1;
     /* Deckend, nicht transparent: iOS 26 Safari ignoriert theme-color und
        faerbt seine Leisten nach der background-color des obersten fixierten

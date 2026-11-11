@@ -264,10 +264,9 @@ export default function MapSection({
     if (!isActive) return;
 
     const root = document.documentElement;
-    /* Both properties are recomputed on every scroll frame (see the listeners
-       below), but writing them only when the value actually moved keeps a plain
-       scroll from forcing a style recalc on the whole subtree. */
+    /* Only changed values invalidate styles during viewport/scroll events. */
     const written = new Map<string, string>();
+    let canvasWidth: number | null = null;
     const write = (prop: string, value: string) => {
       if (written.get(prop) === value) return;
       written.set(prop, value);
@@ -276,10 +275,33 @@ export default function MapSection({
 
     const apply = () => {
       if (!isPhoneViewport()) {
+        canvasWidth = null;
         written.clear();
+        root.style.removeProperty('--map-canvas-height');
         root.style.removeProperty('--map-runtime-bar-overhang');
         root.style.removeProperty('--map-visual-offset-top');
         return;
+      }
+
+      /* Keep the camera's geometry stable through height-only browser chrome
+         changes. A width change (rotation or window resize) measures it anew.
+         The touch screen bounds cover the area exposed when bars retract,
+         even in browsers that report a changing large viewport. */
+      const touchViewport = window.matchMedia('(pointer: coarse)').matches;
+      if (!touchViewport) {
+        canvasWidth = null;
+        written.delete('--map-canvas-height');
+        root.style.removeProperty('--map-canvas-height');
+      } else if (canvasWidth !== window.innerWidth) {
+        const probe = document.createElement('div');
+        probe.style.cssText = 'position:fixed;width:0;height:100lvh;visibility:hidden;pointer-events:none;';
+        document.body.appendChild(probe);
+        const portrait = window.matchMedia('(orientation: portrait)').matches;
+        const screenHeight = (portrait ? Math.max : Math.min)(window.screen.width, window.screen.height);
+        const height = Math.max(probe.offsetHeight, window.innerHeight, screenHeight);
+        probe.remove();
+        write('--map-canvas-height', `${height}px`);
+        canvasWidth = window.innerWidth;
       }
 
       const visualViewport = window.visualViewport;
@@ -339,6 +361,7 @@ export default function MapSection({
       window.visualViewport?.removeEventListener('scroll', apply);
       document.removeEventListener('focusin', apply);
       document.removeEventListener('focusout', apply);
+      root.style.removeProperty('--map-canvas-height');
       root.style.removeProperty('--map-runtime-bar-overhang');
       root.style.removeProperty('--map-visual-offset-top');
     };

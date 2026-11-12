@@ -34,30 +34,29 @@ await getStorage(app)
   .file(imageObjectPath)
   .save(await readFile('public/pics/eat-this-crumpled-wordmark.webp'), { contentType: 'image/webp' });
 const db = getFirestore(app);
-/* Jede Karte unter ihrem aktuellen Schluessel UND unter dem ohne Version.
-   Der Build der Browser-Pruefung liest Sanity aus einem bis zu 24 h alten
-   Fetch-Cache (quality.yml), dieser Seed dagegen frisch. Bekommt eine Karte
-   in dieser Zeit ihre erste Version, sucht der Server noch den alten
-   Schluessel, und `/` und `/map` antworten 500 (12.11.2026, Karte 21). */
-const keysOf = (card: (typeof cards)[number]) => [
-  ...new Set([mustEatContentKey(card._id, card.cardVersion), mustEatContentKey(card._id)]),
-];
-const BATCH_CARDS = 200; // zwei Schreibvorgaenge je Karte, Firestore erlaubt 500 je Batch
-for (let offset = 0; offset < cards.length; offset += BATCH_CARDS) {
+// Der Build liest Sanity aus dem Fetch-Cache des letzten Laufs (quality.yml),
+// dieses Skript live. Bekommt eine Karte in der Zwischenzeit eine Fassung
+// (`cardVersion`), fragt der Server noch nach dem alten Schlüssel. Darum
+// liegt jede Karte unter beiden: Basis und gewählte Fassung.
+const keys = cards.flatMap((card) => {
+  const versioned = mustEatContentKey(card._id, card.cardVersion);
+  return [card._id, versioned]
+    .filter((key, index, all) => all.indexOf(key) === index)
+    .map((key) => ({ key, restaurantId: card.restaurantId }));
+});
+for (let offset = 0; offset < keys.length; offset += 400) {
   const batch = db.batch();
-  for (const card of cards.slice(offset, offset + BATCH_CARDS)) {
-    for (const key of keysOf(card)) {
-      batch.set(db.collection('privateMustEats').doc(key), {
-        dish: 'CI Testgericht',
-        description: 'Synthetische Karte für den Browser-Test.',
-        descriptionEn: 'Synthetic card for the browser test.',
-        price: '',
-        imageObjectPath,
-        imageContentType: 'image/webp',
-        restaurantId: card.restaurantId,
-        schemaVersion: 1,
-      });
-    }
+  for (const { key, restaurantId } of keys.slice(offset, offset + 400)) {
+    batch.set(db.collection('privateMustEats').doc(key), {
+      dish: 'CI Testgericht',
+      description: 'Synthetische Karte für den Browser-Test.',
+      descriptionEn: 'Synthetic card for the browser test.',
+      price: '',
+      imageObjectPath,
+      imageContentType: 'image/webp',
+      restaurantId,
+      schemaVersion: 1,
+    });
   }
   await batch.commit();
 }

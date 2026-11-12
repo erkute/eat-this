@@ -34,19 +34,30 @@ await getStorage(app)
   .file(imageObjectPath)
   .save(await readFile('public/pics/eat-this-crumpled-wordmark.webp'), { contentType: 'image/webp' });
 const db = getFirestore(app);
-for (let offset = 0; offset < cards.length; offset += 400) {
+/* Jede Karte unter ihrem aktuellen Schluessel UND unter dem ohne Version.
+   Der Build der Browser-Pruefung liest Sanity aus einem bis zu 24 h alten
+   Fetch-Cache (quality.yml), dieser Seed dagegen frisch. Bekommt eine Karte
+   in dieser Zeit ihre erste Version, sucht der Server noch den alten
+   Schluessel, und `/` und `/map` antworten 500 (12.11.2026, Karte 21). */
+const keysOf = (card: (typeof cards)[number]) => [
+  ...new Set([mustEatContentKey(card._id, card.cardVersion), mustEatContentKey(card._id)]),
+];
+const BATCH_CARDS = 200; // zwei Schreibvorgaenge je Karte, Firestore erlaubt 500 je Batch
+for (let offset = 0; offset < cards.length; offset += BATCH_CARDS) {
   const batch = db.batch();
-  for (const card of cards.slice(offset, offset + 400)) {
-    batch.set(db.collection('privateMustEats').doc(mustEatContentKey(card._id, card.cardVersion)), {
-      dish: 'CI Testgericht',
-      description: 'Synthetische Karte für den Browser-Test.',
-      descriptionEn: 'Synthetic card for the browser test.',
-      price: '',
-      imageObjectPath,
-      imageContentType: 'image/webp',
-      restaurantId: card.restaurantId,
-      schemaVersion: 1,
-    });
+  for (const card of cards.slice(offset, offset + BATCH_CARDS)) {
+    for (const key of keysOf(card)) {
+      batch.set(db.collection('privateMustEats').doc(key), {
+        dish: 'CI Testgericht',
+        description: 'Synthetische Karte für den Browser-Test.',
+        descriptionEn: 'Synthetic card for the browser test.',
+        price: '',
+        imageObjectPath,
+        imageContentType: 'image/webp',
+        restaurantId: card.restaurantId,
+        schemaVersion: 1,
+      });
+    }
   }
   await batch.commit();
 }

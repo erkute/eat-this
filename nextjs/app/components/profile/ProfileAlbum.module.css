@@ -143,9 +143,8 @@
    Tafel ueber die volle Seite. */
 
 .player {
-  /* Die Karte trägt ihr Vokabular selbst: sie steht auch auf dem geteilten Deck
-     (/deck/<uid>), wo kein `.panel` darum herum diese Token setzt. Ein `var()`
-     ohne Wert wäre dort ungültig. */
+  /* Die Karte trägt ihr Vokabular selbst und hängt an keinem `.panel`
+     darum herum. */
   --album-display: var(--et-font-display);
   display: grid;
   /* Ueber eine Variable, damit die Freundesreihe kleinere Karten stellen
@@ -160,12 +159,6 @@
   cursor: pointer;
   font: inherit;
   text-align: initial;
-}
-
-/* Auf dem geteilten Deck ist die Karte kein Knopf (kein `onPick`) — dort
-   rendert sie als `div`, und ein `div` hat keinen Zeiger noetig. */
-div.player {
-  cursor: default;
 }
 
 /* Zwei Zeilen: die Figur steht oben, der Name hat eine eigene Zeile darunter.

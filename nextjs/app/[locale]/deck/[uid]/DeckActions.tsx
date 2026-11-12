@@ -6,21 +6,15 @@ import { Link } from '@/i18n/navigation';
 import { useAuth, useLoginModal } from '@/lib/auth';
 import ShareButton from '@/app/components/ShareButton';
 import { SITE_URL } from '@/lib/constants';
-import tour from '@/app/components/Tour.module.css';
 import deck from './Deck.module.css';
 
 /**
  * Der Ausgang des geteilten Decks.
  *
- * Fuer den Freund, der den Link bekommt, ist das EIN Weg: auf die Map
- * (Nutzer, 24.09.2026: „es muss halt Bock auf die Map machen"), gelb und
- * unten rechts wie in jedem Layer. Die Anmeldung steht links daneben als
- * leiser Knopf — Flaeche, keine Unterstreichung („Zur Map als Button, nicht
- * so unterstrichen") — und oeffnet dasselbe Fenster wie ueberall sonst.
- * Bis zum 24.09.2026 stand hier das ganze Formular samt Google-Knopf auf der
- * Seite und machte sie doppelt so lang. Geworben ist der Besucher
- * trotzdem, wo immer er sich anmeldet: das `?ref`-Cookie liegt seit dem
- * Aufruf im Browser (siehe page.tsx).
+ * Fuer den Freund, der den Link bekommt, ist das EIN Weg: auf die Map. Die
+ * Anmeldung steht als Text-Knopf daneben und oeffnet dasselbe Fenster wie
+ * ueberall sonst. Geworben ist der Besucher, wo immer er sich anmeldet: das
+ * `?ref`-Cookie liegt seit dem Aufruf im Browser (siehe page.tsx).
  *
  * Wer sein EIGENES Deck ansieht, bekommt Teilen als Hauptknopf und die Map
  * daneben.
@@ -43,11 +37,8 @@ export default function DeckActions({ uid }: { uid: string }) {
   if (isOwner) {
     return (
       <>
-        <Link className={deck.second} href="/map">
-          {t('toMap')}
-        </Link>
         <ShareButton
-          className={tour.action}
+          className="et-btn"
           url={inviteUrl}
           title={tProfile('inviteShareTitle')}
           slug={uid}
@@ -55,27 +46,30 @@ export default function DeckActions({ uid }: { uid: string }) {
           label={tProfile('inviteCta')}
           copiedLabel={tProfile('inviteCopied')}
         />
+        <Link className="et-btn et-btn-text" href="/map">
+          {t('toMap')}
+        </Link>
       </>
     );
   }
 
   return (
     <>
+      <Link className="et-btn" href="/map">
+        {t('toMap')}
+      </Link>
       {/* `data-guest-only`: der Vorab-Bootstrap blendet den Knopf schon vor
-          dem ersten Bild aus, wenn das Konto bekannt ist — sonst blitzt er
+          dem ersten Bild aus, wenn das Konto bekannt ist, sonst blitzt er
           fuer einen Angemeldeten kurz auf. */}
       <button
         type="button"
-        className={deck.second}
+        className={`et-btn et-btn-text ${deck.signIn}`}
         data-guest-only=""
         hidden={Boolean(user)}
         onClick={() => openLogin()}
       >
         {t('signIn')}
       </button>
-      <Link className={`${tour.action} ${deck.primary}`} href="/map">
-        {t('toMap')}
-      </Link>
     </>
   );
 }

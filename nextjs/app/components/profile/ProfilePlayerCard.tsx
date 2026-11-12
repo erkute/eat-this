@@ -7,8 +7,6 @@ import styles from './ProfileAlbum.module.css';
 interface Props {
   name: string;
   avatarIdx: number;
-  /** Fehlt auf dem geteilten Deck — dort aendert niemand etwas, und die
-   *  Karte ist dann kein Knopf, sondern ein Bild. */
   onPick?: () => void;
   /** Die Karte eines FREMDEN — in der Freundesreihe. Dann ist sie ein Weg
    *  auf dessen Deck, kein Knopf und kein Bild. Schliesst `onPick` aus:
@@ -23,8 +21,7 @@ interface Props {
  * Der Name steht auf der Karte, als ihre Beschriftung, wie der Spielername auf
  * einer Sammelkarte. Kein Punktestand und kein „Ändern"-Zeichen: ein Tipp auf
  * die Figur wechselt den Charakter, der zugängliche Name des Knopfes sagt es.
- * Den Stand zeigt das Profil im Zählerband des Decks, das geteilte Deck als
- * Satz neben der Karte.
+ * Den Stand zeigt das Profil im Zählerband des Decks.
  */
 export default function ProfilePlayerCard({ name, avatarIdx, onPick, href }: Props) {
   const t = useTranslations('profile');
@@ -48,8 +45,6 @@ export default function ProfilePlayerCard({ name, avatarIdx, onPick, href }: Pro
       </Link>
     );
   }
-
-  if (!onPick) return <div className={styles.player}>{inner}</div>;
 
   return (
     <button type="button" className={styles.player} onClick={onPick} aria-label={t('changeAvatar')}>

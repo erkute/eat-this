@@ -93,10 +93,10 @@ export default async function LocaleLayout({
       suppressHydrationWarning
     >
       <head suppressHydrationWarning>
-        <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20261029d" />
-        <link rel="icon" type="image/png" sizes="48x48" href="/pics/favicon-48.png?v=20261029d" />
-        <link rel="icon" type="image/png" sizes="192x192" href="/pics/favicon-192.png?v=20261029d" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=20261029d" />
+        <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20261112" />
+        <link rel="icon" type="image/png" sizes="48x48" href="/pics/favicon-48.png?v=20261112" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/pics/favicon-192.png?v=20261112" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=20261112" />
         <link rel="preconnect" href="https://use.typekit.net" crossOrigin="anonymous" />
         {/* Both text weights are used above the fold; start them before CSS discovers them. */}
         <link rel="preload" href="https://use.typekit.net/af/912d1e/00000000000000007735bb33/31/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&amp;fvd=n4&amp;v=3" as="font" type="font/woff2" crossOrigin="anonymous" />

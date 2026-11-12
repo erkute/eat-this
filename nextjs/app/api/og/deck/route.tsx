@@ -1,5 +1,6 @@
-// Die Share-Karte eines geteilten Decks — 1200×630, Ink-Grund, Spielerkarte
-// links, Name und Stand rechts, eine Reihe Kartenrücken darunter.
+// Die Share-Karte eines geteilten Decks: 1200×630, Ink-Grund, Name und Stand
+// ueber die volle Breite, eine Reihe Kartenrücken darunter. Keine Figur, wie
+// auf der Seite dahinter.
 //
 // Ein Deck-Link ist der einzige Kanal, über den ohne Werbebudget jemand zu Eat
 // This kommt, und er wird per WhatsApp/iMessage/Signal weitergereicht — also
@@ -8,7 +9,7 @@
 // Titel. Der Link sah aus wie ein Fehler.
 //
 // WAS DIE KARTE ZEIGT, ist genau das, was die Seite dahinter auch jedem
-// Anonymen zeigt: Vorname, Figur, Stand. Kein Gericht, kein Spot, kein Bild
+// Anonymen zeigt: Vorname und Stand. Kein Gericht, kein Spot, kein Bild
 // aus dem bezahlten Teil. Die uid steht ohnehin in der URL, die der Absender
 // gerade selbst herumschickt — die Karte verrät also nichts, was der Empfänger
 // nicht mit einem Klick sähe.
@@ -48,19 +49,20 @@ function loadFonts() {
   return fontsPromise;
 }
 
+/* Das Logo liegt nur in Ink vor (fuer die Mails auf Papier). Auf dem
+   Ink-Grund dieser Karte wird es umgekehrt, die Transparenz bleibt. */
 let logoPromise: Promise<string> | null = null;
 function loadLogo() {
-  logoPromise ??= readFile(
-    join(process.cwd(), 'public', 'pics', 'email', 'eat-this-logo.png')
-  ).then((buf) => `data:image/png;base64,${buf.toString('base64')}`);
+  logoPromise ??= readFile(join(process.cwd(), 'public', 'pics', 'email', 'eat-this-logo.png'))
+    .then((buf) => sharp(buf).negate({ alpha: false }).png().toBuffer())
+    .then((png) => `data:image/png;base64,${png.toString('base64')}`);
   return logoPromise;
 }
 
 /* resvg (der Rasterizer hinter Satori) kann kein WebP — und alles Gezeichnete
    in `public/pics` IST WebP (Commit-Regel). Also einmal je Prozess über sharp
    nach PNG und als Data-URI im Modul behalten; das kostet den ersten Aufruf
-   ein paar Millisekunden und danach nichts mehr. Ein blankes Feld statt der
-   Figur wäre die Alternative, und die fällt beim Teilen sofort auf. */
+   ein paar Millisekunden und danach nichts mehr. */
 const webpCache = new Map<string, Promise<string>>();
 function loadWebpAsPng(...segments: string[]): Promise<string> {
   const key = segments.join('/');
@@ -83,10 +85,9 @@ export async function GET(request: Request) {
   const deck = await getPublicDeck(uid);
   if (!deck) return new Response('not found', { status: 404 });
 
-  const [{ saira, schoolbell }, logo, figure, cardBack] = await Promise.all([
+  const [{ saira, schoolbell }, logo, cardBack] = await Promise.all([
     loadFonts(),
     loadLogo(),
-    loadWebpAsPng('pics', 'avatar', `${deck.avatar}.webp`),
     loadWebpAsPng('pics', 'card-back.webp'),
   ]);
 
@@ -100,11 +101,11 @@ export async function GET(request: Request) {
       ? 'The deck'
       : 'Das Deck';
   const stand = en
-    ? `${deck.revealed} of ${deck.total} cards flipped`
-    : `${deck.revealed} von ${deck.total} Karten umgedreht`;
+    ? `${deck.revealed} of ${deck.total} Must Eats flipped`
+    : `${deck.revealed} von ${deck.total} Must Eats aufgedeckt`;
   // Saira Condensed ist schmal, aber ein langer Vorname braucht trotzdem eine
-  // Stufe weniger — sonst läuft die Zeile aus dem Bild.
-  const headingSize = heading.length > 22 ? 84 : heading.length > 15 ? 100 : 118;
+  // Stufe weniger, sonst laeuft die Zeile aus dem Bild.
+  const headingSize = heading.length > 26 ? 104 : heading.length > 18 ? 124 : 148;
 
   const png = new ImageResponse(
     <div
@@ -118,8 +119,8 @@ export async function GET(request: Request) {
       }}
     >
       {/* Die Kartenreihe am unteren Rand: angeschnitten, damit sie als Stapel
-          liest und nicht als sieben brave Kacheln. Rücken, keine Gerichte —
-          die gehören dem Besitzer. */}
+          liest und nicht als brave Kacheln. Ruecken, keine Gerichte: die
+          gehoeren dem Besitzer. */}
       <div style={{ position: 'absolute', left: 0, bottom: -74, display: 'flex' }}>
         {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
           // eslint-disable-next-line @next/next/no-img-element
@@ -139,62 +140,17 @@ export async function GET(request: Request) {
         src={logo}
         width={200}
         height={50}
-        style={{ position: 'absolute', top: 46, left: 54 }}
+        style={{ position: 'absolute', top: 46, left: 60 }}
         alt=""
       />
 
-      {/* Die Spielerkarte, wie auf der Seite: Papier, innen das Ink-gerahmte
-          Feld mit der Figur, darunter der Name. */}
+      {/* Kicker, Ueberschrift, Stand: ueber die volle Breite, ohne Figur. */}
       <div
         style={{
           position: 'absolute',
-          left: 54,
-          top: 168,
-          display: 'flex',
-          flexDirection: 'column',
-          width: 268,
-          height: 368,
-          padding: 12,
-          backgroundColor: PAPER,
-          borderRadius: 12,
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            flexGrow: 1,
-            alignItems: 'flex-end',
-            justifyContent: 'center',
-            backgroundColor: '#f6efe4',
-            border: '3px solid rgba(21,18,14,0.55)',
-            borderRadius: 7,
-          }}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={figure} width={196} height={226} style={{ marginBottom: 6 }} alt="" />
-        </div>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            paddingTop: 12,
-            color: INK,
-            fontSize: 38,
-            lineHeight: 1,
-            textTransform: 'uppercase',
-          }}
-        >
-          {deck.name ?? (en ? 'This deck' : 'Dieses Deck')}
-        </div>
-      </div>
-
-      {/* Rechts: Kicker, Überschrift, Stand. */}
-      <div
-        style={{
-          position: 'absolute',
-          left: 372,
+          left: 60,
           right: 60,
-          top: 178,
+          top: 150,
           display: 'flex',
           flexDirection: 'column',
         }}
@@ -204,9 +160,9 @@ export async function GET(request: Request) {
             display: 'flex',
             color: ACCENT,
             fontFamily: 'Schoolbell',
-            fontSize: 30,
+            fontSize: 32,
             letterSpacing: 4,
-            marginBottom: 18,
+            marginBottom: 14,
           }}
         >
           {kicker}
@@ -225,10 +181,10 @@ export async function GET(request: Request) {
         <div
           style={{
             display: 'flex',
-            marginTop: 26,
+            marginTop: 24,
             color: 'rgba(255,255,255,0.82)',
             fontFamily: 'Schoolbell',
-            fontSize: 40,
+            fontSize: 44,
           }}
         >
           {stand}

@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { MapMustEat } from '@/lib/types';
 vi.mock('server-only', () => ({}));
 const catalog = vi.hoisted(() => ({ get: vi.fn() }));
-vi.mock('@/lib/map/cached-sanity', () => ({ getCachedMapData: catalog.get }));
+vi.mock('@/lib/map/cached-sanity', () => ({ getCachedMustEatsForPage: catalog.get }));
 import { getInitialSpotMustEatData } from './public-card-data.server';
 
 describe('public spot card data', () => {
@@ -13,11 +13,11 @@ describe('public spot card data', () => {
   });
   it('includes only this spot’s cards and strips covered content', async () => {
     const restaurant = { _id: 'spot', name: 'SOFI', slug: 'sofi', lat: 0, lng: 0 };
-    catalog.get.mockResolvedValue({ mustEats: [
+    catalog.get.mockResolvedValue([
       { _id: 'open/card', restaurant, previewCategory: 'bread' },
       { _id: 'covered', restaurant, dish: 'PRIVATE_DISH', image: 'PRIVATE_IMAGE' },
       { _id: 'elsewhere', restaurant, previewCategory: 'coffee' },
-    ] satisfies MapMustEat[] });
+    ] satisfies MapMustEat[]);
     const result = await getInitialSpotMustEatData(['open/card', 'covered']);
     expect(result.mustEats.map(card => card._id)).toEqual(['open/card', 'covered']);
     expect(result.revealedMustEatIds).toEqual(['open/card']);

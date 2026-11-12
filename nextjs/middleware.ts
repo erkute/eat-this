@@ -152,7 +152,7 @@ export default async function middleware(req: NextRequest) {
     return finalizeResponse(NextResponse.next());
   }
 
-  // Standalone opt-out: no locale layout, consent dialog or analytics. Keep
+  // Standalone opt-out: no locale layout or counting. Keep
   // both public languages on the same server-rendered tool, outside /admin.
   if (pathname === '/no-count' || pathname === '/en/no-count') {
     const headers = new Headers(req.headers);
@@ -277,10 +277,8 @@ export const config = {
   // neuer Client.
   //
   // Der Preis: auf Staging liegen diese Bilder damit ohne Basic Auth
-  // offen. Vertretbar, weil ihr Inhalt entweder ohnehin oeffentlich ist
-  // (`restaurant` zeigt Name und Foto eines gelisteten Lokals) oder hinter
-  // einer nicht zu ratenden 28-Zeichen-uid steht
-  // (`deck` — dieselbe Auskunft, die die Deck-Seite jedem Anonymen gibt).
+  // offen. Vertretbar, weil ihr Inhalt ohnehin oeffentlich ist
+  // (`restaurant` zeigt Name und Foto eines gelisteten Lokals).
   // Was Staging wirklich schuetzt, sind die SEITEN, und die bleiben drin:
   // ohne sie ist ein Bild ohne Zusammenhang.
   //

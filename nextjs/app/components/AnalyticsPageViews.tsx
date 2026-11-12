@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-import { countView, getAnalyticsPageLocation, loadAnalytics, trackEvent } from '@/lib/analytics';
+import { countView } from '@/lib/analytics';
 
 /**
  * Ein Seitenaufruf ist ein Wechsel der SEITE — nicht der Filter.
@@ -31,16 +31,7 @@ export default function AnalyticsPageViews() {
   const pathname = usePathname();
 
   useEffect(() => {
-    // Counted for everyone, before anything consent-dependent runs. This is the
-    // only page-view signal that survives a "no thanks".
     countView();
-    loadAnalytics();
-    const { pageLocation, pagePath } = getAnalyticsPageLocation(window.location.href);
-    trackEvent('page_view', {
-      page_location: pageLocation,
-      page_path: pagePath,
-      page_title: document.title,
-    });
   }, [pathname]);
 
   return null;

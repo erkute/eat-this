@@ -1,10 +1,7 @@
 import { expect, test } from '@playwright/test';
-import { CONSENT_VERSION } from '../lib/consent';
 
 for (const english of [false, true]) {
-  test(`map markers follow camera movement (${english ? 'EN' : 'DE'})`, async ({ page, context, baseURL }) => {
-    await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
-    await page.route('**/api/consent', route => route.fulfill({ status: 204 }));
+  test(`map markers follow camera movement (${english ? 'EN' : 'DE'})`, async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     const errors: string[] = [];
     page.on('pageerror', error => errors.push(error.message));

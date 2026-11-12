@@ -1,7 +1,6 @@
 import { expect, test, type BrowserContext, type Page } from '@playwright/test';
 import { existsSync, readFileSync } from 'node:fs';
 import { parse } from 'dotenv';
-import { CONSENT_VERSION } from '../lib/consent';
 
 // A local SDK identity, not a real account. Every identity/session/data call
 // is intercepted; Firebase writes and token refreshes cannot leave the test.
@@ -58,8 +57,6 @@ for (const width of [390, 820, 1440]) {
         test.setTimeout(120000);
         await page.setViewportSize({ width, height: 1000 });
         await page.emulateMedia({ reducedMotion: 'reduce' });
-        await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
-        await page.route('**/api/consent', route => route.fulfill({ status: 204 }));
         await page.addInitScript(theme => localStorage.setItem('et-theme', theme), theme);
         if (account !== 'guest') await signedInFixture(context, page, baseURL!, account === 'full-catalog');
         const expected = theme === 'light' ? 'rgb(255, 255, 255)' : 'rgb(21, 18, 14)';

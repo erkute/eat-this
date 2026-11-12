@@ -1,15 +1,7 @@
 import { test, expect } from '@playwright/test';
-import { CONSENT_VERSION } from '../lib/consent';
 for (const width of [667, 844])
   for (const motion of ['no-preference', 'reduce'] as const)
-    test(`home Must Eats deal completes at ${width} (${motion})`, async ({
-      page,
-      context,
-      baseURL,
-    }) => {
-      await context.addCookies([
-        { name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! },
-      ]);
+    test(`home Must Eats deal completes at ${width} (${motion})`, async ({ page }) => {
       await page.setViewportSize({ width, height: 390 });
       await page.emulateMedia({ reducedMotion: motion });
       await page.goto('/');

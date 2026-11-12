@@ -63,7 +63,7 @@ vi.mock('firebase-admin/firestore', () => ({
   Timestamp: { fromMillis: (ms: number) => ({ __ts: ms }) },
 }));
 
-import { GET, POST } from './route';
+import { POST } from './route';
 import { MAP_KEY_BUDGET, resetDayKeysCache } from '@/lib/analytics/dayKeyBudget';
 import { resetHomeTargetsCache } from '@/lib/analytics/homeHeat';
 
@@ -349,7 +349,7 @@ describe('POST /api/count', () => {
     const headers = { 'x-forwarded-for': '104.210.140.130, 10.0.0.1, 10.0.0.2' };
     for (const body of [
       { path: '/', ua: CHROME },
-      { path: '/', ua: CHROME, event: 'consent_gate_shown' },
+      { path: '/', ua: CHROME, event: 'map_opened' },
       { path: '/', ua: CHROME, home: 'view', device: 'phone' },
     ]) {
       expect((await POST(request(body, headers))).status).toBe(204);
@@ -358,7 +358,6 @@ describe('POST /api/count', () => {
     expect(mocks.create).not.toHaveBeenCalled();
     expect(mocks.set).not.toHaveBeenCalled();
     expect(mocks.writeInsight).not.toHaveBeenCalled();
-    expect(await (await GET(request({}, headers))).json()).toEqual({ excluded: true });
   });
 
   it('drops a declared crawler', async () => {
@@ -476,9 +475,7 @@ describe('POST /api/count', () => {
   });
 
   it('respektiert das Opt-out-Cookie des Betreibers wie GPC', async () => {
-    const res = await POST(
-      request({ path: '/' }, { cookie: 'cookieConsent=x; eatthis_nocount=1' })
-    );
+    const res = await POST(request({ path: '/' }, { cookie: 'NEXT_LOCALE=de; eatthis_nocount=1' }));
 
     expect(res.status).toBe(204);
     expect(mocks.set).not.toHaveBeenCalled();
@@ -531,26 +528,6 @@ describe('POST /api/count', () => {
       )
     );
     expect(dayWrite()?.pageviews).toEqual({ __inc: 1 });
-  });
-
-  it('liefert den Anschluss-Ausschluss vor dem GA-Laden ohne Messung oder Cache', async () => {
-    vi.stubEnv('STATS_EXCLUDE_IPS', '84.13.22.9');
-    const res = await GET(request({}));
-    expect(await res.json()).toEqual({ excluded: true });
-    expect(res.headers.get('cache-control')).toBe('private, no-store');
-    expect(mocks.get).not.toHaveBeenCalled();
-    expect(mocks.set).not.toHaveBeenCalled();
-    expect(mocks.create).not.toHaveBeenCalled();
-    expect(mocks.update).not.toHaveBeenCalled();
-    expect(mocks.checkRateLimit).not.toHaveBeenCalled();
-  });
-
-  it('gibt GA für andere Anschlüsse frei und verrät nur den Ja/Nein-Wert', async () => {
-    vi.stubEnv('STATS_EXCLUDE_IPS', '192.0.2.4');
-    expect(await (await GET(request({}))).json()).toEqual({ excluded: false });
-    expect(await (await GET(request({}, { cookie: 'eatthis_nocount=1' }))).json()).toEqual({
-      excluded: true,
-    });
   });
 
   /* Scanners send an ordinary browser UA, so only the path shape catches them

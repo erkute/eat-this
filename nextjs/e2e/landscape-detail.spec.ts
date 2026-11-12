@@ -1,7 +1,5 @@
 import {test,expect} from '@playwright/test';
-import {CONSENT_VERSION} from '../lib/consent';
-test('rotated Must Eat keeps card and restaurant visible',async({page,context,baseURL})=>{
- await context.addCookies([{name:'cookieConsent',value:`declined.${CONSENT_VERSION}`,url:baseURL!}]);
+test('rotated Must Eat keeps card and restaurant visible',async({page})=>{
  await page.setViewportSize({width:390,height:844});
  await page.goto('/map?me=mustead-main-6');
  const detail=page.locator('[data-detail-root="must-eat"]');
@@ -24,8 +22,7 @@ test('rotated Must Eat keeps card and restaurant visible',async({page,context,ba
  await expect(page.getByRole('button',{name:/^Zum Spot: Hokey Pokey/})).toBeInViewport();
 });
 
-test('landscape map uses a side list and reachable menu',async({page,context,baseURL})=>{
- await context.addCookies([{name:'cookieConsent',value:`declined.${CONSENT_VERSION}`,url:baseURL!}]);
+test('landscape map uses a side list and reachable menu',async({page})=>{
  await page.setViewportSize({width:Number(process.env.LANDSCAPE_WIDTH || 844),height:390});
  await page.goto('/map');
  const sheet=page.locator('[data-map-sheet]');

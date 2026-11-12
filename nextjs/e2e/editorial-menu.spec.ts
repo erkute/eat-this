@@ -1,12 +1,5 @@
 import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { CONSENT_VERSION } from '../lib/consent';
-
-test.beforeEach(async ({ context, baseURL }) => {
-  await context.addCookies([
-    { name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! },
-  ]);
-});
 
 for (const locale of ['', '/en']) {
   test(`desktop menu stays readable in a short window (${locale || 'de'})`, async ({ page, isMobile }) => {

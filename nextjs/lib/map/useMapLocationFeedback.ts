@@ -73,11 +73,9 @@ export function useMapLocationFeedback({ locale, isActive, sheetView, location,
     locationStatus.copy &&
     locationStatusKey !== dismissedLocationStatusKey
   );
-  /* The denominator for map_location_invite_accepted. Consent-free: trackEvent
-     counts the NAME through /api/count for everyone and only the params need a
-     consent grant, so "labelled vs. pressed" stays readable even though most
-     visitors never accept cookies. Once per session — a re-render would
-     inflate it past any use. */
+  /* The denominator for map_location_invite_accepted: trackEvent counts the
+     NAME through /api/count, so "labelled vs. pressed" stays readable. Once
+     per session — a re-render would inflate it past any use. */
   useEffect(() => {
     if (!isRealInvite) return;
     trackEventOnce('map_location_invite', 'map_location_invite_shown');

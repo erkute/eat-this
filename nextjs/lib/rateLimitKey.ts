@@ -5,7 +5,7 @@ import { berlinDay, countSalt, visitorHash } from './analytics/visitorHash';
  *
  * Der Schluessel eines Ratenlimits ist die Dokument-ID in `_rateLimits`. Steht
  * dort die rohe IP, dann liegt eine rohe IP in der Datenbank — und zwar genau
- * die, von der `/api/count`, `/api/consent`, `/api/buddy` und
+ * die, von der `/api/count`, `/api/buddy` und
  * `/api/must-eat-reveal` seit jeher die Finger lassen: die zaehlen alle ueber
  * `visitorHash`, und die Datenschutzerklaerung sagt zu, dass rohe Adressen
  * nicht gespeichert werden. Ein Ratenlimit ist kein Grund, davon abzuweichen —

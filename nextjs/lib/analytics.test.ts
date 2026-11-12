@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
-// GA laeuft seit 28.08.2026 nur noch auf dem Produktions-Host — unter dem
-// jsdom-Standard (localhost) wuerde hier nichts mehr laden, und zwar zu Recht.
+// Der Zaehler schweigt auf lokalen Hosts — unter dem jsdom-Standard
+// (localhost) wuerde hier nichts gesendet, und zwar zu Recht.
 // @vitest-environment-options { "url": "https://www.eatthisdot.com/" }
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
@@ -8,215 +8,76 @@ import {
   countHome,
   countInsight,
   countView,
-  getAnalyticsPageLocation,
-  isAnalyticsHost,
-  loadAnalytics,
-  flushAnalyticsQueue,
   qualifiedCountName,
   resetReferrerSentForTests,
   trackEvent,
   trackEventOnce,
 } from './analytics';
-import { CONSENT_VERSION } from './consent';
 
 /* `{ ...navigator }` verliert `userAgent` — der Getter liegt auf dem Prototyp.
  * Der Zaehler schickt ihn im Beacon mit, also muss der Stub ihn tragen. */
 const TEST_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Chrome/136.0.0.0 Safari/537.36';
 
-describe('analytics consent gate', () => {
+/* Der eigene Browser, Bots samt dem Browser der Claude-App und das
+ * Zahlenbrett werden nicht gezaehlt. */
+describe('der Zaehler laesst eigene und automatische Besuche aus', () => {
+  let beacon: ReturnType<typeof vi.fn>;
+
   beforeEach(() => {
-    localStorage.clear();
     sessionStorage.clear();
-    // Consent lives in a cookie now (lib/consent.ts) so the pre-paint
-    // bootstrap can read it; the gate reads it from there.
-    document.cookie = 'cookieConsent=; Max-Age=0; Path=/';
-    delete (window as Window & { gtag?: unknown }).gtag;
-    delete (window as Window & { __eatThisAnalyticsQueue?: unknown }).__eatThisAnalyticsQueue;
-    vi.stubGlobal('navigator', { ...navigator, userAgent: TEST_UA, sendBeacon: vi.fn(() => true) });
-  });
-
-  it('drops events before consent', () => {
-    trackEvent('map_opened');
-    expect(
-      (window as Window & { __eatThisAnalyticsQueue?: unknown[] }).__eatThisAnalyticsQueue
-    ).toBeUndefined();
-  });
-
-  it('queues after consent and flushes when gtag loads', () => {
-    document.cookie = `cookieConsent=accepted.${CONSENT_VERSION}; Path=/`;
-    trackEvent('map_opened', { tier: 'anon' });
-
-    const gtag = vi.fn();
-    (window as Window & { gtag?: typeof gtag }).gtag = gtag;
-    flushAnalyticsQueue();
-
-    expect(gtag).toHaveBeenCalledWith('event', 'map_opened', { tier: 'anon' });
-  });
-
-  it('deduplicates session-scoped events', () => {
-    document.cookie = `cookieConsent=accepted.${CONSENT_VERSION}; Path=/`;
-    const gtag = vi.fn();
-    (window as Window & { gtag?: typeof gtag }).gtag = gtag;
-
-    trackEventOnce('purchase_1', 'purchase', { value: 2.99 });
-    trackEventOnce('purchase_1', 'purchase', { value: 2.99 });
-
-    expect(gtag).toHaveBeenCalledTimes(1);
-  });
-});
-
-/* Bis 28.08.2026 lud GA auf jedem Host. Ergebnis: 59 % aller Sitzungen ueber
- * 90 Tage kamen aus der Entwicklung oder vom Staging, und jede ungefilterte
- * GA-Zahl — auch jede im GA4-Webinterface — war damit falsch. */
-describe('GA laeuft nur auf dem Produktions-Host', () => {
-  it.each([
-    ['www.eatthisdot.com', true],
-    ['eatthisdot.com', true],
-    ['localhost', false],
-    ['127.0.0.1', false],
-    ['192.168.178.49', false],
-    ['eat-this-staging--eat-this-staging-8a13b.us-central1.hosted.app', false],
-  ])('%s -> %s', (host, expected) => {
-    expect(isAnalyticsHost(host)).toBe(expected);
-  });
-
-  beforeEach(() => {
-    // gtag und die Warteschlange ueberleben sonst aus dem Block darueber.
-    document.cookie = 'cookieConsent=; Max-Age=0; Path=/';
-    delete (window as Window & { gtag?: unknown }).gtag;
-    delete (window as Window & { __eatThisAnalyticsQueue?: unknown }).__eatThisAnalyticsQueue;
-  });
-
-  // stubGlobal statt spyOn(window,'location'): jsdoms location ist nicht
-  // ersetzbar, und ein Spy darauf laesst sich nicht sauber zuruecknehmen — er
-  // friert die URL fuer alle folgenden Tests der Datei auf '/' ein.
-  afterEach(() => vi.unstubAllGlobals());
-
-  function onHost(hostname: string) {
-    vi.stubGlobal('location', { ...window.location, hostname });
-  }
-
-  it('laedt kein GA auf einem fremden Host, auch mit Zustimmung', () => {
-    document.cookie = `cookieConsent=accepted.${CONSENT_VERSION}; Path=/`;
-    const appendChild = vi.spyOn(document.head, 'appendChild');
-    // Staging faehrt einen Produktions-Build; nur der Host unterscheidet.
-    onHost('eat-this-staging--eat-this-staging-8a13b.us-central1.hosted.app');
-
-    loadAnalytics();
-
-    expect(appendChild, 'kein gtag-Skript auf Staging').not.toHaveBeenCalled();
-    expect((window as Window & { gtag?: unknown }).gtag).toBeUndefined();
-    appendChild.mockRestore();
-  });
-
-  it('sammelt auf einem fremden Host auch keine Warteschlange an', () => {
-    document.cookie = `cookieConsent=accepted.${CONSENT_VERSION}; Path=/`;
-    onHost('localhost');
-
-    trackEvent('map_opened');
-    trackEvent('map_opened');
-
-    // Ohne diesen Riegel waechst die Queue auf Staging unbegrenzt: Zustimmung
-    // liegt vor, gtag kommt nie.
-    expect(
-      (window as Window & { __eatThisAnalyticsQueue?: unknown[] }).__eatThisAnalyticsQueue
-    ).toBeUndefined();
-  });
-});
-
-/* Mit Zustimmung, aber trotzdem nicht in GA: der eigene Browser, Bots samt
- * dem Browser der Claude-App, und das Zahlenbrett. Dieselben Riegel wie beim
- * Zaehler. */
-describe('GA laesst eigene und automatische Besuche aus', () => {
-  beforeEach(() => {
-    document.cookie = `cookieConsent=accepted.${CONSENT_VERSION}; Path=/`;
-    delete (window as Window & { gtag?: unknown }).gtag;
-    delete (window as Window & { __eatThisAnalyticsQueue?: unknown }).__eatThisAnalyticsQueue;
-    vi.stubGlobal('navigator', { ...navigator, userAgent: TEST_UA, sendBeacon: vi.fn(() => true) });
+    beacon = vi.fn(() => true);
+    vi.stubGlobal('navigator', { ...navigator, userAgent: TEST_UA, sendBeacon: beacon });
   });
 
   afterEach(() => {
     document.cookie = 'eatthis_nocount=; Max-Age=0; Path=/';
-    document.cookie = 'cookieConsent=; Max-Age=0; Path=/';
     vi.unstubAllGlobals();
   });
 
-  const queue = () =>
-    (window as Window & { __eatThisAnalyticsQueue?: unknown[] }).__eatThisAnalyticsQueue;
-
-  it('zaehlt einen gewoehnlichen Browser mit Zustimmung', () => {
+  it('zaehlt einen gewoehnlichen Browser', () => {
     trackEvent('map_opened');
-    expect(queue()).toHaveLength(1);
+    expect(beacon).toHaveBeenCalledTimes(1);
   });
 
   it('laesst den per Knopf abgemeldeten Browser aus', () => {
     document.cookie = 'eatthis_nocount=1; Path=/';
     trackEvent('map_opened');
-    expect(queue()).toBeUndefined();
+    expect(beacon).not.toHaveBeenCalled();
   });
 
   it('laesst den Browser der Claude-App aus', () => {
     vi.stubGlobal('navigator', {
       ...navigator,
       userAgent: `${TEST_UA} Claude/1.2.3 Chrome/136.0.0.0`,
-      sendBeacon: vi.fn(() => true),
+      sendBeacon: beacon,
     });
     trackEvent('map_opened');
-    expect(queue()).toBeUndefined();
+    expect(beacon).not.toHaveBeenCalled();
   });
 
   it.each(['/admin/stats', '/en/admin/stats'])('laesst %s aus', (pathname) => {
     vi.stubGlobal('location', { ...window.location, pathname });
-    trackEvent('page_view');
-    expect(queue()).toBeUndefined();
+    countView();
+    expect(beacon).not.toHaveBeenCalled();
   });
 
   it('haelt „admin" im Slug nicht fuer das Brett', () => {
     vi.stubGlobal('location', { ...window.location, pathname: '/news/administration-kantine' });
-    trackEvent('page_view');
-    expect(queue()).toHaveLength(1);
+    countView();
+    expect(beacon).toHaveBeenCalledTimes(1);
+  });
+
+  it('zaehlt sitzungsweit einmalige Ereignisse nur einmal', () => {
+    trackEventOnce('purchase_1', 'purchase', { value: 2.99 });
+    trackEventOnce('purchase_1', 'purchase', { value: 2.99 });
+    expect(beacon).toHaveBeenCalledTimes(1);
   });
 });
 
-describe('getAnalyticsPageLocation', () => {
-  it('removes Stripe session IDs from page views but preserves other params', () => {
-    expect(
-      getAnalyticsPageLocation(
-        'https://www.eatthisdot.com/checkout/success?session_id=cs_secret&utm_source=stripe'
-      )
-    ).toEqual({
-      pageLocation: 'https://www.eatthisdot.com/checkout/success?utm_source=stripe',
-      pagePath: '/checkout/success?utm_source=stripe',
-    });
-  });
-
-  /* Der Link aus der Anmelde-Mail landet auf der Zielseite und traegt dort
-   * einen einloesbaren Anmelde-Code (`oobCode`) und die Mailadresse (`e`).
-   * EmailLinkSignIn raeumt die Adresszeile sofort, aber was davor gezaehlt
-   * wird, darf beides nicht nach Google tragen. */
-  it('entfernt Code und Adresse aus der URL, auf der der Mail-Link landet', () => {
-    const { pageLocation, pagePath } = getAnalyticsPageLocation(
-      'https://www.eatthisdot.com/map?r=spot&mode=signIn&oobCode=AbC_secret123' +
-        '&apiKey=AIzaSyKEY&e=gast%40example.com'
-    );
-
-    for (const secret of ['AbC_secret123', 'AIzaSyKEY', 'gast%40example.com']) {
-      expect(pageLocation, `${secret} darf nicht zu Google`).not.toContain(secret);
-      expect(pagePath, `${secret} darf nicht zu Google`).not.toContain(secret);
-    }
-    // Was harmlos ist, bleibt stehen — sonst verliert der Bericht den Kontext.
-    expect(pagePath).toBe('/map?r=spot');
-  });
-});
-
-/* The consent-free counter. Its whole value is that it does NOT depend on the
- * answer to the cookie question — if any of this starts checking consent, the
- * numbers go back to being a third of the truth. */
-describe('consent-free counting', () => {
+describe('counting', () => {
   let beacon: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
-    document.cookie = 'cookieConsent=; Max-Age=0; Path=/';
     beacon = vi.fn(() => true);
     vi.stubGlobal('navigator', { ...navigator, userAgent: TEST_UA, sendBeacon: beacon });
     window.history.replaceState({}, '', '/bezirk/kreuzberg');
@@ -240,13 +101,7 @@ describe('consent-free counting', () => {
     return JSON.parse(await readBlob(blob)) as Record<string, string>;
   }
 
-  it.each([
-    ['no answer yet', ''],
-    ['declined', `cookieConsent=declined.${CONSENT_VERSION}; Path=/`],
-    ['accepted', `cookieConsent=accepted.${CONSENT_VERSION}; Path=/`],
-  ])('counts a page view when consent is %s', async (_label, cookie) => {
-    if (cookie) document.cookie = cookie;
-
+  it('counts a page view', async () => {
     countView();
 
     expect(beacon).toHaveBeenCalledTimes(1);
@@ -350,10 +205,10 @@ describe('consent-free counting', () => {
     });
   });
 
-  it('fans a tracked event out to the counter without consent', async () => {
+  it('fans a tracked event out to the counter', async () => {
     trackEvent('map_opened', { tier: 'anon' });
 
-    expect(beacon, 'the counter runs before the consent gate').toHaveBeenCalledTimes(1);
+    expect(beacon).toHaveBeenCalledTimes(1);
     expect((await sent()).event).toBe('map_opened');
   });
 
@@ -383,8 +238,7 @@ describe('consent-free counting', () => {
     countView();
     countEvent('map_opened');
 
-    // Reading or writing the device is the one thing that would put this
-    // endpoint behind the consent dialog (TDDDG 25).
+    // Reading or writing the device would need consent (TDDDG 25).
     expect(setItem).not.toHaveBeenCalled();
     expect(getItem).not.toHaveBeenCalled();
     setItem.mockRestore();
@@ -481,127 +335,21 @@ describe('eigene Browser senden keine Zähl-Beacons', () => {
   );
 });
 
-it('sendet aus lokalen Vorschauen weder Zählereignisse noch GA', () => {
+it('sendet aus lokalen Vorschauen keine Zählereignisse', () => {
   const referrer = vi.spyOn(document, 'referrer', 'get').mockReturnValue('http://127.0.0.1:4178/');
   const beacon = vi.fn();
-  const gtag = vi.fn();
   vi.stubGlobal('navigator', { userAgent: TEST_UA, sendBeacon: beacon });
   vi.stubGlobal('location', { hostname: 'www.eatthisdot.com', pathname: '/' });
   document.cookie = 'eatthis_nocount=; Max-Age=0; Path=/';
-  document.cookie = `cookieConsent=accepted.${CONSENT_VERSION}; Path=/`;
-  (window as Window & { gtag?: unknown }).gtag = gtag;
   try {
     countView();
     countEvent('map_opened');
     trackEvent('map_opened');
     expect(beacon).not.toHaveBeenCalled();
-    expect(gtag).not.toHaveBeenCalled();
   } finally {
     referrer.mockRestore();
     vi.unstubAllGlobals();
-    delete (window as Window & { gtag?: unknown }).gtag;
   }
-});
-
-// GA darf auch bei frischer Zustimmung im Inkognito-Fenster erst nach der
-// serverseitigen IP-Prüfung laden oder Ereignisse verschicken.
-describe('GA waits for the private network exclusion', () => {
-  type TestWindow = Window & {
-    __gaLoaded?: boolean;
-    __eatThisAnalyticsNetworkCheck?: Promise<boolean>;
-    __eatThisAnalyticsNetworkExcluded?: boolean;
-    __eatThisAnalyticsQueue?: unknown[];
-    gtag?: (...args: unknown[]) => void;
-    dataLayer?: unknown[];
-  };
-  const w = window as TestWindow;
-
-  beforeEach(() => {
-    document.cookie = 'eatthis_nocount=; Max-Age=0; Path=/';
-    document.cookie = `cookieConsent=accepted.${CONSENT_VERSION}; Path=/`;
-    delete w.gtag;
-    delete w.__gaLoaded;
-    delete w.__eatThisAnalyticsNetworkCheck;
-    delete w.__eatThisAnalyticsNetworkExcluded;
-    delete w.__eatThisAnalyticsQueue;
-    vi.stubGlobal('navigator', { userAgent: TEST_UA, sendBeacon: vi.fn(() => true) });
-  });
-
-  afterEach(() => {
-    document.cookie = 'cookieConsent=; Max-Age=0; Path=/';
-    document
-      .querySelectorAll('script[src*="googletagmanager.com"]')
-      .forEach((script) => script.remove());
-    delete w.gtag;
-    delete w.__gaLoaded;
-    delete w.__eatThisAnalyticsNetworkCheck;
-    delete w.__eatThisAnalyticsNetworkExcluded;
-    delete w.__eatThisAnalyticsQueue;
-    delete w.dataLayer;
-    vi.unstubAllGlobals();
-  });
-
-  it('drops queued and future events from the excluded connection without loading Google', async () => {
-    vi.stubGlobal(
-      'fetch',
-      vi.fn().mockResolvedValue({ ok: true, json: async () => ({ excluded: true }) })
-    );
-    const loading = loadAnalytics();
-    trackEvent('page_view');
-    expect(w.__eatThisAnalyticsQueue).toHaveLength(1);
-    expect(w.gtag).toBeUndefined();
-    await loading;
-    trackEvent('map_opened');
-    expect(w.__eatThisAnalyticsQueue).toEqual([]);
-    expect(w.gtag).toBeUndefined();
-    expect(document.querySelector('script[src*="googletagmanager.com"]')).toBeNull();
-  });
-
-  it('checks once for concurrent loaders and flushes the first pageview for ordinary visitors', async () => {
-    const fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ excluded: false }) });
-    vi.stubGlobal('fetch', fetch);
-    const first = loadAnalytics();
-    const second = loadAnalytics();
-    trackEvent('page_view', { page_path: '/' });
-    expect(w.gtag).toBeUndefined();
-    await Promise.all([first, second]);
-    expect(fetch).toHaveBeenCalledExactlyOnceWith('/api/count', {
-      cache: 'no-store',
-      credentials: 'same-origin',
-    });
-    expect(document.querySelectorAll('script[src*="googletagmanager.com"]')).toHaveLength(1);
-    expect(
-      w.dataLayer?.filter((args) => Array.from(args as ArrayLike<unknown>)[0] === 'event')
-    ).toHaveLength(1);
-    expect(w.__eatThisAnalyticsQueue).toEqual([]);
-  });
-
-  it.each([
-    { ok: false },
-    { ok: true, json: async () => ({}) },
-    { ok: true, json: async () => ({ excluded: 'false' }) },
-  ])('keeps GA off for an unsuccessful or invalid preference response: %j', async (response) => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response));
-    await loadAnalytics();
-    expect(w.gtag).toBeUndefined();
-  });
-
-  it('keeps GA off when the preference request fails', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
-    await loadAnalytics();
-    expect(w.gtag).toBeUndefined();
-  });
-
-  it('rechecks consent after the response arrives', async () => {
-    vi.stubGlobal(
-      'fetch',
-      vi.fn().mockResolvedValue({ ok: true, json: async () => ({ excluded: false }) })
-    );
-    const loading = loadAnalytics();
-    document.cookie = `cookieConsent=rejected.${CONSENT_VERSION}; Path=/`;
-    await loading;
-    expect(w.gtag).toBeUndefined();
-  });
 });
 
 describe('preview and automation exclusion across every measurement', () => {

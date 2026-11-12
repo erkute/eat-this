@@ -1,5 +1,4 @@
 import { expect, test, type Locator } from '@playwright/test';
-import { CONSENT_VERSION } from '../lib/consent';
 
 function nativeTapHighlights(controls: Locator) {
   return controls.evaluateAll(elements => elements
@@ -13,11 +12,6 @@ function nativeTapHighlights(controls: Locator) {
       highlight: getComputedStyle(element).getPropertyValue('-webkit-tap-highlight-color'),
     })));
 }
-
-test.beforeEach(async ({ page, context, baseURL }) => {
-  await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
-  await page.route('**/api/consent', route => route.fulfill({ status: 204 }));
-});
 
 test('map list photos stay opaque when a swipe starts', async ({ page }) => {
   await page.goto('/map');
@@ -51,18 +45,6 @@ for (const route of ['/', '/en/news', '/news/gazzo-pizza-neukoelln', '/map?r=gaz
     expect(await nativeTapHighlights(controls)).toEqual([]);
   });
 }
-
-test('footer opens cookie preferences without native tap frames', async ({ page, isMobile }) => {
-  await page.goto('/about');
-  const settings = page.locator('[data-site-footer]').getByRole('button', { name: 'Cookies verwalten', exact: true });
-  if (isMobile) await settings.tap();
-  else await settings.click();
-  const dialog = page.locator('#cookieConsent');
-  await expect(dialog).toBeVisible();
-  await expect(dialog.getByRole('button', { name: 'Akzeptieren', exact: true })).toBeVisible();
-  await expect(dialog.getByRole('button', { name: 'Ablehnen', exact: true })).toBeVisible();
-  expect(await nativeTapHighlights(dialog.locator('a[href], button, summary'))).toEqual([]);
-});
 
 for (const route of ['/bezirk/neukoelln', '/bezirk/schoeneberg', '/kategorie/sweets', '/kategorie/pizza', '/en/bezirk/neukoelln', '/en/kategorie/pizza']) {
   for (const reducedMotion of ['reduce', 'no-preference'] as const) {
@@ -245,7 +227,6 @@ for (const reducedMotion of ['reduce', 'no-preference'] as const) {
         theme === 'dark' ? 'rgb(255, 255, 255)' : 'rgb(21, 18, 14)');
       for (const control of [
         footer.getByRole('link', { name: 'Kontakt', exact: true }),
-        footer.getByRole('button', { name: 'Cookies verwalten', exact: true }),
         footer.getByRole('button', { name: 'EN — English', exact: true }),
         footer.getByRole('button', { name: 'Dunkel', exact: true }),
       ]) {

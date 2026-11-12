@@ -215,13 +215,7 @@
 @media (max-width: 767.98px) {
   .shell {
     /* Resting stop of the three-stage sheet ("map"), mirrored in JS by
-       LIST_REST_VISIBLE_DVH in phoneSheetSnaps.ts — keep the two in step.
-
-       No consent term any more: the cookie banner used to be fixed to the
-       bottom edge, straight over the resting sheet, and the sheet had to lift
-       itself by the banner's measured height or the filter chips sat behind it
-       on first load. The banner is now a blocking dialog on a scrim and owns
-       no part of this edge. */
+       LIST_REST_VISIBLE_DVH in phoneSheetSnaps.ts — keep the two in step. */
     --phone-list-sheet-visible: 28dvh;
     /* The detail's map strip. Sized so the sheet has the same three stops as
        the list — a live, pannable map behind the sliding detail sheet. In lvh

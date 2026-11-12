@@ -1,10 +1,7 @@
 import { expect, test } from '@playwright/test';
-import { CONSENT_VERSION } from '../lib/consent';
 
 for (const locale of ['de', 'en']) {
-  test(`all map filter values stay fully readable with all four filters active (${locale})`, async ({ page, context, baseURL }, info) => {
-    await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
-    await page.route('**/api/consent', route => route.fulfill({ status: 204 }));
+  test(`all map filter values stay fully readable with all four filters active (${locale})`, async ({ page }, info) => {
     await page.goto(`${locale === 'en' ? '/en' : ''}/map?cat=must-eats&bezirk=charlottenburg&price=10&open=1`, { waitUntil: 'domcontentloaded' });
     const row = page.locator('[data-filter-chip-row]');
     const district = row.getByRole('button', { name: 'Charlottenburg', exact: true });

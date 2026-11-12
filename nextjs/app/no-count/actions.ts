@@ -11,7 +11,7 @@ export async function setCounting(form: FormData): Promise<never> {
   if (choice !== 'exclude' && choice !== 'include') throw new Error('Invalid counting choice');
   const path = form.get('locale') === 'en' ? '/en/no-count' : '/no-count';
   const jar = await cookies();
-  // Readable by GA's client-side opt-out gate; same scope as the admin switch.
+  // Readable by the client-side counter; same scope as the admin switch.
   jar.set(NO_COUNT_COOKIE, choice === 'exclude' ? '1' : '', {
     path: '/',
     maxAge: choice === 'exclude' ? 31536000 : 0,

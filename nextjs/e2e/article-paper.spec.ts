@@ -1,8 +1,7 @@
 import { expect, test } from '@playwright/test';
-import { CONSENT_VERSION } from '../lib/consent';
 
 for (const theme of ['light', 'dark'] as const) {
-  test(`article labels and clean catalogue surface (${theme})`, async ({ page, context, baseURL }, info) => {
+  test(`article labels and clean catalogue surface (${theme})`, async ({ page }, info) => {
     const english = theme === 'dark';
     const prefix = english ? '/en' : '';
     const errors: string[] = [];
@@ -10,8 +9,6 @@ for (const theme of ['light', 'dark'] as const) {
     page.on('console', message => {
       if (message.type() === 'error') errors.push(message.text());
     });
-    await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
-    await page.route('**/api/consent', route => route.fulfill({ status: 204 }));
     await page.addInitScript(value => {
       localStorage.setItem('et-theme', value);
       Object.defineProperty(navigator, 'share', { value: undefined });

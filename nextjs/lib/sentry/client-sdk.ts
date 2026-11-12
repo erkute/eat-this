@@ -37,12 +37,9 @@ Sentry.init({
   replaysSessionSampleRate: 0,
   replaysOnErrorSampleRate: 0,
 
-  // Keine IP (Betreiber, 02.10.2026). Der Cookie-Dialog verspricht für Sentry
-  // höchstens eine pseudonymisierte IP; mit `true` (Projektentscheidung vom
-  // 09.05.2026) speicherte Sentry die volle. Mit `false` schickt das SDK
+  // Keine IP (Betreiber, 02.10.2026). Mit `false` schickt das SDK
   // `infer_ip: "never"`, Sentry leitet dann keine IP mehr ab. Browser und
-  // Betriebssystem kommen weiter über den User-Agent an — das, was der
-  // Dialog nennt.
+  // Betriebssystem kommen weiter über den User-Agent an.
   sendDefaultPii: false,
 });
 

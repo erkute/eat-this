@@ -53,7 +53,7 @@ export default function Overview({
           <Kpi
             label="Gerade aktiv"
             value={NUMBER.format(data.live.activeNow)}
-            hint={`letzte ${data.live.minutes} Min · ${data.live.ga !== null ? `GA ${data.live.ga} · ` : ''}Stand ${new Date(data.live.at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}`}
+            hint={`letzte ${data.live.minutes} Min · Stand ${new Date(data.live.at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}`}
           />
         )}
       </div>
@@ -229,8 +229,8 @@ export default function Overview({
       </Card>
       <p className={styles.notice}>
         Tagesbesucher sind eine Näherung, keine über den Zeitraum eindeutig erkannten Menschen.
-        Externe Verweise, Google-Suchklicks und GA-Nutzer haben andere Bezugsgrößen und werden nicht
-        addiert. Messdefinitionen und Datenlücken stehen unter „Messung“.
+        Externe Verweise und Google-Suchklicks haben andere Bezugsgrößen und werden nicht addiert.
+        Messdefinitionen und Datenlücken stehen unter „Messung“.
       </p>
     </>
   );

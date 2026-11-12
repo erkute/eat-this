@@ -1,11 +1,5 @@
 import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { CONSENT_VERSION } from '../lib/consent';
-
-test.beforeEach(async ({ page, context, baseURL }) => {
-  await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
-  await page.route('**/api/consent', route => route.fulfill({ status: 204 }));
-});
 
 for (const en of [false, true]) {
   test(`shared theme survives map switching and reload (${en ? 'EN' : 'DE'})`, async ({ page }) => {
@@ -50,7 +44,7 @@ for (const route of ['/', '/news', '/news/gazzo-pizza-neukoelln', '/map?r=gazzo'
   });
 }
 
-test('dark map guest login and cookie choice remain readable', async ({ page, context }) => {
+test('dark map guest login remains readable', async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem('et-theme', 'dark');
   });
@@ -66,12 +60,4 @@ test('dark map guest login and cookie choice remain readable', async ({ page, co
     expect(results.violations.map(({ id, nodes }) => ({ id, targets: nodes.map(node => node.target) }))).toEqual([]);
   };
   await check();
-  await context.clearCookies();
-  await page.goto('/news');
-  const accept = page.getByRole('button', { name: 'Akzeptieren', exact: true });
-  await expect(accept).toBeVisible();
-  await accept.focus();
-  await check();
-  await page.getByRole('button', { name: 'Ablehnen', exact: true }).click();
-  await expect(accept).toBeHidden();
 });

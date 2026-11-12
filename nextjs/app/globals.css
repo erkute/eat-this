@@ -3,7 +3,7 @@
    stehen 55 Roman und 75 Bold. Geladen wird nur, wo eine Regel die Familie
    wirklich benutzt. Die Faces stehen hier statt über die Kit-CSS
    (use.typekit.net/kgb1lmh.css): die lädt per @import Adobes Zähl-Beacon
-   p.typekit.net/p.css, für jeden Besuch und vor der Cookie-Entscheidung.
+   p.typekit.net/p.css, für jeden Besuch.
    Die URLs stammen aus der Kit-CSS; dort auffrischen, wenn Adobe das Kit
    ändert. */
 @font-face {
@@ -91,13 +91,7 @@
      bleiben lokale kleine Zahlen. Die Werte sind die historischen, damit sich
      an der Reihenfolge nichts verschiebt. Teilen sich zwei Stellen ein Token
      (oder einen Wert), liegen sie auf derselben Ebene, und bei Gleichstand
-     entscheidet die DOM-Reihenfolge.
-     Die Foto-Galerie liegt über dem Cookie-Dialog. Heute folgenlos: der
-     Dialog geht beim ersten Laden auf und deckt alles, und wieder öffnen
-     lässt er sich nur über den Footer, an den man bei offener Galerie nicht
-     kommt. Ihn ganz nach oben zu legen hätte ihn über das Must-Eats-
-     Onboarding und das Login-Modal gehoben, die bei neuen Besuchern
-     gleichzeitig mit ihm aufgehen können (Betreiber, 26.09.2026: so lassen). */
+     entscheidet die DOM-Reihenfolge. */
   --et-z-map-phone: 9990; /* Kartenseite am Telefon */
   --et-z-map-phone-active: 9995;
   --et-z-below-nav: 9998; /* Remy-Knopf, zurückfliegende Must-Eat-Karte */
@@ -105,7 +99,6 @@
   --et-z-above-nav: 10000; /* Wortmarken-Flug, Info-Karte, Skip-Link */
   --et-z-remy: 10001; /* Remy-Fenster, über seinem Vorhang */
   --et-z-drawer: 10002; /* Burger-Menü */
-  --et-z-consent: 10002; /* Cookie-Dialog; nie zugleich mit dem Menü offen */
   --et-z-login: 10004;
   --et-z-reveal: 10010; /* Must-Eat-Aufdecken */
   --et-z-sheet: 10020; /* Vollbild-Layer: AllBerlin-Sheet, Must-Eat-Zoom */
@@ -129,7 +122,7 @@
   --et-ink-soft: rgba(255, 255, 255, 0.76);
   --et-ink-quiet: rgba(255, 255, 255, 0.055);
   /* Die schwebende Flaeche: alles, was sich UEBER der Seite oeffnet
-     (Info-Karte, Cookie-Dialog, Login, Onboarding, Sheets, Remys Chat).
+     (Info-Karte, Login, Onboarding, Sheets, Remys Chat).
      Seit die Seiten selbst auf Ink stehen, lag jedes dieser Fenster Ink auf
      Ink — der Schleier dunkelt Ink nicht ab, und ein schwarzer Schatten ist
      auf Schwarz unsichtbar. Deshalb eine Stufe heller als der Grund (Weiss
@@ -176,7 +169,7 @@
      zurueck. Schwarz auf Ink dunkelt sichtbar ab (#15120e → #080705 bei
      62 %). Die Deckkraft bleibt je Ebene, wie sie war — sie ist ausgemessen. */
   --et-scrim: rgba(0, 0, 0, 0.62);
-  /* Gemeinsame Fensterfläche für Tour, Hinweise, Cookies und Auth-Status. */
+  /* Gemeinsame Fensterfläche für Tour, Hinweise und Auth-Status. */
   --et-window-paper: url('/pics/paper/folded-white.webp?v=20261028-hq');
   --et-window-shadow: 0 16px 48px rgb(0 0 0 / 0.2);
   --et-window-padding: clamp(24px, 3.4vw, 40px);
@@ -210,6 +203,21 @@
 
   --motion-slow: 320ms;
   --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Auf faltbaren Geräten öffnen Menü, Remy und Login auf der rechten bzw.
+   unteren Hälfte. Browser ohne Viewport-Segmente behalten die Standardwerte. */
+@media (horizontal-viewport-segments: 2) {
+  :root {
+    --et-pane-left: env(viewport-segment-left 1 0);
+    --et-pane-width: env(viewport-segment-width 1 0);
+  }
+}
+@media (vertical-viewport-segments: 2) {
+  :root {
+    --et-pane-top: env(viewport-segment-top 0 1);
+    --et-pane-height: env(viewport-segment-height 0 1);
+  }
 }
 
 /* Interface roles change with the explicit selection; artwork keeps literal
@@ -922,418 +930,6 @@ html[data-auth='1'] [data-guest-only] {
   }
 }
 
-/* ── Consent gate: hold the page still while the question is up ─────────────
-   The gate is a blocking dialog with a scrim over the whole viewport. Scrolling
-   the page behind it would let the scrim slide over fresh content and read as a
-   broken overlay, so the document stops moving until the user answers. The
-   scrim's own `touch-action: none` (unten) is what covers iOS Safari,
-   which ignores overflow:hidden on the scroll container. */
-:root[data-consent-gate='open'],
-:root[data-consent-gate='open'] body,
-:root[data-consent-pending],
-:root[data-consent-pending] body {
-  overflow: hidden;
-}
-
-/* ── Consent gate: das Aussehen des Dialogs ──────────────────────
-   Der Dialog haengt seit 28.08.2026 in app/[locale]/layout.tsx, also auf JEDER
-   Route — vorher nur auf den (spa)-Routen, auf /restaurant, /kategorie und
-   /bezirk wurde nie gefragt, und genau dort landet die Suche. */
-/* Consent gate — a blocking dialog, not a bottom bar.
-   The bar this replaced sat on the bottom edge, paper-white on a paper-white
-   page, and could be ignored indefinitely; almost nobody ever answered, and an
-   unanswered question counts as a refusal. Now: a scrim, a centred ink card,
-   and no way past it except one of the two answers.
-
-   Both answers are the same size, the same type and the same weight — only the
-   fill differs. Forcing the decision is legal; nudging the answer is not, so
-   do not make "decline" quieter than "accept".
-
-   Motion is translate/scale only (brand rule: no opacity fades on brand
-   surfaces). The scrim transitions its background-COLOR rather than opacity —
-   it is a veil over the page, not a surface of its own. */
-/* Knitterpapier in der Theme-Farbe der Map-Filter, mit geraden Blattkanten.
-   Beide Antworten bleiben gleich gross und gleich gut lesbar. */
-.cookie-gate {
-  --cookie-panel-w: 520px;
-  --cookie-panel-w-wide: 680px;
-  --cookie-font: var(--et-font-display);
-  position: fixed;
-  inset: 0;
-  z-index: var(--et-z-consent);
-  display: grid;
-  /* A definite track, not `auto`: the card's width is a percentage, and against
-     an auto track that percentage resolves back against the card's own content
-     — so `.expanded` could never widen it. */
-  grid-template-columns: minmax(0, 1fr);
-  place-items: end;
-  padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px))
-    max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
-}
-/* No initial flash for an existing answer, even with application JS delayed.
-   The head bootstrap only marks an unanswered visitor. */
-.cookie-gate.cookie-bootstrap { display: none; }
-html[data-consent-pending] .cookie-gate.cookie-bootstrap { display: grid; }
-.cookie-scrim {
-  position: absolute;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0);
-  /* Stops iOS Safari scrolling the page underneath; the overflow lock behind
-     [data-consent-gate='open'] covers every other browser. */
-  touch-action: none;
-  transition: background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.cookie-gate.show .cookie-scrim,
-html[data-consent-pending] .cookie-gate.cookie-bootstrap .cookie-scrim {
-  background-color: var(--et-scrim);
-  animation: cookie-scrim-enter 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-@keyframes cookie-scrim-enter {
-  from { background-color: rgba(0, 0, 0, 0); }
-  to { background-color: var(--et-scrim); }
-}
-.cookie-consent {
-  /* Text und Details folgen derselben Palette wie die Papierfläche. */
-  --cookie-soft: var(--et-copy);
-  --cookie-dim: var(--et-fg);
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  box-sizing: border-box;
-  width: min(100%, var(--cookie-panel-w));
-  max-height: min(calc(100dvh - 32px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)), 780px);
-  overflow: hidden;
-  padding: var(--et-window-padding);
-  color: var(--et-fg);
-  background-color: var(--et-ground);
-  isolation: isolate;
-  border: 0;
-  border-radius: 0;
-  box-shadow: var(--et-window-shadow);
-  font-family: var(--cookie-font);
-  transform: translateY(22px) scale(0.97);
-  transition:
-    transform 0.46s cubic-bezier(0.16, 1, 0.3, 1),
-    width 0.32s cubic-bezier(0.16, 1, 0.3, 1);
-  outline: none;
-}
-.cookie-paper {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  width: 100%;
-  height: 100%;
-  mix-blend-mode: multiply;
-  pointer-events: none;
-}
-.cookie-consent.expanded {
-  width: min(100%, var(--cookie-panel-w-wide));
-}
-.cookie-gate.show .cookie-consent,
-html[data-consent-pending] .cookie-gate.cookie-bootstrap .cookie-consent {
-  transform: translateY(0) scale(1);
-}
-.cookie-consent:focus,
-.cookie-consent:focus-visible {
-  outline: none;
-}
-.cookie-content {
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 auto;
-  min-height: 0;
-  gap: 22px;
-  width: 100%;
-}
-.cookie-copy,
-.cookie-copy-main {
-  min-width: 0;
-}
-.cookie-copy,
-.cookie-actions {
-  flex-shrink: 0;
-}
-.cookie-title {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 0;
-  color: var(--et-fg);
-  font-family: var(--cookie-font);
-  font-size: var(--et-window-title);
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1.12;
-  text-transform: none;
-}
-.cookie-text {
-  max-width: 44ch;
-  margin: 12px 0 0;
-  color: var(--cookie-soft);
-  font-family: var(--cookie-font);
-  font-size: clamp(16px, 1.25vw, 18px);
-  font-weight: 400;
-  line-height: 1.4;
-  text-wrap: pretty;
-}
-.cookie-info-trigger {
-  margin-top: 14px;
-}
-/* Accept is the primary answer, decline the secondary one: ink against a
-   white pill, both filled. What must NOT differ is everything the law looks
-   at — same box, same type, same weight, same single click, and decline keeps
-   full-white label text so it stays as readable as accept. Do not shrink it,
-   grey the label down or push it behind another click: a refusal that costs
-   more than a yes makes the consent invalid, and invalid consent makes the
-   analytics it buys unusable. Den Druck (1px) setzt die globale :active-Regel
-   weiter unten. */
-.cookie-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-/* Text und Details scrollen in diesem Bereich, die zwei Antworten darunter
-   stehen fest auf dem Papier. Das Ausblenden am unteren Rand gibt es nur
-   aufgeklappt — zugeklappt passt alles, und der Rand würde den Knopf
-   „Details anzeigen" anschneiden. */
-.cookie-scroll {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-}
-.cookie-scroll::-webkit-scrollbar {
-  display: none;
-}
-.cookie-consent.expanded .cookie-scroll {
-  padding-bottom: 28px;
-  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent);
-  mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent);
-}
-.cookie-buttons {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  width: 100%;
-}
-.cookie-btn {
-  width: 100%;
-}
-.cookie-legal {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  color: var(--cookie-dim);
-  font-family: var(--cookie-font);
-  font-size: 14px;
-}
-.cookie-legal a {
-  color: var(--cookie-dim);
-  text-decoration: none;
-}
-.cookie-legal a:focus-visible {
-  color: var(--et-fg);
-  outline: 2px solid currentColor;
-  outline-offset: 4px;
-}
-@media (hover: hover) {
-  .cookie-legal a:hover {
-    color: var(--et-solid);
-  }
-}
-@media (max-width: 640px) {
-  /* Bottom-anchored on phones so both answers sit in the thumb zone — but
-     inset on every side, so the scrim frames it as a dialog and it can never
-     be mistaken for the page's own footer. */
-  .cookie-gate {
-    align-items: end;
-    padding: 16px max(10px, env(safe-area-inset-right, 0px))
-      calc(10px + env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px));
-  }
-  .cookie-consent,
-  .cookie-consent.expanded {
-    width: 100%;
-    max-height: calc(100dvh - 26px - env(safe-area-inset-bottom, 0px));
-    padding: 26px 20px 20px;
-  }
-  .cookie-content {
-    gap: 18px;
-  }
-  .cookie-title {
-    gap: 10px;
-    font-size: clamp(28px, 8vw, 34px);
-  }
-  .cookie-text {
-    margin-top: 10px;
-    font-size: 16px;
-  }
-  .cookie-info-trigger {
-    margin-top: 12px;
-  }
-  /* Untereinander, gleich breit — keine Antwort rutscht in eine Ecke. */
-  .cookie-buttons {
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
-}
-
-/* Dialogs use the right/lower display, with the scrim covering the whole page.
-   Browsers without viewport segments retain the ordinary responsive layout. */
-@media (horizontal-viewport-segments: 2) {
-  :root {
-    --et-pane-left: env(viewport-segment-left 1 0);
-    --et-pane-width: env(viewport-segment-width 1 0);
-  }
-}
-@media (vertical-viewport-segments: 2) {
-  :root {
-    --et-pane-top: env(viewport-segment-top 0 1);
-    --et-pane-height: env(viewport-segment-height 0 1);
-  }
-}
-@media (horizontal-viewport-segments: 2), (vertical-viewport-segments: 2) {
-  .cookie-consent,
-  .cookie-consent.expanded {
-    max-width: calc(var(--et-pane-width) - 32px);
-    max-height: calc(var(--et-pane-height) - 32px);
-  }
-}
-
-/* Details: ruhige Zeilen wie die FAQ der Startseite — Titel mit Plus, ein Tipp
-   öffnet. Keine Kästen, kein zweiter Scrollbereich: die Karte scrollt als
-   Ganzes, die Antworten kleben unten (.cookie-actions). */
-.cookie-expand {
-  flex: 0 0 auto;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-}
-.cookie-info-item {
-  border-top: 1px solid color-mix(in srgb, var(--et-fg) 14%, transparent);
-  interpolate-size: allow-keywords;
-}
-.cookie-info-item:last-child {
-  border-bottom: 1px solid color-mix(in srgb, var(--et-fg) 14%, transparent);
-}
-.cookie-info-item::details-content {
-  block-size: 0;
-  overflow: clip;
-  transition:
-    block-size 280ms cubic-bezier(0.2, 0.8, 0.2, 1),
-    content-visibility 280ms allow-discrete;
-}
-.cookie-info-item[open]::details-content {
-  block-size: auto;
-}
-.cookie-info-item summary {
-  position: relative;
-  display: block;
-  padding: 16px 34px 16px 0;
-  cursor: pointer;
-  list-style: none;
-  color: var(--et-fg);
-  font-family: var(--cookie-font);
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 1.3;
-  -webkit-tap-highlight-color: transparent;
-  transition: color 160ms ease;
-}
-.cookie-info-item summary::-webkit-details-marker {
-  display: none;
-}
-.cookie-info-item summary::before,
-.cookie-info-item summary::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  background: currentColor;
-}
-.cookie-info-item summary::before {
-  right: 0;
-  width: 14px;
-  height: 2px;
-  transform: translateY(-50%);
-}
-.cookie-info-item summary::after {
-  right: 6px;
-  width: 2px;
-  height: 14px;
-  transform: translateY(-50%) scaleY(1);
-  transition: transform 220ms ease;
-}
-.cookie-info-item[open] summary::after {
-  transform: translateY(-50%) scaleY(0);
-}
-.cookie-info-item summary:active {
-  translate: none;
-}
-.cookie-info-item summary:focus-visible {
-  outline: 0;
-  background: var(--et-subtle);
-  box-shadow: -4px 0 0 var(--et-fg);
-}
-@media (hover: hover) {
-  .cookie-info-item summary:hover {
-    color: var(--et-link);
-  }
-}
-.cookie-info-answer {
-  padding: 0 0 18px;
-}
-.cookie-info-answer p,
-.cookie-info-answer li {
-  margin: 0;
-  color: var(--cookie-soft);
-  font-family: var(--cookie-font);
-  font-size: 15px;
-  font-weight: 400;
-  line-height: 1.5;
-}
-.cookie-info-answer ul {
-  margin: 10px 0 0;
-  padding: 0;
-  list-style: none;
-}
-.cookie-info-answer li {
-  position: relative;
-  margin-bottom: 6px;
-  padding-left: 14px;
-}
-/* Square bullet — brand is square/sticker, no circles. */
-.cookie-info-answer li::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0.64em;
-  width: 4px;
-  height: 4px;
-  background: currentColor;
-}
-.cookie-info-answer strong {
-  color: var(--et-fg);
-  font-weight: 700;
-}
-.cookie-info-answer a {
-  color: var(--et-link);
-  font-weight: 700;
-  text-decoration: none;
-}
-@media (prefers-reduced-motion: reduce) {
-  .cookie-info-item::details-content,
-  .cookie-info-item summary,
-  .cookie-info-item summary::after {
-    transition: none;
-  }
-}
-
 /* Beim Drücken werden Links und Bedienelemente sichtbar gedimmt.
    Must-Eat-Motive bleiben über --et-press-opacity vollständig deckend.
    Der Zustand erscheint sofort und bleibt auch mit Reduced Motion erkennbar.
@@ -1447,8 +1043,8 @@ ol {
   .app-pages {
     /* Shared navbar height, including the safe area.
        Padding, not margin: body has no overflow here (see above, Safari URL
-       bar), so a top margin collapses out through body — and the moment the
-       consent gate sets `overflow: hidden` on body it stops collapsing, the
+       bar), so a top margin collapses out through body — and the moment a
+       modal lock sets `overflow: hidden` on body it stops collapsing, the
        body box jumps up by the navbar height and Chrome books it as a 0.08
        layout shift. Padding never collapses, so the box stays put.
        `.app-pages` is transparent and the fixed navbar covers the strip: same
@@ -1969,8 +1565,6 @@ html[data-category-entering]::view-transition-new(root) { animation-duration: 45
 }
 
 
-.cookie-consent :is(button,a):not(.et-btn):focus-visible { outline: 2px solid var(--et-fg); outline-offset: 3px; }
-
 /* Safari keeps sampling the map document across phone rotation. The short
    landscape rail scrolls internally without locking the document root. */
 @media (orientation: landscape) and (max-height: 500px) and (min-width: 600px) and (max-width: 1023.98px) {
@@ -1990,14 +1584,4 @@ html[data-category-entering]::view-transition-new(root) { animation-duration: 45
 /* Compact controls on short login windows use the shared button system. */
 @container login-modal (min-width: 480px) and (max-height: 504px) {
   [data-login-panel] .et-btn { --et-btn-h: 44px; --et-btn-font: 14px; --et-btn-pad: 20px; }
-}
-/* Open cookie details start beside the summary, with decisions fixed below. */
-@media (orientation: landscape) and (min-width: 600px) and (max-height: 500px) {
-  .cookie-consent, .cookie-consent.expanded { padding: 20px 24px; width: min(780px, 100%); }
-  .cookie-content { gap: 14px; }
-  .cookie-consent.expanded .cookie-scroll { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; gap: 24px; }
-  .cookie-title { font-size: 28px; }
-  .cookie-text { font-size: 14px; }
-  .cookie-actions { gap: 10px; }
-  .cookie-legal { font-size: 12px; }
 }

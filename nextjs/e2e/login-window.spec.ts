@@ -1,11 +1,8 @@
 import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { CONSENT_VERSION } from '../lib/consent';
 
 for (const english of [false, true]) {
-  test(`login window keeps its form and keyboard navigation usable (${english ? 'EN' : 'DE'})`, async ({ page, context, baseURL, isMobile }, info) => {
-    await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
-    await page.route('**/api/consent', route => route.fulfill({ status: 204 }));
+  test(`login window keeps its form and keyboard navigation usable (${english ? 'EN' : 'DE'})`, async ({ page, isMobile }, info) => {
     await page.addInitScript(dark => localStorage.setItem('et-theme', dark ? 'dark' : 'light'), english);
     await page.emulateMedia({ reducedMotion: english ? 'reduce' : 'no-preference' });
     await page.goto(`${english ? '/en' : ''}/map?r=gazzo`, { waitUntil: 'domcontentloaded' });

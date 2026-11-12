@@ -1,13 +1,10 @@
 import { expect, test } from '@playwright/test';
-import { CONSENT_VERSION } from '../lib/consent';
 
 // The translated tablet sheet must keep its final content inside the viewport.
 for (const viewport of [{ width: 375, height: 812 }, { width: 768, height: 768 }, { width: 820, height: 1180 }, { width: 1440, height: 1000 }]) {
-  test(`restaurant detail reaches its final content at ${viewport.width}px`, async ({ page, context, baseURL }, info) => {
+  test(`restaurant detail reaches its final content at ${viewport.width}px`, async ({ page }, info) => {
     test.skip(info.project.name !== 'desktop', 'This test supplies its own viewport matrix.');
     await page.setViewportSize(viewport);
-    await page.route('**/api/consent', route => route.fulfill({ status: 204 }));
-    await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
     await page.goto('/map?r=gazzo');
     const detail = page.getByRole('dialog', { name: 'Gazzo', exact: true });
     const lastSection = detail.locator('[data-detail-scroll] > section').last();
@@ -38,9 +35,8 @@ for (const viewport of [{ width: 375, height: 812 }, { width: 768, height: 768 }
   });
 }
 
-test('restaurant header follows desktop-to-phone viewport changes', async ({ page, context, baseURL }, info) => {
+test('restaurant header follows desktop-to-phone viewport changes', async ({ page }, info) => {
   test.skip(info.project.name !== 'desktop', 'This test changes viewport across the breakpoint.');
-  await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/map?r=engelbecken');
   const detail = page.locator('[data-detail-root="restaurant"]');

@@ -15,7 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 /** Deliberately outside [locale]: opening the opt-out must not itself count
- * a visit, load GA, or ask for analytics consent. Root layout is a pass-through. */
+ * a visit. Root layout is a pass-through. */
 export default async function NoCountPage({
   searchParams,
 }: {

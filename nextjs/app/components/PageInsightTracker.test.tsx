@@ -33,8 +33,6 @@ beforeEach(() => {
 afterEach(() => {
   cleanup();
   document.body.innerHTML = '';
-  document.documentElement.removeAttribute('data-consent-gate');
-  document.documentElement.removeAttribute('data-consent-pending');
   vi.useRealTimers();
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
@@ -87,15 +85,11 @@ it('ordnet beim Artikelwechsel keinen alten Inhalt der neuen URL zu', () => {
   expect(state.count.mock.calls.flatMap(([body]) => body.signals ?? [])).toEqual(['view']);
 });
 
-it('pausiert Tiefe und Lesezeit im Hintergrund und hinter dem Cookie-Dialog', () => {
+it('pausiert Tiefe und Lesezeit im Hintergrund', () => {
   document.body.innerHTML =
     '<div data-page="news-article" class="active" data-article-slug="one"><div data-article-content></div></div>';
-  document.documentElement.dataset.consentGate = 'open';
-  render(<Tracker />);
-  act(() => vi.advanceTimersByTime(31_000));
-  expect(state.count.mock.calls.flatMap(([body]) => body.signals ?? [])).toEqual(['view']);
-  document.documentElement.removeAttribute('data-consent-gate');
   Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'hidden' });
+  render(<Tracker />);
   fireEvent.resize(window);
   act(() => vi.advanceTimersByTime(31_000));
   expect(state.count.mock.calls.flatMap(([body]) => body.signals ?? [])).toEqual(['view']);
@@ -122,19 +116,6 @@ it('zeigt auch erfolglose Klicks auf nicht bedienbare Inhalte als eigene Kategor
   expect(state.count).toHaveBeenCalledWith(
     expect.objectContaining({ insight: 'click', target: 'other' })
   );
-});
-
-it('erfasst ein anfangs geöffnetes Map-Detail nach Consent-Freigabe ohne künstliche Vertiefung', () => {
-  state.pathname = '/map';
-  document.documentElement.dataset.consentGate = 'open';
-  document.body.innerHTML =
-    '<main data-page="map" class="active"><div data-detail-mount data-detail-kind="restaurant"></div></main>';
-  render(<Tracker />);
-  expect(state.count.mock.calls.flatMap(([body]) => body.signals ?? [])).toEqual(['view']);
-  document.documentElement.removeAttribute('data-consent-gate');
-  fireEvent.resize(window);
-  act(() => vi.advanceTimersByTime(10));
-  expect(state.count.mock.calls.flatMap(([body]) => body.signals ?? [])).toEqual(['view', 'spot']);
 });
 
 it('erfasst einen tatsächlichen Klick auf den Map-Canvas als Interaktion ohne geografische Heatmap', () => {

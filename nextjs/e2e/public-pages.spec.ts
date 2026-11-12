@@ -1,16 +1,9 @@
 import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { CONSENT_VERSION } from '../lib/consent';
 
-// Guest-only UI flows. The consent receipt endpoint has separate integration tests.
-test.beforeEach(async ({ page }) => {
-  await page.route('**/api/consent', (route) => route.fulfill({ status: 204 }));
-});
+// Guest-only UI flows.
 for (const route of ['/restaurant/engelbecken', '/news', '/en/news']) {
-  test(`${route}: accessible content and SEO metadata`, async ({ page, context, baseURL }) => {
-    await context.addCookies([
-      { name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! },
-    ]);
+  test(`${route}: accessible content and SEO metadata`, async ({ page }) => {
     const errors: string[] = [];
     page.on('pageerror', (error) => errors.push(error.message));
     page.on('console', (message) => {
@@ -46,12 +39,7 @@ for (const route of ['/restaurant/engelbecken', '/news', '/en/news']) {
 
 test('magazine opens an article and the footer switches language', async ({
   page,
-  context,
-  baseURL,
 }) => {
-  await context.addCookies([
-    { name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! },
-  ]);
   await page.goto('/news');
   const cover = page.locator('[data-current-issue]');
   const href = await cover.getAttribute('href');
@@ -65,19 +53,8 @@ test('magazine opens an article and the footer switches language', async ({
   await expect(page.locator('h1')).toHaveText('On the plate');
 });
 
-test('cookie details open, rejection dismisses the banner', async ({ page }) => {
-  await page.goto('/news');
-  await page.getByRole('button', { name: 'Details anzeigen', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Details ausblenden', exact: true })).toBeVisible();
-  await page.getByRole('button', { name: 'Ablehnen', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Ablehnen', exact: true })).toBeHidden();
-});
-
-test('reduced motion keeps magazine navigation usable', async ({ page, context, baseURL }) => {
+test('reduced motion keeps magazine navigation usable', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await context.addCookies([
-    { name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! },
-  ]);
   await page.goto('/news');
   const cover = page.locator('[data-current-issue]');
   const href = await cover.getAttribute('href');
@@ -88,11 +65,8 @@ test('reduced motion keeps magazine navigation usable', async ({ page, context, 
 });
 
 for (const reducedMotion of ['no-preference', 'reduce'] as const) {
-  test(`guest card opens starter login (${reducedMotion})`, async ({ page, context, baseURL }) => {
+  test(`guest card opens starter login (${reducedMotion})`, async ({ page }) => {
     await page.emulateMedia({ reducedMotion });
-    await context.addCookies([
-      { name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! },
-    ]);
     await page.goto('/');
     await expect(page.locator('[data-hub-musteats] ul')).toHaveAttribute('data-deal-state', 'spread');
     await page

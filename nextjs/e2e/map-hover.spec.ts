@@ -1,12 +1,9 @@
 import { expect, test } from '@playwright/test';
-import { CONSENT_VERSION } from '../lib/consent';
 
 for (const theme of ['light', 'dark']) {
-  test(`map actions stay free of frames and retain keyboard focus (${theme})`, async ({ page, context, baseURL, isMobile }, info) => {
+  test(`map actions stay free of frames and retain keyboard focus (${theme})`, async ({ page, isMobile }, info) => {
     const english = theme === 'dark';
     const prefix = english ? '/en' : '';
-    await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
-    await page.route('**/api/consent', route => route.fulfill({ status: 204 }));
     await page.addInitScript(value => {
       localStorage.setItem('et-theme', value);
     }, theme);

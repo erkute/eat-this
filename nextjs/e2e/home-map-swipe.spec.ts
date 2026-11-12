@@ -1,11 +1,8 @@
 import { expect, test } from '@playwright/test';
-import { CONSENT_VERSION } from '../lib/consent';
 
 for (const locale of ['de', 'en'] as const) {
   for (const reduced of [false, true]) {
-    test(`home map screens swipe and still open the map (${locale}, reduced ${reduced})`, async ({ page, context, baseURL, isMobile }, info) => {
-      await page.route('**/api/consent', route => route.fulfill({ status: 204 }));
-      await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
+    test(`home map screens swipe and still open the map (${locale}, reduced ${reduced})`, async ({ page, context, isMobile }, info) => {
       await page.emulateMedia({ reducedMotion: reduced ? 'reduce' : 'no-preference' });
       const errors: string[] = [];
       page.on('pageerror', error => errors.push(error.message));

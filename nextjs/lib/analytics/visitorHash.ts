@@ -5,7 +5,7 @@ import { createHash } from 'node:crypto';
  *
  * Counting "how many people" needs SOMETHING comparable between two requests,
  * and no cookie may be involved - a cookie is the one thing that would drag
- * this under TDDDG 25 and back behind the consent dialog. So the identity is
+ * this under TDDDG 25 and make it need consent. So the identity is
  * derived from what the request already carries (IP + user agent), salted with
  * a server-only secret, and re-salted every day: yesterday's hash and today's
  * hash for the same person share no relationship anyone can compute.

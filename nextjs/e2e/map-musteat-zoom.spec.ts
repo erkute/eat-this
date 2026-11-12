@@ -1,12 +1,6 @@
 import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { CONSENT_VERSION } from '../lib/consent';
 import { resolve } from 'node:path';
-
-test.beforeEach(async ({ page, context, baseURL }) => {
-  await page.route('**/api/consent', route => route.fulfill({ status: 204 }));
-  await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
-});
 
 for (const english of [false, true]) {
   test(`Must Eat zoom preserves paging and opens no explainer by itself (${english ? 'EN' : 'DE'})`, async ({ page, isMobile }, info) => {

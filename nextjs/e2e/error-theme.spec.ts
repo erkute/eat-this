@@ -1,9 +1,7 @@
 import { expect, test } from '@playwright/test';
-import { CONSENT_VERSION } from '../lib/consent';
 
 for (const prefix of ['', '/en']) {
-  test(`streamed 404 preserves the saved dark theme (${prefix || 'DE'})`, async ({ page, context, baseURL }) => {
-    await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
+  test(`streamed 404 preserves the saved dark theme (${prefix || 'DE'})`, async ({ page }) => {
     await page.addInitScript(() => localStorage.setItem('et-theme', 'dark'));
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto(`${prefix}/news`);

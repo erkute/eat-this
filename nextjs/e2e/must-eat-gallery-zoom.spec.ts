@@ -1,11 +1,8 @@
 import { expect, test, type Locator } from '@playwright/test';
-import { CONSENT_VERSION } from '../lib/consent';
 
 for (const locale of ['de', 'en'] as const) {
-  test(`catalogue cards zoom before opening their map spot (${locale})`, async ({ page, context, baseURL, isMobile }) => {
+  test(`catalogue cards zoom before opening their map spot (${locale})`, async ({ page, baseURL, isMobile }) => {
     const prefix = locale === 'en' ? '/en' : '';
-    await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
-    await page.route('**/api/consent', route => route.fulfill({ status: 204 }));
     await page.emulateMedia({ reducedMotion: locale === 'en' ? 'reduce' : 'no-preference' });
     await page.goto(`${prefix}/must-eats`);
     const catalogueUrl = page.url();

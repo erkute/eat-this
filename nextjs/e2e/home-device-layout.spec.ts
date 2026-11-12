@@ -1,5 +1,4 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
-import { CONSENT_VERSION } from '../lib/consent';
 
 // CSS viewport sizes, not a claim of physical-device coverage.
 const viewports = [
@@ -25,9 +24,8 @@ async function showSection(section: Locator) {
 }
 
 for (const [device, width, height] of viewports) {
-  test(`${device}: every home section fits in both orientations`, async ({ page, context, baseURL }, info) => {
+  test(`${device}: every home section fits in both orientations`, async ({ page }, info) => {
     test.setTimeout(120_000);
-    await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.setViewportSize({ width, height });
     await openHome(page);
@@ -84,8 +82,7 @@ for (const [device, width, height] of viewports) {
 }
 
 for (const width of [390, 744]) {
-  test(`Remy completes his entrance at ${width}px`, async ({ page, context, baseURL }) => {
-    await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
+  test(`Remy completes his entrance at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: width === 744 ? 1133 : 844 });
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await openHome(page);

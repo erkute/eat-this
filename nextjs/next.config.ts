@@ -95,9 +95,6 @@ const nextConfig: NextConfig = {
   },
   outputFileTracingIncludes: {
     '/api/og/restaurant': ['./assets/fonts/SairaCondensed-ExtraBold.ttf', './assets/fonts/Schoolbell-Regular.ttf'],
-    // Die Deck-Share-Karte liest dieselben Schriften. Die Bilder (Figur,
-    // Kartenrücken) liegen unter `public/` und wandern ohnehin mit.
-    '/api/og/deck': ['./assets/fonts/SairaCondensed-ExtraBold.ttf', './assets/fonts/Schoolbell-Regular.ttf'],
   },
 
   images: {

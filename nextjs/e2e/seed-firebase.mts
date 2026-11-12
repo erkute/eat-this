@@ -30,8 +30,9 @@ if (cards.length === 0) throw new Error('No public Must-Eat metadata available f
 
 /* CI builds with a restored Sanity fetch cache of up to 24 hours (quality.yml),
  * so the server can ask for a card revision the live catalog no longer names.
- * Seed every revision that cache holds as well, or a card edited in Sanity
- * turns / and /map into a 500 for a day. */
+ * Every card is seeded under its base key, its current revision and every
+ * revision that cache holds, or a card edited in Sanity turns / and /map into
+ * a 500 for a day. */
 async function cachedRevisions(): Promise<Array<{ _id: string; cardVersion?: string }>> {
   const dir = '.next-verify/cache/fetch-cache';
   const ids = new Set(cards.map((card) => card._id));
@@ -65,7 +66,11 @@ async function cachedRevisions(): Promise<Array<{ _id: string; cardVersion?: str
 }
 const restaurantOf = new Map(cards.map((card) => [card._id, card.restaurantId]));
 const revisions = new Map(
-  [...cards, ...(await cachedRevisions())].map((card) => [
+  [
+    ...cards.map((card) => ({ _id: card._id })),
+    ...cards,
+    ...(await cachedRevisions()),
+  ].map((card) => [
     mustEatContentKey(card._id, card.cardVersion),
     restaurantOf.get(card._id)!,
   ])

@@ -11,6 +11,7 @@ npm test          npm run lint          npm run typecheck      npm run test:e2e
 npm run build:isolated     # statt `build`, wenn `next dev` läuft
 npm run build:email-art    # Pflicht nach Textänderungen in scripts/build-email-art.mts
 npm run build:email-spots  # Spot-Cards der Anmelde-Mail aus Sanity
+npm run build:deck-og-art  # Pflicht nach Änderungen an deck.collectLabel/collectBody (Deck-Vorschau)
 npm run build:basemap      # beide Map-Paletten
 ```
 

@@ -65,6 +65,58 @@ const contentBlocks = [
       ],
     },
   },
+  // Reihenfolge = Einfügeleiste. Wird sie zu schmal, rutschen die hinteren
+  // Knöpfe ins „…“-Menü; Spot und Must Eat sollen sichtbar bleiben.
+  // Spot im Text: Bildkarte (Foto, Bezirk · Küche, Name, klickbar auf die
+  // Map). Speist zusätzlich das „Spots im Artikel“-Raster und die Spotleiste.
+  {
+    type: 'object',
+    name: 'spotCard',
+    title: 'Spot',
+    icon: PinIcon,
+    fields: [
+      {
+        name: 'restaurantRef',
+        title: 'Spot',
+        type: 'reference',
+        to: [{type: 'restaurant'}],
+        validation: (Rule) => Rule.required(),
+      },
+    ],
+    preview: {
+      select: {name: 'restaurantRef.name', district: 'restaurantRef.district', cuisine: 'restaurantRef.cuisineType', media: 'restaurantRef.image'},
+      prepare: ({name, district, cuisine, media}) => ({
+        title: name || 'Spot wählen',
+        subtitle: ['Spot', district, cuisine].filter(Boolean).join(' · '),
+        media: media || PinIcon,
+      }),
+    },
+  },
+  // Must Eat im Text: verweist auf die private Karte, im öffentlichen Artikel
+  // erscheint nur der zugehörige Spot.
+  {
+    type: 'object',
+    name: 'mustEatCard',
+    title: 'Must Eat',
+    icon: StarIcon,
+    fields: [
+      {
+        name: 'mustEatRef',
+        title: 'Must Eat',
+        type: 'reference',
+        to: [{type: 'mustEat'}],
+        validation: (Rule) => Rule.required(),
+      },
+    ],
+    preview: {
+      select: {restaurant: 'mustEatRef.restaurantRef.name', order: 'mustEatRef.order', media: 'mustEatRef.restaurantRef.image'},
+      prepare: ({restaurant, order, media}) => ({
+        title: restaurant ? `Must Eat bei ${restaurant}` : 'Must Eat wählen',
+        subtitle: typeof order === 'number' ? `Karte ${order}` : 'Must Eat',
+        media: media || StarIcon,
+      }),
+    },
+  },
   {
     type: 'image',
     title: 'Bild',
@@ -91,31 +143,6 @@ const contentBlocks = [
       },
     ],
   },
-  // Spot im Text: Bildkarte (Foto, Bezirk · Küche, Name, klickbar auf die
-  // Map). Speist zusätzlich das „Spots im Artikel“-Raster und die Spotleiste.
-  {
-    type: 'object',
-    name: 'spotCard',
-    title: 'Spot',
-    icon: PinIcon,
-    fields: [
-      {
-        name: 'restaurantRef',
-        title: 'Spot',
-        type: 'reference',
-        to: [{type: 'restaurant'}],
-        validation: (Rule) => Rule.required(),
-      },
-    ],
-    preview: {
-      select: {name: 'restaurantRef.name', district: 'restaurantRef.district', cuisine: 'restaurantRef.cuisineType', media: 'restaurantRef.image'},
-      prepare: ({name, district, cuisine, media}) => ({
-        title: name || 'Spot wählen',
-        subtitle: ['Spot', district, cuisine].filter(Boolean).join(' · '),
-        media: media || PinIcon,
-      }),
-    },
-  },
   // Verweis auf einen anderen Artikel: erscheint als Heft-Cover mit Titel,
   // wie unter „Weitere Ausgaben“. Statt eines Textlinks auf den Titel, der
   // veraltet, sobald der andere Artikel umbenannt wird.
@@ -139,31 +166,6 @@ const contentBlocks = [
         title: title || titleEn || 'Artikel wählen',
         subtitle: 'Artikel',
         media: media || BookIcon,
-      }),
-    },
-  },
-  // Must Eat im Text: verweist auf die private Karte, im öffentlichen Artikel
-  // erscheint nur der zugehörige Spot.
-  {
-    type: 'object',
-    name: 'mustEatCard',
-    title: 'Must Eat',
-    icon: StarIcon,
-    fields: [
-      {
-        name: 'mustEatRef',
-        title: 'Must Eat',
-        type: 'reference',
-        to: [{type: 'mustEat'}],
-        validation: (Rule) => Rule.required(),
-      },
-    ],
-    preview: {
-      select: {restaurant: 'mustEatRef.restaurantRef.name', order: 'mustEatRef.order', media: 'mustEatRef.restaurantRef.image'},
-      prepare: ({restaurant, order, media}) => ({
-        title: restaurant ? `Must Eat bei ${restaurant}` : 'Must Eat wählen',
-        subtitle: typeof order === 'number' ? `Karte ${order}` : 'Must Eat',
-        media: media || StarIcon,
       }),
     },
   },

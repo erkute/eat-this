@@ -1,4 +1,5 @@
 import { readSanity } from '@/lib/sanity-read';
+import { client } from '@/lib/sanity';
 import { localeUrl } from '@/lib/locale-url';
 import { routing } from '@/i18n/routing';
 import { hasEnContent } from '@/lib/i18n/pickLocale';
@@ -83,6 +84,11 @@ function laterOf(a: string, b: string): string {
 export async function sitemapEntries(): Promise<SitemapEntry[]> {
   if (isStaging) return [];
 
+  // The publish webhook waits for the article detail query to reach the CDN,
+  // not this separate sitemap query. Fetch published article URLs from the
+  // live API so a sitemap revalidation cannot cache a stale article list.
+  const freshArticleClient = client.withConfig({ useCdn: false });
+
   const [restaurants, articles, bezirke, categorySlugs] = await Promise.all([
     readSanity<{ slug: string; descriptionEn?: string; createdAt?: string }[]>(
       // `seo.noIndex` ist der Schalter, mit dem die Redaktion eine Seite aus
@@ -94,7 +100,7 @@ export async function sitemapEntries(): Promise<SitemapEntry[]> {
       {},
       { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['sitemap-restaurants'] } }
     ),
-    readSanity<
+    freshArticleClient.fetch<
       {
         slug: string;
         updatedAt: string;

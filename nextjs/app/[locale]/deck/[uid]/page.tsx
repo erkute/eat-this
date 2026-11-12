@@ -11,6 +11,7 @@ import { SITE_URL } from '@/lib/constants';
 import { toOgLocale } from '@/lib/seo/metadata';
 import DeckActions from './DeckActions';
 import deck from './Deck.module.css';
+import deckOg from '@/lib/og/deck-og.json';
 
 const CARD_BACK = '/pics/card-back.webp?v=20261028';
 const FAN_ORDER = { shown: 0, held: 1, missing: 2 } as const;
@@ -59,24 +60,6 @@ interface PageProps {
 }
 
 /**
- * Die Herkunft, auf der diese Anfrage tatsaechlich gelandet ist.
- *
- * Alle anderen Seiten bauen ihre OG-Bild-URL aus `SITE_URL` — richtig fuer
- * gecachte Seiten, die einen kanonischen Host haben sollen. Diese hier nicht:
- * sie ist `force-dynamic`, gehoert einem Konto, und auf Staging liegt dieses
- * Konto in einem ANDEREN Firebase-Projekt. Eine Bild-URL auf die Live-Domain
- * wuerde dort auf eine uid zeigen, die es dort nicht gibt — 404, und die
- * Vorschau bleibt leer, genau da, wo man sie prueft.
- */
-async function requestOrigin(): Promise<string> {
-  const h = await headers();
-  const host = h.get('x-forwarded-host') ?? h.get('host');
-  if (!host) return SITE_URL;
-  const proto = h.get('x-forwarded-proto') ?? (host.startsWith('localhost') ? 'http' : 'https');
-  return `${proto}://${host}`;
-}
-
-/**
  * Was ein geteilter Link in WhatsApp, iMessage oder Signal hermacht.
  *
  * Bis zum 06.09.2026 stand hier ein Titel und sonst nichts: kein Bild, keine
@@ -103,7 +86,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const description = data.name
     ? t('metaDescriptionNamed', { name: data.name, done: data.revealed, total: data.total })
     : t('metaDescription', { done: data.revealed, total: data.total });
-  const image = `${await requestOrigin()}/api/og/deck?uid=${encodeURIComponent(uid)}&locale=${locale === 'en' ? 'en' : 'de'}`;
+  /* Ein fertiges Bild je Sprache, fuer jedes Deck dasselbe
+     (`npm run build:deck-og-art`): Name und Stand stehen in Titel und
+     Beschreibung. Die Version im Pfad loest den Cache der Messenger. */
+  const og = deckOg[locale === 'en' ? 'en' : 'de'];
+  const image = `${SITE_URL}${og.path}?v=${og.version}`;
 
   return {
     title,

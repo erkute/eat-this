@@ -1,5 +1,5 @@
 import { readSanity } from '@/lib/sanity-read';
-import { SANITY_LIVE_SURFACE_SECONDS } from '@/lib/constants';
+import { SANITY_LIVE_SURFACE_SECONDS, SANITY_REVALIDATE_SECONDS } from '@/lib/constants';
 import { mapRestaurantsQuery, mapMustEatsQuery } from './queries';
 import { allCategoriesQuery } from '@/lib/queries';
 import type { MapRestaurant, MapMustEat } from '@/lib/types';
@@ -40,6 +40,18 @@ const MAP_CACHE_OPTIONS = {
  *  Optionen wie in `getCachedMapData`, also derselbe Eintrag im Data Cache. */
 export function getCachedMustEats(): Promise<MapMustEat[]> {
   return readSanity<MapMustEat[]>(mapMustEatsQuery, {}, MAP_CACHE_OPTIONS);
+}
+
+/** Die Karten für vorgebaute Seiten (Spot, Artikel). Eine Seite erbt die
+ *  kürzeste Frist ihrer Fetches: mit den fünf Minuten der Map lief sie alle
+ *  fünf Minuten ab und wurde im Hintergrund neu gerechnet, wo Cloud Run die
+ *  CPU drosselt (Sentry JAVASCRIPT-AH). Der Webhook verwirft `map-data` bei
+ *  jeder Änderung, die Frist ist das Netz darunter. Ohne den Spot-Katalog
+ *  (680 kB), den diese Seiten nicht brauchen. */
+export function getCachedMustEatsForPage(): Promise<MapMustEat[]> {
+  return readSanity<MapMustEat[]>(mapMustEatsQuery, {}, {
+    next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['map-data'] },
+  });
 }
 
 /* Nexts Data Cache fasst gleichzeitige Anfragen nicht zusammen, solange sein

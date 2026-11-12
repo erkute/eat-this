@@ -1,7 +1,7 @@
 import 'server-only';
 import type { MapMustEat } from '@/lib/types';
 import type { InitialMapData } from '@/lib/map/server-initial-map-data';
-import { getCachedMapData } from '@/lib/map/cached-sanity';
+import { getCachedMustEatsForPage } from '@/lib/map/cached-sanity';
 import { composeRevealedMustEats } from '@/lib/map/revealed-must-eats';
 import { stripCoveredMustEats } from '@/lib/map/stripCoveredMustEats';
 
@@ -20,6 +20,5 @@ export function selectPublicMustEatData(cards: MapMustEat[], ids: ReadonlySet<st
 
 export async function getInitialSpotMustEatData(ids: string[]): Promise<InitialMapData> {
   if (!ids.length) return { restaurants: [], mustEats: [], categories: [], totalCount: 0, revealedMustEatIds: [] };
-  const { mustEats } = await getCachedMapData();
-  return selectPublicMustEatData(mustEats, new Set(ids));
+  return selectPublicMustEatData(await getCachedMustEatsForPage(), new Set(ids));
 }

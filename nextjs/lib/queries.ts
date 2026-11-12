@@ -137,6 +137,7 @@ const articleProjection = `{
     excerpt, excerptDe,
     content[] ${articleContentProjection},
     contentDe[] ${articleContentProjection},
+    "hiddenMustEats": hiddenMustEats[]._ref,
     seo {
       metaTitle,
       metaTitleEn,

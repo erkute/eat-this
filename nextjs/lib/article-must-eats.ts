@@ -17,8 +17,11 @@ function linkedSlugs(block: PortableTextBlock): Set<string> {
   return slugs;
 }
 
+/** Was die Auswahl braucht. Das Studio rechnet mit derselben Funktion vor. */
+type ArticleMustEatCandidate = Pick<MapMustEat, '_id'> & { restaurant: Pick<MapMustEat['restaurant'], 'name' | 'slug' | 'district'> };
+
 /** One card per article. Explicit placements win; prose needs a complete name. */
-export function addArticleMustEats(content: PortableTextBlock[], cards: MapMustEat[], title = ''): PortableTextBlock[] {
+export function addArticleMustEats(content: PortableTextBlock[], cards: ArticleMustEatCandidate[], title = ''): PortableTextBlock[] {
   const placed = new Set(content.filter(b => b._type === 'mustEatCard').map(b => b.mustEatId));
   const referenced = new Set(content.flatMap(b => b._type === 'mustEatCard' ? [] : [...linkedSlugs(b)]));
   const names = cards.filter(card => card.restaurant.name.trim() && card.restaurant.slug).map(card => {

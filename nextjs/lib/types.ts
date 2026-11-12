@@ -155,6 +155,8 @@ export interface NewsArticle {
   cover?: CoverData | null;
   content?: PortableTextBlock[];
   contentDe?: PortableTextBlock[];
+  /** Must Eats, die nicht automatisch in den Text kommen (Studio: „Must Eats im Artikel“). */
+  hiddenMustEats?: string[];
   seo?: NewsArticleSeo;
 }
 

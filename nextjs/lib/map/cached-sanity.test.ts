@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const fetchMock = vi.fn();
 vi.mock('@/lib/sanity', () => ({ client: { fetch: (...args: unknown[]) => fetchMock(...args) } }));
 
-import { getCachedMapData, getCachedMustEats } from './cached-sanity';
+import { getCachedMapData, getCachedMustEats, getCachedMustEatsForPage } from './cached-sanity';
 import { mapMustEatsQuery, mapRestaurantsQuery } from './queries';
 
 describe('getCachedMustEats', () => {
@@ -22,6 +22,22 @@ describe('getCachedMustEats', () => {
     await getCachedMustEats();
 
     expect(fetchMock).toHaveBeenCalledExactlyOnceWith(...viaMapData!);
+  });
+});
+
+describe('getCachedMustEatsForPage', () => {
+  beforeEach(() => {
+    fetchMock.mockReset();
+    fetchMock.mockResolvedValue([]);
+  });
+
+  // Eine vorgebaute Seite erbt die kürzeste Frist ihrer Fetches.
+  it('liest nur die Karten, mit der Frist der Seiten und dem Tag der Map', async () => {
+    await getCachedMustEatsForPage();
+
+    expect(fetchMock).toHaveBeenCalledExactlyOnceWith(mapMustEatsQuery, {}, {
+      next: { revalidate: 86400, tags: ['map-data'] },
+    });
   });
 });
 

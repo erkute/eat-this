@@ -205,6 +205,21 @@
   --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+/* Auf faltbaren Geräten öffnen Menü, Remy und Login auf der rechten bzw.
+   unteren Hälfte. Browser ohne Viewport-Segmente behalten die Standardwerte. */
+@media (horizontal-viewport-segments: 2) {
+  :root {
+    --et-pane-left: env(viewport-segment-left 1 0);
+    --et-pane-width: env(viewport-segment-width 1 0);
+  }
+}
+@media (vertical-viewport-segments: 2) {
+  :root {
+    --et-pane-top: env(viewport-segment-top 0 1);
+    --et-pane-height: env(viewport-segment-height 0 1);
+  }
+}
+
 /* Interface roles change with the explicit selection; artwork keeps literal
    --et-ink / --et-white and its own contrast pair. */
 :root {

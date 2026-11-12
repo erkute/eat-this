@@ -789,14 +789,6 @@
     {
       "order": 99,
       "file": "099.png",
-      "spot": "Crackers",
-      "dish": "Katsu",
-      "descriptionEn": "Aubergine & king oyster mushrooms. Mushroom reduction, sour cream & balsamic–lavender gel.",
-      "description": "Panierte Aubergine mit gebratenen Kräuterseitlingen, Pilzreduktion, Schmand und Balsamico-Lavendel-Gel."
-    },
-    {
-      "order": 100,
-      "file": "100.png",
       "spot": "Al Catzone - Pizzeria",
       "dish": "Truffle Pizza",
       "descriptionEn": "Alba. Vegan pizza with fresh truffle. Mushrooms, mozzarella & Parmesan. Creamy base, truffle oil & parsley.",

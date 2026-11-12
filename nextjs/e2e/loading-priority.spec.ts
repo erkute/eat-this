@@ -1,10 +1,4 @@
 import { expect, test } from '@playwright/test';
-import { CONSENT_VERSION } from '../lib/consent';
-
-test.beforeEach(async ({ context, page, baseURL }) => {
-  await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
-  await page.route('**/api/consent', route => route.fulfill({ status: 204 }));
-});
 
 for (const reducedMotion of ['reduce', 'no-preference'] as const) {
   test(`phone screens wait for their section and remain usable (${reducedMotion})`, async ({ page }) => {

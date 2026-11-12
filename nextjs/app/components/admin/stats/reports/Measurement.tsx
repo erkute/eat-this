@@ -1,6 +1,6 @@
 import type { StatsSummary } from '@/lib/admin/stats.server';
 import { Card, Kpi } from '../charts';
-import { NUMBER, longDay, percent } from '../format';
+import { NUMBER, longDay } from '../format';
 import styles from '../../StatsDashboard.module.css';
 import TrafficQuality from './TrafficQuality';
 
@@ -75,39 +75,6 @@ export default function Measurement({ data }: { data: StatsSummary }) {
           </table>
         </div>
       </Card>
-      <Card
-        title="GA: Sitzungen mit Einwilligung"
-        span={3}
-        sub="Zusätzliche Stichprobe aus Google Analytics. Diese Werte werden nicht als Quote aller Tagesbesucher verwendet."
-      >
-        {data.ga?.ok ? (
-          <>
-            <p className={styles.note}>
-              {NUMBER.format(data.ga.users)} aktive GA-Nutzer im Zeitraum, über Tage dedupliziert.
-            </p>
-            {data.ga.engagement ? (
-              <p className={styles.note}>
-                {NUMBER.format(data.ga.engagement.sessions)} Sitzungen ·{' '}
-                {NUMBER.format(data.ga.engagement.engagedSessions)} engagierte Sitzungen ·{' '}
-                {data.ga.engagement.sessions > 0 ? percent(data.ga.engagement.bounceRate) : '—'}{' '}
-                GA-Absprungrate.
-              </p>
-            ) : (
-              <p className={styles.note}>Keine verlässlichen Sitzungs-/Absprungwerte geliefert.</p>
-            )}
-            <p className={styles.note}>
-              GA zählt eine Sitzung als engagiert, wenn sie die konfigurierte Zeitgrenze
-              überschreitet, mindestens zwei Seiten-/Bildschirmaufrufe oder ein Schlüsselereignis
-              enthält. Die GA-Absprungrate bezieht sich auf die übrigen Sitzungen, nicht auf alle
-              Besucher der Website.
-            </p>
-          </>
-        ) : (
-          <p className={styles.empty}>
-            GA-Daten nicht verfügbar. Die eigenen Besucherzahlen bleiben davon unabhängig.
-          </p>
-        )}
-      </Card>
       <Card title="So werden Besucher gezählt" span={2}>
         <p className={styles.note}>
           Der erste gezählte Seitenaufruf erhöht Besucher und Einstiegsseite gemeinsam. Weitere
@@ -120,9 +87,8 @@ export default function Measurement({ data }: { data: StatsSummary }) {
           Person erneut gezählt.
         </p>
         <p className={styles.note}>
-          Eine abgelehnte Google-Analytics-Einwilligung stoppt diesen eigenen Zähler nicht. Do Not
-          Track, Global Privacy Control, ausgeschlossene Browser und Betreiber-Netze sowie erkannte
-          Bots werden dagegen ausgeschlossen. Lokale Vorschauen zählen nicht.
+          Do Not Track, Global Privacy Control, ausgeschlossene Browser und Betreiber-Netze sowie
+          erkannte Bots werden dagegen ausgeschlossen. Lokale Vorschauen zählen nicht.
         </p>
       </Card>
       <Card title="Was sich daraus ablesen lässt">
@@ -156,8 +122,8 @@ export default function Measurement({ data }: { data: StatsSummary }) {
         <p className={styles.note}>
           Ausstiege sind aus Aufrufen minus internen Fortsetzungen geschätzt. Reloads und
           Tagesgrenzen können das Ergebnis verzerren. Käufe und Konten kommen aus Firebase;
-          angezeigte Geldbeträge sind Katalogwerte, keine geprüften Stripe-Zahlungseingänge.
-          Google-Suche und GA haben eigene Zeiträume und Zählweisen.
+          angezeigte Geldbeträge sind Katalogwerte, keine geprüften Stripe-Zahlungseingänge. Die
+          Google-Suche hat eigene Zeiträume und Zählweisen.
         </p>
       </Card>
     </>

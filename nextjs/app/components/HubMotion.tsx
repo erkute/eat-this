@@ -4,7 +4,6 @@ import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { appScroller } from '@/lib/dom/appScroller';
 import { onFirstView } from '@/lib/home/dealIn';
-import { afterConsentGate } from '@/lib/map/afterConsentGate';
 
 /* Bewusst ohne ScrollTrigger: das Plugin hält ab dem Registrieren eine
    leere requestAnimationFrame-Schleife am Laufen, für die ganze Sitzung und
@@ -178,12 +177,10 @@ function armPreload(): () => void {
     },
     { root: appScroller(), rootMargin: '300px 0px' }
   );
-  const cancel = afterConsentGate(() => {
-    document
-      .querySelectorAll(':is([data-hub-magazine], [data-hub-musteats], [data-hub-districts]) img[loading="lazy"]')
-      .forEach((img) => io.observe(img));
-  });
-  return () => { cancel(); io.disconnect(); };
+  document
+    .querySelectorAll(':is([data-hub-magazine], [data-hub-musteats], [data-hub-districts]) img[loading="lazy"]')
+    .forEach((img) => io.observe(img));
+  return () => io.disconnect();
 }
 
 export default function HubMotion() {

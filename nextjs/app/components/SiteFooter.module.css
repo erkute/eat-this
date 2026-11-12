@@ -13,7 +13,6 @@
 .socialLink svg { width: 28px; height: 28px; fill: none; stroke: currentColor; stroke-width: 1.9; }
 .legal { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 24px; margin: 12px auto 0; }
 .legalLink { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0; color: var(--et-fg); font-size: 14px; line-height: 1.4; text-decoration: none; }
-.cookieSettings { flex-basis: 100%; justify-self: center; }
 .meta { margin: 12px auto 0; font-size: 12px; line-height: 1.5; }
 .copy { color: var(--et-muted); }
 .prefs { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px 24px; margin: 12px auto 0; }

@@ -1,12 +1,4 @@
 import { expect, test } from '@playwright/test';
-import { CONSENT_VERSION } from '../lib/consent';
-
-test.beforeEach(async ({ page, context, baseURL }) => {
-  await page.route('**/api/consent', (route) => route.fulfill({ status: 204 }));
-  await context.addCookies([
-    { name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! },
-  ]);
-});
 
 for (const reduced of [false, true]) {
   test(`Must Eats are visible without an entrance action (${reduced})`, async ({ page }) => {

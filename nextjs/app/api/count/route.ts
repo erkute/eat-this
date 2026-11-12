@@ -30,12 +30,7 @@ import {
 } from '@/lib/analytics/homeHeat';
 
 /**
- * Consent-free measurement.
- *
- * Why this exists next to GA4 rather than instead of it: GA4 needs consent, and
- * consent is a minority. Measured 20.08.2026, GA saw ~2 users a day against ~6
- * real search arrivals in Search Console - so every GA number was a third of
- * the truth, and nobody could tell which third.
+ * The site's own measurement, and its only one.
  *
  * Why it needs no banner: TDDDG 25 asks for consent to STORE or READ information
  * on someone's device. This endpoint does neither - the client sends what the
@@ -63,14 +58,6 @@ const EVENTS = new Set([
   'begin_checkout',
   'checkout_already_owned',
   'checkout_error',
-  // Der Trichter am Cookie-Dialog. `consent_gate_shown` ist der Nenner, der
-  // bis 28.08.2026 fehlte: ohne ihn ist die Zustimmungsquote nur der Anteil an
-  // den Antwortenden, und wer den Dialog sieht und geht, taucht nirgends auf.
-  // Der Nachweis in consent_records bleibt davon unberuehrt — Rechtsdokument
-  // dort, Messung hier.
-  'consent_accepted',
-  'consent_declined',
-  'consent_gate_shown',
   // `login` kommt aus EmailLinkSignIn (Magic-Link) und stand bis 28.08.2026
   // nicht in dieser Liste.
   'login',
@@ -142,9 +129,9 @@ const IP_RATE_LIMITS = { perMinute: 240, perDay: 6000 };
 
 /**
  * Vermerkt am Pruefwert, wann dieser Besucher zuletzt etwas getan hat — die
- * Grundlage fuer „gerade aktiv" (letzte 30 Minuten, wie im Echtzeitbericht
- * von GA4) in /admin/stats. Nur die Zeit, nie die Seite: welche Seite jemand
- * ansah, wird weiterhin mit keinem Pruefwert verknuepft.
+ * Grundlage fuer „gerade aktiv" (letzte 30 Minuten) in /admin/stats. Nur die
+ * Zeit, nie die Seite: welche Seite jemand ansah, wird weiterhin mit keinem
+ * Pruefwert verknuepft.
  *
  * `update`, nicht `set`: ein Ereignis, das vor dem ersten Seitenaufruf
  * eintrifft, darf das Dokument nicht anlegen — sonst schluege der `create`
@@ -232,23 +219,6 @@ function referrerHost(raw: unknown): string | null {
   if (!host || host.endsWith('eatthisdot.com') || host.startsWith('localhost')) return null;
   // Firestore map keys cannot contain dots.
   return host.replace(/\./g, '_').slice(0, 80);
-}
-
-/** GA fragt vor dem Laden nach demselben Ausschluss. Keine IP, Kennung oder
- * Messung im Ergebnis; der persönliche Wert darf nie aus einem Cache kommen. */
-export async function GET(request: Request) {
-  const ip = clientIpFromXff(
-    request.headers.get('x-forwarded-for'),
-    request.headers.get('x-real-ip')
-  );
-  const excluded =
-    hasNoCountCookie(request.headers.get('cookie')) ||
-    request.headers.get('sec-gpc') === '1' ||
-    request.headers.get('dnt') === '1' ||
-    !ip ||
-    isExcludedAnalyticsIp(ip) ||
-    isKnownCrawlerIp(ip);
-  return NextResponse.json({ excluded }, { headers: { 'Cache-Control': 'private, no-store' } });
 }
 
 export async function POST(request: Request) {

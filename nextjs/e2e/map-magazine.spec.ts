@@ -1,11 +1,5 @@
 import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { CONSENT_VERSION } from '../lib/consent';
-
-test.beforeEach(async ({ page, context, baseURL }) => {
-  await page.route('**/api/consent', (route) => route.fulfill({ status: 204 }));
-  await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
-});
 
 for (const locale of ['de', 'en'] as const) {
   for (const reduced of [false, true]) {

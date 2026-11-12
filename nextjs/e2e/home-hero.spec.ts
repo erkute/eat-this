@@ -1,16 +1,10 @@
 import { expect, test } from '@playwright/test';
-import { CONSENT_VERSION } from '../lib/consent';
 
 for (const locale of ['de', 'en'] as const) {
   for (const reducedMotion of ['no-preference', 'reduce'] as const) {
     test(`${locale} hero is open and usable before application JavaScript (${reducedMotion})`, async ({
       page,
-      context,
-      baseURL,
     }) => {
-      await context.addCookies([
-        { name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! },
-      ]);
       await page.emulateMedia({ reducedMotion });
       await page.route('**/_next/static/**/*.js', (route) => route.abort());
       await page.goto(locale === 'de' ? '/' : '/en', { waitUntil: 'domcontentloaded' });

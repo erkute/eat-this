@@ -97,14 +97,15 @@ const EVENT_LABELS: Record<string, string> = {
   checkout_error: 'Kauf: Fehler',
   purchase: 'Gekauft',
   share: 'Geteilt',
-  consent_gate_shown: 'Cookie-Dialog gezeigt',
-  consent_accepted: 'Cookies zugestimmt',
-  consent_declined: 'Cookies abgelehnt',
   // Die Spot-Paywall fiel am 06.09.2026 — diese Ereignisse feuert kein Code
   // mehr, aber die Tage davor tragen sie noch. Beschriftet, nicht verschwiegen.
   locked_spot_opened: 'Gesperrter Spot geöffnet (bis 06.09.2026)',
   locked_spot_pack_clicked: 'Gesperrter Spot: Pack geklickt (bis 06.09.2026)',
   locked_spot_login_start: 'Gesperrter Spot: Anmeldung (bis 06.09.2026)',
+  // Der Cookie-Dialog fiel am 12.11.2026, mit ihm Google Analytics.
+  consent_gate_shown: 'Cookie-Dialog gezeigt (bis 12.11.2026)',
+  consent_accepted: 'Cookies zugestimmt (bis 12.11.2026)',
+  consent_declined: 'Cookies abgelehnt (bis 12.11.2026)',
 };
 
 export function labelFor(key: string): string {

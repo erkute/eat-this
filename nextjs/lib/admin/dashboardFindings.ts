@@ -22,16 +22,6 @@ export function dashboardFindings(data: StatsSummary): DashboardFinding[] {
       detail: `An ${mismatches.length} Tagen stimmen Gesamtzahl und gespeicherte Aufschlüsselung nicht überein. Diese Daten zuerst prüfen.`,
       report: 'measurement',
     });
-  const eventCount = (key: string) => data.events.find((row) => row.key === key)?.count ?? 0;
-  const shown = eventCount('consent_gate_shown');
-  const answered = eventCount('consent_accepted') + eventCount('consent_declined');
-  if (shown >= 100 && answered / shown < 0.25)
-    result.push({
-      key: 'traffic-quality',
-      title: 'Verkehrsqualität prüfen',
-      detail: `${shown} Cookie-Dialog-Einblendungen, aber nur ${answered} Antworten. Das kann kurze Besuche, wiederholte Einblendungen, Messlücken oder Automatisierung bedeuten. Kein Botnachweis: Vergleiche die Tageswerte mit GA und Google-Suche, bevor du daraus Nutzerwachstum ableitest.`,
-      report: 'measurement',
-    });
   const loss = data.search?.ok
     ? data.search.data.movers.falling.find((row) => row.clicksBefore >= 5 && row.diff <= -3)
     : null;

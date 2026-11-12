@@ -131,9 +131,8 @@ assertFirebaseProjectBoundary({
  * getAuth() bundles Firebase's browserPopupRedirectResolver, and that resolver
  * loads Google's gapi bridge — apis.google.com/js/api.js plus the
  * {authDomain}/__/auth/iframe helper — on every page, for every visitor,
- * before the consent dialog has been answered and whether or not anyone ever
- * signs in. The cookie banner tells people Google Sign-In loads "only when you
- * use it", so it also has to be true.
+ * whether or not anyone ever signs in. Google Sign-In should load only when
+ * someone uses it.
  *
  * initializeAuth keeps the resolver out; the one flow that needs it passes
  * browserPopupRedirectResolver explicitly (lib/auth/AuthContext.tsx). Email

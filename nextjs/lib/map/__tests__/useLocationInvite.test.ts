@@ -18,7 +18,6 @@ function stubPermissions(state: string | null) {
 }
 
 afterEach(() => {
-  document.documentElement.removeAttribute('data-consent-gate');
   stubPermissions(null);
   vi.useRealTimers();
   vi.restoreAllMocks();
@@ -67,20 +66,6 @@ describe('useLocationInvite', () => {
     const { result } = renderHook(() => useLocationInvite(false));
     await waitFor(() => expect(navigator.permissions.query).toHaveBeenCalled());
     expect(result.current).toBe(false);
-  });
-
-  /* The cookie gate locks the page and asks first. A question under a modal
-     is one nobody can answer. */
-  it('waits behind the cookie gate and opens when it closes', async () => {
-    document.documentElement.setAttribute('data-consent-gate', 'open');
-    stubPermissions('prompt');
-
-    const { result } = renderHook(() => useLocationInvite(false));
-    await waitFor(() => expect(navigator.permissions.query).toHaveBeenCalled());
-    expect(result.current).toBe(false);
-
-    document.documentElement.removeAttribute('data-consent-gate');
-    await waitFor(() => expect(result.current).toBe(true));
   });
 
   it('never touches geolocation — deciding whether to ask must not itself ask', async () => {

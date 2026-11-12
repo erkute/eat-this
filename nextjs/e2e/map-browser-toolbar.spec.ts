@@ -1,5 +1,4 @@
 import { expect, test, type Page } from '@playwright/test';
-import { CONSENT_VERSION } from '../lib/consent';
 
 async function geometry(page: Page) {
   return page.evaluate(() => {
@@ -17,9 +16,8 @@ async function geometry(page: Page) {
 }
 
 for (const reducedMotion of ['reduce', 'no-preference'] as const) {
-  test(`phone map stays anchored through browser-toolbar height changes (${reducedMotion})`, async ({ page, context, baseURL }, info) => {
+  test(`phone map stays anchored through browser-toolbar height changes (${reducedMotion})`, async ({ page }, info) => {
     test.skip(info.project.name === 'desktop', 'Phone browser chrome.');
-    await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
     await page.emulateMedia({ reducedMotion });
     // Emulated viewports report themselves as the screen. A phone's screen
     // keeps its full size while the browser toolbar shows and hides.
@@ -89,9 +87,8 @@ for (const reducedMotion of ['reduce', 'no-preference'] as const) {
   });
 }
 
-test('desktop map follows height changes', async ({ page, context, baseURL }, info) => {
+test('desktop map follows height changes', async ({ page }, info) => {
   test.skip(info.project.name !== 'desktop', 'Desktop browser resize.');
-  await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
   await page.goto('/map');
   await expect(page.locator('.maplibregl-canvas')).toBeVisible();
   for (const width of [1440, 390]) {

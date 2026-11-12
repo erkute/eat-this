@@ -1,8 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 for (const route of ['/news/vegane-restaurants-berlin', '/restaurant/standard-serious-pizza-mitte']) {
-  test(`reading progress ends before recommendations: ${route}`, async ({ page, context }) => {
-    await context.addCookies([{ name: 'cookieConsent', value: 'declined.4', url: test.info().project.use.baseURL as string || 'http://127.0.0.1:3100' }]);
+  test(`reading progress ends before recommendations: ${route}`, async ({ page }) => {
     await page.goto(route);
     const progress = page.locator('[data-reading-progress]');
     await expect(progress).toBeAttached();

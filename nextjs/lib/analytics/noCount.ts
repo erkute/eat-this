@@ -1,7 +1,7 @@
 /**
  * Ausschluss für den eigenen Browser. /no-count und /admin/stats setzen
  * diese ausdrückliche Präferenz auf Knopfdruck. Client und API lesen sie,
- * damit weder der eigene Zähler noch Google Analytics Testbesuche erfassen.
+ * damit der eigene Zähler keine Testbesuche erfasst.
  * Der Zähler selbst setzt keine Kennung im Browser.
  */
 export const NO_COUNT_COOKIE = 'eatthis_nocount';

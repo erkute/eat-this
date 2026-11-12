@@ -1,5 +1,4 @@
 import { expect, test } from '@playwright/test';
-import { CONSENT_VERSION } from '../lib/consent';
 
 // Der Hero vom Server muss derselbe Knoten bleiben, bis React ihn übernommen
 // hat: nie doppelt im DOM, nie verschwunden, nie im Browser neu gebaut.
@@ -17,13 +16,9 @@ const WATCH_HERO = () => {
 test('the server-rendered home page survives hydration on a slow phone', async ({
   page,
   context,
-  baseURL,
   browserName,
 }) => {
   test.skip(browserName !== 'chromium', 'Drosselung gibt es nur über das Chrome-Protokoll.');
-  await context.addCookies([
-    { name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! },
-  ]);
   await page.addInitScript(WATCH_HERO);
   const cdp = await context.newCDPSession(page);
   await cdp.send('Network.enable');

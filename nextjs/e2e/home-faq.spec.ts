@@ -1,10 +1,7 @@
 import { expect, test } from '@playwright/test';
-import { CONSENT_VERSION } from '../lib/consent';
 
 for (const reduced of [false, true]) {
-  test(`FAQ opens quietly and keeps keyboard focus visible (${reduced})`, async ({ page, context, baseURL, isMobile }) => {
-    await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
-    await page.route('**/api/consent', route => route.fulfill({ status: 204 }));
+  test(`FAQ opens quietly and keeps keyboard focus visible (${reduced})`, async ({ page, isMobile }) => {
     await page.emulateMedia({ reducedMotion: reduced ? 'reduce' : 'no-preference' });
     await page.goto('/');
     await expect(page.locator('[data-hub-faq] details[open]')).toHaveCount(0);

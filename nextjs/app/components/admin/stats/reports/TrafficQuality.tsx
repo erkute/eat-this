@@ -12,15 +12,11 @@ export default function TrafficQuality({
   compact?: boolean;
 }) {
   const search = data.search?.ok ? data.search.data : null;
-  const ga = data.ga?.ok ? data.ga : null;
   if (compact)
     return (
       <p className={styles.notice}>
-        Datenbasis: Tagesbesucher sind geschätzte Browser, keine verifizierten Menschen.{' '}
-        {ga
-          ? `GA erfasst ${NUMBER.format(ga.users)} aktive Nutzer mit Einwilligung im Zeitraum.`
-          : 'GA-Daten sind gerade nicht verfügbar.'}{' '}
-        Botanteil unbekannt. Quellenvergleich unter „Messung“.
+        Datenbasis: Tagesbesucher sind geschätzte Browser, keine verifizierten Menschen. Botanteil
+        unbekannt. Quellenvergleich unter „Messung“.
       </p>
     );
   return (
@@ -31,8 +27,6 @@ export default function TrafficQuality({
     >
       <p className={styles.note}>
         {NUMBER.format(data.totals.visitors)} Tagesbesucher im eigenen Zähler ·{' '}
-        {ga ? `${NUMBER.format(ga.users)} aktive GA-Nutzer mit Einwilligung` : 'GA nicht verfügbar'}{' '}
-        ·{' '}
         {search
           ? `${NUMBER.format(search.totals.clicks)} Google-Suchklicks (${longDay(search.range.start)}–${longDay(search.range.end)})`
           : 'Google-Suche nicht verfügbar'}
@@ -56,7 +50,6 @@ export default function TrafficQuality({
               <th scope="col">Tag</th>
               <th scope="col">Tagesbesucher</th>
               <th scope="col">Aufrufe</th>
-              <th scope="col">GA-Nutzer</th>
               <th scope="col">Suchklicks</th>
             </tr>
           </thead>
@@ -65,7 +58,6 @@ export default function TrafficQuality({
               .slice(-14)
               .reverse()
               .map((day) => {
-                const gaDay = ga?.days.find((row) => row.day === day.day);
                 const searchDay = search?.days.find((row) => row.day === day.day);
                 return (
                   <tr key={day.day}>
@@ -75,7 +67,6 @@ export default function TrafficQuality({
                     </th>
                     <td className={styles.cellNum}>{NUMBER.format(day.visitors)}</td>
                     <td className={styles.cellNum}>{NUMBER.format(day.pageviews)}</td>
-                    <td className={styles.cellNum}>{gaDay ? NUMBER.format(gaDay.users) : '—'}</td>
                     <td className={styles.cellNum}>
                       {searchDay ? NUMBER.format(searchDay.clicks) : '—'}
                     </td>

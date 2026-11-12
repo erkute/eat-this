@@ -15,7 +15,6 @@ import { spotPhotoSrcSet } from '@/lib/map/spotPhoto';
 import { prefetchRestaurantDetail, useCachedRestaurantDetail } from '@/lib/map/useRestaurantDetail';
 import { rememberedSpotPhotoIndex, rememberSpotPhoto, spotGallery } from '@/lib/map/spotGallery';
 import { DAY_LABELS } from '@/lib/map/openingHours';
-import { afterConsentGate } from '@/lib/map/afterConsentGate';
 import { isPhoneViewport } from '@/lib/map/viewport';
 import { useInkSafeLeading } from '@/lib/dom/inkSafeLeading';
 import MapListEmpty from './MapListEmpty';
@@ -31,7 +30,7 @@ import styles from './RestaurantList.module.css';
 const PHOTO_LEAD_PX = 3200;
 // Native lazy-loading still fetches several phone screens ahead. Desktop's
 // visible rows get their real source in the server HTML; smaller screens start with
-// the first three photos, then the consent-aware observer supplies the rest.
+// the first three photos, then the observer supplies the rest.
 const EMPTY_PHOTO = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 
 interface ItemProps {
@@ -91,7 +90,7 @@ const Item = memo(
     // by the time the user taps it, the story text is already cached and the
     // detail opens complete (no skeleton).
     const cardRef = useRef<HTMLDivElement>(null);
-    /* After consent, preload photos within PHOTO_LEAD_PX of the viewport.
+    /* Preload photos within PHOTO_LEAD_PX of the viewport.
        The first three rows have real sources in the server HTML. Other rows start
        with desktop-only sources, keeping offscreen sheet photos out of the
        initial download. On phones, distant rows release their decoded photos
@@ -109,8 +108,8 @@ const Item = memo(
         },
         { rootMargin: `${PHOTO_LEAD_PX}px 0px` }
       );
-      const cancel = afterConsentGate(() => io.observe(el));
-      return () => { cancel(); io.disconnect(); };
+      io.observe(el);
+      return () => io.disconnect();
     }, []);
     const [detailNear, setDetailNear] = useState(false);
     useEffect(() => {
@@ -127,8 +126,8 @@ const Item = memo(
         },
         { rootMargin: '300px 0px' }
       );
-      const cancel = afterConsentGate(() => io.observe(el));
-      return () => { cancel(); io.disconnect(); };
+      io.observe(el);
+      return () => io.disconnect();
     }, [restaurant.slug]);
 
     /* Die Fotos lassen sich schon in der Liste durchwischen, wie im Detail

@@ -1,10 +1,7 @@
 import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { CONSENT_VERSION } from '../lib/consent';
 
-test.beforeEach(async ({ page, context, baseURL }) => {
-  await page.route('**/api/consent', route => route.fulfill({ status: 204 }));
-  await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
+test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
     const observer = new MutationObserver(records => {
       for (const record of records) {
@@ -109,7 +106,6 @@ test('changing reduced motion leaves the destination fully visible', async ({ pa
 test('category recommendations navigate without JavaScript', async ({ browser, baseURL }) => {
   const context = await browser.newContext({ javaScriptEnabled: false, extraHTTPHeaders: { DNT: '1' } });
   try {
-    await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
     const page = await context.newPage();
     // Link navigation must remain usable while unrelated images are loading.
     await page.goto(`${baseURL}/kategorie/sweets`, { waitUntil: 'domcontentloaded' });
@@ -226,7 +222,6 @@ test('category gallery enters directly and the open directory filters its result
 test('category directory stays open and navigates without JavaScript', async ({ browser, baseURL }) => {
   const context = await browser.newContext({ javaScriptEnabled: false, extraHTTPHeaders: { DNT: '1' } });
   try {
-    await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
     const page = await context.newPage();
     await page.goto(`${baseURL}/en/kategorie/sweets`, { waitUntil: 'domcontentloaded' });
     const directory = page.locator('section#alle');

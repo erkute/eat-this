@@ -4,33 +4,6 @@ import { useEffect, useState } from 'react';
 import { getGeolocationPermissionState, type GeolocationPermissionState } from './useUserLocation';
 
 /**
- * The cookie gate locks the whole page while it is up (CookieConsent puts this
- * attribute on <html> and app/globals.css hangs the overflow lock off it), and
- * it asks first. An info card asking underneath a modal is a question nobody
- * can answer, so the two queue instead of stacking.
- */
-const CONSENT_GATE_ATTR = 'data-consent-gate';
-
-function useConsentGateClosed(): boolean {
-  // Starts closed-for-business — assume gated until the DOM says otherwise, so
-  // the label can never unfold under the modal on first paint.
-  const [closed, setClosed] = useState(false);
-
-  useEffect(() => {
-    const read = () => setClosed(!document.documentElement.hasAttribute(CONSENT_GATE_ATTR));
-    read();
-    const observer = new MutationObserver(read);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: [CONSENT_GATE_ATTR],
-    });
-    return () => observer.disconnect();
-  }, []);
-
-  return closed;
-}
-
-/**
  * Whether the visitor still has an unanswered location question: permission
  * never asked (or unknowable) and no position yet. That is when the map asks
  * once, through the info card (useLocationWelcome), and what the
@@ -59,7 +32,6 @@ export function isInviteOpen(
  */
 export function useLocationInvite(located: boolean): boolean {
   const [permission, setPermission] = useState<GeolocationPermissionState | null>(null);
-  const consentGateClosed = useConsentGateClosed();
 
   useEffect(() => {
     let cancelled = false;
@@ -72,6 +44,6 @@ export function useLocationInvite(located: boolean): boolean {
   }, []);
 
   // `null` permission = not read yet. Never guess before the browser answers.
-  if (permission === null || !consentGateClosed) return false;
+  if (permission === null) return false;
   return isInviteOpen(permission, located);
 }

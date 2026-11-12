@@ -67,7 +67,7 @@ const nextConfig: NextConfig = {
   // bricht das Skript auf iOS 15 bis 16.3 (auch im Instagram-Browser) beim
   // Laden ab (Sentry JAVASCRIPT-AV):
   // - `intl-messageformat` (unter next-intl, auf jeder Seite): Die Seite wird
-  //   nie interaktiv, der Cookie-Dialog lässt sich nicht schließen. Kostet
+  //   nie interaktiv. Kostet
   //   gepackt rund 0,1 kB.
   // - `maplibre-gl` (nur /map, samt Worker aus MapCanvas): Die Map zeigt die
   //   Fehlerseite. Kostet gepackt rund 8 kB (Bundle 5,6, Worker 2,4), weil
@@ -135,9 +135,9 @@ const nextConfig: NextConfig = {
   async headers() {
     // Content-Security-Policy shipped in REPORT-ONLY first: it breaks nothing
     // but surfaces violations so we can validate the allowlist (OpenFreeMap
-    // tiles, Firebase Auth, Stripe Checkout, GA) on staging before flipping to
+    // tiles, Firebase Auth, Stripe Checkout) on staging before flipping to
     // an enforcing `Content-Security-Policy`. 'unsafe-inline' on script-src is
-    // required by the synchronous CRITICAL_BOOTSTRAP and the gtag shim (no
+    // required by the synchronous CRITICAL_BOOTSTRAP (no
     // nonce plumbing in the static App Router output yet). Sentry is tunnelled
     // through same-origin /monitoring, so it needs no extra connect-src host.
     const csp = [
@@ -145,14 +145,14 @@ const nextConfig: NextConfig = {
       "base-uri 'self'",
       "object-src 'none'",
       "frame-ancestors 'self'",
-      "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://apis.google.com",
+      "script-src 'self' 'unsafe-inline' https://apis.google.com",
       // No third-party stylesheet any more: Adobe's kit CSS is gone and the
       // @font-face rules live in app/globals.css. Only the font FILES are
       // still fetched from Adobe, which font-src below covers.
       "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob: https://cdn.sanity.io https://*.googleusercontent.com https://www.googletagmanager.com https://www.google-analytics.com",
+      "img-src 'self' data: blob: https://cdn.sanity.io https://*.googleusercontent.com",
       "font-src 'self' data: https://use.typekit.net",
-      "connect-src 'self' https://cdn.sanity.io https://tiles.openfreemap.org https://*.googleapis.com https://*.firebaseio.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseapp.com https://www.google-analytics.com https://*.analytics.google.com",
+      "connect-src 'self' https://cdn.sanity.io https://tiles.openfreemap.org https://*.googleapis.com https://*.firebaseio.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseapp.com",
       "frame-src 'self' https://*.firebaseapp.com https://checkout.stripe.com https://accounts.google.com",
       "worker-src 'self' blob:",
       "form-action 'self' https://checkout.stripe.com",

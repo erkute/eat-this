@@ -273,10 +273,7 @@ describe('Map CSS architecture', () => {
       }),
     ]);
     /* 28 is the number that has to stay in step with LIST_REST_VISIBLE_DVH in
-     * phoneSheetSnaps.ts. Nothing is added to it: the cookie banner used to be
-     * fixed over this exact edge and the sheet had to lift itself clear of it,
-     * but consent is a blocking dialog on a scrim now and owns none of it.
-     */
+     * phoneSheetSnaps.ts. */
     const rest = shellRules[0]['--phone-list-sheet-visible'];
     expect(rest, 'the phone sheet lost its resting stop').toBeDefined();
     expect(rest, 'the resting stop must stay at 28dvh (= LIST_REST_VISIBLE_DVH)').toBe('28dvh');

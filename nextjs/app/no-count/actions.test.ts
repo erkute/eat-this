@@ -15,7 +15,7 @@ function form(choice: string, locale = 'de') {
 beforeEach(() => vi.clearAllMocks());
 
 describe('public counting choice', () => {
-  it('excludes this browser for one year, readable by the existing GA gate', async () => {
+  it('excludes this browser for one year, readable by the client counter', async () => {
     await setCounting(form('exclude'));
     expect(mocks.set).toHaveBeenCalledWith('eatthis_nocount', '1', {
       path: '/', maxAge: 31536000, sameSite: 'lax',

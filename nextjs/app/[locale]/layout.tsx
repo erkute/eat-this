@@ -10,8 +10,6 @@ import NotificationToast from '@/app/components/NotificationToast';
 import ScrollRestorer from '@/app/components/ScrollRestorer';
 import PageInsightTracker from '@/app/components/PageInsightTracker';
 import AnalyticsPageViews from '@/app/components/AnalyticsPageViews';
-import CookieConsent from '@/app/components/CookieConsent';
-import { CONSENT_BOOTSTRAP } from '@/lib/consentBootstrap';
 import { buildSiteJsonLd } from '@/lib/json-ld';
 
 export function generateStaticParams() {
@@ -102,9 +100,8 @@ export default async function LocaleLayout({
         <link rel="preload" href="https://use.typekit.net/af/912d1e/00000000000000007735bb33/31/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&amp;fvd=n4&amp;v=3" as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="preload" href="https://use.typekit.net/af/2288cb/00000000000000007735bb39/31/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&amp;fvd=n7&amp;v=3" as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://cdn.sanity.io" />
-        {/* Safe: hardcoded constants and the shared pure consent parser. */}
+        {/* Safe: hardcoded constants only. */}
         <script dangerouslySetInnerHTML={{ __html: CRITICAL_BOOTSTRAP }} />
-        <script dangerouslySetInnerHTML={{ __html: CONSENT_BOOTSTRAP }} />
       </head>
       <body suppressHydrationWarning>
         <script
@@ -130,14 +127,6 @@ export default async function LocaleLayout({
           <ScrollRestorer />
           <AnalyticsPageViews />
           <PageInsightTracker />
-          {/* Auf JEDER Locale-Route, nicht nur im SPA-Layout — dort hing der
-              Dialog bis 28.08.2026, und /restaurant, /kategorie, /bezirk,
-              /packs, /profile und /checkout liegen daneben. Auf 35 % der
-              Seitenaufrufe wurde also nie gefragt, und das sind genau die
-              Seiten, auf denen die Google-Suche landet: GA konnte dort nie
-              laden. Muss innerhalb von ClientIntlProvider stehen — der Dialog
-              zieht seine Texte über next-intl. Styles dazu in globals.css. */}
-          <CookieConsent />
           {children}
         </ClientIntlProvider>
       </body>

@@ -1,13 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
-import { CONSENT_VERSION } from '../lib/consent';
 
 // Exercise the same dayparts on developer machines and UTC CI runners.
 test.use({ timezoneId: 'UTC' });
-
-test.beforeEach(async ({ page, context, baseURL }) => {
-  await page.route('**/api/consent', route => route.fulfill({ status: 204 }));
-  await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
-});
 
 async function openRemy(page: Page) {
   await page.goto('/news', { waitUntil: 'domcontentloaded' });

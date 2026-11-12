@@ -41,8 +41,7 @@ describe('critical auth bootstrap', () => {
 
   /* Adobe's kit stylesheet used to be linked here and loaded with media="print"
    * until the bootstrap flipped it. It @imported p.typekit.net/p.css — Adobe's
-   * usage beacon — which ran for every visitor before the cookie dialog was
-   * answered. The @font-face rules now live in app/globals.css and only the
+   * usage beacon — which ran for every visitor. The @font-face rules now live in app/globals.css and only the
    * font files are fetched. Do not put a third-party stylesheet back in a head:
    * a stylesheet is a request the visitor never agreed to. */
   // Neither the standalone 404 nor the regular site shell may link the kit.

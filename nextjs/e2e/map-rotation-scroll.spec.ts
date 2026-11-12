@@ -1,9 +1,7 @@
 import { expect, test } from '@playwright/test';
-import { CONSENT_VERSION } from '../lib/consent';
 
-test('list keeps native touch scrolling through repeated phone rotation', async ({ page, context, baseURL }, info) => {
+test('list keeps native touch scrolling through repeated phone rotation', async ({ page, context }, info) => {
   test.skip(info.project.name !== 'mobile', 'Chromium touch input across explicit phone sizes.');
-  await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
   await page.goto('/map');
   await expect(page.locator('[data-list-row]').first()).toBeVisible();
   const client = await context.newCDPSession(page);
@@ -26,9 +24,8 @@ test('list keeps native touch scrolling through repeated phone rotation', async 
   }
 });
 
-test('landscape entry releases window scrolling when rotated to portrait', async ({ page, context, baseURL }, info) => {
+test('landscape entry releases window scrolling when rotated to portrait', async ({ page }, info) => {
   test.skip(info.project.name !== 'mobile', 'Explicit phone rotation.');
-  await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
   await page.setViewportSize({ width: 844, height: 390 });
   await page.goto('/map');
   await expect(page.locator('[data-list-row]').first()).toBeVisible();
@@ -39,9 +36,8 @@ test('landscape entry releases window scrolling when rotated to portrait', async
   expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(700);
 });
 
-test('restaurant back control remains usable after scrolling in landscape', async ({ page, context, baseURL }, info) => {
+test('restaurant back control remains usable after scrolling in landscape', async ({ page }, info) => {
   test.skip(info.project.name !== 'mobile', 'Explicit landscape phone viewport.');
-  await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
   await page.setViewportSize({ width: 844, height: 390 });
   await page.goto('/map');
   await page.locator('[data-list-row] [role="button"]').first().click();
@@ -56,9 +52,8 @@ test('restaurant back control remains usable after scrolling in landscape', asyn
 });
 
 for (const width of [667, 844]) {
-  test(`selected spot is centered in the landscape map at ${width}px`, async ({ page, context, baseURL }, info) => {
+  test(`selected spot is centered in the landscape map at ${width}px`, async ({ page }, info) => {
     test.skip(info.project.name !== 'mobile', 'Explicit landscape phone viewport.');
-    await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/map');
     await expect(page.locator('.maplibregl-marker').first()).toBeVisible();
@@ -77,9 +72,8 @@ for (const width of [667, 844]) {
   });
 }
 
-test('landscape map keeps Safari backdrop content in document flow', async ({ page, context, baseURL }, info) => {
+test('landscape map keeps Safari backdrop content in document flow', async ({ page }, info) => {
   test.skip(info.project.name !== 'mobile', 'Explicit phone rotation.');
-  await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/map');
   await expect(page.locator('[data-list-row]').first()).toBeVisible();

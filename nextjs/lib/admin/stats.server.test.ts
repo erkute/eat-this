@@ -17,7 +17,7 @@ import {
 
 /** Der Rollout-Tag der neuen Felder plus der erste volle Tag danach — genau
  *  die Mischung, die im Katalog wirklich liegt: der 28.08.2026 traegt
- *  `continuations` und den Dialog, aber nur fuer den Abend. */
+ *  `continuations`, aber nur fuer den Abend. */
 function docs(): DailyDoc[] {
   return [
     {
@@ -93,42 +93,6 @@ describe('summarize', () => {
         counts: { map_opened: 5, consent_gate_shown: 10, consent_accepted: 2, purchase: 0 },
       },
     ]);
-  });
-
-  it('zählt Antworten und Einblendungen nur ab dem ersten vollständig erfassten Tag', () => {
-    const result = summarize(docs());
-
-    // Nur der 29.: der 28. zaehlte den Dialog erst ab dem Abend, seine 20
-    // Besucher waren groesstenteils nie gefragt.
-    expect(result.consent).toEqual({
-      shown: 10,
-      accepted: 2,
-      declined: 0,
-      ratePerView: 0.2,
-    });
-  });
-
-  it('vermischt Dialogereignisse nicht mit den Besucherzahlen', () => {
-    const result = summarize([
-      { day: '2026-08-27', visitors: 500 },
-      { day: '2026-08-28', visitors: 400, events: { consent_gate_shown: 30, consent_accepted: 1 } },
-      {
-        day: '2026-08-29',
-        visitors: 100,
-        events: { consent_gate_shown: 300, consent_accepted: 20 },
-      },
-    ]);
-
-    expect(result.consent.shown).toBe(300);
-    expect(result.consent.accepted).toBe(20);
-    expect(result.consent.ratePerView).toBeCloseTo(20 / 300);
-  });
-
-  it('liefert keine Zustimmungsquote ohne Nenner', () => {
-    const result = summarize([{ day: '2026-08-29', events: { consent_accepted: 4 } }]);
-
-    expect(result.consent.accepted).toBe(4);
-    expect(result.consent.ratePerView).toBeNull();
   });
 
   it('übersteht fehlende und unbrauchbare Zählfelder', () => {

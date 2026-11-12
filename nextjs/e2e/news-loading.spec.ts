@@ -1,5 +1,4 @@
 import { expect, test } from '@playwright/test';
-import { CONSENT_VERSION } from '../lib/consent';
 
 for (const route of ['/news', '/en/news']) {
   test(`news loads without the homepage bundle: ${route}`, async ({ page }) => {
@@ -17,9 +16,8 @@ for (const javaScriptEnabled of [true, false]) {
   test.describe(`footer lettering with JavaScript ${javaScriptEnabled ? 'enabled' : 'disabled'}`, () => {
     test.use({ javaScriptEnabled });
     for (const route of ['/', '/news']) {
-      test(`renders on arrival at the footer: ${route}`, async ({ page, context, baseURL, isMobile, browserName }, info) => {
+      test(`renders on arrival at the footer: ${route}`, async ({ page, isMobile, browserName }, info) => {
         test.skip(route === '/' && !isMobile, 'The desktop hero uses the same lettering above the fold.');
-        await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
         const lettering: string[] = [];
         let letteringLoaded = false;
         page.on('requestfinished', async request => {

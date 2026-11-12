@@ -45,6 +45,14 @@ const path = require('path');
 // alles, was vor ihm geschrieben wurde, wieder als veraltet und wird beim
 // nächsten Abruf neu gebaut. Die Nachläufe rechnet jede Instanz selbst aus
 // dem geteilten Zeitpunkt; es läuft dafür kein Timer im Hintergrund.
+//
+// Fünftens gilt eine vorgebaute Seite als so alt wie ihr Build. Mit dem
+// Dateidatum 1980 war sie für die 24-Stunden-Frist sofort abgelaufen: jede
+// Instanz lieferte jede vorgebaute Seite beim ersten Aufruf als `STALE` aus
+// und rechnete sie danach im Hintergrund neu (live am 11.11.2026, viereinhalb
+// Stunden nach dem Build: 20 von 30 Spot-Seiten `STALE`). Nach der Antwort
+// drosselt Cloud Run die CPU, die Sanity-Abfrage dieser Neuberechnung lief
+// darum in ihr Zeitlimit (Sentry JAVASCRIPT-AH).
 
 const FileSystemCache =
   require('next/dist/server/lib/incremental-cache/file-system-cache').default;
@@ -226,6 +234,18 @@ function createFirestoreStore() {
   };
 }
 
+/**
+ * Gibt einem Eintrag aus dem Image den Build-Zeitpunkt als Alter. Als Kopie:
+ * der Eintrag im Speicher-Cache von Next behält sein Dateidatum für die
+ * Tag-Prüfung.
+ */
+function withBuildAge(entry, builtAt) {
+  if (entry && builtAt && entry.lastModified > 0 && entry.lastModified < builtAt) {
+    return { ...entry, lastModified: builtAt };
+  }
+  return entry;
+}
+
 // Nur auf Cloud Run (K_SERVICE), nicht im Build und nicht lokal: ein lokaler
 // Produktionslauf mit den Admin-Schlüsseln aus .env.local schriebe sonst in
 // die Prod-Datenbank.
@@ -240,9 +260,14 @@ function sharedEnabled() {
 // Next erzeugt den Handler pro Anfrage neu; Uhr und Abgleich leben pro Prozess.
 const clock = createTagClock();
 let shared;
+const builtAtByDir = new Map();
+function getBuiltAt(serverDistDir) {
+  if (!builtAtByDir.has(serverDistDir)) builtAtByDir.set(serverDistDir, readBuildTime(serverDistDir));
+  return builtAtByDir.get(serverDistDir);
+}
 function getShared(serverDistDir) {
   if (shared === undefined) {
-    const builtAt = readBuildTime(serverDistDir);
+    const builtAt = getBuiltAt(serverDistDir);
     shared = sharedEnabled()
       ? createSharedTags(createFirestoreStore(), {
           clock,
@@ -268,7 +293,9 @@ class CacheHandler extends FileSystemCache {
     const s = getShared(this.serverDistDir);
     if (s) await s.sync();
     clock.tick();
-    return super.get(...args);
+    // Erst nach der Tag-Prüfung in super.get: gegen Tags zählt weiter das
+    // Dateidatum, damit jede Änderung seit dem Build die Seite verwirft.
+    return withBuildAge(await super.get(...args), getBuiltAt(this.serverDistDir));
   }
 }
 
@@ -280,4 +307,5 @@ module.exports.mergeTags = mergeTags;
 module.exports.encodeTag = encodeTag;
 module.exports.decodeTag = decodeTag;
 module.exports.readBuildTime = readBuildTime;
+module.exports.withBuildAge = withBuildAge;
 module.exports.SYNC_INTERVAL_MS = SYNC_INTERVAL_MS;

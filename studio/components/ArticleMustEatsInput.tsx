@@ -39,10 +39,23 @@ function autoPlaced(blocks: Block[], cards: Candidate[], title: string): Set<str
   )
 }
 
+function placedByHand(blocks: Block[] | undefined): Set<string> {
+  return new Set(
+    (blocks ?? []).flatMap((b) => {
+      const ref = (b as {mustEatRef?: {_ref?: string}}).mustEatRef?._ref
+      return b._type === 'mustEatCard' && ref ? [ref] : []
+    }),
+  )
+}
+
+const languages = (de: boolean, en: boolean) => [de && 'Deutsch', en && 'Englisch'].filter(Boolean).join(' und ')
+
 /**
  * Die Website setzt Must Eats von selbst in den Text, sobald ein Spot mit
  * Must Eat genannt oder verlinkt ist. Hier stehen diese Karten, jede mit
- * einem Schalter; ausgeschaltete landen in `hiddenMustEats`.
+ * einem Schalter; ausgeschaltete landen in `hiddenMustEats`. Von Hand
+ * eingefügte Must-Eat-Blöcke stehen mit dabei: Sie erscheinen immer und
+ * gehen nur weg, wenn der Block aus dem Text gelöscht wird.
  */
 export function ArticleMustEatsInput(props: ArrayOfObjectsInputProps) {
   const client = useClient({apiVersion: '2024-01-01'})
@@ -78,10 +91,17 @@ export function ArticleMustEatsInput(props: ArrayOfObjectsInputProps) {
     if (!cards) return []
     const de = autoPlaced(resolved(contentDe, slugs), cards, titleDe)
     const en = autoPlaced(resolved(content, slugs), cards, title)
+    const handDe = placedByHand(contentDe)
+    const handEn = placedByHand(content)
     const hiddenIds = new Set(hidden.map((r) => r._ref))
     return cards
-      .filter((c) => de.has(c._id) || en.has(c._id) || hiddenIds.has(c._id))
-      .map((card) => ({card, de: de.has(card._id), en: en.has(card._id), shown: !hiddenIds.has(card._id)}))
+      .filter((c) => [de, en, handDe, handEn, hiddenIds].some((set) => set.has(c._id)))
+      .map((card) => ({
+        card,
+        auto: languages(de.has(card._id), en.has(card._id)),
+        hand: languages(handDe.has(card._id), handEn.has(card._id)),
+        shown: !hiddenIds.has(card._id),
+      }))
   }, [cards, contentDe, content, slugs, titleDe, title, hidden])
 
   const toggle = (id: string, show: boolean) => {
@@ -102,35 +122,43 @@ export function ArticleMustEatsInput(props: ArrayOfObjectsInputProps) {
     return (
       <Card padding={3} radius={2} tone="transparent" border>
         <Text size={1} muted>
-          Keine Must Eats im Text. Sie kommen von selbst, sobald ein Spot mit Must Eat genannt oder als Spot eingefügt ist.
+          Keine Must Eats im Text. Sie kommen von selbst, sobald ein Spot mit Must Eat genannt oder als Spot eingefügt ist. Oder im Text über „Must Eat“ einfügen.
         </Text>
       </Card>
     )
   }
   return (
     <Stack gap={2}>
-      {rows.map(({card, de, en, shown}) => {
-        const where = [de && 'Deutsch', en && 'Englisch'].filter(Boolean).join(' und ')
+      {rows.map(({card, auto, hand, shown}) => {
+        // Der Schalter regelt nur das automatische Einsetzen. Steht die Karte
+        // von Hand im Text, setzt die Website sie dort nicht noch einmal ein.
+        const switchable = Boolean(auto) || !hand
+        const lines = [
+          hand && `Von Hand im Text (${hand}).`,
+          auto && (shown ? `Kommt von selbst in den Text (${auto}).` : `Ausgeblendet. Käme sonst von selbst in den Text (${auto}).`),
+          !auto && !shown && !hand && 'Ausgeblendet. Kommt im Text gerade nicht vor.',
+        ].filter(Boolean)
+        const visible = Boolean(hand) || (Boolean(auto) && shown)
         return (
-          <Card key={card._id} padding={3} radius={2} border tone={shown ? 'default' : 'transparent'}>
+          <Card key={card._id} padding={3} radius={2} border tone={visible ? 'default' : 'transparent'}>
             <Flex align="center" gap={3}>
-              <Switch
-                checked={shown}
-                onChange={(e) => toggle(card._id, e.currentTarget.checked)}
-                aria-label={`Must Eat bei ${card.restaurant.name} zeigen`}
-              />
+              {switchable ? (
+                <Switch
+                  checked={shown}
+                  onChange={(e) => toggle(card._id, e.currentTarget.checked)}
+                  aria-label={`Must Eat bei ${card.restaurant.name} von selbst einsetzen`}
+                />
+              ) : null}
               <Stack flex={1} gap={2}>
-                <Text size={1} weight="semibold" muted={!shown}>
+                <Text size={1} weight="semibold" muted={!visible}>
                   {card.restaurant.name}
                   {card.restaurant.district ? ` · ${card.restaurant.district}` : ''}
                 </Text>
-                <Text size={1} muted>
-                  {shown
-                    ? `Steht im Text (${where}).`
-                    : where
-                      ? `Ausgeblendet. Würde sonst im Text stehen (${where}).`
-                      : 'Ausgeblendet. Kommt im Text gerade nicht vor.'}
-                </Text>
+                {lines.map((line) => (
+                  <Text key={line as string} size={1} muted>
+                    {line}
+                  </Text>
+                ))}
               </Stack>
               {typeof card.order === 'number' ? <Badge>Karte {card.order}</Badge> : null}
             </Flex>

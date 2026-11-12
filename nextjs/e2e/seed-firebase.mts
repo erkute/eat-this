@@ -34,17 +34,27 @@ await getStorage(app)
   .file(imageObjectPath)
   .save(await readFile('public/pics/eat-this-crumpled-wordmark.webp'), { contentType: 'image/webp' });
 const db = getFirestore(app);
-for (let offset = 0; offset < cards.length; offset += 400) {
+// Der Build liest Sanity aus dem Fetch-Cache des letzten Laufs (quality.yml),
+// dieses Skript live. Bekommt eine Karte in der Zwischenzeit eine Fassung
+// (`cardVersion`), fragt der Server noch nach dem alten Schlüssel. Darum
+// liegt jede Karte unter beiden: Basis und gewählte Fassung.
+const keys = cards.flatMap((card) => {
+  const versioned = mustEatContentKey(card._id, card.cardVersion);
+  return [card._id, versioned]
+    .filter((key, index, all) => all.indexOf(key) === index)
+    .map((key) => ({ key, restaurantId: card.restaurantId }));
+});
+for (let offset = 0; offset < keys.length; offset += 400) {
   const batch = db.batch();
-  for (const card of cards.slice(offset, offset + 400)) {
-    batch.set(db.collection('privateMustEats').doc(mustEatContentKey(card._id, card.cardVersion)), {
+  for (const { key, restaurantId } of keys.slice(offset, offset + 400)) {
+    batch.set(db.collection('privateMustEats').doc(key), {
       dish: 'CI Testgericht',
       description: 'Synthetische Karte für den Browser-Test.',
       descriptionEn: 'Synthetic card for the browser test.',
       price: '',
       imageObjectPath,
       imageContentType: 'image/webp',
-      restaurantId: card.restaurantId,
+      restaurantId,
       schemaVersion: 1,
     });
   }

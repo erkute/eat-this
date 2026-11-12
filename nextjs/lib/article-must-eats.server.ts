@@ -12,7 +12,8 @@ export async function prepareArticleMustEats(article: NewsArticle, locale: strin
   if (!content.length) return { article, initialData: null };
   const mustEats = await getCachedMustEatsForPage();
   const title = (locale === 'de' ? article.titleDe : article.title) || article.title || '';
-  const enriched = addArticleMustEats(content, mustEats, title);
+  const hidden = new Set(article.hiddenMustEats);
+  const enriched = addArticleMustEats(content, mustEats.filter(m => !hidden.has(m._id)), title);
   const ids = new Set(enriched.filter(b => b._type === 'mustEatCard').map(b => b.mustEatId).filter((id): id is string => typeof id === 'string'));
   if (!ids.size) return { article, initialData: null };
   return {

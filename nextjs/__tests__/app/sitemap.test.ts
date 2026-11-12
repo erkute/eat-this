@@ -1,14 +1,18 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest';
 
-const mocks = vi.hoisted(() => ({ fetch: vi.fn() }));
+const mocks = vi.hoisted(() => ({ fetch: vi.fn(), uncachedFetch: vi.fn(), withConfig: vi.fn() }));
 
-vi.mock('@/lib/sanity', () => ({ client: { fetch: mocks.fetch } }));
+vi.mock('@/lib/sanity', () => ({
+  client: { fetch: mocks.fetch, withConfig: mocks.withConfig },
+}));
 
 describe('sitemap entries', () => {
   const ORIGINAL = process.env.NEXT_PUBLIC_ENV;
 
   beforeEach(() => {
     mocks.fetch.mockReset();
+    mocks.uncachedFetch.mockReset();
+    mocks.withConfig.mockReset().mockReturnValue({ fetch: mocks.fetch });
   });
 
   afterEach(() => {
@@ -127,6 +131,32 @@ describe('sitemap entries', () => {
     expect(categories).not.toContain('seo.noIndex');
   });
 
+  it('includes freshly published articles when the CDN article query is stale', async () => {
+    process.env.NEXT_PUBLIC_ENV = 'production';
+    mocks.fetch.mockResolvedValue([]);
+    mocks.uncachedFetch.mockResolvedValueOnce([
+      {
+        slug: 'newly-published',
+        updatedAt: '2026-11-12T08:00:00Z',
+        titleDe: 'Neu erschienen',
+        title: 'Newly published',
+        hasDeContent: true,
+        hasEnContent: true,
+      },
+    ]);
+    mocks.withConfig.mockReturnValue({ fetch: mocks.uncachedFetch });
+
+    vi.resetModules();
+    const { sitemapEntries } = await import('@/lib/seo/sitemap-entries');
+    const urls = (await sitemapEntries()).map((entry) => entry.url);
+
+    expect(mocks.withConfig).toHaveBeenCalledWith({ useCdn: false });
+    expect(mocks.uncachedFetch).toHaveBeenCalledTimes(1);
+    expect(mocks.uncachedFetch.mock.calls[0]?.[0]).toContain('_type == "newsArticle"');
+    expect(urls).toContain('https://www.eatthisdot.com/news/newly-published');
+    expect(urls).toContain('https://www.eatthisdot.com/en/news/newly-published');
+  });
+
   it('dates every URL, and lets a fresher article beat the template date', async () => {
     process.env.NEXT_PUBLIC_ENV = 'production';
     mocks.fetch
@@ -192,6 +222,8 @@ describe('sitemap.xml serialization', () => {
 
   beforeEach(() => {
     mocks.fetch.mockReset();
+    mocks.uncachedFetch.mockReset();
+    mocks.withConfig.mockReset().mockReturnValue({ fetch: mocks.fetch });
     process.env.NEXT_PUBLIC_ENV = 'production';
     mocks.fetch
       .mockResolvedValueOnce([{ slug: 'live-spot', descriptionEn: 'English copy' }])

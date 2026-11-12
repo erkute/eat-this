@@ -10,7 +10,6 @@ const state = vi.hoisted(() => ({
     photoURL: 'https://lh3.googleusercontent.com/a/secret=s96-c',
     customClaims: undefined as Record<string, unknown> | undefined,
   } as Record<string, unknown> | null,
-  avatar: 2 as unknown,
   unlocked: new Set<string>(),
   ent: {
     isAdmin: false,
@@ -35,11 +34,6 @@ vi.mock('@/lib/firebase/admin', () => ({
       if (!state.account) throw new Error('user not found');
       return { ...state.account, uid };
     },
-  }),
-  getAdminFirestore: () => ({
-    collection: () => ({
-      doc: () => ({ get: async () => ({ data: () => ({ avatar: state.avatar }) }) }),
-    }),
   }),
 }));
 vi.mock('@/lib/firebase/entitlements', () => ({
@@ -125,7 +119,6 @@ afterEach(() => {
     photoURL: 'https://lh3.googleusercontent.com/a/secret=s96-c',
     customClaims: undefined,
   };
-  state.avatar = 2;
   state.unlocked = new Set();
   state.ent = {
     isAdmin: false,
@@ -154,7 +147,6 @@ describe('getPublicDeck', () => {
     const deck = await getPublicDeck(OK_UID);
 
     expect(Object.keys(deck ?? {}).sort()).toEqual([
-      'avatar',
       'cards',
       'groups',
       'name',
@@ -311,13 +303,5 @@ describe('getPublicDeck', () => {
 
     state.account = null;
     expect(await getPublicDeck(OK_UID)).toBeNull();
-  });
-
-  it('faellt bei einem kaputten Avatar-Wert auf die erste Figur zurueck', async () => {
-    state.avatar = 99;
-    state.visibleRestaurants = ALL_RESTAURANTS;
-    state.mustEats = ALL_MUST_EATS;
-
-    expect((await getPublicDeck(OK_UID))?.avatar).toBe(1);
   });
 });

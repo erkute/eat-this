@@ -1,6 +1,6 @@
 import 'server-only';
 import { cache } from 'react';
-import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/admin';
+import { getAdminAuth } from '@/lib/firebase/admin';
 import { resolveEntitlements } from '@/lib/firebase/entitlements';
 import { getUnlockedMustEatIds } from '@/lib/firebase/unlockedMustEats.server';
 import { getCachedMapData } from '@/lib/map/cached-sanity';
@@ -33,7 +33,6 @@ export type PublicDeckCard =
 interface PublicDeck {
   /** Vorname aus dem Anzeigenamen. Null, wenn das Konto keinen gepflegt hat. */
   name: string | null;
-  avatar: 1 | 2 | 3;
   /** Wie viele Karten umgedreht sind, und wie viele es ueberhaupt gibt: der Satz,
    *  mit dem die Seite fuer das Produkt wirbt („hat 10 von 25 umgedreht, 15
    *  fehlen noch"). */
@@ -69,10 +68,6 @@ interface PublicDeck {
 function firstNameOf(displayName: string | null | undefined): string | null {
   const first = (displayName ?? '').trim().split(/\s+/)[0];
   return first || null;
-}
-
-function avatarOf(value: unknown): 1 | 2 | 3 {
-  return value === 1 || value === 2 || value === 3 ? value : 1;
 }
 
 /**
@@ -127,23 +122,13 @@ export const getPublicDeck = cache(async (uid: string): Promise<PublicDeck | nul
     admin: account.customClaims?.admin === true,
   };
 
-  const [
-    ent,
-    unlockedIds,
-    { restaurants: all, mustEats: allMustEats },
-    profileSnap,
-    publicMustEatIds,
-  ] = await Promise.all([
-    resolveEntitlements(uid, identity),
-    getUnlockedMustEatIds(uid),
-    getCachedMapData(),
-    getAdminFirestore()
-      .collection('users')
-      .doc(uid)
-      .get()
-      .catch(() => null),
-    getPublicMustEatIds(),
-  ]);
+  const [ent, unlockedIds, { restaurants: all, mustEats: allMustEats }, publicMustEatIds] =
+    await Promise.all([
+      resolveEntitlements(uid, identity),
+      getUnlockedMustEatIds(uid),
+      getCachedMapData(),
+      getPublicMustEatIds(),
+    ]);
 
   /* Dieselbe Ableitung wie /api/map-data — eine Funktion, nicht zwei Kopien: das
      geteilte Deck und das Profil desselben Kontos zeigen dieselbe Zahl. */
@@ -179,7 +164,6 @@ export const getPublicDeck = cache(async (uid: string): Promise<PublicDeck | nul
 
   return {
     name: firstNameOf(account.displayName),
-    avatar: avatarOf(profileSnap?.data()?.avatar),
     revealed: album.slots.filter((s) => s.collected).length,
     total: album.slots.length,
     cards,

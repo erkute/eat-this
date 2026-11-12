@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createRequire } from 'node:module'
 import path from 'node:path'
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
+import fsSync, { mkdirSync, mkdtempSync, utimesSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 
 const require = createRequire(import.meta.url)
@@ -15,6 +15,7 @@ const {
   encodeTag,
   decodeTag,
   readBuildTime,
+  withBuildAge,
   SYNC_INTERVAL_MS,
   FOLLOW_UP_MS,
 } = handlerModule
@@ -191,6 +192,50 @@ describe('cache-handler: Tags aus der Zeit vor dem Build', () => {
     writeFileSync(path.join(dir, 'BUILD_ID'), 'Zt0aR7xY')
     expect(readBuildTime(path.join(dir, 'server'))).toBe(0)
     expect(readBuildTime(path.join(dir, 'fehlt'))).toBe(0)
+  })
+})
+
+describe('cache-handler: Alter vorgebauter Seiten', () => {
+  // Mit dem Dateidatum 1980 war jede vorgebaute Seite für die 24-Stunden-Frist
+  // sofort abgelaufen und wurde auf jeder Instanz im Hintergrund neu gerechnet.
+  const SEED_MTIME = Date.parse('1980-01-01T00:00:01.000Z')
+  const builtAt = Date.parse('2026-10-10T08:00:00.000Z')
+
+  it('zählt eine Seite aus dem Image ab dem Build', () => {
+    const seed = { lastModified: SEED_MTIME }
+    expect(withBuildAge(seed, builtAt)).toEqual({ lastModified: builtAt })
+    // Der Eintrag selbst bleibt, wie Next ihn im Speicher hält.
+    expect(seed.lastModified).toBe(SEED_MTIME)
+  })
+
+  it('lässt eine auf der Instanz neu gebaute Seite unverändert', () => {
+    const rebuilt = builtAt + 3_600_000
+    expect(withBuildAge({ lastModified: rebuilt }, builtAt)).toEqual({ lastModified: rebuilt })
+  })
+
+  it('lässt Fehltreffer, die Hintergrund-Marke -1 und einen unbekannten Build stehen', () => {
+    expect(withBuildAge(null, builtAt)).toBeNull()
+    expect(withBuildAge({ lastModified: -1 }, builtAt)).toEqual({ lastModified: -1 })
+    expect(withBuildAge({ lastModified: SEED_MTIME }, 0)).toEqual({ lastModified: SEED_MTIME })
+  })
+
+  it('setzt das Alter beim Lesen über den Handler', async () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'et-age-'))
+    mkdirSync(path.join(dir, 'server', 'app'), { recursive: true })
+    writeFileSync(path.join(dir, 'BUILD_ID'), `et-${builtAt}-1a2b3c4d`)
+    const file = path.join(dir, 'server', 'app', 'seite.body')
+    writeFileSync(file, 'ok')
+    writeFileSync(path.join(dir, 'server', 'app', 'seite.meta'), JSON.stringify({ headers: {}, status: 200 }))
+    utimesSync(file, SEED_MTIME / 1000, SEED_MTIME / 1000)
+
+    const handler = new handlerModule({
+      fs: { ...fsSync, readFile: fsSync.promises.readFile, stat: fsSync.promises.stat },
+      flushToDisk: false,
+      serverDistDir: path.join(dir, 'server'),
+      revalidatedTags: [],
+    })
+    const entry = await handler.get('/seite', { kind: 'APP_ROUTE', isFallback: false })
+    expect(entry?.lastModified).toBe(builtAt)
   })
 })
 

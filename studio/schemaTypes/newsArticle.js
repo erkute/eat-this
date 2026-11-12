@@ -2,6 +2,7 @@ import {defineField, defineType} from 'sanity'
 import {BookIcon, DocumentTextIcon, ImageIcon, LinkIcon, PinIcon, StarIcon} from '@sanity/icons'
 import {ArticleInput} from '../components/ArticleInput'
 import {ArticleTextInput, ConclusionStyle, ImageBlock} from '../components/ArticleEditor'
+import {ArticleMustEatsInput} from '../components/ArticleMustEatsInput'
 
 // Das Etikett über dem Artikel („Guides“, „Openings“ …) leitet die Website
 // aus der Kategorie ab (nextjs/lib/queries.ts, ARTICLE_LABEL_*).
@@ -234,6 +235,18 @@ export default defineType({
       group: 'artikel',
       of: contentBlocks,
       components: editor,
+    }),
+    // Die Website setzt zu jedem genannten Spot mit Must Eat dessen Karte in
+    // den Text (nextjs/lib/article-must-eats.ts). Gespeichert werden nur die
+    // ausgeschalteten Karten.
+    defineField({
+      name: 'hiddenMustEats',
+      title: 'Must Eats im Artikel',
+      type: 'array',
+      group: 'artikel',
+      description: 'Kommen von selbst zu jedem genannten Spot. Ausschalten, wenn eine Karte hier nicht passt.',
+      of: [{type: 'reference', to: [{type: 'mustEat'}], weak: true}],
+      components: {input: ArticleMustEatsInput},
     }),
     defineField({
       name: 'category',

@@ -1,5 +1,4 @@
 import { expect, test, type Locator } from '@playwright/test';
-import { CONSENT_VERSION } from '../lib/consent';
 
 async function show(section: Locator) {
   await section.evaluate(e => {
@@ -8,10 +7,9 @@ async function show(section: Locator) {
     scroller.scrollTo({ top: e.getBoundingClientRect().top + (scroller === window ? scrollY : (scroller as HTMLElement).scrollTop) - 52, behavior: 'instant' });
   });
 }
-test.beforeEach(async ({ page, context, baseURL, browserName }) => {
+test.beforeEach(async ({ page, context, browserName }) => {
   await page.setViewportSize({ width: 874, height: 402 });
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
   if (browserName === 'chromium') {
     const cdp = await context.newCDPSession(page);
     await cdp.send('Emulation.setSafeAreaInsetsOverride', { insets: { top: 0, left: 59, right: 59, bottom: 21 } });

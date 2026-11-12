@@ -52,7 +52,6 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup();
-  document.documentElement.removeAttribute('data-consent-pending');
   vi.mocked(prefetchRestaurantDetail).mockClear();
   vi.mocked(loadMapSheetDetail).mockClear();
   vi.unstubAllGlobals();
@@ -144,18 +143,12 @@ describe('RestaurantList card photos', () => {
   const photos = (container: HTMLElement) =>
     [...container.querySelectorAll('[class*=rcardImg] img')] as HTMLImageElement[];
 
-  it('waits for the blocking consent question before preloading list photos and details', async () => {
-    document.documentElement.setAttribute('data-consent-pending', '');
+  it('preloads list photos and details once their cards come near', async () => {
     const { container } = render(list({ restaurants: photoSpots() }));
-    expect(observed).toHaveLength(0);
     expect(loadMapSheetDetail).not.toHaveBeenCalled();
     expect(photos(container)[0].getAttribute('loading')).toBe('eager');
 
     const { act } = await import('@testing-library/react');
-    await act(async () => {
-      document.documentElement.removeAttribute('data-consent-pending');
-      await Promise.resolve();
-    });
     expect(observed).toHaveLength(6);
     act(() => observed.forEach((cb) => cb([{ isIntersecting: true }])));
     expect(prefetchRestaurantDetail).toHaveBeenCalledWith('r-0');

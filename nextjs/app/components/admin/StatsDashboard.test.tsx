@@ -302,8 +302,7 @@ function summary(overrides: Partial<StatsSummary> = {}): StatsSummary {
       ],
     },
     search: { ok: true, data: search() },
-    live: { activeNow: 4, ga: 1, minutes: 30, at: '2026-08-31T10:00:00.000Z' },
-    ga: { ok: true, engagement: null, users: 400, days: [{ day: '2026-08-31', users: 30 }] },
+    live: { activeNow: 4, minutes: 30, at: '2026-08-31T10:00:00.000Z' },
     latest: {
       day: { day: '2026-08-30', pageviews: 372, visitors: 91 },
       vsPrevDay: {
@@ -340,12 +339,6 @@ function summary(overrides: Partial<StatsSummary> = {}): StatsSummary {
     exitDays: 4,
     funnel,
     dayDetails: { today: dayOf('2026-08-31', 19, 127), latest: dayOf('2026-08-30', 91, 372) },
-    consent: {
-      shown: 1139,
-      accepted: 57,
-      declined: 44,
-      ratePerView: 57 / 1139,
-    },
     ...overrides,
   };
   void count;
@@ -437,7 +430,7 @@ describe('StatsDashboard', () => {
           ok: true,
           status: 200,
           json: async () => ({
-            live: { activeNow: 9, ga: 2, minutes: 30, at: '2026-08-31T10:01:00.000Z' },
+            live: { activeNow: 9, minutes: 30, at: '2026-08-31T10:01:00.000Z' },
           }),
         });
       vi.stubGlobal('fetch', fetchMock);
@@ -451,22 +444,12 @@ describe('StatsDashboard', () => {
       await vi.advanceTimersByTimeAsync(60_000);
 
       await waitFor(() => expect(value()).toBe('9'));
-      expect(screen.getByText(/GA 2/)).toBeTruthy();
       expect(fetchMock).toHaveBeenLastCalledWith('/api/admin/stats?only=live', {
         headers: { Authorization: `Bearer token-123` },
       });
     } finally {
       vi.useRealTimers();
     }
-  });
-
-  it('trennt GA-Nutzer und Tagesbesucher auch im Quellenvergleich', async () => {
-    vi.stubGlobal('fetch', respondWith(summary()));
-    render(<StatsDashboard />);
-    await screen.findByText('Das solltest du prüfen');
-    expect(screen.queryByText(/aktive GA-Nutzer im Zeitraum/)).toBeNull();
-    openReport('Messung');
-    expect(await screen.findByText(/400 aktive GA-Nutzer im Zeitraum/)).toBeTruthy();
   });
 
   it('führt über die Wortmarke zurück zur Startseite', async () => {
@@ -641,23 +624,6 @@ describe('StatsDashboard', () => {
     openReport('Google-Suche');
 
     expect(await screen.findByText('sa@eat-this.iam')).toBeTruthy();
-  });
-
-  it('trennt Cookie-Antworten von Personen und Einblendungen', async () => {
-    vi.stubGlobal('fetch', respondWith(summary()));
-
-    render(<StatsDashboard />);
-    await waitFor(() => expect(screen.getAllByText('1.147').length).toBeGreaterThan(0));
-    openReport('Messung');
-    fireEvent.click(screen.getByRole('button', { name: 'Cookie-Dialog' }));
-
-    // Antworten und Einblendungen sind Ereignisse mit getrennten Nennern.
-    expect(await screen.findByText(/Anteil an den gezählten Antworten/)).toBeTruthy();
-    expect(screen.queryByText('antworten nicht')).toBeNull();
-    expect(
-      screen.getByText('Zustimmungen je Einblendung').previousElementSibling?.textContent
-    ).toBe('5,0 %');
-    expect(screen.getByText(/lehnen ab/)).toBeTruthy();
   });
 
   it('listet jedes Ereignis mit Anteil und Bewegung', async () => {

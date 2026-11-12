@@ -32,9 +32,10 @@ npm run build:basemap      # beide Map-Paletten
 
 ## Gewollte Produktlogik (nicht „reparieren“)
 
-- **Startseite:** Hero mit offenem, statischem Kartenfächer sofort anzeigen. Der Cookie-Dialog erscheint unabhängig davon. Remy bleibt als Figur und Chat auf der Seite.
+- **Startseite:** Hero mit offenem, statischem Kartenfächer sofort anzeigen. Remy bleibt als Figur und Chat auf der Seite.
 - **Must Eat aufdecken:** Angemeldet gibt `POST /api/must-eat-reveal` jede Karte frei, ohne Kauf und ohne Standortprüfung auf dem Server; die 50 m misst nur der Browser. Gebremst wird über das Ratenlimit je Konto (10/min, 15/Tag).
 - **Verdeckte Karte ohne Konto:** Der Tipp lässt die Karte kurz zittern und öffnet dann das Login-Modal im Starter-Modus, ohne Zwischenschritt. Die Erklärfolien (`MustEatsOnboarding`) kommen nur per „Wie funktioniert's?“, nie von selbst.
+- **Kein Cookie-Dialog, kein Google Analytics:** Gemessen wird nur über den eigenen Zähler (`/api/count`), der nichts im Browser speichert und darum keine Einwilligung braucht. Nichts einbauen, das ohne Zustimmung nicht laufen darf.
 - **Herzen:** `api/heart` schreibt Favorit und `heartCount` in einer Admin-Transaktion. Der Client schreibt den Zähler nie.
 - **Bestenlisten** kommen aus `topSpots` in Sanity; unter drei gültigen Einträgen entfällt die Liste.
 - **E-Mail-Link-Login:** Die Adresse kommt aus `emailForSignIn` oder erneuter Eingabe, nie aus Link-Parametern. Geschützte Routen prüfen mit Widerrufsprüfung.

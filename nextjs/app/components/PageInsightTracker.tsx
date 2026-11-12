@@ -201,10 +201,6 @@ export default function PageInsightTracker() {
       attributes: true,
       attributeFilter: ['data-detail-kind', 'aria-hidden', 'data-panel-hidden'],
     });
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['data-consent-pending', 'data-consent-gate'],
-    });
     return () => {
       unsubscribe();
       observer.disconnect();

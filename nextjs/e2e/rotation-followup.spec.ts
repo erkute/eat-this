@@ -1,9 +1,7 @@
 import { expect, test } from '@playwright/test';
-import { CONSENT_VERSION } from '../lib/consent';
 
-test('phone rotation keeps main views within the viewport', async ({ page, context, baseURL }, info) => {
+test('phone rotation keeps main views within the viewport', async ({ page }, info) => {
   test.skip(info.project.name !== 'desktop', 'Explicit viewport matrix.');
-  await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
   await page.emulateMedia({ reducedMotion: 'reduce' });
   for (const path of ['/', '/must-eats', '/map']) {
     await page.setViewportSize({ width: 390, height: 844 });
@@ -26,10 +24,9 @@ test('phone rotation keeps main views within the viewport', async ({ page, conte
   }
 });
 
-test('Remy browser ground matches the mobile panel in both themes', async ({ page, context, baseURL }, info) => {
+test('Remy browser ground matches the mobile panel in both themes', async ({ page }, info) => {
   test.skip(info.project.name !== 'desktop', 'Explicit viewport.');
   await page.setViewportSize({ width: 390, height: 844 });
-  await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
   await page.goto('/about');
   for (const theme of ['Hell', 'Dunkel']) {
     await page.getByRole('contentinfo').getByRole('button', { name: theme, exact: true }).click();

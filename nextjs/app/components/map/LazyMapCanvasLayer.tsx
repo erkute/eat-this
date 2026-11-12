@@ -3,7 +3,6 @@
 import { useEffect, useState, type ComponentProps } from 'react';
 import type MapCanvasLayer from './MapCanvasLayer';
 import styles from './MapLayout.module.css';
-import { afterConsentGate } from '@/lib/map/afterConsentGate';
 
 type Canvas = typeof MapCanvasLayer;
 
@@ -16,15 +15,13 @@ export default function LazyMapCanvasLayer(props: ComponentProps<Canvas>) {
 
   useEffect(() => {
     let active = true;
-    const cancel = afterConsentGate(() => {
-      void import('./MapCanvasLayer').then(
-        (module) => { if (active) setCanvas({ Component: module.default }); },
-        (reason: unknown) => {
-          if (active) setError(reason instanceof Error ? reason : new Error(String(reason)));
-        }
-      );
-    });
-    return () => { active = false; cancel(); };
+    void import('./MapCanvasLayer').then(
+      (module) => { if (active) setCanvas({ Component: module.default }); },
+      (reason: unknown) => {
+        if (active) setError(reason instanceof Error ? reason : new Error(String(reason)));
+      }
+    );
+    return () => { active = false; };
   }, []);
 
   if (error) throw error;

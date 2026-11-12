@@ -1,17 +1,10 @@
 import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { CONSENT_VERSION } from '../lib/consent';
 
 for (const locale of ['de', 'en'] as const) {
   test(`Must Eats invites visitors to try and browse the cards (${locale})`, async ({
     page,
-    context,
-    baseURL,
   }) => {
-    await page.route('**/api/consent', (route) => route.fulfill({ status: 204 }));
-    await context.addCookies([
-      { name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! },
-    ]);
     await page.emulateMedia({ reducedMotion: locale === 'en' ? 'reduce' : 'no-preference' });
     await page.goto(locale === 'de' ? '/' : '/en');
     const section = page.getByRole('region', { name: 'Must Eats.', exact: true });

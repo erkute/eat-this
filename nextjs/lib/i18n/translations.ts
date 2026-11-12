@@ -153,7 +153,6 @@ const en = {
     impressum: 'Impressum',
     datenschutz: 'Privacy',
     agb: 'Terms',
-    cookieSettings: 'Cookie settings',
     copyright: '\u00a9 2026 Eat This. All rights reserved.',
   },
   burger: {
@@ -282,14 +281,6 @@ const en = {
     errService: 'Service error — please try again later.',
     errNetwork: 'Network error — please try again.',
     errRateLimited: 'Too many attempts. Check your inbox — or try again in an hour.',
-  },
-  cookie: {
-    title: 'Cookies',
-    text: 'We use Google Analytics to understand how our site is used. This sets a cookie and sends data to Google.',
-    moreInfo: 'Show details',
-    lessInfo: 'Hide details',
-    accept: 'Accept',
-    decline: 'Decline',
   },
   modals: {
     agb: {
@@ -516,7 +507,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     contact: 'Kontakt',
     datenschutz: 'Datenschutz',
     agb: 'AGB',
-    cookieSettings: 'Cookies verwalten',
     copyright: '\u00a9 2026 Eat This. Alle Rechte vorbehalten.',
   },
   burger: {
@@ -531,14 +521,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     boosterPacks: 'Booster Packs',
     profile: 'Profil',
     signIn: 'Anmelden',
-  },
-  cookie: {
-    title: 'Cookies',
-    text: 'Wir nutzen Google Analytics, um zu verstehen, wie unsere Seite genutzt wird. Dafür wird ein Cookie gesetzt und Daten an Google übermittelt.',
-    moreInfo: 'Details anzeigen',
-    lessInfo: 'Details ausblenden',
-    accept: 'Akzeptieren',
-    decline: 'Ablehnen',
   },
   deck: {
     metaTitle: 'Ein Deck bei Eat This',
@@ -737,18 +719,3 @@ export function getCatalogMessages(locale: Lang, mustEatCount: number): Translat
     },
   };
 }
-
-
-/* ============================================
-   Modal bodies — structured, React-rendered.
-   Use {mail} as a placeholder for the contact email link.
-   Content is hardcoded here (not user input), currently English-only.
-   ============================================ */
-
-export type ModalBodySection = {
-  h: string;
-  p: string;
-  list?: Array<{ strong: string; text: string }>;
-};
-
-export const MODAL_CONTACT_EMAIL = 'hello@eatthisdot.com';

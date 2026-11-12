@@ -24,7 +24,7 @@ describe('first map location invitation', () => {
     delete window.showNotice;
   });
 
-  it('waits for permission and consent gates, and requests location only on Share', () => {
+  it('waits for permission, and requests location only on Share', () => {
     const locate = vi.fn();
     const { rerender } = renderHook(({ eligible }) => useLocationWelcome(eligible, 'de', locate), {
       initialProps: { eligible: false },

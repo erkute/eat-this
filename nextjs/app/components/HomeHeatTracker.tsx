@@ -108,18 +108,12 @@ export default function HomeHeatTracker() {
       });
     };
 
-    const observer = new MutationObserver(schedule);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['data-consent-pending', 'data-consent-gate'],
-    });
     measure();
     document.addEventListener('scroll', schedule, { capture: true, passive: true });
     window.addEventListener('resize', schedule, { passive: true });
     document.addEventListener('click', onClick, { capture: true });
     document.addEventListener('visibilitychange', onHide);
     return () => {
-      observer.disconnect();
       if (frame) window.cancelAnimationFrame(frame);
       document.removeEventListener('scroll', schedule, { capture: true });
       window.removeEventListener('resize', schedule);

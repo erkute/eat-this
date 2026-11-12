@@ -1,11 +1,8 @@
 import { expect, test } from '@playwright/test';
-import { CONSENT_VERSION } from '../lib/consent';
 
 for (const locale of ['de', 'en']) {
-  test(`signup fits phones, tablets and rotation without scrolling (${locale})`, async ({ page, context, baseURL }) => {
+  test(`signup fits phones, tablets and rotation without scrolling (${locale})`, async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
-    await page.route('**/api/consent', route => route.fulfill({ status: 204 }));
     await page.goto(locale === 'de' ? '/about' : '/en/about');
     await page.locator('#burgerBtn').click();
     await page.getByRole('dialog', { name: 'Navigation', exact: true }).getByRole('button', { name: locale === 'de' ? 'Anmelden' : 'Sign in', exact: true }).click();

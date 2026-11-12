@@ -1,8 +1,6 @@
 import {test,expect} from '@playwright/test';
 test.setTimeout(90000);
-import {CONSENT_VERSION} from '../lib/consent';
-for(const width of [667,844]) test(`spot return preserves landscape map controls ${width}`,async({page,context,baseURL})=>{
- await context.addCookies([{name:'cookieConsent',value:`declined.${CONSENT_VERSION}`,url:baseURL!}]);
+for(const width of [667,844]) test(`spot return preserves landscape map controls ${width}`,async({page})=>{
  await page.setViewportSize({width,height:390});
  await page.goto('/map',{waitUntil:'domcontentloaded'});
  await expect(page.locator('.maplibregl-marker').first()).toBeVisible({timeout:30000});
@@ -30,8 +28,7 @@ for(const width of [667,844]) test(`spot return preserves landscape map controls
  await expect(page.getByRole('dialog',{name:'Navigation'})).toBeVisible();
 });
 
-test('Must Eats landscape sizes use the short viewport',async({page,context,baseURL})=>{
- await context.addCookies([{name:'cookieConsent',value:`declined.${CONSENT_VERSION}`,url:baseURL!}]);
+test('Must Eats landscape sizes use the short viewport',async({page})=>{
  await page.setViewportSize({width:844,height:390});
  await page.goto('/must-eats');
  const title=page.locator('main h1');

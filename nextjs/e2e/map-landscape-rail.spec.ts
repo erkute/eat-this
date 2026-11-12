@@ -1,9 +1,7 @@
 import { expect, test } from '@playwright/test';
-import { CONSENT_VERSION } from '../lib/consent';
 
-test('landscape filters stay above the right-hand list through scrolling and rotation', async ({ page, context, baseURL }, info) => {
+test('landscape filters stay above the right-hand list through scrolling and rotation', async ({ page }, info) => {
   test.skip(info.project.name === 'desktop', 'Touch viewport matrix.');
-  await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/map');
   const sheet = page.locator('[data-map-sheet]');

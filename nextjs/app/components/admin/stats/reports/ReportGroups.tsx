@@ -7,7 +7,6 @@ import Revenue from './Revenue';
 import Measurement from './Measurement';
 import FunnelReport from './FunnelReport';
 import EventsReport from './EventsReport';
-import ConsentReport from './ConsentReport';
 import styles from '../../StatsDashboard.module.css';
 function Choices({
   values,
@@ -103,17 +102,14 @@ export function MeasurementReport({ data }: { data: StatsSummary }) {
           { key: 'quality', label: 'Zahlenqualität' },
           { key: 'actions', label: 'Produktaktionen' },
           { key: 'events', label: 'Alle Ereignisse' },
-          { key: 'consent', label: 'Cookie-Dialog' },
         ]}
       />
       {tab === 'quality' ? (
         <Measurement data={data} />
       ) : tab === 'actions' ? (
         <FunnelReport data={data} />
-      ) : tab === 'events' ? (
-        <EventsReport data={data} />
       ) : (
-        <ConsentReport data={data} />
+        <EventsReport data={data} />
       )}
     </>
   );

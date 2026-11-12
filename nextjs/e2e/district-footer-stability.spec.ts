@@ -1,9 +1,4 @@
 import { expect, test } from '@playwright/test';
-import { CONSENT_VERSION } from '../lib/consent';
-
-test.beforeEach(async ({ context, baseURL }) => {
-  await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
-});
 
 test('footer reserves its logo space before the lazy image loads', async ({ page }) => {
   let releaseLogo!: () => void;

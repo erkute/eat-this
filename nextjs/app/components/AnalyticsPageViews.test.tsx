@@ -6,8 +6,6 @@ const mocks = vi.hoisted(() => ({
   pathname: '/map',
   search: '',
   countView: vi.fn(),
-  loadAnalytics: vi.fn(),
-  trackEvent: vi.fn(),
 }));
 
 vi.mock('next/navigation', () => ({
@@ -16,9 +14,6 @@ vi.mock('next/navigation', () => ({
 
 vi.mock('@/lib/analytics', () => ({
   countView: mocks.countView,
-  loadAnalytics: mocks.loadAnalytics,
-  trackEvent: mocks.trackEvent,
-  getAnalyticsPageLocation: (href: string) => ({ pageLocation: href, pagePath: mocks.pathname }),
 }));
 
 import AnalyticsPageViews from './AnalyticsPageViews';
@@ -34,8 +29,6 @@ function setUrl(pathname: string, search: string) {
 describe('AnalyticsPageViews', () => {
   beforeEach(() => {
     mocks.countView.mockReset();
-    mocks.trackEvent.mockReset();
-    mocks.loadAnalytics.mockReset();
     setUrl('/map', '');
   });
 
@@ -45,7 +38,6 @@ describe('AnalyticsPageViews', () => {
     render(<AnalyticsPageViews />);
 
     expect(mocks.countView).toHaveBeenCalledTimes(1);
-    expect(mocks.trackEvent).toHaveBeenCalledWith('page_view', expect.anything());
   });
 
   it('zählt einen Wechsel der Seite', () => {
@@ -73,7 +65,6 @@ describe('AnalyticsPageViews', () => {
     view.rerender(<AnalyticsPageViews />);
 
     expect(mocks.countView).toHaveBeenCalledTimes(1);
-    expect(mocks.trackEvent).toHaveBeenCalledTimes(1);
   });
 
   it('zählt wieder, sobald der Pfad nach Filterwechseln wirklich wechselt', () => {

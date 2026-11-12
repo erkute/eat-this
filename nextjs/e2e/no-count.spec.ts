@@ -8,7 +8,7 @@ for (const locale of ['de', 'en'] as const) {
     const include = locale === 'en' ? 'Count me again' : 'Wieder mitzählen';
     const measurements: string[] = [];
     page.on('request', (request) => {
-      if (/\/api\/count(?:\?|$)|googletagmanager\.com|google-analytics\.com/.test(request.url())) {
+      if (/\/api\/count(?:\?|$)/.test(request.url())) {
         measurements.push(request.url());
       }
     });

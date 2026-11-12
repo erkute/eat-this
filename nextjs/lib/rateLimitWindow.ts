@@ -4,7 +4,7 @@
 // Schluessel in `buddyRateLimits`.
 //
 // Er lag bis 08.09.2026 als `checkRateLimit` unter `lib/buddy/` — obwohl
-// /api/count, /api/consent, /api/heart und /api/must-eat-reveal ihn genauso
+// /api/count, /api/heart und /api/must-eat-reveal ihn genauso
 // benutzen. Zwei gleichnamige Funktionen mit verschiedener Semantik
 // (`lib/rateLimit.ts` zaehlt EIN Fenster und entscheidet die Fehlerpolitik
 // selbst) sind eine Falle: ein Import-Vertipper tauscht lautlos Verhalten aus.

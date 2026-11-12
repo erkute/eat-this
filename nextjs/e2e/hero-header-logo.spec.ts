@@ -1,9 +1,7 @@
 import { expect, test } from '@playwright/test';
-import { CONSENT_VERSION } from '../lib/consent';
 
 for (const reducedMotion of ['reduce', 'no-preference'] as const) {
-  test(`header logo appears after the hero logo leaves (${reducedMotion})`, async ({ page, context, baseURL }) => {
-    await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
+  test(`header logo appears after the hero logo leaves (${reducedMotion})`, async ({ page }) => {
     await page.emulateMedia({ reducedMotion });
     await page.goto('/');
     const mark = page.locator('[data-hero-mark]');

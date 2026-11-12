@@ -152,7 +152,7 @@ export default async function middleware(req: NextRequest) {
     return finalizeResponse(NextResponse.next());
   }
 
-  // Standalone opt-out: no locale layout, consent dialog or analytics. Keep
+  // Standalone opt-out: no locale layout or counting. Keep
   // both public languages on the same server-rendered tool, outside /admin.
   if (pathname === '/no-count' || pathname === '/en/no-count') {
     const headers = new Headers(req.headers);

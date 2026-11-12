@@ -1,10 +1,7 @@
 import { expect, test } from '@playwright/test';
-import { CONSENT_VERSION } from '../lib/consent';
 
 for (const theme of ['light', 'dark'] as const) {
-  test(`district directory and truthful share feedback (${theme})`, async ({ page, context, baseURL }, info) => {
-    await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
-    await page.route('**/api/consent', route => route.fulfill({ status: 204 }));
+  test(`district directory and truthful share feedback (${theme})`, async ({ page }, info) => {
     await page.addInitScript(value => {
       localStorage.setItem('et-theme', value);
       Object.defineProperty(navigator, 'share', { value: undefined });

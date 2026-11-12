@@ -1,12 +1,9 @@
 import { expect, test } from '@playwright/test';
-import { CONSENT_VERSION } from '../lib/consent';
 
 for (const width of [390, 1440]) {
-  test(`Remy title bar and close control stay aligned after sending at ${width}px`, async ({ page, context, baseURL }) => {
+  test(`Remy title bar and close control stay aligned after sending at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
-    await page.route('**/api/consent', route => route.fulfill({ status: 204 }));
     await page.route('**/api/buddy', route => route.fulfill({ contentType: 'application/x-ndjson', body: '{"type":"text","value":"Hier ist dein Tipp."}\n{"type":"done"}\n' }));
     await page.goto('/about');
     await page.locator('#burgerBtn').click();

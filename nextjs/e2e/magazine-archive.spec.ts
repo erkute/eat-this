@@ -1,13 +1,10 @@
 import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { CONSENT_VERSION } from '../lib/consent';
 
 for (const locale of ['de', 'en'] as const) {
   for (const [width, height, reduced] of [[375, 812, false], [568, 320, true], [667, 375, true], [1440, 1000, false]] as const) {
-    test(`magazine archive ${locale} ${width}x${height}`, async ({ page, context, baseURL, isMobile }) => {
+    test(`magazine archive ${locale} ${width}x${height}`, async ({ page, isMobile }) => {
       test.skip(isMobile ? width === 1440 : width !== 1440, 'Phone projects use phone viewports; the desktop project uses the desktop viewport.');
-      await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
-      await page.route('**/api/consent', route => route.fulfill({ status: 204 }));
       await page.setViewportSize({ width, height });
       await page.emulateMedia({ reducedMotion: reduced ? 'reduce' : 'no-preference' });
       await page.goto(`${locale === 'en' ? '/en' : ''}/news`);

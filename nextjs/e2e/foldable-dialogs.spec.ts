@@ -9,7 +9,6 @@ for (const orientation of ['vertical', 'horizontal'] as const) {
       const viewport = orientation === 'vertical' ? { width: span, height: 720 } : { width: 720, height: span };
       await page.setViewportSize(viewport);
       await page.emulateMedia({ reducedMotion: 'reduce' });
-      await page.route('**/api/consent', route => route.fulfill({ status: 204 }));
       await page.goto('/about');
       const cdp = await context.newCDPSession(page);
       await cdp.send('Emulation.setDeviceMetricsOverride', {
@@ -30,8 +29,6 @@ for (const orientation of ['vertical', 'horizontal'] as const) {
             box.right <= bounds.right + 1 && box.bottom <= bounds.bottom + 1 && el.scrollWidth <= el.clientWidth + 1;
         }, segment)).toBe(true);
       };
-      await fits('.cookie-consent:visible');
-      await page.getByRole('button', { name: 'Ablehnen', exact: true }).click();
       await page.locator('#burgerBtn').click();
       await fits('[role="dialog"][aria-label="Navigation"]');
       await expect.poll(() => page.locator('[role="dialog"][aria-label="Navigation"] [class*="scroller"]').evaluate(el => el.scrollHeight - el.clientHeight), { message: 'All Duo menu actions must fit without scrolling' }).toBeLessThanOrEqual(1);

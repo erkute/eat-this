@@ -65,13 +65,11 @@ afterEach(() => {
   gate.pending = null;
   cleanup();
   document.body.innerHTML = '';
-  document.documentElement.removeAttribute('data-consent-pending');
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
 });
 
-it('preloads only nearby individual photos after the consent question closes', async () => {
-  document.documentElement.setAttribute('data-consent-pending', '');
+it('preloads only nearby individual photos', async () => {
   document.body.innerHTML = '<section data-hub-magazine><img loading="lazy" src="/cover.webp"><img loading="lazy" src="/distant.webp"></section>';
   vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue([{}] as unknown as DOMRectList);
   const observed: Element[] = [];
@@ -84,9 +82,7 @@ it('preloads only nearby individual photos after the consent question closes', a
   });
   render(<HubMotion />);
   const [near, distant] = document.querySelectorAll('img');
-  expect(observed).toEqual([]);
   expect(near.loading ?? near.getAttribute('loading')).toBe('lazy');
-  await act(async () => { document.documentElement.removeAttribute('data-consent-pending'); });
   expect(observed).toEqual([near, distant]);
   act(() => notify([{
     target: near,

@@ -1,9 +1,6 @@
 'use client';
 import { channelHint } from '@/lib/analytics/channels';
 import { publishInsightEvent } from '@/lib/analytics/eventSignals';
-
-import { readConsent } from '@/lib/consent';
-import { EMAIL_LINK_PARAMS } from '@/lib/auth/emailLinkParams';
 import { isAutomated } from '@/lib/analytics/botFilter';
 import {
   hasNoCountCookie,
@@ -13,77 +10,9 @@ import {
 
 type AnalyticsParams = Record<string, string | number | boolean | undefined>;
 
-interface AnalyticsWindow extends Window {
-  __gaLoaded?: boolean;
-  __eatThisAnalyticsNetworkCheck?: Promise<boolean>;
-  __eatThisAnalyticsNetworkExcluded?: boolean;
-  dataLayer?: unknown[];
-  gtag?: (...args: unknown[]) => void;
-  __eatThisAnalyticsQueue?: Array<{ name: string; params?: AnalyticsParams }>;
-}
-
-const GA_ID = 'G-8EWFYGPNTT';
-/* Was niemals in einer Analytics-URL stehen darf. `session_id` kam von Stripe.
- * Der Rest ist der Link aus der Anmelde-Mail (lib/auth/emailLinkParams.ts):
- * `oobCode` ist ein einlösbares Anmelde-Token, `e` die Mailadresse — beides
- * landete sonst im `page_location`. EmailLinkSignIn räumt die Adresszeile
- * sofort auf; das hier fängt ab, was davor schon gezählt wird.
- * `continueUrl` und `email` sind Träger älterer Links. */
-const SENSITIVE_QUERY_PARAMS = ['session_id', ...EMAIL_LINK_PARAMS, 'continueUrl', 'email'];
-
-export function getAnalyticsPageLocation(href: string): {
-  pageLocation: string;
-  pagePath: string;
-} {
-  const url = new URL(href);
-  for (const name of SENSITIVE_QUERY_PARAMS) url.searchParams.delete(name);
-  return {
-    pageLocation: url.toString(),
-    pagePath: `${url.pathname}${url.search}`,
-  };
-}
-
-function analyticsWindow(): AnalyticsWindow | null {
-  return typeof window === 'undefined' ? null : (window as AnalyticsWindow);
-}
-
-/* Reads the consent COOKIE, not localStorage. When consent moved to a cookie
- * (so the pre-paint bootstrap could reserve the banner's height, see
- * lib/consent.ts) this gate had to move with it: the migration removes the old
- * localStorage key, so a localStorage read would report "no consent" for every
- * user who had already accepted, and analytics would go quiet for them. */
-function hasConsent(): boolean {
-  try {
-    return readConsent() === 'accepted';
-  } catch {
-    return false;
-  }
-}
-
-/* Nur diese beiden Hosts sind die Seite. Alles andere — localhost, LAN-IPs,
- * beide Staging-Backends — schrieb bis 28.08.2026 in dieselbe GA-Property:
- * 59 % aller Sitzungen ueber 90 Tage waren gar keine Besucher, und am 27.08.
- * erzeugte localhost allein doppelt so viele Seitenaufrufe wie die Produktion.
- * /api/count hatte diesen Riegel von Anfang an, GA nicht.
- *
- * Der Host ist die ganze Pruefung, und zwar bewusst: NODE_ENV waere hier
- * wirkungslos, weil Staging einen Produktions-Build faehrt — dort ist
- * NODE_ENV === 'production'. Umgekehrt deckt der Host auch die Entwicklung ab,
- * egal ob sie unter localhost, 127.0.0.1 oder einer LAN-Adresse laeuft. Eine
- * zusaetzliche NODE_ENV-Abfrage haette also nichts gefangen, was hier nicht
- * schon haengenbleibt. */
-const ANALYTICS_HOSTS = new Set(['www.eatthisdot.com', 'eatthisdot.com']);
-
-export function isAnalyticsHost(hostname: string): boolean {
-  return ANALYTICS_HOSTS.has(hostname);
-}
-
-/* Wer auch mit Zustimmung nicht in GA gehoert — dieselben Riegel, die der
- * Zaehler hat (app/api/count/route.ts). GA hatte sie nicht: im Abgleich vom
- * 28.09.2026 standen /admin/stats (64 Aufrufe) und /profile (97 von 4
- * Nutzern) in den Top 5 der Seiten, desktop Chrome aus Berlin trug 172 der
- * 281 Aufrufe der Startseite — der Betreiber, sein Test-Konto und der
- * Browser der Claude-App, der bei jedem Smoke-Test zustimmt. */
+/* Wer nicht mitgezaehlt wird: der Betreiber (Nicht-mitzaehlen-Cookie, Aufrufe
+ * aus der lokalen Entwicklung), Browser mit Do-Not-Track oder Global Privacy
+ * Control, Automaten, eingebettete Ansichten und der Admin-Bereich. */
 function isOwnOrAutomated(): boolean {
   if (hasNoCountCookie(document.cookie) || isLocalAnalyticsUrl(document.referrer)) return true;
   if (
@@ -98,20 +27,9 @@ function isOwnOrAutomated(): boolean {
   return /^\/(en\/)?admin(\/|$)/.test(window.location.pathname);
 }
 
-/* Die Bedingung fuer ALLES, was Richtung Google geht — nicht nur fuers Laden.
- * Sonst fuellt sich auf Staging die Warteschlange in trackEvent unbegrenzt:
- * Zustimmung liegt vor, gtag kommt aber nie. */
-function gaEnabled(): boolean {
-  if (!hasConsent()) return false;
-  if (typeof window === 'undefined' || !isAnalyticsHost(window.location.hostname)) return false;
-  return !isOwnOrAutomated() && !analyticsWindow()?.__eatThisAnalyticsNetworkExcluded;
-}
-
-/* ── Consent-free counting ───────────────────────────────────────────────────
+/* ── Counting ────────────────────────────────────────────────────────────────
  *
- * A second, much smaller pipe that runs for EVERYONE, next to GA4 rather than
- * instead of it. GA needs consent and consent is a minority, so on its own it
- * reported about a third of the real traffic with no way to tell which third.
+ * The site's only measurement. It needs no consent and runs for everyone.
  *
  * The counter creates no client identifier and writes no browser storage.
  * It reads only the explicit no-count preference to suppress test visits,
@@ -296,87 +214,10 @@ function countEventWithQualifier(name: string, params?: AnalyticsParams): void {
   if (qualified) countEvent(qualified);
 }
 
-/** Send a GA4 event only after analytics consent. Events fired shortly before
- * gtag finishes loading are queued; pre-consent behavior is never replayed.
- *
- * The consent-free counter fires FIRST and unconditionally: it is the half of
- * this function that must not depend on an answer. Everything below the fan-out
- * is GA and stays behind consent, unchanged. */
+/** Count a named event and tell the on-page insight listeners about it. */
 export function trackEvent(name: string, params?: AnalyticsParams): void {
   publishInsightEvent(name);
   countEventWithQualifier(name, params);
-  const w = analyticsWindow();
-  if (!w || !gaEnabled()) return;
-  if (w.gtag) {
-    w.gtag('event', name, params ?? {});
-    return;
-  }
-  w.__eatThisAnalyticsQueue ??= [];
-  w.__eatThisAnalyticsQueue.push({ name, params });
-}
-
-/** Flush events queued between an accepted consent state and gtag loading. */
-export function flushAnalyticsQueue(): void {
-  const w = analyticsWindow();
-  if (!w?.gtag || !gaEnabled()) return;
-  const pending = w.__eatThisAnalyticsQueue ?? [];
-  w.__eatThisAnalyticsQueue = [];
-  for (const event of pending) w.gtag('event', event.name, event.params ?? {});
-}
-
-/** Load GA4 on any route when consent was granted earlier. Configuration does
- * not auto-send pageviews; AnalyticsPageViews owns initial + soft-nav views.
- *
- * Dafuer muss im Web-Stream „Seitenaufrufe bei Browserverlaufs-Ereignissen"
- * AUS sein (Admin → Datenstreams → Erweiterte Messung). Es stand bis
- * 28.09.2026 an: jeder Seitenwechsel kam doppelt an, und jedes `?r=`/`?q=`,
- * das die Karte in die Adresse schreibt, zaehlte als eigener Aufruf — /map
- * hatte 378 Aufrufe von 26 Nutzern. `send_page_view: false` schaltet nur den
- * ersten Aufruf ab, nicht diesen Mechanismus. */
-export async function loadAnalytics(): Promise<void> {
-  const w = analyticsWindow();
-  if (!w || !gaEnabled() || w.__gaLoaded) return;
-  // Einmal pro Dokument, auch wenn CookieConsent und AnalyticsPageViews
-  // gleichzeitig laden. Bis zur Antwort bleibt jede Nachricht lokal in der
-  // Warteschlange; bei Ausschluss oder Fehler wird nichts an Google gesendet.
-  w.__eatThisAnalyticsNetworkCheck ??= Promise.resolve()
-    .then(() =>
-      fetch(COUNT_ENDPOINT, {
-        cache: 'no-store',
-        credentials: 'same-origin',
-      })
-    )
-    .then(async (response) => {
-      const result: unknown = response.ok ? await response.json() : null;
-      return (
-        typeof result === 'object' &&
-        result !== null &&
-        'excluded' in result &&
-        result.excluded === false
-      );
-    })
-    .catch(() => false);
-  const allowed = await w.__eatThisAnalyticsNetworkCheck;
-  w.__eatThisAnalyticsNetworkExcluded = !allowed;
-  if (!allowed) w.__eatThisAnalyticsQueue = [];
-  // Während der Anfrage kann die Einwilligung widerrufen oder der lokale
-  // Ausschluss gesetzt worden sein. Ein zweiter Aufrufer darf GA nicht duplizieren.
-  if (!gaEnabled() || w.__gaLoaded) return;
-  w.__gaLoaded = true;
-
-  const script = document.createElement('script');
-  script.async = true;
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
-  document.head.appendChild(script);
-
-  w.dataLayer = w.dataLayer || [];
-  w.gtag = function () {
-    // eslint-disable-next-line prefer-rest-params
-    w.dataLayer!.push(arguments);
-  };
-  w.gtag('js', new Date());
-  w.gtag('config', GA_ID, { send_page_view: false });
-  flushAnalyticsQueue();
 }
 
 /** Session-scoped dedupe for events that may remount during App Router flows. */

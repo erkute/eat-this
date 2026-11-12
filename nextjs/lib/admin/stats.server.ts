@@ -20,7 +20,6 @@ import {
  */
 
 import { measureDay, type MeasurementDay } from '@/lib/admin/pageStats';
-import type { GaResult } from '@/lib/admin/googleAnalytics.server';
 import type { SearchResult } from '@/lib/admin/searchConsole';
 import { REVEALED_TARGET } from '@/lib/map/revealed-must-eats';
 import { STARTER_PACK_CARDS } from '@/lib/starter-pack';
@@ -310,20 +309,16 @@ export interface DaySummary {
 }
 
 /**
- * Der erste Tag, an dem `entryPaths`, `continuations` und der Cookie-Dialog
- * den GANZEN Tag gezaehlt wurden. Der Rollout kam am Abend des 28.08.2026: der
- * Tag traegt 19 Fortsetzungen auf 874 Aufrufe und 127 Einblendungen bei 111
- * Besuchern. Halb gezaehlt macht er jeden Aufruf des Vormittags zum Ausstieg
- * und jeden Besucher zum Nicht-Antworter — darum faellt er raus, obwohl er die
- * Felder traegt.
+ * Der erste Tag, an dem `entryPaths` und `continuations` den GANZEN Tag
+ * gezaehlt wurden. Der Rollout kam am Abend des 28.08.2026: der Tag traegt 19
+ * Fortsetzungen auf 874 Aufrufe. Halb gezaehlt macht er jeden Aufruf des
+ * Vormittags zum Ausstieg — darum faellt er raus, obwohl er die Felder traegt.
  */
 export const FULL_DAY_FIELDS_SINCE = '2026-08-29';
 
 /** Besucher mit einem Beacon in den letzten `minutes` Minuten, Stand `at`. */
 export interface Live {
   activeNow: number;
-  /** Dieselbe Frage an GA — nur Zustimmende; null, wenn GA nicht antwortete. */
-  ga: number | null;
   minutes: number;
   at: string;
 }
@@ -353,8 +348,6 @@ export interface StatsSummary {
   deck: Deck | null;
   /** „Gerade aktiv" — unabhaengig vom Zeitraum; null, wenn die Abfrage scheiterte. */
   live: Live | null;
-  /** GA4-Nutzer im Fenster (lib/admin/googleAnalytics.server.ts); null, wenn nicht angefragt. */
-  ga: GaResult | null;
   /**
    * Der jüngste abgeschlossene Tag — beim Morgenkaffee die Zahl, die zählt.
    * `today` steht getrennt daneben, weil ein laufender Tag naturgemäß niedrig
@@ -407,13 +400,6 @@ export interface StatsSummary {
   funnel: Funnel;
   /** Heute (falls im Fenster) und der jüngste abgeschlossene Tag, ausgebreitet. */
   dayDetails: { today: DaySummary | null; latest: DaySummary | null };
-  /** Gezählte Dialog-Einblendungen und Antworten, keine eindeutigen Personen. */
-  consent: {
-    shown: number;
-    accepted: number;
-    declined: number;
-    ratePerView: number | null;
-  };
 }
 
 /* ── Kalender ─────────────────────────────────────────────────────────── */
@@ -793,7 +779,6 @@ interface SummarizeOptions {
   search?: SearchResult | null;
   deck?: Deck | null;
   live?: Live | null;
-  ga?: GaResult | null;
   insights?: InsightDoc[];
 }
 
@@ -807,14 +792,7 @@ export function summarize(
   before: DailyDoc[] = [],
   options: SummarizeOptions = {}
 ): StatsSummary {
-  const {
-    today = '',
-    accounts = null,
-    search = null,
-    deck = null,
-    live = null,
-    ga = null,
-  } = options;
+  const { today = '', accounts = null, search = null, deck = null, live = null } = options;
   const fill = (input: DailyDoc[], start: string, end: string): DailyDoc[] => {
     const byDay = new Map(input.map((doc) => [doc.day, doc]));
     return eachDay(start, end).map((day) => byDay.get(day) ?? { day });
@@ -849,10 +827,6 @@ export function summarize(
   const eventsByDay: EventDay[] = [];
   let pageviews = 0;
   let visitors = 0;
-  // Einblendungen und Antworten sind getrennte Ereigniszähler.
-  let consentShown = 0;
-  let consentAccepted = 0;
-  let consentDeclined = 0;
 
   for (const doc of sorted) {
     const point = pointOf(doc);
@@ -877,14 +851,6 @@ export function summarize(
       exitDays += 1;
       addInto(exitViews, doc.paths);
       addInto(exitContinued, doc.continuations);
-    }
-
-    if (fullDay && num(doc.events?.consent_gate_shown) > 0) {
-      consentShown += num(doc.events?.consent_gate_shown);
-    }
-    if (fullDay) {
-      consentAccepted += num(doc.events?.consent_accepted);
-      consentDeclined += num(doc.events?.consent_declined);
     }
   }
 
@@ -946,7 +912,6 @@ export function summarize(
     accounts,
     deck,
     live,
-    ga,
     latest: {
       day: latestDay,
       vsPrevDay: compare(latestDay, latestDay ? docAt(dayBefore(latestDay.day)) : undefined),
@@ -997,12 +962,6 @@ export function summarize(
     dayDetails: {
       today: todayDoc ? summarizeDay(todayDoc, docAt, peopleAt(todayDoc.day)) : null,
       latest: latestDoc ? summarizeDay(latestDoc, docAt, peopleAt(latestDoc.day)) : null,
-    },
-    consent: {
-      shown: consentShown,
-      accepted: consentAccepted,
-      declined: consentDeclined,
-      ratePerView: consentShown > 0 ? consentAccepted / consentShown : null,
     },
   };
 }

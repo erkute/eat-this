@@ -9,17 +9,14 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getPublicDeck, type PublicDeckCard } from '@/lib/profile/publicDeck.server';
 import { SITE_URL } from '@/lib/constants';
 import { toOgLocale } from '@/lib/seo/metadata';
-import styles from '@/app/components/profile/Profile.module.css';
-import ProfilePlayerCard from '@/app/components/profile/ProfilePlayerCard';
 import DeckActions from './DeckActions';
-import tour from '@/app/components/Tour.module.css';
 import deck from './Deck.module.css';
 
 const CARD_BACK = '/pics/card-back.webp?v=20261028';
 const FAN_ORDER = { shown: 0, held: 1, missing: 2 } as const;
-/* Vier Karten plus die Spielerkarte — mehr passt am Telefon nicht in die
-   Bildflaeche, ohne dass eine Karte zur Briefmarke wird. */
-const FAN_SIZE = 4;
+/* Mehr passt am Telefon nicht auf die Tafel, ohne dass eine Karte zur
+   Briefmarke wird. */
+const FAN_SIZE = 5;
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -127,24 +124,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 /**
- * Ein Deck, oeffentlich und verkuerzt — die Seite, die man herumschickt.
+ * Ein Deck, oeffentlich und verkuerzt: die Seite, die man herumschickt.
  *
  * Sie zeigt keine Gerichte ausser dem oeffentlichen Satz, keine Spot-Namen
- * und keine Notizen — was hier steht, ist in `PublicDeck` aufgezaehlt, und
+ * und keine Notizen. Was hier steht, ist in `PublicDeck` aufgezaehlt, und
  * was dort fehlt, verlaesst den Server nicht (siehe publicDeck.server.ts).
  *
- * KURZ, mit Absicht (Nutzer, 24.09.2026: „kurz, knapp und geil muss es sein
- * fuer den Freund, der das bekommt … es muss Bock auf die Map machen. Mehr
- * brauche ich nicht."). Bis dahin trug die Seite eine Kartenwand ueber zwei
- * Bildschirme, Bezirks-Balken, eine Erklaer-Tafel mit Kartenpaar und drei
- * Schritten und darunter das ganze Anmeldeformular. Jetzt: wessen Deck, ein
- * Faecher aus ein paar Karten, zwei Saetze, was ein Must Eat ist, und der
- * Weg auf die Map.
+ * Ein Plakat aus zwei Flaechen: auf der Ink-Tafel ein Faecher aus Must Eat
+ * Karten, auf dem Papier der Stand als Satz um eine grosse Zahl, die Frage
+ * an den Freund und der Weg auf die Map.
  *
- * Das Anmeldeformular braucht die Seite dafuer nicht mehr: der Link, den das
- * Profil teilt, traegt `?ref=<uid>`, die Middleware setzt daraus das Cookie,
- * und sowohl die Google-Anmeldung als auch `send-magic-link` lesen es — egal,
- * ob sich jemand hier, auf der Map oder eine Woche spaeter anmeldet.
+ * Ein Anmeldeformular braucht die Seite nicht: der Link, den das Profil
+ * teilt, traegt `?ref=<uid>`, die Middleware setzt daraus das Cookie, und
+ * sowohl die Google-Anmeldung als auch `send-magic-link` lesen es, egal, ob
+ * sich jemand hier, auf der Map oder eine Woche spaeter anmeldet.
  */
 export default async function DeckPage({ params }: PageProps) {
   const { locale, uid } = await params;
@@ -162,15 +155,12 @@ export default async function DeckPage({ params }: PageProps) {
 
   /* Ein paar Karten, keine Wand: offene zuerst, dann gesammelte, dann
      fehlende. Die Sortierung nimmt den Karten ihre Position im Stapel, also
-     verraet der Faecher nicht, WELCHE Karte verdeckt gesammelt ist. In der
-     Mitte steht die Spielerkarte, die Karten liegen links und rechts. */
+     verraet der Faecher nicht, WELCHE Karte verdeckt gesammelt ist. */
   const picked = [...data.cards]
     .sort((a, b) => FAN_ORDER[a.kind] - FAN_ORDER[b.kind])
     .slice(0, FAN_SIZE);
-  const name = data.name ?? t('anonymous');
 
-  /* Der Stand als Herausforderung (Nutzer, 24.09.2026: „es muss wie eine
-     Challenge klingen, so: Ersan hat 14 von … Must Eats"). */
+  /* Der Stand als Herausforderung, in einem Stueck fuer Screenreader. */
   const full = data.total > 0 && data.revealed === data.total;
   const counts = { done: data.revealed, total: data.total };
   const challenge = data.name
@@ -181,96 +171,86 @@ export default async function DeckPage({ params }: PageProps) {
   const dare = data.revealed === 0 ? t('dareStart') : full ? t('dareFull') : t('dare');
 
   return (
-    <main className={`homeV2 ${styles.page} ${deck.page}`} data-menu>
-      {/* Wie ein Layer (Nutzer, 24.09.2026: „sieht aus wie schlechte Ordnung
-          und Design, mach mehr wie ein Layer"): dieselbe Huelle wie Onboarding
-          und Anmeldung (Tour.module.css) — Bild links bzw. oben,
-          Text rechts, der gelbe Knopf unten rechts. Nur liegt sie hier auf der
-          Seite statt ueber ihr. */}
-      <div className={`hv-wrap ${deck.stage}`}>
-        <section className={`${tour.panel} ${deck.sheet}`} aria-labelledby="deck-title">
-          {/* Ohne Kopfzeile: „Eat This · Berlin Food Map" stand direkt unter
-              dem Logo der Navigation (Nutzer, 24.09.2026: „das auch komisch"). */}
-          <div className={tour.content}>
-            <div className={tour.art}>
-              <ul className={deck.fan}>
-                {fanSlots(picked).map((slot) => {
-                  const style = {
-                    '--fan-i': slot.at,
-                    '--fan-d': Math.abs(slot.at),
-                    zIndex: 10 - Math.abs(slot.at) * 2,
-                  } as CSSProperties;
-                  if (slot.kind === 'player') {
-                    return (
-                      <li
-                        key="player"
-                        className={`${deck.fanItem} ${deck.fanPlayer}`}
-                        style={style}
-                      >
-                        <ProfilePlayerCard name={name} avatarIdx={data.avatar} />
-                      </li>
-                    );
-                  }
-                  const card = slot.card;
-                  return (
-                    <li key={slot.at} className={deck.fanItem} style={style}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        className={
-                          card.kind === 'missing'
-                            ? deck.cardMissing
-                            : card.kind === 'held'
-                              ? deck.cardBack
-                              : undefined
-                        }
-                        src={card.kind === 'shown' ? card.image : CARD_BACK}
-                        alt=""
-                        decoding="async"
-                      />
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-            {/* Kein Kicker „Ersans Deck" darueber (Nutzer, 24.09.2026): der Satz
-                nennt den Namen schon. */}
-            <div className={`${tour.copy} ${deck.copy}`}>
-              <h1 id="deck-title" className={tour.headline}>
-                {challenge} <span className={deck.dare}>{dare}</span>
-              </h1>
-              {/* Werbung fuer beides: Eat This selbst und das Sammeln. */}
-              <dl className={deck.points}>
-                <div className={deck.point}>
-                  <dt className={deck.pointLabel}>{t('mapLabel')}</dt>
-                  <dd className={deck.pointBody}>{t('mapBody')}</dd>
-                </div>
-                <div className={deck.point}>
-                  <dt className={deck.pointLabel}>{t('collectLabel')}</dt>
-                  <dd className={deck.pointBody}>{t('collectBody')}</dd>
-                </div>
-              </dl>
-            </div>
+    <main className={`homeV2 ${deck.page}`} data-menu>
+      <div className={deck.poster}>
+        <div className={deck.board}>
+          <ul className={deck.fan}>
+            {fanSlots(picked).map((slot) => {
+              const style = {
+                '--fan-i': slot.at,
+                '--fan-d': Math.abs(slot.at),
+                zIndex: 10 - Math.abs(slot.at) * 2,
+              } as CSSProperties;
+              const card = slot.card;
+              return (
+                <li key={slot.at} className={deck.fanItem} style={style}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    className={
+                      card.kind === 'missing'
+                        ? deck.cardMissing
+                        : card.kind === 'held'
+                          ? deck.cardBack
+                          : undefined
+                    }
+                    src={card.kind === 'shown' ? card.image : CARD_BACK}
+                    alt=""
+                    decoding="async"
+                  />
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+        <section className={deck.text} aria-labelledby="deck-title">
+          {/* Um die grosse Zahl herum gelesen ein Satz: „Ersan hat / 14 / von
+              100 Must Eats aufgedeckt." Screenreader bekommen ihn in der
+              Ueberschrift. */}
+          <p className={deck.score} aria-hidden="true">
+            {data.name ? (
+              <span className={deck.scoreLine}>{t('scoreLead', { name: data.name })}</span>
+            ) : null}
+            <span className={deck.scoreNum}>{data.revealed}</span>
+            <span className={deck.scoreLine}>
+              {t(data.name ? 'scoreOf' : 'scoreOfAnon', { total: data.total })}
+            </span>
+          </p>
+          <h1 id="deck-title" className={deck.dare}>
+            <span className={deck.srOnly}>{challenge} </span>
+            {dare}
+          </h1>
+          <div className={deck.actions}>
+            <DeckActions uid={uid} />
           </div>
-          <footer className={tour.footer}>
-            <div className={`${tour.actions} ${deck.actions}`}>
-              <DeckActions uid={uid} />
+          {/* Werbung fuer beides: Eat This selbst und das Sammeln. */}
+          <dl className={deck.points}>
+            <div className={deck.point}>
+              <dt className={deck.pointLabel}>{t('collectLabel')}</dt>
+              <dd className={deck.pointBody}>{t('collectBody')}</dd>
             </div>
-          </footer>
+            <div className={deck.point}>
+              <dt className={deck.pointLabel}>{t('mapLabel')}</dt>
+              <dd className={deck.pointBody}>{t('mapBody')}</dd>
+            </div>
+          </dl>
         </section>
       </div>
     </main>
   );
 }
 
-type FanSlot = { kind: 'player'; at: 0 } | { kind: 'card'; at: number; card: PublicDeckCard };
+interface FanSlot {
+  at: number;
+  card: PublicDeckCard;
+}
 
-/** Die Spielerkarte in die Mitte, die Karten abwechselnd links und rechts
- *  daneben — die erste (offene) direkt an die Figur. */
+/** Die erste (offene) Karte in die Mitte, die naechsten abwechselnd links
+ *  und rechts daneben. */
 function fanSlots(cards: PublicDeckCard[]): FanSlot[] {
-  const slots: FanSlot[] = [{ kind: 'player', at: 0 }];
-  cards.forEach((card, i) => {
-    const step = Math.floor(i / 2) + 1;
-    slots.push({ kind: 'card', at: i % 2 === 0 ? -step : step, card });
-  });
-  return slots.sort((a, b) => a.at - b.at);
+  return cards
+    .map((card, i) => {
+      const step = Math.ceil(i / 2);
+      return { card, at: i % 2 === 1 ? -step : step };
+    })
+    .sort((a, b) => a.at - b.at);
 }

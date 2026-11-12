@@ -171,7 +171,6 @@ const en = {
     signIn: 'Sign in',
   },
   deck: {
-    anonymous: 'this deck',
     metaTitle: 'A deck on Eat This',
     metaTitleNamed: "{name}'s deck on Eat This",
     /* Der Satz, der in WhatsApp unter der Vorschaukarte steht. Er muss die
@@ -186,6 +185,11 @@ const en = {
     challengeFull: '{name} has all {total} Must Eats.',
     challengeAnon:
       '{done, plural, =0 {This deck is just getting started.} other {# of {total} Must Eats flipped.}}',
+    /* Der sichtbare Stand, um die grosse Zahl herum gelesen ein Satz:
+       „Ersan has flipped / 14 / of 100 Must Eats." */
+    scoreLead: '{name} has flipped',
+    scoreOf: 'of {total} Must Eats.',
+    scoreOfAnon: 'of {total} Must Eats flipped.',
     dare: 'Can you beat that?',
     dareFull: 'Can you match that?',
     dareStart: 'Who gets there first?',
@@ -537,7 +541,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     decline: 'Ablehnen',
   },
   deck: {
-    anonymous: 'dieses Deck',
     metaTitle: 'Ein Deck bei Eat This',
     metaTitleNamed: 'Das Deck von {name} bei Eat This',
     metaDescription:
@@ -551,6 +554,9 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     challengeFull: '{name} hat alle {total} Must Eats.',
     challengeAnon:
       '{done, plural, =0 {Dieses Deck f\u00e4ngt gerade an.} other {# von {total} Must Eats aufgedeckt.}}',
+    scoreLead: '{name} hat',
+    scoreOf: 'von {total} Must Eats aufgedeckt.',
+    scoreOfAnon: 'von {total} Must Eats aufgedeckt.',
     dare: 'Schaffst du mehr?',
     dareFull: 'Schaffst du das auch?',
     dareStart: 'Wer ist schneller?',

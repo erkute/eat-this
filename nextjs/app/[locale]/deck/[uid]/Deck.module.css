@@ -1,44 +1,42 @@
-/* Das geteilte Deck als Layer (24.09.2026). Die Huelle kommt aus
-   Tour.module.css — Kopfzeile, Bild, Text, gelber Knopf unten rechts —, wie
-   bei Onboarding und Anmeldung. Hier steht nur, was diese Seite anders macht:
-   sie liegt auf der Seite statt darueber, und ihre Bildflaeche ist ein
-   Faecher mit der Spielerkarte in der Mitte.
+/* Das geteilte Deck als Plakat aus zwei Flaechen: die Ink-Tafel mit dem
+   Faecher, daneben (am Telefon darunter) das Papier mit Stand, Frage und
+   Knoepfen. Beide zusammen fuellen den Bildschirm unter der Navigation. */
 
-   Selektoren, die gegen die Tour gewinnen muessen, sind doppelt: gleicher
-   Rang waere sonst eine Frage der Ladereihenfolge der Module. */
-
-/* Die Seite haengt an keiner Anmeldung und hat keinen Ladezustand, der die
-   Hoehe haelt: ohne das hier steht der Footer mitten im Bild. */
 .page {
+  --deck-nav: calc(var(--site-nav-h) + var(--staging-banner-h, 0px));
   min-height: 100svh;
+  padding-top: var(--deck-nav);
 }
 
-.stage {
+.poster {
   display: grid;
-  place-items: center;
-  /* Das Fenster steht mittig im Bildschirm unter der Navigation, nicht oben
-     angeschlagen mit einem Loch darunter (Nutzer, 24.09.2026). */
-  min-height: calc(100svh - 200px);
+  grid-template-rows: clamp(260px, 40svh, 380px) auto;
+  min-height: calc(100svh - var(--deck-nav));
 }
 
-/* Auf der Seite statt im Overlay: die Tour rechnet ihre Hoehe aus dem
-   ganzen Fenster, hier steht die Navigation darueber. */
-.sheet.sheet {
-  width: min(860px, 100%);
-  height: min(560px, calc(100svh - 150px));
-  min-height: 480px;
-  /* Ohne Kopfzeile braucht der Rand oben die Luft, die sonst sie hielt. */
-  padding-top: clamp(20px, 3vw, 32px);
-  animation: none;
+/* ── Die Tafel ────────────────────────────────────────────
+   Immer Ink, auch im hellen Modus; im dunklen eine Stufe heller als der
+   Grund. Sie ist ein Groessen-Container: der Faecher rechnet aus ihr. */
+.board {
+  position: relative;
+  overflow: hidden;
+  container-type: size;
+  background-color: var(--et-ink);
+  background-image:
+    url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark.webp?v=5');
+  background-size: var(--et-sheet-size);
+  background-repeat: var(--et-sheet-repeat);
 }
 
-/* ── Der Faecher ──────────────────────────────────────────
-   Die Bildflaeche der Tour ist ein Groessen-Container (`cqw`/`cqh`). Jede
-   Karte steht mittig und wird ueber `--fan-i` (Abstand zur Mitte) versetzt
-   und gedreht, `--fan-d` laesst die Raender sinken. */
+:global(html[data-theme='dark']) .board {
+  background-color: var(--et-ink-raised);
+}
+
+/* Jede Karte steht mittig und wird ueber `--fan-i` (Abstand zur Mitte)
+   versetzt und gedreht, `--fan-d` laesst die Raender sinken. */
 .fan {
-  --fan-w: min(27cqw, 56cqh);
-  --fan-step: 0.52;
+  --fan-w: min(26cqw, 44cqh);
+  --fan-step: 0.46;
   position: absolute;
   inset: 0;
   margin: 0;
@@ -48,12 +46,16 @@
 
 .fanItem {
   position: absolute;
-  top: 50%;
+  /* Etwas ueber der Mitte: die aeusseren Karten sinken, der Faecher steht
+     so optisch mittig. */
+  top: 46%;
   left: 50%;
   width: var(--fan-w);
   transform: translate(-50%, -50%) translateX(calc(var(--fan-i) * var(--fan-w) * var(--fan-step)))
     translateY(calc(var(--fan-d) * var(--fan-w) * 0.08)) rotate(calc(var(--fan-i) * 9deg));
   transform-origin: 50% 100%;
+  border-radius: 6px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
 }
 
 .fanItem img {
@@ -62,209 +64,191 @@
   aspect-ratio: 1539 / 2115;
   object-fit: cover;
   border-radius: 6px;
-  filter: drop-shadow(0 12px 20px rgba(0, 0, 0, 0.5));
-}
-
-/* Die Spielerkarte rechnet ihre Breite aus einer geerbten Variable
-   (ProfileAlbum.module.css). */
-.fanPlayer {
-  --album-player-w: var(--fan-w);
-  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.55));
 }
 
 /* Zwei Rueckseiten, zwei Bedeutungen: gesammelt, aber nicht fuer fremde
-   Augen — fast volle Farbe; noch nicht gesammelt — deutlich gedaempft.
-   Statisch, kein Ein-/Ausblenden. */
+   Augen, fast volle Farbe; noch nicht gesammelt, deutlich gedaempft. */
 .fanItem img.cardBack {
-  filter: brightness(0.8) saturate(0.85) drop-shadow(0 12px 20px rgba(0, 0, 0, 0.5));
+  filter: brightness(0.8) saturate(0.85);
 }
 
 .fanItem img.cardMissing {
-  filter: brightness(0.34) saturate(0.4) drop-shadow(0 12px 20px rgba(0, 0, 0, 0.5));
+  filter: brightness(0.34) saturate(0.4);
 }
 
-/* ── Text ─────────────────────────────────────────────────── */
+/* ── Das Papier ───────────────────────────────────────────── */
 
-/* Eine linke Kante fuer Ueberschrift, Punkte und Knoepfe — auch am
-   Telefon, wo die Tour ihren Text mittig setzt (Nutzer, 24.09.2026: „nicht
-   gut ausgerichtet"). */
-.copy.copy {
-  text-align: left;
+.text {
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  min-width: 0;
+  padding: 28px var(--et-wrap-pad-mobile) 40px;
 }
 
-/* Die Herausforderung ist laenger als eine Tour-Ueberschrift — eine Stufe
-   kleiner, sonst lief sie am Desktop ueber fuenf Zeilen. */
-.sheet.sheet h1 {
-  font-size: clamp(24px, 2.6vw, 32px);
-  text-wrap: pretty;
+/* Der Stand als Satz in drei Zeilen: Anfang, die Zahl so gross, wie die
+   Spalte sie traegt, Ende. Alle an derselben linken Kante. */
+.score {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+  margin: 0;
 }
 
-/* Die Frage hinter dem Stand, in Gelb auf eigener Zeile und in EINEM Stueck:
-   „Schaffst / du mehr?" zerfiel sonst in zwei Zeilen. */
+.scoreNum {
+  /* Buendig mit Name und Einordnung: der Einzug gleicht den Leerraum links
+     der Ziffer aus (rund 0,03 em bei jeder Ziffer). Keine Tabellenziffern,
+     die ruecken die 1 ein. */
+  margin-left: -0.03em;
+  font-size: clamp(104px, 31vw, 150px);
+  font-weight: 700;
+  letter-spacing: -0.06em;
+  line-height: 0.8;
+}
+
+.scoreLine {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
 .dare {
-  display: block;
-  margin-top: 6px;
-  color: var(--et-accent-text);
-  font-size: 0.82em;
+  margin: 20px 0 0;
+  color: var(--et-red);
+  font-size: clamp(30px, 8.4vw, 40px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  text-transform: none;
+  text-wrap: balance;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  clip-path: inset(50%);
   white-space: nowrap;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 24px;
+  margin-top: 24px;
+}
+
+.signIn[hidden] {
+  display: none;
 }
 
 .points {
   display: grid;
-  gap: 14px;
-  margin: clamp(16px, 2vw, 22px) 0 0;
-  text-align: left;
+  gap: 18px;
+  max-width: 560px;
+  margin: 36px 0 0;
 }
 
-/* Zwei gleich wichtige Gruende: die Map und das Sammeln, jeder mit dem
-   gelben Marken-Quadrat vor dem Label. */
 .point {
   display: grid;
-  gap: 3px;
+  gap: 4px;
   min-width: 0;
 }
 
 .pointLabel {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--et-fg);
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
-  letter-spacing: var(--et-tracking-meta);
   line-height: 1.3;
-  text-transform: none;
-}
-
-.pointLabel::before {
-  content: '';
-  flex: 0 0 auto;
-  width: 9px;
-  height: 9px;
-  background: var(--et-accent);
 }
 
 .pointBody {
   margin: 0;
   color: var(--et-copy);
   font-size: 15px;
-  line-height: 1.4;
+  line-height: 1.45;
   text-wrap: pretty;
 }
 
-/* ── Knoepfe ──────────────────────────────────────────────── */
+@media (min-width: 600px) {
+  .text {
+    padding-inline: var(--et-wrap-pad);
+  }
 
-/* Der gelbe Knopf steht rechts, der zweite links daneben — auch wenn der
-   zweite fuer Angemeldete verschwindet. */
-.actions.actions {
-  justify-content: flex-end;
-  gap: 12px;
-}
-
-.primary {
-  text-decoration: none;
-}
-
-/* Der zweite Knopf: Flaeche Weiss 10 %, kein Ring, keine Unterstreichung —
-   wie der Zweitknopf der Info-Karte. */
-.second {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  margin-right: auto;
-  padding: 12px 22px;
-  color: var(--et-fg);
-  background: var(--et-quiet);
-  border: 0;
-  border-radius: var(--et-radius-control);
-  cursor: pointer;
-  font: inherit;
-  font-size: 16px;
-  font-weight: 700;
-  text-decoration: none;
-  transition: background-color 140ms ease;
-}
-
-.second[hidden] {
-  display: none;
-}
-
-.second:focus-visible {
-  background: var(--et-line);
-  outline: 2px solid var(--et-fg);
-  outline-offset: 3px;
-}
-
-@media (hover: hover) {
-  .second:hover {
-    background: var(--et-line);
+  .points {
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
   }
 }
 
-/* Desktop: das Fenster so hoch wie sein Inhalt, die Bildspalte breiter und
-   der Faecher enger und groesser — vorher stand ein kleiner Faecher in einer
-   hohen Spalte, darueber und darunter je 150 px Leere („viel zu viel
-   Freiflaeche"). */
+/* Desktop: Tafel und Papier nebeneinander, je die halbe Breite. */
 @media (min-width: 900px) {
-  .sheet.sheet {
-    width: min(920px, 100%);
-    height: 440px;
-    min-height: 0;
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-    column-gap: 44px;
-    padding: 28px 36px 28px 20px;
+  .poster {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: none;
   }
 
   .fan {
-    --fan-w: min(28cqw, 64cqh);
-    --fan-step: 0.44;
+    --fan-w: min(27cqw, 46cqh, 320px);
+    --fan-step: 0.4;
+  }
+
+  .text {
+    padding: 48px clamp(40px, 5vw, 96px);
+  }
+
+  .scoreNum {
+    font-size: clamp(150px, 15vw, 340px);
+  }
+
+  .score {
+    gap: 14px;
+  }
+
+  .scoreLine {
+    font-size: clamp(26px, 2.2vw, 40px);
+  }
+
+  .dare {
+    margin-top: 28px;
+    font-size: clamp(36px, 3.4vw, 68px);
+  }
+
+  .actions {
+    margin-top: 32px;
+  }
+
+  .points {
+    margin-top: 56px;
   }
 }
 
-/* Zwischen Telefon und Desktop war die Textspalte der Tour nur rund 250 px
-   breit — dort steht der Faecher ueber dem Text, wie am Telefon. */
-@media (min-width: 601px) and (max-width: 899px) {
-  .sheet.sheet {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1fr) auto auto;
-    grid-template-areas:
-      'art'
-      'copy'
-      'footer';
-    height: min(820px, calc(100svh - 150px));
-    min-height: 640px;
-    padding: 28px 34px 24px;
+/* Niedrige Desktop-Fenster (kleine Laptops): alles eine Stufe enger, damit
+   das Plakat ohne Scrollen in den Bildschirm passt. */
+@media (min-width: 900px) and (max-height: 800px) {
+  .text {
+    padding-block: 28px;
   }
 
-  .copy.copy {
-    padding-top: 8px;
-  }
-}
-
-/* Telefon: die Tour stapelt Bild und Text; hier bekommt der Faecher etwas
-   mehr Hoehe. */
-@media (max-width: 600px) {
-  .sheet.sheet {
-    /* Die Tour rechnet mit drei Zeilen (Kopf, Inhalt, Fuss). Ohne Kopfzeile
-       rutschte der Inhalt in die `auto`-Zeile, die Bildflaeche (ein
-       Groessen-Container) bekam 0 px Hoehe und der Faecher schrumpfte auf
-       einen weissen Punkt (Nutzer, 25.09.2026: „das Bild oben wird nicht
-       geladen"). */
-    grid-template-rows: minmax(0, 1fr) auto;
-    height: calc(100svh - 120px);
-    min-height: 620px;
-    max-height: 760px;
+  .scoreNum {
+    font-size: clamp(120px, 12vw, 200px);
   }
 
-  .fan {
-    --fan-w: min(26cqw, 60cqh);
+  .dare {
+    margin-top: 18px;
   }
 
-  .second,
-  .actions :global(a),
-  .actions :global(button) {
-    min-width: 0;
-    flex: 1 1 0;
+  .actions {
+    margin-top: 24px;
+  }
+
+  .points {
+    margin-top: 32px;
   }
 }

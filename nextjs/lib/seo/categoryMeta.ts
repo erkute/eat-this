@@ -68,6 +68,11 @@ export function buildCategoryTitle(slug: string, label: string, locale: Loc): st
   return `${label} in Berlin`;
 }
 
+/** Die H1 folgt der Suchsprache; der Kategorie-Name bleibt für Navigation und Filter unverändert. */
+export function buildCategoryHeading(slug: string, label: string, locale: Loc): string {
+  return slug === 'lunch' && locale === 'de' ? 'Mittagessen' : label;
+}
+
 /**
  * Meta-Description: kuratiertes Sanity-Blurb + datengetriebener Zusatz
  * (Spot-Anzahl + Trust-Signal) — unique pro Kategorie über das Blurb,

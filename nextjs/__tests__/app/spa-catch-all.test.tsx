@@ -60,7 +60,10 @@ describe('News index', () => {
   it.each(['de', 'en'])('keeps localized canonical metadata for %s', async (locale) => {
     const metadata = await newsMetadata({ params: Promise.resolve({ locale }) })
     const canonical = `https://www.eatthisdot.com${locale === 'en' ? '/en' : ''}/news`
-    expect(metadata.title).toBe('News')
+    expect(metadata.title).toBe(locale === 'de'
+      ? 'Restaurant-News und Food-Guides aus Berlin'
+      : 'Berlin Restaurant News and Food Guides')
+    expect(metadata.openGraph?.title).toBe(metadata.title)
     expect(metadata.alternates?.canonical).toBe(canonical)
     expect(metadata.openGraph?.url).toBe(canonical)
   })

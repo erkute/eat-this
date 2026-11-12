@@ -12,6 +12,7 @@ import { localizedCategoryName, localizedCategoryBlurb } from '@/lib/categories'
 import {
   buildCategoryTitle,
   buildCategoryDescription,
+  buildCategoryHeading,
 } from '@/lib/seo/categoryMeta';
 import { rankCurated } from '@/lib/curated-ranking';
 import type { RestaurantCard } from '@/lib/types';
@@ -262,7 +263,7 @@ export default async function KategorieDetailPage({ params }: PageProps) {
       <main className={styles.page}>
         <DiscoveryDetail
           slug={slug}
-          name={label}
+          name={buildCategoryHeading(slug, label, loc)}
           description={blurb || ''}
           updated={updated}
           locale={loc}

@@ -16,14 +16,17 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params;
   const activeLocale = locale === 'en' ? 'en' : 'de';
+  const title = activeLocale === 'de'
+    ? 'Restaurant-News und Food-Guides aus Berlin'
+    : 'Berlin Restaurant News and Food Guides';
   const description = activeLocale === 'de'
     ? 'Aktuelle Restaurant-News, Empfehlungen und Storys aus Berlins Food-Szene.'
     : "Latest restaurant news, recommendations and stories from Berlin's food scene.";
   const alternates = buildHreflangAlternates('/news', activeLocale);
   return {
-    title: 'News', description, robots: INDEXABLE_ROBOTS, alternates,
+    title, description, robots: INDEXABLE_ROBOTS, alternates,
     openGraph: {
-      title: 'News', description, url: alternates.canonical, type: 'website',
+      title, description, url: alternates.canonical, type: 'website',
       images: [{ url: `${SITE_URL}/pics/og-card.png?v=${OG_CARD_VERSION}`, width: 1200, height: 630, alt: 'EAT THIS – We tell you what to eat' }],
       locale: toOgLocale(activeLocale),
     },

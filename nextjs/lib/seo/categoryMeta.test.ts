@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { RestaurantCard } from '../types';
-import { buildCategoryTitle, buildCategoryDescription } from './categoryMeta';
+import { buildCategoryTitle, buildCategoryDescription, buildCategoryHeading } from './categoryMeta';
 import { buildBrandedTitle } from './metadata-text';
 
 function r(name: string): RestaurantCard {
@@ -57,6 +57,14 @@ describe('buildCategoryTitle', () => {
 
   it('falls back to "{label} in Berlin" for unknown slugs', () => {
     expect(buildCategoryTitle('ramen', 'Ramen', 'de')).toBe('Ramen in Berlin');
+  });
+});
+
+describe('buildCategoryHeading', () => {
+  it('names German lunch as Mittagessen in its H1 without changing the category label', () => {
+    expect(buildCategoryHeading('lunch', 'Lunch', 'de')).toBe('Mittagessen');
+    expect(buildCategoryHeading('lunch', 'Lunch', 'en')).toBe('Lunch');
+    expect(buildCategoryHeading('pizza', 'Pizza', 'de')).toBe('Pizza');
   });
 });
 

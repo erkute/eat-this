@@ -23,7 +23,10 @@ interface PageProps {
   params: Promise<{ locale: string }>;
 }
 
-const TITLE = 'eat this. | We know where to eat in Berlin';
+const TITLE = {
+  de: 'Restaurants, Cafés & Bars in Berlin | EAT THIS',
+  en: 'eat this. | We know where to eat in Berlin',
+} as const;
 const DESCRIPTION = {
   de: 'Pizza bei Gazzo, Kaffee bei Kolo. Entdecke Restaurants, Cafés und Bars auf unserer Berlin Food Map. Unsere Lieblingsgerichte gibt’s als Must-Eat-Karten zum Sammeln.',
   en: 'Pizza at Gazzo, coffee at Kolo. Discover restaurants, cafés and bars on our Berlin Food Map. Our favorite dishes are featured on collectible Must Eat cards.',
@@ -34,13 +37,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
   const description = DESCRIPTION[locale];
+  const title = TITLE[locale];
   return {
-    title: { absolute: TITLE },
+    title: { absolute: title },
     description,
     openGraph: {
       type: 'website',
       siteName: 'EAT THIS',
-      title: TITLE,
+      title,
       description,
       url: localeUrl(locale, '/'),
       locale: locale === 'en' ? 'en_US' : 'de_DE',
@@ -51,7 +55,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     twitter: {
       card: 'summary_large_image',
       site: '@eatthisdotcom',
-      title: TITLE,
+      title,
       description,
       images: [OG_IMAGE],
     },

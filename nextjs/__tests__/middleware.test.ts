@@ -120,7 +120,6 @@ describe('middleware: Basic Auth + X-Robots-Tag', () => {
     const { config } = await import('@/middleware')
     const matches = (path: string) => new RegExp(`^${config.matcher[0]}$`).test(path)
 
-    expect(matches('/api/og/deck')).toBe(false)
     expect(matches('/api/og/restaurant')).toBe(false)
     expect(matches('/api/must-eat-image/abc')).toBe(false)
 

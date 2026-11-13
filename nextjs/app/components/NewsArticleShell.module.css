@@ -891,27 +891,53 @@ div.page {
     padding-top: 30px;
   }
 
-  /* Fensterbreit mit 10px Rahmen wie die Fotos im Text. Ohne `vh`: Chrome
-     auf dem iPhone ändert es, während es beim Scrollen seine Leisten ein- und
-     ausblendet, und das Foto wurde dabei höher und niedriger — es sah aus wie
-     gezoomt (Betreiber, 26.09.2026). */
+  /* Randlos über die ganze Breite wie die Fotos im Text (13.11.2026). Ohne
+     `vh`: Chrome auf dem iPhone ändert es, während es beim Scrollen seine
+     Leisten ein- und ausblendet, und das Foto wurde dabei höher und niedriger
+     — es sah aus wie gezoomt (Betreiber, 26.09.2026). */
   .heroMedia {
     justify-self: stretch;
     width: auto;
-    margin-inline: calc(50% - 50vw + 10px);
+    margin-inline: calc(50% - 50vw);
     margin-top: 28px;
   }
 
-  /* Fotos im Text mit demselben 10px-Rahmen wie der Aufmacher: die Spalte
-     gibt links und rechts je 16px ab, das Bild nimmt sich 6 davon zurück.
-     Die Unterschrift bleibt auf der Textkante. Das Must-Eat-Band behält
-     seinen Rand — es ist ein Knopf, kein Bild. */
+  /* Die Spalte gibt links und rechts je 16px ab; das Foto nimmt sie sich
+     ganz zurück. Die Unterschrift bleibt auf der Textkante. GIFs und die
+     Spot-Karte behalten den 10px-Rahmen, das Must-Eat-Band seinen Rand —
+     es ist ein Knopf, kein Bild. */
   .inlineImage {
+    --img-frame: calc(100% + 32px);
+    --img-offset: -16px;
+  }
+
+  .inlineImage figcaption {
+    padding-inline: 16px;
+  }
+
+  .inlineImage[data-gif] {
     --img-frame: calc(100% + 12px);
     --img-offset: -6px;
   }
 
-  .inlineImage figcaption {
+  .inlineImage[data-gif] figcaption {
+    padding-inline: 6px;
+  }
+
+  .imageSpread {
+    margin-inline: -16px;
+  }
+
+  .imageRow figcaption {
+    padding-inline: 16px;
+  }
+
+  .imageRow figure[data-gif] {
+    width: calc(100% - 20px);
+    margin-inline: 10px;
+  }
+
+  .imageRow figure[data-gif] figcaption {
     padding-inline: 6px;
   }
 

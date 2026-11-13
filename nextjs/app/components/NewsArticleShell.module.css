@@ -121,13 +121,15 @@ div.page {
   text-transform: none;
 }
 
-/* Das Foto über die ganze Fensterbreite, ringsum 10px Rahmen — wie die
-   Bildbänder bei Kaleidoscope. Eckig: ein Foto ist eine Seite, keine Karte. */
+/* Der Aufmacher so breit wie die Fotos im Text (die Spalte) und wie sie in
+   seinem eigenen Format, Hochformate höchstens 4:5 — das Verhältnis kommt
+   als `--hero-ratio` aus dem Bild. Eckig: ein Foto ist eine Seite, keine
+   Karte. */
 .heroMedia {
   position: relative;
-  justify-self: stretch;
-  aspect-ratio: 3 / 2;
-  margin: clamp(36px, 4.4vw, 64px) calc(50% - 50vw + 10px) 0;
+  aspect-ratio: var(--hero-ratio, 3 / 2);
+  width: min(100%, var(--article-measure));
+  margin-top: clamp(36px, 4.4vw, 64px);
   overflow: hidden;
   background: var(--article-quiet);
 }
@@ -241,17 +243,6 @@ div.page {
   :global(html[data-article-intro]) .heroMedia {
     animation: introLift 900ms cubic-bezier(0.2, 0.8, 0.2, 1) 620ms backwards;
   }
-
-  @supports (animation-timeline: scroll()) {
-    @media (min-width: 768px) {
-      /* Das Aufmacherfoto zieht beim Scrollen langsamer mit als die Seite —
-         es bewegt sich in seinem Rahmen, der Rahmen bleibt stehen. */
-      .hero {
-        animation: heroDrift linear both;
-        animation-timeline: view();
-      }
-    }
-  }
 }
 
 @keyframes introTitleRise {
@@ -280,15 +271,6 @@ div.page {
   }
   1% {
     visibility: visible;
-  }
-}
-
-@keyframes heroDrift {
-  from {
-    transform: translateY(-7%) scale(1.14);
-  }
-  to {
-    transform: translateY(7%) scale(1.14);
   }
 }
 
@@ -543,9 +525,9 @@ div.page {
 /* Inline editorial photo — square corners like every photo in the article,
    a small quiet caption. The img keeps its intrinsic ratio; next/image
    ships width/height so the column doesn't jump while it loads. */
-/* Jedes Foto im Text so breit wie die Spot-Karten — die Spalte —, nur der
-   Aufmacher steht breiter (Ansage 22.10.2026: „die Bilder immer in der
-   gleichen Breite"). Vorher war die Höhe gedeckelt, und Hochformate standen
+/* Jedes Foto so breit wie die Spot-Karten — die Spalte —, der Aufmacher
+   eingeschlossen (Ansage 22.10.2026: „die Bilder immer in der gleichen
+   Breite"). Vorher war die Höhe gedeckelt, und Hochformate standen
    schmal und mittig. Damit sie nicht über den Bildschirm wachsen, werden sie
    höchstens 4:5 gezeigt (Höhe ≤ 125 % der Breite, mittig beschnitten);
    Querformate bleiben ganz. `--img-frame`/`--img-offset` setzt nur das
@@ -900,15 +882,6 @@ div.page {
 
 /* ------------------------------------------------------------ layout ---- */
 
-/* Ab Tablet: das Foto nie höher als der sichtbare Teil der Seite —
-   `.app-pages` beginnt ab 768px bei 74px (globals.css). Am Telefon hält das
-   feste Seitenverhältnis still; dort ändert Chrome `vh` beim Scrollen. */
-@media (min-width: 768px) {
-  .heroMedia {
-    max-height: calc(100dvh - 74px - 20px);
-  }
-}
-
 @media (max-width: 700px) {
   .page {
     padding-inline: 16px;
@@ -918,12 +891,14 @@ div.page {
     padding-top: 30px;
   }
 
-  /* Hochformat, mit demselben 10px-Rahmen. Ohne `vh`: Chrome auf dem iPhone
-     ändert es, während es beim Scrollen seine Leisten ein- und ausblendet,
-     und das Foto wurde dabei höher und niedriger — es sah aus wie gezoomt
-     (Betreiber, 26.09.2026). 4:5 steht still. */
+  /* Fensterbreit mit 10px Rahmen wie die Fotos im Text. Ohne `vh`: Chrome
+     auf dem iPhone ändert es, während es beim Scrollen seine Leisten ein- und
+     ausblendet, und das Foto wurde dabei höher und niedriger — es sah aus wie
+     gezoomt (Betreiber, 26.09.2026). */
   .heroMedia {
-    aspect-ratio: 4 / 5;
+    justify-self: stretch;
+    width: auto;
+    margin-inline: calc(50% - 50vw + 10px);
     margin-top: 28px;
   }
 
@@ -1036,9 +1011,9 @@ div.page {
 }
 @media (min-width: 1024px) {
   .page {
-    /* Text, Fotos und Spot-Karten teilen eine Breite; nur der Aufmacher steht
-       breiter (22.10.2026). Die Spot-Karte war am Desktop schon „zu groß",
-       breiter als die Spalte (21.10.2026) — also gehen die Fotos auf ihr Mass. */
+    /* Text, Fotos, Aufmacher und Spot-Karten teilen eine Breite. Die
+       Spot-Karte war am Desktop schon „zu groß", breiter als die Spalte
+       (21.10.2026) — also gehen die Fotos auf ihr Mass. */
     --article-measure: 768px;
   }
   .imageSpread { width: calc(100vw - 36px); margin-inline: calc(50% - 50vw + 18px); }
@@ -1053,8 +1028,6 @@ div.page {
   .heroMedia {
     aspect-ratio: auto;
     height: calc(100svh - var(--site-nav-h, 52px) - 24px);
-    max-height: none;
     margin-top: 24px;
   }
-  .hero { animation: none; transform: none; }
 }

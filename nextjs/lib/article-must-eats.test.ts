@@ -54,6 +54,14 @@ describe('automatic article must eats', () => {
     const theke = { ...card, restaurant: { ...card.restaurant, name: 'Theke', slug: 'theke' } };
     expect(teasers(addArticleMustEats([paragraph('Die Zentrifuge steht hinter der Theke.')], [theke]))).toHaveLength(0);
   });
+  it('moves a card that would close the article to the section break nearest the middle', () => {
+    const h2 = (text: string): PortableTextBlock => ({ ...paragraph(text), style: 'h2' });
+    const source = [paragraph('a'), h2('Eins'), paragraph('b'), paragraph('c'), h2('Zwei'), paragraph('d'), paragraph('e'), h2('Drei'), paragraph('f'), { _type: 'spotCard', restaurantSlug: 'gazzo' }];
+    const result = addArticleMustEats(source, [card]);
+    expect(result.findIndex(b => b._type === 'mustEatCard')).toBe(4);
+    expect(result[5]).toMatchObject({ style: 'h2', children: [{ text: 'Zwei' }] });
+    expect(result.at(-1)?._type).toBe('spotCard');
+  });
   it('recognizes a primary restaurant named in the article title', () => {
     expect(teasers(addArticleMustEats([paragraph('Gazzo nennt es Sin Win.')], [card], 'Gazzo: Pizza in Neukölln'))).toHaveLength(1);
   });

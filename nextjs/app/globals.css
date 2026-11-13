@@ -1343,6 +1343,17 @@ html[data-theme='dark'] {
   filter: var(--et-tape-lift);
   color: var(--et-tape-active-fg);
 }
+/* Das Band in der Grundfarbe (hell weiß, dunkel schwarz): für den zweiten
+   Knopf neben einem `et-btn-tape`, etwa „Teilen“ unter der Must-Eat-Karte. */
+.et-btn.et-btn-tape-quiet {
+  background: var(--et-tape-active-fg) content-box;
+  border-style: solid;
+  border-width: 0;
+  border-image: var(--et-tape-img) var(--et-tape-slice) / var(--et-tape-width) / 0 stretch;
+  border-radius: 0;
+  filter: var(--et-tape-lift);
+  color: var(--et-tape-fg);
+}
 
 .et-btn-text {
   --et-btn-bg: transparent;
@@ -1384,10 +1395,15 @@ html[data-theme='dark'] .et-btn-text {
     filter: brightness(1.5) var(--et-tape-lift);
     color: var(--et-tape-active-fg);
   }
+  .et-btn.et-btn-tape-quiet:not(:disabled):hover {
+    background: var(--et-tape-active-fg) content-box;
+    filter: brightness(0.95) var(--et-tape-lift);
+    color: var(--et-tape-fg);
+  }
 }
 /* Textknöpfe antworten zusätzlich mit ihrer Flächenfarbe. Die Map-Bedienung
    behält ihre freigestellte Bandform und nutzt das gemeinsame Dimm-Feedback. */
-.et-btn:not(:disabled, [aria-disabled='true'], .et-btn-map-control, .et-btn-tape):is(:active, [data-et-pressed]) {
+.et-btn:not(:disabled, [aria-disabled='true'], .et-btn-map-control, .et-btn-tape, .et-btn-tape-quiet):is(:active, [data-et-pressed]) {
   background-color: var(--et-btn-hover, var(--et-accent));
   color: var(--et-btn-hover-fg, #fff);
 }

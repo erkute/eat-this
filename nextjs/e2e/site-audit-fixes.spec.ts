@@ -18,7 +18,7 @@ for (const theme of ['light', 'dark'] as const) {
     await directory.getByRole('link', { name: 'Friedenau', exact: true }).click();
     await expect(page.locator('h1')).toContainText('Friedenau');
     await page.goto(`${prefix}/news/essen-trinken-schoeneberg`);
-    const share = page.locator('button.et-btn-tape');
+    const share = page.locator('button.et-btn-tape-quiet');
     await share.click();
     await expect(page.getByRole('alert').filter({ hasText: /Kopieren nicht möglich|Could not copy/ })).toBeVisible();
     await expect(share).toHaveText(theme === 'dark' ? 'Share' : 'Teilen');

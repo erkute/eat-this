@@ -1,14 +1,18 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 
 import { getAdminAuth } from '@/lib/firebase/admin';
 import { isAdminToken } from '@/lib/firebase/entitlements';
-import { clearPremiumAccessCookie } from '@/lib/must-eat/premium-access';
+import {
+  clearPremiumAccessCookie,
+  premiumAccessBelongsTo,
+  premiumAccessCookieName,
+} from '@/lib/must-eat/premium-access';
 import { clearPremiumSessionCookie, setPremiumSessionCookie } from '@/lib/must-eat/premium-session';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
   const idToken = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
   if (!idToken) {
@@ -27,9 +31,14 @@ export async function POST(request: Request) {
     });
     const response = NextResponse.json({ ok: true, admin });
     response.headers.set('Cache-Control', 'private, no-store');
-    // Identity transition is atomic from the browser's perspective: remove
-    // the prior user's capability while replacing the verified session.
-    clearPremiumAccessCookie(response);
+    // Identity transition is atomic from the browser's perspective: a
+    // capability the request carries for another account goes with the old
+    // session. One for this account stays: /api/map-data sets it, may run in
+    // parallel to this call, and the hourly token refresh lands here too.
+    const capability = request.cookies.get(premiumAccessCookieName())?.value;
+    if (capability && !premiumAccessBelongsTo(capability, decoded.uid)) {
+      clearPremiumAccessCookie(response);
+    }
     await setPremiumSessionCookie(response, idToken);
     return response;
   } catch {

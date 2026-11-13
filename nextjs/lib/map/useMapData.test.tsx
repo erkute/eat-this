@@ -113,4 +113,43 @@ describe('useMapData signed-in refetches', () => {
     expect(result.current.dataUid).toBeNull();
     expect(result.current.revealedMustEatIds.has('account-card')).toBe(false);
   });
+
+  it('starts the account fetch before the image session is synced and keeps it after', async () => {
+    fetchMock.mockResolvedValue({ ok: true, json: async () => accountPayload });
+    const { result, rerender } = renderHook(
+      ({ authLoading, uid }) =>
+        useMapData({ uid, authLoading, firebaseUid: 'account', initialMapData }),
+      { initialProps: { authLoading: true, uid: null as string | null } }
+    );
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledOnce());
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    rerender({ authLoading: false, uid: 'account' });
+    expect(result.current.dataUid).toBe('account');
+    expect(result.current.revealedMustEatIds.has('account-card')).toBe(true);
+    expect(fetchMock).toHaveBeenCalledOnce();
+  });
+
+  it('waits for the account while Firebase has not reported one', () => {
+    renderHook(() =>
+      useMapData({ uid: null, authLoading: true, firebaseUid: undefined, initialMapData })
+    );
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('refetches when the same account settles again after a token refresh', async () => {
+    fetchMock.mockResolvedValue({ ok: true, json: async () => accountPayload });
+    const { rerender } = renderHook(
+      ({ authLoading, uid }) =>
+        useMapData({ uid, authLoading, firebaseUid: 'account', initialMapData }),
+      { initialProps: { authLoading: true, uid: null as string | null } }
+    );
+    rerender({ authLoading: false, uid: 'account' });
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledOnce());
+
+    rerender({ authLoading: true, uid: 'account' });
+    rerender({ authLoading: false, uid: 'account' });
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+  });
 });
+

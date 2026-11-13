@@ -29,6 +29,13 @@ interface AuthContextValue {
   /** True while the initial auth state is being resolved from Firebase. */
   loading: boolean;
   /**
+   * Das Konto, das Firebase meldet, schon bevor die Bild-Sitzung steht und
+   * `user` freigegeben wird: `undefined`, bis Firebase sich gemeldet hat,
+   * `null` ohne Konto. Nur für Abrufe, die per ID-Token laufen und darum
+   * nicht auf die Sitzung warten müssen (useMapData).
+   */
+  firebaseUid: string | null | undefined;
+  /**
    * Ob der Server das Konto als Admin kennt (ADMIN_EMAILS bzw. Claim). Nur für
    * die Sichtbarkeit von Admin-Eingängen — geschützt wird serverseitig.
    */
@@ -113,6 +120,7 @@ async function synchronizePremiumAccessWithRetry(user: User | null): Promise<boo
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [identity, setIdentity] = useState<{ user: User | null }>({ user: null });
   const [loading, setLoading] = useState(true);
+  const [firebaseUid, setFirebaseUid] = useState<string | null | undefined>(undefined);
   const [isAdmin, setIsAdmin] = useState(false);
 
   // Synchronize the server-verifiable image session before exposing a Firebase
@@ -125,6 +133,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (endingSessions > 0 && firebaseUser) return;
       const currentGeneration = ++generation;
       setLoading(true);
+      setFirebaseUid(firebaseUser?.uid ?? null);
       reconcileMapDataCacheIdentity(firebaseUser?.uid ?? null);
       let admin = false;
       void enqueueSessionMutation(async () => {
@@ -325,6 +334,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     () => ({
       user: identity.user,
       loading,
+      firebaseUid,
       isAdmin,
       prepareGoogleSignIn,
       signInWithGoogle,
@@ -335,6 +345,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [
       identity,
       loading,
+      firebaseUid,
       isAdmin,
       prepareGoogleSignIn,
       signInWithGoogle,

@@ -111,6 +111,11 @@ export function readPremiumAccessToken(
   }
 }
 
+/** Ob der Schlüssel gültig ist und diesem Konto gehört. */
+export function premiumAccessBelongsTo(token: string | undefined, subject: string): boolean {
+  return readPremiumAccessToken(token, subject) !== NO_ACCESS;
+}
+
 export function setPremiumAccessCookie(
   response: NextResponse,
   ids: Iterable<string>,

@@ -16,6 +16,10 @@ import {
 interface UseMapDataArgs {
   uid: string | null;
   authLoading: boolean;
+  /** `useAuth().firebaseUid`: lets the fetch start while the image session
+   *  is still syncing, instead of after it. Omitted, the fetch waits for
+   *  `authLoading` to clear. */
+  firebaseUid?: string | null;
   /** Optional SSR-supplied initial state. When set, the hook hydrates with
    *  this data instead of empty arrays + loading: true. Anon visitors then
    *  skip the initial fetch entirely; signed-in users still refetch on mount
@@ -61,7 +65,7 @@ interface MapData {
 // "useLayoutEffect does nothing on the server" warning during SSR).
 const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
-export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs): MapData {
+export function useMapData({ uid, authLoading, firebaseUid, initialMapData }: UseMapDataArgs): MapData {
   // First paint MUST match the SSR output (the anon `initialMapData`). The
   // server cannot read the per-uid localStorage cache, so seeding it during
   // render would diverge from the server HTML and trip a hydration mismatch
@@ -105,8 +109,14 @@ export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs)
      its answer still paints first instead of waiting for theirs. */
   const latestReqRef = useRef(0);
   const appliedReqRef = useRef(0);
-  const uidRef = useRef(uid);
-  uidRef.current = uid;
+  /* The account the fetch runs for. Firebase knows it a round trip before
+     `uid` is released (AuthContext syncs the image session first), and
+     /api/map-data needs only the ID token, so the fetch starts then.
+     `undefined` = not known yet. Display still waits for `uid`
+     (selectVisibleMustEats), so nothing shows early. */
+  const fetchUid: string | null | undefined = authLoading ? firebaseUid : uid;
+  const fetchUidRef = useRef(fetchUid);
+  fetchUidRef.current = fetchUid;
 
   // Post-hydration cache seed (client-only). Reading localStorage during render
   // would mismatch the server; doing it here keeps first render == SSR while
@@ -140,9 +150,10 @@ export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs)
   const skipInitialAnonFetchRef = useRef(!!initialMapData);
 
   useEffect(() => {
-    // Pause while auth is still resolving — we don't want to issue an
-    // anonymous fetch that the auth-loaded fetch will immediately replace.
-    if (authLoading) return;
+    // Pause until the account is known — an anonymous fetch here would be
+    // replaced by the account's fetch right away.
+    if (fetchUid === undefined) return;
+    const uid = fetchUid;
 
     if (skipInitialAnonFetchRef.current && uid === null && tick === 0) {
       skipInitialAnonFetchRef.current = false;
@@ -164,7 +175,7 @@ export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs)
         const r = await fetch('/api/map-data', { headers });
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         const json = await r.json();
-        if (uidRef.current !== uid || appliedReqRef.current > reqId) return;
+        if (fetchUidRef.current !== uid || appliedReqRef.current > reqId) return;
         appliedReqRef.current = reqId;
         const next: CachedMapData = {
           restaurants: json.restaurants ?? [],
@@ -190,7 +201,18 @@ export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs)
         if (latestReqRef.current === reqId) setLoading(false);
       }
     })();
-  }, [uid, authLoading, tick]);
+  }, [fetchUid, tick]);
+
+  /* The hourly ID-token refresh runs the auth sync again for the same account.
+     `fetchUid` does not change then, so refetch here: the response renews the
+     image capability cookie, which lives shorter than a token. The first
+     settle of an account needs no refetch — its fetch is already running. */
+  const settledUidRef = useRef<string | null | undefined>(undefined);
+  useEffect(() => {
+    if (authLoading) return;
+    if (settledUidRef.current === uid && uid !== null) refetch();
+    settledUidRef.current = uid;
+  }, [authLoading, uid, refetch]);
 
   /* Nachladen, sobald dem Konto Karten zufallen — Kauf, Starter Pack,
      Einladungsbonus. Alle drei schreiben in eine der beiden Collections

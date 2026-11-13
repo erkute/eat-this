@@ -122,6 +122,19 @@ describe('POST /api/admin/import-restaurant', () => {
     expect(mocks.importRestaurant).not.toHaveBeenCalled();
   });
 
+  it('accepts an editor whose grant is a project role', async () => {
+    mocks.getCurrentUser.mockResolvedValue({
+      id: 'editor',
+      role: 'write',
+      roles: [{ name: 'editor' }],
+    });
+
+    const response = await POST(request());
+
+    expect(response.status).toBe(200);
+    expect(mocks.importRestaurant).toHaveBeenCalledOnce();
+  });
+
   it('rejects non-Google URLs before starting the paid import', async () => {
     const response = await POST(request({ url: 'https://example.com/restaurant' }));
 
@@ -175,7 +188,7 @@ describe('POST /api/admin/import-restaurant', () => {
     expect(response.status).toBe(500);
     await expect(response.json()).resolves.toEqual({
       error: 'import_failed',
-      message: 'The import failed. Please try again.',
+      message: 'Der Import ist fehlgeschlagen. Bitte erneut versuchen.',
     });
     expect(mocks.captureException).toHaveBeenCalledOnce();
   });

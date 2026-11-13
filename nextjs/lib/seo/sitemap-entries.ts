@@ -97,14 +97,15 @@ export async function sitemapEntries(): Promise<SitemapEntry[]> {
     readSanity<
       {
         slug: string;
-        updatedAt: string;
+        date?: string;
+        revised?: string;
         title?: string;
         titleDe?: string;
         hasDeContent: boolean;
         hasEnContent: boolean;
       }[]
     >(
-      `*[_type == "newsArticle" && defined(slug.current) && !(_id in path("drafts.**")) && seo.noIndex != true] { "slug": slug.current, "updatedAt": _updatedAt, title, titleDe, "hasDeContent": count(contentDe) > 0, "hasEnContent": count(content) > 0 }`,
+      `*[_type == "newsArticle" && defined(slug.current) && !(_id in path("drafts.**")) && seo.noIndex != true] { "slug": slug.current, date, revised, title, titleDe, "hasDeContent": count(contentDe) > 0, "hasEnContent": count(content) > 0 }`,
       {},
       { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['sitemap-articles'] } }
     ),
@@ -163,11 +164,14 @@ export async function sitemapEntries(): Promise<SitemapEntry[]> {
         : deOnly(`/restaurant/${slug}`, lastModified, 0.8, 'monthly');
     });
 
-  // News articles are individually edited by humans, so `_updatedAt` is a
-  // meaningful signal — but the template changed under them too. The page
-  // changed on whichever came last.
+  // An article's text changed on the day the editors say it did: `revised`,
+  // else the day it appeared. Not `_updatedAt` — that moves with every script
+  // that touches the document: on 13.11.2026 it dated 31 of 39 articles to
+  // 23.10. or 25.10.2026, and Google had last crawled nine German guides in
+  // August all the same. The template changed under the articles too, so the
+  // page changed on whichever came last.
   const articleEntries = articles.flatMap((article) => {
-    const { slug, updatedAt, title, titleDe, hasDeContent, hasEnContent } = article;
+    const { slug, date, revised, title, titleDe, hasDeContent, hasEnContent } = article;
     const locales: ('de' | 'en')[] = [];
     if (titleDe?.trim() && hasDeContent) locales.push('de');
     if (title?.trim() && hasEnContent) locales.push('en');
@@ -175,7 +179,7 @@ export async function sitemapEntries(): Promise<SitemapEntry[]> {
     // fallback URL is not an additional indexable page.
     return withAlternates(
       `/news/${slug}`,
-      laterOf(updatedAt, TEMPLATE_REVISED),
+      laterOf(revised ?? date ?? TEMPLATE_REVISED, TEMPLATE_REVISED),
       0.7,
       'monthly',
       locales

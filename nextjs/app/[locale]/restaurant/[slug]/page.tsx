@@ -12,6 +12,7 @@ import { resolveLegacyRestaurantSlug } from '@/lib/seo/legacyRedirects';
 import { buildRestaurantJsonLd } from '@/lib/json-ld';
 import {
   buildCuratedRestaurantTitle,
+  buildMenuRestaurantTitle,
   buildRestaurantTitle,
   truncateAtSentence,
 } from '@/lib/seo/restaurantMeta';
@@ -125,9 +126,21 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     district: districtName,
     locale: loc,
   });
-  const title = curatedTitle
+  const editorialTitle = curatedTitle
     ? buildCuratedRestaurantTitle(curatedTitle, r.name, districtName)
     : builtTitle;
+  // In der Suche zählt, was die Seite beantwortet; geteilt wird der Laden.
+  // Der Such-Title gilt darum nur für `<title>`, die Share-Karten behalten
+  // den redaktionellen.
+  const menuTitle = r.menuUrl
+    ? buildMenuRestaurantTitle({
+        name: r.name,
+        hasPrice: Boolean(formatPriceLabel(r, loc)),
+        hasHours: (r.openingHours?.length ?? 0) > 0,
+        locale: loc,
+      })
+    : null;
+  const title = menuTitle ?? editorialTitle;
 
   // Branded share card — the dynamic OG route overlays name + cuisine + district
   // on the restaurant photo (and falls back to a brand card when there is none),
@@ -144,7 +157,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     robots: restaurantRobots(r),
     alternates,
     openGraph: {
-      title,
+      title: editorialTitle,
       description,
       url: alternates.canonical,
       images: [{ url: ogImage, width: 1200, height: 630, alt: r.name }],
@@ -153,7 +166,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     },
     twitter: {
       card: 'summary_large_image',
-      title,
+      title: editorialTitle,
       description,
       images: [ogImage],
     },

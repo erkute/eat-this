@@ -47,6 +47,8 @@ export const EARLY_RESTAURANT_REDIRECTS: Readonly<Record<string, string>> = {
   // dropped location suffix
   'tribeca-ice-cream-prenzlauer-berg': 'tribeca-ice-cream',
   'jones-ice-cream-2': 'jones-ice-cream',
+  'curry-baude-gesundbrunnen': 'curry-baude',
+  'kolo-coffee-klcf-shop': 'kolo-coffee',
   // renamed location (NORD branch closed, SÜD remains)
   'knoedelwirtschaft-nord': 'knoedelwirtschaft-sued',
   'der-weinlobbyist-restaurant-weinbar': 'der-weinlobbyist',

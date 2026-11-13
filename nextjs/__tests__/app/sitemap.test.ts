@@ -35,21 +35,21 @@ describe('sitemap entries', () => {
       .mockResolvedValueOnce([
         {
           slug: 'nur-deutsch',
-          updatedAt: '2026-07-13T10:00:00Z',
+          date: '2026-07-13',
           hasEnContent: false,
           hasDeContent: true,
           titleDe: 'Deutsch',
         },
         {
           slug: 'english-only',
-          updatedAt: '2026-07-14',
+          date: '2026-07-14',
           title: 'English',
           hasEnContent: true,
           hasDeContent: false,
         },
         {
           slug: 'blank-title',
-          updatedAt: '2026-07-14',
+          date: '2026-07-14',
           title: '  ',
           titleDe: '  ',
           hasEnContent: true,
@@ -57,7 +57,7 @@ describe('sitemap entries', () => {
         },
         {
           slug: 'translated',
-          updatedAt: '2026-07-14T10:00:00Z',
+          date: '2026-07-14',
           hasEnContent: true,
           hasDeContent: true,
           title: 'English',
@@ -127,7 +127,7 @@ describe('sitemap entries', () => {
     expect(categories).not.toContain('seo.noIndex');
   });
 
-  it('dates every URL, and lets a fresher article beat the template date', async () => {
+  it('dates every URL, and lets a newer or revised article beat the template date', async () => {
     process.env.NEXT_PUBLIC_ENV = 'production';
     mocks.fetch
       .mockResolvedValueOnce([
@@ -140,15 +140,24 @@ describe('sitemap entries', () => {
         // last touched this page, so that date wins.
         {
           slug: 'alt',
-          updatedAt: '2026-07-13T10:00:00Z',
+          date: '2026-07-13',
           hasEnContent: false,
           hasDeContent: true,
           titleDe: 'Deutsch',
         },
-        // Edited after it — the human edit is the later change.
+        // Published after it — the page is as old as the article.
         {
           slug: 'frisch',
-          updatedAt: '2099-01-01T10:00:00Z',
+          date: '2099-01-01',
+          hasEnContent: false,
+          hasDeContent: true,
+          titleDe: 'Deutsch',
+        },
+        // Revised by the editors — their date is the later change.
+        {
+          slug: 'ueberarbeitet',
+          date: '2026-07-13',
+          revised: '2099-02-02',
           hasEnContent: false,
           hasDeContent: true,
           titleDe: 'Deutsch',
@@ -172,7 +181,8 @@ describe('sitemap entries', () => {
     expect(lastmod('/bezirk/mitte')).toBe(TEMPLATE_REVISED);
     expect(lastmod('/kategorie/pizza')).toBe(TEMPLATE_REVISED);
     expect(lastmod('/news/alt')).toBe(TEMPLATE_REVISED);
-    expect(lastmod('/news/frisch')).toBe('2099-01-01T10:00:00Z');
+    expect(lastmod('/news/frisch')).toBe('2099-01-01');
+    expect(lastmod('/news/ueberarbeitet')).toBe('2099-02-02');
   });
 
   it('keeps the template date a plain past date', async () => {

@@ -26,7 +26,7 @@ export function buildSiteJsonLd(locale: 'de' | 'en'): string {
           width: BRAND_WORDMARK.width,
           height: BRAND_WORDMARK.height,
         },
-        sameAs: ['https://www.instagram.com/eatthisdotcom/', 'https://www.tiktok.com/@eatthis'],
+        sameAs: ['https://www.instagram.com/eatthisdotcom/'],
       },
       {
         '@type': 'WebSite',

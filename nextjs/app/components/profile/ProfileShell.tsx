@@ -31,7 +31,7 @@ interface Props {
 }
 
 export default function ProfileShell({ publicFaceUpIds }: Props) {
-  const { user, loading: authLoading, signOut, updateDisplayName } = useAuth();
+  const { user, loading: authLoading, firebaseUid, signOut, updateDisplayName } = useAuth();
   const t = useTranslations('profile');
   const [pickerOpen, setPickerOpen] = useState(false);
   /* Der Reiter steht im Anker (#spots, #packs), damit ein Neuladen und der
@@ -71,6 +71,7 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
   } = useMapData({
     uid: user?.uid ?? null,
     authLoading,
+    firebaseUid,
   });
   const unlockedIds = useMemo(
     () => new Set<string>([...storedUnlockedIds, ...publicFaceUpIds, ...revealedMustEatIds]),

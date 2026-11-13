@@ -14,21 +14,21 @@ interface EmailSpot {
 
 export const EMAIL_SPOTS: readonly EmailSpot[] = [
   {
+    "slug": "crapulix",
+    "name": "Crapulix",
+    "meta": "Steglitz",
+    "version": "142a394f"
+  },
+  {
     "slug": "bursa-uludag-kebapcisi",
     "name": "Bursa Uludağ Kebapçısı",
     "meta": "Schöneberg",
-    "version": "fa90024a"
+    "version": "02ed7c7b"
   },
   {
     "slug": "bar-basta",
     "name": "Bar Basta",
     "meta": "Mitte",
-    "version": "265fdb31"
-  },
-  {
-    "slug": "jones-ice-cream",
-    "name": "Jones Ice Cream",
-    "meta": "Schöneberg",
-    "version": "fd79420a"
+    "version": "dd51422f"
   }
 ];

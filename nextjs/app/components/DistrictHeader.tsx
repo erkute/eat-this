@@ -25,11 +25,7 @@ export default function DistrictHeader({ slug, name, description, locale }: {
     <Link className={styles.back} href="/bezirk" aria-label={de ? 'Zur Berlin-Karte' : 'Back to the Berlin map'}>Berlin</Link>
     <div className={styles.hero}>
       <div className={styles.heading}>
-        {/* Die Überschrift heißt, wonach gesucht wird — „Restaurants in Mitte" —,
-            groß steht nur der Bezirk. */}
-        <h1 className={styles.title} style={{ '--title-fit': `${100 / (name.length * 0.68)}cqi` } as CSSProperties}>
-          <span className={styles.kicker}>Restaurants in</span>{' '}{name}
-        </h1>
+        <h1 className={styles.title} style={{ '--title-fit': `${100 / (name.length * 0.68)}cqi` } as CSSProperties}>{name}</h1>
         {description && <p className={styles.description}>{description}</p>}
       </div>
       {area && <svg className={styles.outline} data-district-outline={slug}

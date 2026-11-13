@@ -55,5 +55,24 @@ export function addArticleMustEats(content: PortableTextBlock[], cards: ArticleM
       placed.add(card._id);
     }
   }
-  return output;
+  return moveTrailingCardsToMiddle(output);
+}
+
+/**
+ * Steht der Spot erst am Schluss (Einzelporträts), landeten seine Karten
+ * direkt über „Teilen“. Sie rücken dann an den Abschnittswechsel, der der
+ * Mitte am nächsten liegt — gesucht wird nur in der mittleren Hälfte; ohne
+ * Abschnittswechsel dort bleiben sie stehen.
+ */
+function moveTrailingCardsToMiddle(blocks: PortableTextBlock[]): PortableTextBlock[] {
+  let tail = blocks.length;
+  while (tail > 0 && blocks[tail - 1]._type === 'mustEatCard' && blocks[tail - 1]._key?.startsWith('auto-must-eat-')) tail--;
+  if (tail === blocks.length) return blocks;
+  const rest = blocks.slice(0, tail);
+  const middle = rest.length / 2;
+  const breaks = rest.flatMap((block, i) => block._type === 'block' && block.style === 'h2'
+    && i >= rest.length / 4 && i <= (rest.length * 3) / 4 ? [i] : []);
+  if (!breaks.length) return blocks;
+  const at = breaks.reduce((best, i) => (Math.abs(i - middle) < Math.abs(best - middle) ? i : best));
+  return [...rest.slice(0, at), ...blocks.slice(tail), ...rest.slice(at)];
 }

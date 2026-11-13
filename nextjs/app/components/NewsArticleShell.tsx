@@ -197,6 +197,10 @@ export default function NewsArticleShell({
 
   const de = locale === 'de';
   const title = (de ? article.titleDe : article.title) || article.title || article.titleDe || '';
+  // Der Aufmacher steht wie die Fotos im Text: in seinem eigenen Format,
+  // Hochformate höchstens 4:5.
+  const heroSize = sanityImageSize(article.imageUrl);
+  const heroRatio = heroSize ? Math.max(0.8, Math.round((heroSize.width / heroSize.height) * 1000) / 1000) : 1.5;
   const excerpt = (de ? article.excerptDe : article.excerpt) || article.excerpt || article.excerptDe || '';
   const content = articleContent(article, locale);
   const dateFormatted = formatDate(article.date, locale);
@@ -231,6 +235,8 @@ export default function NewsArticleShell({
 
   // Die Karte zeigt die Freigabe des Betrachters; der Teaser führt zu ihrem
   // Must-Eat-Detail auf der Map, ohne bekannte Karte zum Spot.
+  // „Must Eat“ steht nur im Knopf, ohne Etikett darüber: zwei schwarze
+  // Flächen untereinander lasen sich doppelt.
   const renderMustEatCard = (block: MustEatCardBlock) => {
     if (!block.mustEatId && !block.restaurantName) return null;
     const restName = block.restaurantName ? normalizeName(block.restaurantName) : '';
@@ -244,7 +250,6 @@ export default function NewsArticleShell({
       <>
         <ArticleMustEatArtwork id={block.mustEatId} />
         <div className={styles.mustEatBody}>
-          <span className="et-label">Must Eat</span>
           <h3 className={styles.mustEatName}>{heading}</h3>
           <span className={`et-btn et-btn-tape et-btn-sm ${styles.mustEatDesc}`}>{description}</span>
         </div>
@@ -476,13 +481,16 @@ export default function NewsArticleShell({
               {byline}
             </div>
             {article.imageUrl && (
-              <div className={styles.heroMedia}>
+              <div
+                className={styles.heroMedia}
+                style={{ '--hero-ratio': heroRatio } as React.CSSProperties}
+              >
                 <Image
                   src={article.imageUrl}
                   alt={article.alt || title}
                   fill
                   priority
-                  sizes={`(max-width: 700px) ${scaleSizes('100vw', coverImageScale(article.imageUrl, 4 / 5))}, ${scaleSizes('100vw', coverImageScale(article.imageUrl, 3 / 2))}`}
+                  sizes="(max-width: 700px) 100vw, 768px"
                   className={styles.hero}
                 />
               </div>
@@ -530,14 +538,15 @@ export default function NewsArticleShell({
             {/* Teilen steht direkt unter dem Text, der Katalog-Ausgang
                 darunter: Teilen bezieht sich auf den gelesenen Artikel und
                 gehört an dessen Ende; der Hub führt aus ihm hinaus und ist
-                damit der letzte Schritt der Seite. */}
+                damit der letzte Schritt der Seite. Teilen liegt auf hellem Band,
+                damit es sich vom dunklen Band der Must-Eat-Karte abhebt. */}
             <div className={styles.shareRow}>
               <NewsArticleShare
                 title={title}
                 excerpt={excerpt}
                 label={shareLabel}
                 copiedLabel={copiedLabel}
-                className={`et-btn et-btn-tape et-btn-sm ${styles.shareBtn}`}
+                className={`et-btn et-btn-tape-quiet et-btn-sm ${styles.shareBtn}`}
               />
             </div>
 

@@ -48,6 +48,11 @@ function formatDate(iso: string | undefined, locale: string): string {
 
 type TextBlock = PortableTextBlock & { style?: string; children?: { text?: string }[] };
 
+/** GIFs behalten am Telefon den Rahmen; Fotos laufen randlos (CSS `[data-gif]`). */
+function isGif(url: string | undefined): boolean {
+  return /\.gif(?:$|\?)/i.test(url ?? '');
+}
+
 function blockText(block: TextBlock): string {
   return (block.children ?? []).map((c) => c.text ?? '').join('');
 }
@@ -350,7 +355,7 @@ export default function NewsArticleShell({
     const width = dimensions?.width || block.imageWidth || 1440;
     const height = dimensions?.height || block.imageHeight || 1080;
     return (
-      <figure className={styles.inlineImage}>
+      <figure className={styles.inlineImage} data-gif={isGif(block.imageUrl) ? '' : undefined}>
         <Image
           src={block.imageUrl}
           alt={block.alt || ''}
@@ -379,7 +384,7 @@ export default function NewsArticleShell({
             const width = dimensions?.width || block.imageWidth || 1440;
             const height = dimensions?.height || block.imageHeight || 1080;
             return (
-            <figure key={block._key ?? imageIndex}
+            <figure key={block._key ?? imageIndex} data-gif={isGif(block.imageUrl) ? '' : undefined}
               style={{ '--img-ratio': width / height } as React.CSSProperties}>
               <Image src={block.imageUrl!} alt={block.alt || ''}
                 width={width} height={height}

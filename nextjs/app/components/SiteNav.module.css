@@ -158,6 +158,12 @@
     transition: transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
+  /* Das Logo ragt mittig über beide Seitenspalten; ohne eigene Ebene läge die
+     rechte Spalte über seiner rechten Hälfte und schluckte den Tipp. */
+  .nav:not([data-nav-page='map']) > .home {
+    z-index: 2;
+  }
+
   .nav[data-visibility='hidden']:not([data-nav-page='map']) {
     pointer-events: none;
   }

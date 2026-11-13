@@ -99,9 +99,14 @@ export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs)
     setMustEats((prev) => prev.map((x) => (x._id === m._id ? m : x)));
   }, []);
 
-  // Track latest effect to avoid setting state from a stale fetch when uid
-  // changes mid-request (e.g. sign-out during a fetch).
+  /* Fetches are numbered. A response shows as soon as it lands, unless a newer
+     one is already on screen or the account changed meanwhile (sign-out during
+     a fetch). The listeners below refetch right after the first fetch starts;
+     its answer still paints first instead of waiting for theirs. */
   const latestReqRef = useRef(0);
+  const appliedReqRef = useRef(0);
+  const uidRef = useRef(uid);
+  uidRef.current = uid;
 
   // Post-hydration cache seed (client-only). Reading localStorage during render
   // would mismatch the server; doing it here keeps first render == SSR while
@@ -159,7 +164,8 @@ export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs)
         const r = await fetch('/api/map-data', { headers });
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         const json = await r.json();
-        if (latestReqRef.current !== reqId) return; // stale — newer fetch in flight
+        if (uidRef.current !== uid || appliedReqRef.current > reqId) return;
+        appliedReqRef.current = reqId;
         const next: CachedMapData = {
           restaurants: json.restaurants ?? [],
           mustEats: json.mustEats ?? [],

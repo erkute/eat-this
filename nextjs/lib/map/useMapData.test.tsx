@@ -3,8 +3,15 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { InitialMapData } from './server-initial-map-data';
 
-const mocks = vi.hoisted(() => ({ readMapCache: vi.fn() }));
+const mocks = vi.hoisted(() => ({ readMapCache: vi.fn(), snapshotListeners: [] as (() => void)[] }));
 vi.mock('@/lib/firebase/config', () => ({ auth: { currentUser: null }, getDb: vi.fn() }));
+vi.mock('firebase/firestore', () => ({
+  collection: vi.fn(() => ({})),
+  onSnapshot: vi.fn((_ref: unknown, listener: () => void) => {
+    mocks.snapshotListeners.push(listener);
+    return () => {};
+  }),
+}));
 vi.mock('./map-data-cache', () => ({
   readMapCache: mocks.readMapCache,
   seedUidBeforeAuth: () => 'expired-account',
@@ -52,5 +59,58 @@ describe('useMapData anonymous auth reconciliation', () => {
     const { result } = renderHook(() => useMapData({ uid: null, authLoading: false, initialMapData }));
     expect(result.current.mustEats[0].dish).toBe('Public dish');
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+});
+
+describe('useMapData signed-in refetches', () => {
+  const fetchMock = vi.fn();
+  const accountCard = { ...initialMapData.mustEats[0], _id: 'account-card', dish: 'Account dish' };
+  const accountPayload = { ...initialMapData, mustEats: [accountCard], revealedMustEatIds: ['account-card'] };
+  function deferredResponse() {
+    let resolve!: () => void;
+    const promise = new Promise<{ ok: boolean; json: () => Promise<InitialMapData> }>((done) => {
+      resolve = () => done({ ok: true, json: async () => accountPayload });
+    });
+    return { promise, resolve };
+  }
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mocks.snapshotListeners.length = 0;
+    mocks.readMapCache.mockReturnValue(null);
+    vi.stubGlobal('fetch', fetchMock);
+  });
+  afterEach(() => vi.unstubAllGlobals());
+
+  it('shows the first account payload while the listener refetch is still running', async () => {
+    const first = deferredResponse();
+    const second = deferredResponse();
+    fetchMock.mockReturnValueOnce(first.promise).mockReturnValueOnce(second.promise);
+    const { result } = renderHook(() => useMapData({ uid: 'account', authLoading: false, initialMapData }));
+    await waitFor(() => expect(mocks.snapshotListeners.length).toBeGreaterThan(0));
+    mocks.snapshotListeners[0]();
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+
+    first.resolve();
+    await waitFor(() => expect(result.current.dataUid).toBe('account'));
+    expect(result.current.revealedMustEatIds.has('account-card')).toBe(true);
+    expect(result.current.loading).toBe(true);
+
+    second.resolve();
+    await waitFor(() => expect(result.current.loading).toBe(false));
+  });
+
+  it('drops a payload that lands after the account signed out', async () => {
+    const first = deferredResponse();
+    fetchMock.mockReturnValueOnce(first.promise).mockResolvedValue({ ok: true, json: async () => initialMapData });
+    const { result, rerender } = renderHook(
+      ({ uid }) => useMapData({ uid, authLoading: false, initialMapData }),
+      { initialProps: { uid: 'account' as string | null } }
+    );
+    rerender({ uid: null });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    first.resolve();
+    await new Promise((done) => setTimeout(done, 0));
+    expect(result.current.dataUid).toBeNull();
+    expect(result.current.revealedMustEatIds.has('account-card')).toBe(false);
   });
 });

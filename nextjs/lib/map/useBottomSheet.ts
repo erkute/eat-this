@@ -199,6 +199,29 @@ interface SheetConfig {
   inflow?: boolean;
 }
 
+/* Sheet top while dragging: the start position moved by the finger, held
+   between the highest allowed snap and 40 px above the viewport bottom. */
+function dragPx(cfg: SheetConfig, sheetH: number, basePx: number, dy: number): number {
+  const upperCap = cfg.maxSnap ? snapToPx(cfg.maxSnap, sheetH, cfg.peekVisiblePx) : FULL_TOP_PX;
+  return Math.max(upperCap, Math.min(sheetH - 40, basePx + dy));
+}
+
+/* Where a released drag goes: away (dismiss) or to the snap it points at. */
+function releaseTarget(
+  cfg: SheetConfig,
+  sheetH: number,
+  startSnap: SheetSnap,
+  basePx: number,
+  dy: number,
+  vel: number
+): SheetSnap | 'dismiss' {
+  const finalPx = dragPx(cfg, sheetH, basePx, dy);
+  if (dismissGesture(cfg, finalPx, dy, vel, sheetH)) return 'dismiss';
+  const allowed: SheetSnap[] =
+    cfg.snaps ?? (cfg.maxSnap ? ['mid', 'peek'] : ['full', 'mid', 'peek']);
+  return pickSnapAfterDrag(startSnap, dy, vel, finalPx, sheetH, cfg.peekVisiblePx, allowed);
+}
+
 export function useBottomSheet(initial: SheetSnap = 'peek') {
   const [snap, setSnap] = useState<SheetSnap>(initial);
   const [dragging, setDragging] = useState(false);
@@ -475,13 +498,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       const d = dragRef.current;
       if (!d) return;
       velocitySample(d.v, e.clientY, e.timeStamp);
-      const { maxSnap } = configRef.current;
-      const h = sheetHRef.current;
-      const upperCap = maxSnap
-        ? snapToPx(maxSnap, h, configRef.current.peekVisiblePx)
-        : FULL_TOP_PX;
-      const next = Math.max(upperCap, Math.min(h - 40, d.basePx + (e.clientY - d.startY)));
-      applyYDrag(next);
+      applyYDrag(dragPx(configRef.current, sheetHRef.current, d.basePx, e.clientY - d.startY));
     };
     const onUp = (e: PointerEvent) => {
       const d = dragRef.current;
@@ -492,8 +509,6 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
         /* noop */
       }
       cancelDragRaf();
-      const { maxSnap } = configRef.current;
-      const h = sheetHRef.current;
       const dy = e.clientY - d.startY;
       const displacement = Math.abs(dy);
       dragRef.current = null;
@@ -506,27 +521,16 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
         setSnap(snapRef.current === 'peek' ? (allowed.includes('mid') ? 'mid' : 'full') : 'peek');
         return;
       }
-      const upperCap = maxSnap
-        ? snapToPx(maxSnap, h, configRef.current.peekVisiblePx)
-        : FULL_TOP_PX;
-      const finalPx = Math.max(upperCap, Math.min(h - 40, d.basePx + dy));
-      const allowed: SheetSnap[] =
-        configRef.current.snaps ?? (maxSnap ? ['mid', 'peek'] : ['full', 'mid', 'peek']);
-      if (dismissGesture(configRef.current, finalPx, dy, d.v.vel, h)) {
-        configRef.current.onDismiss?.();
-      } else {
-        setSnap(
-          pickSnapAfterDrag(
-            snapRef.current,
-            dy,
-            d.v.vel,
-            finalPx,
-            h,
-            configRef.current.peekVisiblePx,
-            allowed
-          )
-        );
-      }
+      const target = releaseTarget(
+        configRef.current,
+        sheetHRef.current,
+        snapRef.current,
+        d.basePx,
+        dy,
+        d.v.vel
+      );
+      if (target === 'dismiss') configRef.current.onDismiss?.();
+      else setSnap(target);
     };
 
     handle.addEventListener('pointerdown', onDown);
@@ -628,44 +632,25 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
         setDragging(true);
       }
       e.preventDefault();
-      const { maxSnap } = configRef.current;
-      const h = sheetHRef.current;
-      const upperCap = maxSnap
-        ? snapToPx(maxSnap, h, configRef.current.peekVisiblePx)
-        : FULL_TOP_PX;
-      const next = Math.max(upperCap, Math.min(h - 40, touchState.basePx + dy));
-      applyYDrag(next);
+      applyYDrag(dragPx(configRef.current, sheetHRef.current, touchState.basePx, dy));
     };
 
     const onTouchEnd = (e: TouchEvent) => {
       if (!touchState) return;
       if (touchState.active) {
         cancelDragRaf();
-        const { maxSnap } = configRef.current;
-        const h = sheetHRef.current;
-        const upperCap = maxSnap
-          ? snapToPx(maxSnap, h, configRef.current.peekVisiblePx)
-          : FULL_TOP_PX;
         const dy = (e.changedTouches[0]?.clientY ?? touchState.startY) - touchState.startY;
-        const finalPx = Math.max(upperCap, Math.min(h - 40, touchState.basePx + dy));
-        const allowed: SheetSnap[] =
-          configRef.current.snaps ?? (maxSnap ? ['mid', 'peek'] : ['full', 'mid', 'peek']);
         setDragging(false);
-        if (dismissGesture(configRef.current, finalPx, dy, touchState.v.vel, h)) {
-          configRef.current.onDismiss?.();
-        } else {
-          setSnap(
-            pickSnapAfterDrag(
-              snapRef.current,
-              dy,
-              touchState.v.vel,
-              finalPx,
-              h,
-              configRef.current.peekVisiblePx,
-              allowed
-            )
-          );
-        }
+        const target = releaseTarget(
+          configRef.current,
+          sheetHRef.current,
+          snapRef.current,
+          touchState.basePx,
+          dy,
+          touchState.v.vel
+        );
+        if (target === 'dismiss') configRef.current.onDismiss?.();
+        else setSnap(target);
       }
       touchState = null;
     };
@@ -739,44 +724,25 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
         setDragging(true);
       }
       if (e.cancelable) e.preventDefault();
-      const { maxSnap } = configRef.current;
-      const h = sheetHRef.current;
-      const upperCap = maxSnap
-        ? snapToPx(maxSnap, h, configRef.current.peekVisiblePx)
-        : FULL_TOP_PX;
-      const next = Math.max(upperCap, Math.min(h - 40, touchState.basePx + dy));
-      applyYDrag(next);
+      applyYDrag(dragPx(configRef.current, sheetHRef.current, touchState.basePx, dy));
     };
 
     const onTouchEnd = (e: TouchEvent) => {
       if (!touchState) return;
       if (touchState.active) {
         cancelDragRaf();
-        const { maxSnap } = configRef.current;
-        const h = sheetHRef.current;
-        const upperCap = maxSnap
-          ? snapToPx(maxSnap, h, configRef.current.peekVisiblePx)
-          : FULL_TOP_PX;
         const dy = (e.changedTouches[0]?.clientY ?? touchState.startY) - touchState.startY;
-        const finalPx = Math.max(upperCap, Math.min(h - 40, touchState.basePx + dy));
-        const allowed: SheetSnap[] =
-          configRef.current.snaps ?? (maxSnap ? ['mid', 'peek'] : ['full', 'mid', 'peek']);
         setDragging(false);
-        if (dismissGesture(configRef.current, finalPx, dy, touchState.v.vel, h)) {
-          configRef.current.onDismiss?.();
-        } else {
-          setSnap(
-            pickSnapAfterDrag(
-              snapRef.current,
-              dy,
-              touchState.v.vel,
-              finalPx,
-              h,
-              configRef.current.peekVisiblePx,
-              allowed
-            )
-          );
-        }
+        const target = releaseTarget(
+          configRef.current,
+          sheetHRef.current,
+          snapRef.current,
+          touchState.basePx,
+          dy,
+          touchState.v.vel
+        );
+        if (target === 'dismiss') configRef.current.onDismiss?.();
+        else setSnap(target);
       }
       touchState = null;
     };

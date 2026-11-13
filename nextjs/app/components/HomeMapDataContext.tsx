@@ -22,9 +22,9 @@ export function HomeMapDataProvider({
   initialMapData: InitialMapData;
   children: ReactNode;
 }) {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, firebaseUid } = useAuth();
   const uid = user?.uid ?? null;
-  const live = useMapData({ uid, authLoading, initialMapData });
+  const live = useMapData({ uid, authLoading, firebaseUid, initialMapData });
   const visibleMapData = selectVisibleMustEats(initialMapData, { uid, authLoading, live });
 
   return (

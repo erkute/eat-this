@@ -11,14 +11,14 @@ import type { InitialMapData } from './server-initial-map-data';
 
 /** Account-scoped catalogue, favorites and reveals share one viewer lifetime. */
 export function useMapAccount(initialMapData?: InitialMapData) {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, firebaseUid } = useAuth();
   const uid = user?.uid ?? null;
   const viewer = useRef({ uid, authLoading });
   if (viewer.current.uid !== uid || viewer.current.authLoading !== authLoading) {
     viewer.current = { uid, authLoading };
   }
 
-  const data = useMapData({ uid, authLoading, initialMapData });
+  const data = useMapData({ uid, authLoading, firebaseUid, initialMapData });
   const { unlockedIds: storedUnlockedIds, unlock } = useUnlockedMustEats(authLoading ? null : uid);
   const { favoriteIds, toggle: toggleFavorite } = useFavorites(uid);
   const userTier = useUserTier(uid, {

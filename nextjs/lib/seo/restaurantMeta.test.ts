@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   buildCuratedRestaurantTitle,
+  buildMenuRestaurantTitle,
   buildRestaurantTitle,
   truncateAtSentence,
 } from './restaurantMeta';
@@ -190,5 +191,65 @@ describe('title budget without the brand suffix', () => {
       locale: 'de',
     });
     expect(t).toBe('Sofi – Bäckerei in Berlin-Mitte');
+  });
+});
+
+describe('buildMenuRestaurantTitle', () => {
+  const all = { hasPrice: true, hasHours: true } as const;
+
+  it('names the city and what the page answers', () => {
+    expect(buildMenuRestaurantTitle({ name: 'GEMELLO', ...all, locale: 'de' })).toBe(
+      'GEMELLO Berlin: Karte, Preise & Öffnungszeiten'
+    );
+    expect(buildMenuRestaurantTitle({ name: 'GEMELLO', ...all, locale: 'en' })).toBe(
+      'GEMELLO Berlin: Menu, Prices & Opening Hours'
+    );
+  });
+
+  it('promises only what the spot has', () => {
+    expect(
+      buildMenuRestaurantTitle({ name: 'Sofi', hasPrice: false, hasHours: true, locale: 'de' })
+    ).toBe('Sofi Berlin: Karte & Öffnungszeiten');
+    expect(
+      buildMenuRestaurantTitle({ name: 'Sofi', hasPrice: true, hasHours: false, locale: 'de' })
+    ).toBe('Sofi Berlin: Karte & Preise');
+  });
+
+  it('leaves a spot with nothing but the menu to the editorial title', () => {
+    expect(
+      buildMenuRestaurantTitle({ name: 'Sofi', hasPrice: false, hasHours: false, locale: 'de' })
+    ).toBeNull();
+  });
+
+  it('does not double a Berlin that is in the name', () => {
+    expect(buildMenuRestaurantTitle({ name: 'Luzii Berlin', ...all, locale: 'de' })).toBe(
+      'Luzii Berlin: Karte, Preise & Öffnungszeiten'
+    );
+  });
+
+  it('drops the prices before the city when the name is long', () => {
+    const t = buildMenuRestaurantTitle({
+      name: 'Knödelwirtschaft SÜD Neukölln',
+      ...all,
+      locale: 'de',
+    });
+    expect(t).toBe('Knödelwirtschaft SÜD Neukölln Berlin: Karte & Öffnungszeiten');
+    expect(t?.length).toBeLessThanOrEqual(60);
+  });
+
+  it('drops the city last', () => {
+    expect(
+      buildMenuRestaurantTitle({ name: 'Nathanja & Heinrich Café Bar Neukölln', ...all, locale: 'en' })
+    ).toBe('Nathanja & Heinrich Café Bar Neukölln: Menu & Opening Hours');
+  });
+
+  it('gives up rather than cut a title', () => {
+    expect(
+      buildMenuRestaurantTitle({
+        name: 'Tobi Ornot Tobe Restaurant by Tobias Felger im Hinterhof',
+        ...all,
+        locale: 'de',
+      })
+    ).toBeNull();
   });
 });

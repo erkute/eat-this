@@ -131,7 +131,7 @@ const articleProjection = `{
     category,
     ${ARTICLE_LABELS},
     date,
-    "updatedAt": _updatedAt,
+    revised,
     "imageUrl": ${groqImageUrl('image', 'detailHero')},
     "alt": image.alt,
     excerpt, excerptDe,

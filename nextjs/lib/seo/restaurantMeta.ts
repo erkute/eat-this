@@ -109,6 +109,56 @@ function withCity(title: string, district: string | null | undefined): string {
 }
 
 /**
+ * SERP-Title für Spots, deren Seite zur Speisekarte verlinkt: `{Name} Berlin:
+ * Karte, Preise & Öffnungszeiten`. Er nennt nur, was die Seite zeigt — „Preise"
+ * und „Öffnungszeiten" fallen weg, wo die Angabe fehlt. Passt nichts in die 60
+ * Zeichen oder bliebe nur „Karte" übrig, kommt `null` zurück und der Aufrufer
+ * nimmt den redaktionellen Title.
+ *
+ * Gesucht wird der Laden beim Namen, und oft mit dem, was man von ihm wissen
+ * will: 266 Anfragen mit „Karte", „Menü" oder „menu" brachten in 28 Tagen (GSC
+ * bis 10.11.2026) 4.362 Impressionen auf Position 7,8 bei 0,5 % CTR; „gemello
+ * karte" stand auf 4,6 ohne einen Klick. Ein Title, der das Wort der Suche
+ * trägt, passt zur Anfrage und wird im Ergebnis fett gesetzt.
+ *
+ * Nur mit Speisekarten-Link (83 von 251 Spots am 13.11.2026): ohne ihn wäre
+ * „Karte" eine leere Zusage. Die übrigen Spots behalten den redaktionellen
+ * Title und sind damit die Vergleichsgruppe für die CTR.
+ */
+export function buildMenuRestaurantTitle(opts: {
+  name: string;
+  hasPrice: boolean;
+  hasHours: boolean;
+  locale: 'de' | 'en';
+}): string | null {
+  const { hasPrice, hasHours, locale } = opts;
+  const name = opts.name.trim().replace(/\s+/g, ' ');
+  const de = locale === 'de';
+  const menu = de ? 'Karte' : 'Menu';
+  const price = de ? 'Preise' : 'Prices';
+  const hours = de ? 'Öffnungszeiten' : 'Opening Hours';
+
+  const list = (parts: string[]) =>
+    parts.length > 2
+      ? `${parts.slice(0, -1).join(', ')} & ${parts.at(-1)}`
+      : parts.join(' & ');
+  const full = [menu, hasPrice && price, hasHours && hours].filter(
+    (part): part is string => Boolean(part)
+  );
+  if (full.length < 2) return null;
+  // Ohne „Preise", wenn es eng wird: die Stadt ist das Wort der Suche.
+  const short = hasHours ? [menu, hours] : full;
+  const withCity = /berlin/i.test(name) ? name : `${name} Berlin`;
+
+  const candidates = [
+    `${withCity}: ${list(full)}`,
+    `${withCity}: ${list(short)}`,
+    `${name}: ${list(short)}`,
+  ];
+  return candidates.find((candidate) => candidate.length <= METADATA_TITLE_MAX) ?? null;
+}
+
+/**
  * Meta-Description-Kürzung auf ≤max Zeichen an der letzten Satzgrenze
  * (statt Google-Hard-Cut mitten im Wort). Ohne Satzende im Fenster:
  * Wortgrenze + Ellipse.

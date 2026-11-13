@@ -31,8 +31,11 @@ beforeEach(() => {
 });
 
 describe('news article JSON-LD', () => {
-  it('uses Sanity updatedAt for dateModified', async () => {
-    expect(articleBySlugQuery).toContain('"updatedAt": _updatedAt');
+  // `_updatedAt` bewegt sich mit jedem Skript, das das Dokument anfasst; das
+  // Datum der Überarbeitung setzt die Redaktion.
+  it('uses the editors’ revision date for dateModified', async () => {
+    expect(articleBySlugQuery).toContain('revised,');
+    expect(articleBySlugQuery).not.toContain('_updatedAt');
     mocks.getArticleBySlug.mockResolvedValueOnce({
       _id: 'news-1',
       slug: 'pizza-in-berlin',
@@ -43,7 +46,7 @@ describe('news article JSON-LD', () => {
       content: [{ _type: 'block' }],
       contentDe: [{ _type: 'block' }],
       date: '2026-07-10T08:00:00Z',
-      updatedAt: '2026-07-14T09:30:00Z',
+      revised: '2026-07-14',
     });
     mocks.getAllNewsArticles.mockResolvedValueOnce([]);
 
@@ -53,7 +56,7 @@ describe('news article JSON-LD', () => {
     const html = renderToStaticMarkup(element);
 
     expect(html).toContain('"datePublished":"2026-07-10T08:00:00Z"');
-    expect(html).toContain('"dateModified":"2026-07-14T09:30:00Z"');
+    expect(html).toContain('"dateModified":"2026-07-14"');
   });
 
   // Unter /news liegen immergrüne Guides und Kolumnen, keine Meldungen.

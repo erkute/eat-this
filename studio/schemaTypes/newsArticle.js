@@ -268,6 +268,22 @@ export default defineType({
       options: {dateFormat: 'DD.MM.YYYY'},
       validation: (Rule) => Rule.required(),
     }),
+    defineField({
+      name: 'revised',
+      title: 'Inhaltlich überarbeitet am',
+      description:
+        'Nur setzen, wenn sich der Text spürbar geändert hat: neue Spots, neue Abschnitte, neue Fakten. Google bekommt dieses Datum als „zuletzt geändert“. Leer gilt das Datum daneben.',
+      type: 'date',
+      group: 'artikel',
+      fieldset: 'details',
+      options: {dateFormat: 'DD.MM.YYYY'},
+      validation: (Rule) =>
+        Rule.custom((revised, context) =>
+          !revised || !context.document?.date || revised >= context.document.date
+            ? true
+            : 'Liegt vor dem Erscheinungsdatum.',
+        ),
+    }),
 
     // ── Englisch ──────────────────────────────────────────────────────────────
     defineField({

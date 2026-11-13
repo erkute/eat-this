@@ -144,7 +144,8 @@ export interface NewsArticle {
   categoryLabel?: string;
   categoryLabelDe?: string;
   date: string;
-  updatedAt?: string;
+  /** Tag der letzten inhaltlichen Überarbeitung, von der Redaktion gesetzt. */
+  revised?: string;
   imageUrl?: string;
   alt?: string;
   excerpt?: string;

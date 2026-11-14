@@ -142,7 +142,8 @@ const nextConfig: NextConfig = {
       "base-uri 'self'",
       "object-src 'none'",
       "frame-ancestors 'self'",
-      "script-src 'self' 'unsafe-inline' https://apis.google.com",
+      // `next dev` evaluates its modules with eval; a production build has none.
+      `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === 'development' ? " 'unsafe-eval'" : ''} https://apis.google.com`,
       // No third-party stylesheet any more: Adobe's kit CSS is gone and the
       // @font-face rules live in app/globals.css. Only the font FILES are
       // still fetched from Adobe, which font-src below covers.
@@ -153,6 +154,8 @@ const nextConfig: NextConfig = {
       "frame-src 'self' https://*.firebaseapp.com https://checkout.stripe.com https://accounts.google.com",
       "worker-src 'self' blob:",
       "form-action 'self' https://checkout.stripe.com",
+      // Without a destination a Report-Only policy tells nobody anything.
+      'report-uri /api/csp-report',
     ].join('; ');
     // Bilder, die unter GLEICHEM Namen ersetzt werden. Dieselbe Rechnung wie
     // beim Kartenstyle unten, und sie ist am 05.09.2026 teuer gelernt worden:

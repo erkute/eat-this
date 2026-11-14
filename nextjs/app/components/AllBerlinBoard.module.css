@@ -5,7 +5,7 @@
   .board:not(.boardUpsell) .stage { order: -1; }
 }
 .kicker { margin: 0 0 12px; }
-.title { margin: 0; font-size: clamp(32px, 5.5vw, 64px); font-weight: 800; letter-spacing: -.055em; line-height: 1; }
+.title { margin: 0; font-size: clamp(32px, 5.5vw, 64px); font-weight: 700; letter-spacing: -.055em; line-height: 1; }
 .lead { max-width: 32ch; margin: 14px auto 0; color: var(--et-copy); font-size: 18px; line-height: 1.4; }
 .stage { min-width: 0; padding: 0 28px; }
 .fanPack { position: relative; height: auto; transform-origin: 50% 90%; filter: drop-shadow(0 8px 8px rgb(0 0 0 / .16)); }

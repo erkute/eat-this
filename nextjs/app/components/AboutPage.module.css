@@ -125,7 +125,7 @@
 .codaSection { min-width: 0; }
 .email { width: fit-content; max-width: 100%; margin-block: 24px; }
 @media (hover: hover) { .body a:hover { color: var(--et-fg); } }
-@media (max-width: 767px) {
+@media (max-width: 767.98px) {
   .section.cardChapter { grid-template-columns: minmax(0, 1fr); }
   .cardChapter .sectionCopy { grid-column: 1; grid-row: 1; }
   .cardChapter .fanFigure { grid-column: 1; grid-row: 2; }

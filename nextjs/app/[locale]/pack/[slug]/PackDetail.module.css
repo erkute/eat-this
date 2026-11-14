@@ -10,7 +10,7 @@
   display: flow-root;
   min-height: 100svh;
   overflow-x: clip;
-  padding: calc(var(--site-nav-h) + var(--staging-banner-h, 0px)) var(--et-wrap-pad-mobile)
+  padding: var(--site-nav-h) var(--et-wrap-pad-mobile)
     40px;
   background: var(--et-ground);
   color: var(--pack-fg);

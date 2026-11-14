@@ -3,7 +3,7 @@
    Knoepfen. Beide zusammen fuellen den Bildschirm unter der Navigation. */
 
 .page {
-  --deck-nav: calc(var(--site-nav-h) + var(--staging-banner-h, 0px));
+  --deck-nav: var(--site-nav-h);
   min-height: 100svh;
   padding-top: var(--deck-nav);
 }

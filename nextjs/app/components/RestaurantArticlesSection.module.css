@@ -57,7 +57,7 @@
   outline-offset: 6px;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767.98px) {
   .issue {
     grid-template-columns: 130px minmax(0, 1fr);
     gap: 18px;

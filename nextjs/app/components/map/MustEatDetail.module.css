@@ -2156,7 +2156,6 @@
   background-color: color-mix(in srgb, var(--et-ground) 95%, var(--et-fg));
   box-shadow: none;
 }
-.detail .scroll > .fdRestInline:focus-visible .fdV { font-weight: 700; }
 .scroll > .fdRestInline .fdK {
   color: var(--et-muted);
   font-family: var(--et-font-body);

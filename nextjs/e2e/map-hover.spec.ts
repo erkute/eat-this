@@ -17,7 +17,6 @@ for (const theme of ['light', 'dark']) {
     await page.keyboard.press('Tab');
     await how.focus();
     await expect(how).toHaveCSS('outline-style', 'none');
-    await expect(how).toHaveCSS('font-weight', '900');
     await how.click();
     await page.getByRole('button', { name: english ? 'Skip' : 'Überspringen', exact: true }).click();
     await expect(how).toBeFocused();

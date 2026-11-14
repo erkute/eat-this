@@ -1406,7 +1406,6 @@ html[data-theme='dark'] .et-btn-text {
 .et-btn.et-btn-text:focus-visible {
   background-color: transparent;
   color: var(--et-btn-hover-fg);
-  font-weight: 700;
 }
 .et-btn.et-btn-light-hover:focus-visible {
   background-color: var(--et-white);

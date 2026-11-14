@@ -18,10 +18,6 @@
   visibility: visible;
 }
 
-:global(body[data-env='staging']) .overlay {
-  top: max(var(--dialog-viewport-top, 0px), var(--staging-banner-h, 0px));
-}
-
 .overlay[data-keyboard] { padding-block: 0; }
 
 @media (min-width: 1024px) {

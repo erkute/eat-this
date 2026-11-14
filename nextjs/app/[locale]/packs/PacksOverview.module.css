@@ -6,7 +6,7 @@
   --packs-muted: var(--et-muted);
   min-height: 100%;
   overflow-x: clip;
-  padding: calc(var(--site-nav-h) + var(--staging-banner-h, 0px)) 0 clamp(32px, 4vw, 56px);
+  padding: var(--site-nav-h) 0 clamp(32px, 4vw, 56px);
   background: var(--packs-ink);
   color: var(--packs-fg);
   font-family: var(--et-font-body);

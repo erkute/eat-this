@@ -168,7 +168,7 @@
   max-width: 100%;
   margin: 0;
   font-size: 22px;
-  font-weight: 800;
+  font-weight: 700;
   /* `--ink-lead` zieht die Zeilen nur dort auseinander, wo eine Unterlänge
      genau über einer Oberlänge steht (lib/dom/inkSafeLeading.ts). */
   line-height: max(1.22em, var(--ink-lead, 0px));

@@ -1,7 +1,7 @@
 .gallery {
   max-width: var(--issue-wide);
   margin-inline: auto;
-  padding-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 40px);
+  padding-top: calc(var(--site-nav-h) + 40px);
 }
 .header { display: grid; grid-template-columns: 1fr; gap: 18px; }
 .kicker { margin: 0 0 -4px; font-size: 13px; font-weight: 700; letter-spacing: .08em; line-height: 1.2; text-transform: uppercase; }
@@ -55,8 +55,8 @@
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
   .packs a:hover img { rotate: 0deg; translate: 0 -10px; }
 }
-@media (max-width: 767px) {
-  .gallery { padding-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 24px); }
+@media (max-width: 767.98px) {
+  .gallery { padding-top: calc(var(--site-nav-h) + 24px); }
   .header { gap: 14px; }
   .header h1 { font-size: clamp(46px, 14vw, 68px); }
   .header p:not(.kicker) { font-size: 18px; }

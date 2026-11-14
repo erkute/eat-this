@@ -265,7 +265,7 @@
   background: color-mix(in srgb, #75b5ff 20%, var(--buddy-ink));
   border: 1px solid var(--retro-edge);
   border-radius: 0;
-  font-weight: 500;
+  font-weight: 400;
   line-height: 1.5;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -330,7 +330,7 @@
   box-shadow: inset 1px 1px var(--retro-control-top), inset -1px -1px #c6c0ae;
   font-family: var(--buddy-copy);
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 400;
   line-height: 1.4;
   text-align: left;
   cursor: pointer;

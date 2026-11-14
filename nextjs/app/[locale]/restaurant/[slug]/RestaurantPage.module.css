@@ -18,7 +18,7 @@
   --et-muted: var(--et-copy);
 
   --gut: var(--et-gutter);
-  --nav-offset: calc(var(--site-nav-h) + var(--staging-banner-h, 0px));
+  --nav-offset: var(--site-nav-h);
   --restaurant-content-width: 768px;
   --restaurant-section-size: var(--et-type-heading);
   --rhythm: clamp(40px, 4.4vw, 64px);
@@ -364,7 +364,7 @@
 
 /* ------------------------------------------------------------ telefon --- */
 
-@media (max-width: 767px) {
+@media (max-width: 767.98px) {
   /* Die Fotos randlos über den ganzen Bildschirm. */
   .figure {
     margin-inline: calc(-1 * var(--gut));
@@ -401,7 +401,7 @@
 .caption .credit { display: block; margin: 0; text-align: left; }
 .sheet figure { margin: 0; }
 .imageGroup:focus-visible { outline: 2px solid var(--et-fg); outline-offset: 6px; }
-@media (max-width:767px) {
+@media (max-width:767.98px) {
   .imageGroup { width: 100vw; grid-template-columns: 1fr; gap: 32px; }
   .imageGroup .caption { padding-inline: var(--gut); }
   .figure > .caption { padding-inline: var(--gut); }

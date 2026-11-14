@@ -242,7 +242,6 @@
 
 .mapSearchToolbar .mapSearchInput:focus-visible {
   outline: 0;
-  font-weight: 800;
 }
 
 .mapSearchSuggestions {

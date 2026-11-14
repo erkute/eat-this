@@ -154,7 +154,7 @@
   filter: var(--et-tape-lift);
   color: #fff;
   cursor: pointer;
-  font: 800 13px / 1.2 var(--et-font-body);
+  font: 700 13px / 1.2 var(--et-font-body);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -185,7 +185,7 @@ html[data-theme='dark'] .filterReturn {
 /* Am Telefon eine Zeile bis an den Rand: das angeschnittene Wort zeigt, dass
    es weitergeht. Oben und unten Luft, sonst schneidet der Querscroller den
    Schatten des Bands ab. */
-@media (max-width: 767px) {
+@media (max-width: 767.98px) {
   .filterRail {
     flex-wrap: nowrap;
     margin-inline: calc(-1 * var(--issue-gutter));
@@ -216,13 +216,13 @@ html[data-theme='dark'] .filterReturn {
 /* Sprungziel nach einem Filterwechsel: hält Navigation und Rubrikenzeile
    frei. */
 .spotList {
-  scroll-margin-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 56px);
+  scroll-margin-top: calc(var(--site-nav-h) + 56px);
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767.98px) {
   /* 74px Filterleiste plus 30px Luft nach dem automatischen Listensprung. */
   .spotList {
-    scroll-margin-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 104px);
+    scroll-margin-top: calc(var(--site-nav-h) + 104px);
   }
 }
 
@@ -258,7 +258,7 @@ html[data-theme='dark'] .filterReturn {
   grid-template-rows: subgrid;
   min-width: 0;
   margin-bottom: 40px;
-  scroll-margin-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 24px);
+  scroll-margin-top: calc(var(--site-nav-h) + 24px);
 }
 
 .spotName {
@@ -560,7 +560,7 @@ html[data-theme='dark'] .filterReturn {
 
 /* ------------------------------------------------------------- telefon -- */
 
-@media (max-width: 767px) {
+@media (max-width: 767.98px) {
   /* Die Hefte wischen am Telefon; oben und unten Luft, sonst schneidet der
      Querscroller die gedrehten Hefte und ihren Schatten ab. */
   .shelf {
@@ -616,10 +616,10 @@ html[data-theme='dark'] .filterReturn {
 @media (min-width: 1200px) {
   .spots[data-count='4'] { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
-@media (min-width: 768px) and (max-width: 1023px) {
+@media (min-width: 768px) and (max-width: 1023.98px) {
   .spots { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
-@media (max-width: 767px) {
+@media (max-width: 767.98px) {
   .spots { grid-template-columns: 1fr; gap: 36px; }
   .spot { display: flex; flex-direction: column; margin-bottom: 0; }
   .secTitle {
@@ -707,7 +707,7 @@ html[data-theme='dark'] .filterReturn {
   .guideInterlude .guide { grid-template-columns: 1fr; align-content: start; }
   .guideInterlude .guideCover { width: 130px; }
 }
-@media (max-width: 767px) {
+@media (max-width: 767.98px) {
   .spots.editorialSpots, .spots.compactSpots { grid-template-columns: 1fr; row-gap: 28px; }
   .editorialSpots .spot, .compactSpots .spot {
     display: grid;
@@ -755,7 +755,7 @@ html[data-theme='dark'] .filterReturn {
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
   .categoryMenu a:hover .shelfPack { rotate: 0deg; translate: 0 -8px; }
 }
-@media (max-width: 767px) {
+@media (max-width: 767.98px) {
   .magazine.magazineIntro { margin: 56px 0 0; padding: 32px 0 0; }
   .magazineDescription { font-size: 18px; }
   .categoryMenu { margin-top: 56px; }
@@ -783,10 +783,10 @@ html[data-theme='dark'] .filterReturn {
 .districtPage .guideInterlude { border-top: 0; margin-top: 88px; padding: 40px; }
 .moreSpots { margin-top: clamp(48px, 5vw, 72px); }
 .districtPage .moreSpots { margin-top: 88px; }
-@media (min-width:768px) and (max-width:1023px) {
+@media (min-width:768px) and (max-width:1023.98px) {
   .spots.districtSpots { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 56px 28px; }
 }
-@media (max-width:767px) {
+@media (max-width:767.98px) {
   .spots.districtSpots { grid-template-columns: 1fr; gap: 48px; margin-top: 28px; }
   .districtSpots .spotPhoto { margin-bottom: 20px; }
   .districtSpots .spotName { font-size: 28px; }

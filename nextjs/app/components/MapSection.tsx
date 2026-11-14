@@ -26,7 +26,6 @@ import {
   phoneListMidVisiblePx,
   type DetailOrigin,
 } from '@/lib/map/phoneSheetSnaps';
-import { flyToSpots } from '@/lib/map/cameraFit';
 import {
   isRowReturnFlight,
   listFollowsMove,
@@ -38,12 +37,10 @@ import { isPhoneViewport, isSheetViewport } from '@/lib/map/viewport';
 import { useMapCamera } from '@/lib/map/useMapCamera';
 import { useMapStarterPrompt } from '@/lib/map/useMapStarterPrompt';
 import { useDetailSelection, type DetailOpeners } from '@/lib/map/useDetailSelection';
-
-/* How long the search query has to hold still before the camera follows it.
-   Long enough that typing "kreuzberg" flies once rather than once per letter,
-   short enough that the move still reads as the answer to what was typed.
-   Was 450 ms; taken down to 300 on 22.08.2026 because the wait read as lag. */
-const SEARCH_REFIT_DELAY_MS = 300;
+import { useMapViewportVars } from '@/lib/map/useMapViewportVars';
+import { useMapWindowScrollKeeper } from '@/lib/map/useMapWindowScrollKeeper';
+import { useDesktopPanelHidden } from '@/lib/map/useDesktopPanelHidden';
+import { useMapCameraRefit } from '@/lib/map/useMapCameraRefit';
 
 interface Props {
   isActive?: boolean;
@@ -226,25 +223,8 @@ export default function MapSection({
     detailOpen: sheetView === 'detail',
   });
 
-  // Desktop-only: lets the user collapse the side panel off to the right so
-  // the map fills the viewport (Google-Maps-style toggle).
-  const [desktopPanelHidden, setDesktopPanelHiddenState] = useState(false);
-  /* The same, for the camera: the map runs under the panel, and a flight
-     started in the handler that unfolds it must already leave the panel's
-     strip out — before React has rendered the change. */
-  const desktopPanelHiddenRef = useRef(false);
-  const setDesktopPanelHidden = useCallback((hidden: boolean) => {
-    desktopPanelHiddenRef.current = hidden;
-    setDesktopPanelHiddenState(hidden);
-  }, []);
-  useEffect(() => {
-    const desktopQuery = window.matchMedia('(min-width: 1024px)');
-    const restorePanelBelowDesktop = (event: MediaQueryListEvent) => {
-      if (!event.matches) setDesktopPanelHidden(false);
-    };
-    desktopQuery.addEventListener('change', restorePanelBelowDesktop);
-    return () => desktopQuery.removeEventListener('change', restorePanelBelowDesktop);
-  }, [setDesktopPanelHidden]);
+  const { desktopPanelHidden, desktopPanelHiddenRef, setDesktopPanelHidden } =
+    useDesktopPanelHidden();
 
   // Snap the sheet when entering detail view (or switching selections).
   const snapRef = useRef(snap);
@@ -260,112 +240,7 @@ export default function MapSection({
      its resting stop (user, 23.09.2026). Consumed once by the effect below. */
   const detailOpenTopRef = useRef<number | null>(null);
 
-  useEffect(() => {
-    if (!isActive) return;
-
-    const root = document.documentElement;
-    /* Only changed values invalidate styles during viewport/scroll events. */
-    const written = new Map<string, string>();
-    let canvasWidth: number | null = null;
-    const write = (prop: string, value: string) => {
-      if (written.get(prop) === value) return;
-      written.set(prop, value);
-      root.style.setProperty(prop, value);
-    };
-
-    const apply = () => {
-      if (!isPhoneViewport()) {
-        canvasWidth = null;
-        written.clear();
-        root.style.removeProperty('--map-canvas-height');
-        root.style.removeProperty('--map-runtime-bar-overhang');
-        root.style.removeProperty('--map-visual-offset-top');
-        return;
-      }
-
-      /* Keep the camera's geometry stable through height-only browser chrome
-         changes. A width change (rotation or window resize) measures it anew.
-         The touch screen bounds cover the area exposed when bars retract,
-         even in browsers that report a changing large viewport. */
-      const touchViewport = window.matchMedia('(pointer: coarse)').matches;
-      if (!touchViewport) {
-        canvasWidth = null;
-        written.delete('--map-canvas-height');
-        root.style.removeProperty('--map-canvas-height');
-      } else if (canvasWidth !== window.innerWidth) {
-        const probe = document.createElement('div');
-        probe.style.cssText = 'position:fixed;width:0;height:100lvh;visibility:hidden;pointer-events:none;';
-        document.body.appendChild(probe);
-        const portrait = window.matchMedia('(orientation: portrait)').matches;
-        const screenHeight = (portrait ? Math.max : Math.min)(window.screen.width, window.screen.height);
-        const height = Math.max(probe.offsetHeight, window.innerHeight, screenHeight);
-        probe.remove();
-        write('--map-canvas-height', `${height}px`);
-        canvasWidth = window.innerWidth;
-      }
-
-      const visualViewport = window.visualViewport;
-      const visualHeight = visualViewport?.height ?? window.innerHeight;
-      const layoutHeight = Math.max(
-        window.innerHeight,
-        document.documentElement.clientHeight,
-        visualHeight
-      );
-      const visualOffsetTop = visualViewport?.offsetTop ?? 0;
-      const toolbarHeight = Math.max(0, layoutHeight - visualHeight - visualOffsetTop);
-
-      write('--map-runtime-bar-overhang', `${Math.round(Math.max(96, toolbarHeight + 96))}px`);
-
-      /* How far the visual viewport has slid down inside the layout viewport.
-         Non-zero only while the iOS keyboard is up: the layout viewport keeps
-         its full height, Safari scrolls the visual one to keep the caret clear,
-         and anything `position: fixed` — which anchors to the LAYOUT viewport —
-         rides up out of sight with it. Measured on an iPhone 16e simulator,
-         iOS 26.3: tapping the magnifier put offsetTop at 96 while the toolbar's
-         own `top: 14px` left its client rect at -82, i.e. fully above the
-         visible area. The phone controls add this back onto their `top`
-         (MapControls.module.css). Kept off `transform`, which those three need
-         for their retreat animation.
-
-         Only while a text field has focus, i.e. while there IS a keyboard.
-         Safari slides the visual viewport for other reasons too: the burger
-         drawer pins the page (body position: fixed), Safari unfolds its bars,
-         and the offset it reported pushed burger and search down while the
-         map stayed put (user, 23.09.2026). */
-      const active = document.activeElement;
-      /* Only fields that bring up the keyboard — not a focused checkbox. */
-      const typing =
-        active instanceof HTMLTextAreaElement ||
-        (active instanceof HTMLInputElement &&
-          ['text', 'search', 'email', 'url', 'tel', 'password', 'number'].includes(active.type)) ||
-        (active instanceof HTMLElement && active.isContentEditable);
-      write(
-        '--map-visual-offset-top',
-        `${typing ? Math.round(Math.max(0, visualOffsetTop)) : 0}px`
-      );
-    };
-
-    apply();
-    window.addEventListener('resize', apply, { passive: true });
-    window.addEventListener('scroll', apply, { passive: true });
-    window.visualViewport?.addEventListener('resize', apply, { passive: true });
-    window.visualViewport?.addEventListener('scroll', apply, { passive: true });
-    /* The keyboard comes and goes with the focus. */
-    document.addEventListener('focusin', apply);
-    document.addEventListener('focusout', apply);
-
-    return () => {
-      window.removeEventListener('resize', apply);
-      window.removeEventListener('scroll', apply);
-      window.visualViewport?.removeEventListener('resize', apply);
-      window.visualViewport?.removeEventListener('scroll', apply);
-      document.removeEventListener('focusin', apply);
-      document.removeEventListener('focusout', apply);
-      root.style.removeProperty('--map-canvas-height');
-      root.style.removeProperty('--map-runtime-bar-overhang');
-      root.style.removeProperty('--map-visual-offset-top');
-    };
-  }, [isActive]);
+  useMapViewportVars(isActive);
 
   useLayoutEffect(() => {
     if (sheetView !== 'detail') return;
@@ -896,126 +771,17 @@ export default function MapSection({
     return true;
   }, [selectedMustEat, setSelectedMustEat, reveal]);
 
-  /* Move the camera onto a match set. Shared by the structured-filter refit
-     and the search refit below. */
-  const fitCameraToSpots = useCallback(
-    (list: MapRestaurant[]) => {
-      const map = mapRef.current;
-      if (!map) return;
-      /* Closing a phone detail expands the CSS container from the compact peek
-         back to 100dvh. Resize synchronously before applying list padding;
-         MapLibre's ResizeObserver otherwise updates one tick later and briefly
-         tries to fit the large list bounds into the old 170–215px transform. */
-      map.resize();
-      // Filter chips can be used while the list covers the map or the picker
-      // is restoring document scroll. Fit the result set for the stable phone
-      // middle stop, not those transient/fully covered DOM coordinates.
-      const padding = getFlyPaddingRef.current(isPhoneViewport() ? 'mid' : undefined);
-      flyToSpots(map, list, padding, { duration: 500 });
-    },
-    [getFlyPaddingRef]
-  );
+  const { fitCameraToSpots, getInitialCamera } = useMapCameraRefit({
+    mapRef,
+    getFlyPaddingRef,
+    initialCamera,
+    displayedRestaurants,
+    filterKey: `${category}|${bezirk ?? ''}|${price ?? ''}|${openOnly}`,
+    search,
+    detailOpen: Boolean(selectedRestaurant || selectedMustEat),
+  });
 
-  /* Refit the map whenever a structured filter narrows or widens the visible
-     set. Without this the user picks "Pizza" → 3 spots in the list but the
-     map stays parked on Mitte and they have to manually zoom out to find the
-     other two. Search is handled by its own debounced effect below — refitting
-     on every keystroke feels jittery. Skip during a detail view so the
-     selected pin's centering isn't overridden.
-
-     Free set first: that is what the list renders for a chip filter. But when
-     it is EMPTY the locked matches are the only thing drawn, and framing
-     nothing would leave the camera on the previous district while the sheet
-     says "Keine Spots" — so fall back to them. This is also what makes
-     handleBezirkChange safe to strip: a district with no free spots still
-     flies somewhere, and it now flies to its actual (locked) spots rather than
-     to an averaged centroid. */
-  const displayedRestaurantsRef = useRef(displayedRestaurants);
-  displayedRestaurantsRef.current = displayedRestaurants;
-
-  /* Asked once by MapCanvas before its first frame: frame the spots on the
-     canvas as laid out. mapRef is empty then, so measure the layer the
-     canvas fills. */
-  const getInitialCamera = useCallback(() => {
-    const layer = document.querySelector<HTMLElement>('[data-live-map-layer]');
-    if (!layer) return null;
-    return initialCamera(displayedRestaurantsRef.current, {
-      width: layer.clientWidth,
-      height: layer.clientHeight,
-    });
-  }, [initialCamera]);
-  /* The filter set the camera was last fitted to. The effect also re-runs when
-     a detail opens or closes (it has to, to skip the open one), and until
-     03.09.2026 every CLOSE counted as a filter change: the whole catalogue was
-     framed again, Brandenburg-wide, over whatever the close handler had just
-     flown to. Only a filter that differs from the last fitted one refits —
-     on the change itself, or on close if it changed while a detail was open. */
-  const filterKey = `${category}|${bezirk ?? ''}|${price ?? ''}|${openOnly}`;
-  const lastFittedFilterKeyRef = useRef(filterKey);
-  useEffect(() => {
-    if (selectedRestaurant || selectedMustEat) return;
-    if (filterKey === lastFittedFilterKeyRef.current) return;
-    lastFittedFilterKeyRef.current = filterKey;
-    fitCameraToSpots(displayedRestaurantsRef.current);
-  }, [filterKey, selectedRestaurant, selectedMustEat, fitCameraToSpots]);
-
-  /* Search refit — ohne ihn stand die Karte still, während die Liste schon die
-     Treffer zeigte. Einen DOM-Knoten bekommen nur Pins nahe der aktuellen
-     Kamera; wer aus einer Mitte-Ansicht einen Spot in Spandau suchte, sah eine
-     leere Karte zu einer gefüllten Liste — der Treffer existierte und war
-     unsichtbar.
-
-     Dropping the query refits too, immediately: the camera is parked on
-     whatever the search flew to, so without this the map keeps showing one
-     corner of the city while the list is back to every spot. Same target the
-     structured filters use — die Treffer unter den übrigen Filtern, ohne
-     weitere Filter also ganz Berlin.
-
-     Debounced on the way in, not on the way out: typing is a stream of
-     intermediate states (the jitter the structured-filter effect avoids by
-     excluding search), clearing is one deliberate act and waiting on it just
-     reads as lag.
-
-     `hadSearchQueryRef` is what keeps the clear branch from firing on mount,
-     where the query is empty because nothing was ever typed. */
-  const hadSearchQueryRef = useRef(false);
-  useEffect(() => {
-    const query = search.trim();
-    const hadQuery = hadSearchQueryRef.current;
-    hadSearchQueryRef.current = Boolean(query);
-    if (selectedRestaurant || selectedMustEat) return;
-    if (!query) {
-      if (hadQuery) fitCameraToSpots(displayedRestaurantsRef.current);
-      return;
-    }
-    const timer = window.setTimeout(() => {
-      fitCameraToSpots(displayedRestaurantsRef.current);
-    }, SEARCH_REFIT_DELAY_MS);
-    return () => window.clearTimeout(timer);
-  }, [search, selectedRestaurant, selectedMustEat, fitCameraToSpots]);
-
-  /* Scroll keeper — TABLET only (768–1023.98px). There the map page is a
-     fixed-height in-flow box (100lvh + 80px apron) whose drag-sheet captures
-     every gesture, so the window's ~bar-height scroll range must stay pinned
-     at 0 or the toolbar clips. PHONES are the opposite: the list is a
-     window-scrolled in-flow document (rows frost through iOS Safari's bottom
-     URL bar) — the window MUST scroll freely there; just reset once on entry
-     so the map doesn't open half-scrolled from a previous visit. */
-  useEffect(() => {
-    if (!isActive) return;
-    if (!isSheetViewport()) return;
-    if (isPhoneViewport()) {
-      window.scrollTo(0, 0);
-      return;
-    }
-    const onScroll = () => {
-      if (!isSheetViewport() || isPhoneViewport()) return;
-      if (window.scrollY !== 0) window.scrollTo({ top: 0, behavior: 'instant' });
-    };
-    onScroll(); // entering the map with a leftover scroll position
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, [isActive]);
+  useMapWindowScrollKeeper(isActive);
 
   // Deep-links: ?r=<slug> opens a restaurant detail; ?bezirk=<slug> also moves
   // the camera onto that district. Both poll mapRef so the camera moves don't

@@ -117,17 +117,15 @@
   /* Die Weiss-Stufen auf dem Ink-Grund. Seit 03.09.2026 stehen alle
      Inhaltsseiten auf durchgehendem Ink (siehe die Rahmen-Regel weiter
      unten); Text, Linien und die eine Flaeche, die sich abheben darf, sind
-     dann keine Grautoene mehr, sondern Weiss in fuenf Staerken. Eine Quelle
-     fuer alle Module — vorher stand jede Zahl in jedem Modul noch einmal. */
+     dann keine Grautoene mehr, sondern abgestuftes Weiss. Eine Quelle fuer
+     alle Module. */
   --et-ink-soft: rgba(255, 255, 255, 0.76);
-  --et-ink-quiet: rgba(255, 255, 255, 0.055);
   /* Die schwebende Flaeche: alles, was sich UEBER der Seite oeffnet
      (Info-Karte, Login, Onboarding, Sheets, Remys Chat).
      Seit die Seiten selbst auf Ink stehen, lag jedes dieser Fenster Ink auf
      Ink — der Schleier dunkelt Ink nicht ab, und ein schwarzer Schatten ist
      auf Schwarz unsichtbar. Deshalb eine Stufe heller als der Grund (Weiss
-     7 %, deckend — ein Fenster darf nicht durchscheinen). `--et-ink-quiet`
-     (5,5 %) legt sich darauf weiter als leise Stufe ab.
+     7 %, deckend — ein Fenster darf nicht durchscheinen).
      Fest als Hex, nicht als color-mix: faellt color-mix aus, ist die ganze
      Deklaration ungueltig und das Fenster haette GAR keine Flaeche. #25231f
      ist exakt `color-mix(in srgb, #fff 7%, #15120e)`. */
@@ -172,8 +170,6 @@
   /* Gemeinsame Fensterfläche für Tour, Hinweise und Auth-Status. */
   --et-window-paper: url('/pics/paper/folded-white.webp?v=20261028-hq');
   --et-window-shadow: 0 16px 48px rgb(0 0 0 / 0.2);
-  --et-window-padding: clamp(24px, 3.4vw, 40px);
-  --et-window-title: clamp(28px, 3.4vw, 42px);
   --et-zoom-scrim-blur: blur(12px) saturate(1);
   /* Die deckenden Kappen des Zooms an Status- und URL-Leiste (ZoomCurtain):
      exakt der Vorhang ueber Ink, damit der Uebergang nicht springt. */
@@ -196,7 +192,6 @@
   --et-btn-pad-sm: 16px;
   --et-btn-font-sm: 14px;
   --et-motion-fast: 140ms ease;
-  --et-motion-base: 160ms ease;
   --et-motion-card: 180ms ease;
 
   --et-img-photo-fit: cover;
@@ -473,16 +468,6 @@ html:has(main:is([data-page='not-found'], [data-page='error'])) main .et-btn:foc
 html:has([data-page='admin']),
 html:has([data-page='admin']) body {
   background: var(--et-ink);
-}
-/* Auf dem Ink-Grund loest sich jede Tafel auf: der Grund IST die Tafel.
-   Die Module lesen die drei Tokens mit Fallback auf ihre Tafel-Werte
-   (`padding: var(--et-board-pad)`), die Kasten-Optik ist also eine Zeile
-   weit entfernt. Was ein eigenes OBJEKT ist — Angebote, Formulare, Remy,
-   Fakten mit Knoepfen — bekommt stattdessen die leise Stufe, eine Spur
-   heller als der Grund; Inhalt steht auf dem Grund. Beides gilt fuer die
-   ganze Site, deshalb steht es hier und nicht in jedem Seitenmodul. */
-:root {
-  --et-board-pad: 0px;
 }
 /* Sitewide collage language. */
 html:not([data-active-page='map']) .app-pages,
@@ -1319,7 +1304,7 @@ html[data-theme='dark'] {
   color: var(--et-tape-fg);
   min-height: 40px;
   padding-inline: 12px;
-  font: 800 11px / 1.2 var(--et-font-body);
+  font: 700 11px / 1.2 var(--et-font-body);
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
@@ -1421,7 +1406,7 @@ html[data-theme='dark'] .et-btn-text {
 .et-btn.et-btn-text:focus-visible {
   background-color: transparent;
   color: var(--et-btn-hover-fg);
-  font-weight: 900;
+  font-weight: 700;
 }
 .et-btn.et-btn-light-hover:focus-visible {
   background-color: var(--et-white);
@@ -1461,7 +1446,7 @@ html[data-theme='dark'] .et-btn-text {
   padding: 6px 9px 5px;
   background: var(--et-label-bg, var(--et-ink)) var(--et-wear, none) 0 0 / 200px auto;
   color: #fff;
-  font: 900 11px / 1 var(--et-font-body);
+  font: 700 11px / 1 var(--et-font-body);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -1486,7 +1471,7 @@ html[data-theme='dark'] .et-btn-text {
   box-decoration-break: clone;
   background: #fff;
   color: var(--et-ink);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.02em;
 }
 /* Name, Bezirk und Küche der Map-Spots auf Gewebeband (Ersan 26.10.2026):

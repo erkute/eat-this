@@ -5,7 +5,7 @@
 .title { font-size: clamp(20px, 2vw, 24px); font-weight: 700; line-height: 1.2; }
 .link:hover, .link:active { color: var(--et-fg); text-decoration: none; }
 .link:focus-visible { outline: 2px solid var(--et-fg); outline-offset: 8px; border-radius: 8px; }
-@media (max-width:767px) { .return { margin-top: 72px; padding: 40px 20px; } .link svg { width: min(100%, 340px); margin-bottom: 8px; } }
+@media (max-width:767.98px) { .return { margin-top: 72px; padding: 40px 20px; } .link svg { width: min(100%, 340px); margin-bottom: 8px; } }
 
 .link .silhouette { fill: var(--et-fg); stroke: var(--et-ground); stroke-opacity: .85; stroke-width: 1.4; }
 .link .boundaries path { stroke: var(--et-ground); stroke-opacity: .24; stroke-width: .7; fill: var(--et-accent); fill-opacity: 0; transition: fill-opacity 450ms ease; }

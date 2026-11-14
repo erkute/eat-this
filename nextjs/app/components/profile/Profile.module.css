@@ -13,13 +13,12 @@
   --profile-line: var(--et-line);
   --profile-accent: var(--et-accent);
   --profile-raised: var(--et-quiet);
-  --profile-raised-on: var(--et-line);
   --profile-red: var(--et-red);
   --profile-inverse: var(--et-fg);
   --profile-radius: var(--et-radius-control);
   --profile-motion: var(--et-motion-card);
   min-height: 100svh;
-  padding: calc(72px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px) + 24px) 0
+  padding: calc(72px + env(safe-area-inset-top, 0px) + 24px) 0
     clamp(56px, 8vw, 104px);
 }
 
@@ -302,7 +301,7 @@ main.page .head {
   max-width: 100%;
   min-height: 2.3em;
   overflow: hidden;
-  font: 800 clamp(15px, 4.2vw, 19px) / 1.15 var(--et-font-display);
+  font: 700 clamp(15px, 4.2vw, 19px) / 1.15 var(--et-font-display);
   letter-spacing: -0.02em;
   overflow-wrap: anywhere;
   -webkit-box-orient: vertical;
@@ -315,7 +314,7 @@ main.page .head {
   text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--et-muted);
-  font: 800 11px / 1.2 var(--et-font-body);
+  font: 700 11px / 1.2 var(--et-font-body);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -573,7 +572,7 @@ main.page .head {
   box-shadow: none;
   filter: var(--et-tape-lift);
   color: var(--et-tape-fg);
-  font: 800 12px / 1.2 var(--et-font-body);
+  font: 700 12px / 1.2 var(--et-font-body);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -719,7 +718,7 @@ html[data-theme='dark'] .tab:nth-child(4) {
   color: var(--et-fg);
   font-family: var(--et-font-display);
   font-size: clamp(28px, 7.4vw, 44px);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.035em;
   line-height: 1;
   text-transform: none;
@@ -766,7 +765,7 @@ html[data-theme='dark'] .tab:nth-child(4) {
 
 @media (max-width: 767.98px) {
   .page {
-    padding-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 20px);
+    padding-top: calc(var(--site-nav-h) + 20px);
   }
 
   .spotsCards {
@@ -945,7 +944,7 @@ main.page .tabPanel {
 /* Der Name gross: er ist die Überschrift der Seite. */
 .accountName {
   margin: 0;
-  font: 800 clamp(40px, 12vw, 96px) / 0.95 var(--et-font-display);
+  font: 700 clamp(40px, 12vw, 96px) / 0.95 var(--et-font-display);
   letter-spacing: -0.04em;
   overflow-wrap: anywhere;
 }
@@ -968,7 +967,7 @@ main.page .tabPanel {
 .accountLabel {
   margin: 0;
   color: var(--profile-muted);
-  font: 900 11px / 1 var(--et-font-body);
+  font: 700 11px / 1 var(--et-font-body);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }

@@ -5,7 +5,6 @@
 .panel {
   --album-ink: var(--profile-fg, var(--et-white));
   --album-muted: var(--profile-muted, rgba(255, 255, 255, 0.76));
-  --album-red: var(--profile-red, var(--et-red));
   --album-display: var(--et-font-display);
   position: relative;
   z-index: 1;
@@ -20,7 +19,7 @@
 .deckTitle {
   margin: 0;
   color: var(--album-ink);
-  font: 800 clamp(40px, 12vw, 96px) / 0.95 var(--album-display);
+  font: 700 clamp(40px, 12vw, 96px) / 0.95 var(--album-display);
   letter-spacing: -0.04em;
 }
 
@@ -64,7 +63,7 @@
 /* Der Bestand als kleine Versalzeile, im Ton der Etiketten (et-label). */
 .handTotal {
   color: rgba(255, 255, 255, 0.7);
-  font: 900 clamp(11px, 1.1vw, 14px) / 1 var(--et-font-body);
+  font: 700 clamp(11px, 1.1vw, 14px) / 1 var(--et-font-body);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   white-space: nowrap;

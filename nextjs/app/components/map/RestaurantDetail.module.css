@@ -545,7 +545,7 @@
   /* Der Wert pro Name (--rd-name-max) gewinnt, damit ein langes Wort nie
      über den Rand läuft. */
   font-size: min(var(--rd-name-max, 22px), 22px);
-  font-weight: 800;
+  font-weight: 700;
   line-height: max(1.22em, var(--ink-lead, 0px));
   overflow-wrap: anywhere;
 }
@@ -747,7 +747,7 @@
   margin: 0 0 8px;
   color: var(--et-muted);
   font-size: 11px;
-  font-weight: 900;
+  font-weight: 700;
   letter-spacing: 0.08em;
   line-height: 1.2;
   text-transform: uppercase;

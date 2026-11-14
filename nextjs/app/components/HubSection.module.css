@@ -60,7 +60,7 @@
 }
 /* Hochformat-Telefone zeigen wegen `cover` nur die Mitte des Papiers. Diese
    Datei ist genau diese Mitte, in denselben Pixeln wie das Original. */
-@media (max-width: 767px) and (orientation: portrait) {
+@media (max-width: 767.98px) and (orientation: portrait) {
   .hero,
   :global(html[data-theme='dark']) .hero::before,
   :global(html[data-vintage] .homeV2) > .hero {

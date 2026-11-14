@@ -5,13 +5,13 @@
   background-blend-mode: multiply;
   min-height: 100svh;
   margin-inline: auto;
-  padding-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 8px);
+  padding-top: calc(var(--site-nav-h) + 8px);
 }
 .mapSection { margin-top: 0; }
 .geography {
   display: block;
   width: 100%;
-  height: max(0px, calc(100svh - var(--site-nav-h) - var(--staging-banner-h, 0px) - 96px));
+  height: max(0px, calc(100svh - var(--site-nav-h) - 96px));
   min-height: 0;
   overflow: hidden;
   touch-action: pan-y pinch-zoom;
@@ -38,9 +38,9 @@
 .districtName { display: block; font-size: 24px; font-weight: 700; line-height: 1.2; }
 .hintAction { display: block; margin-top: 5px; font-size: 16px; }
 .mapSection[data-map-opening='true'] .geography { pointer-events: none; }
-@media (max-width: 767px) {
+@media (max-width: 767.98px) {
   /* Auch mit eingeklappter Browserleiste bleibt der Footer unter dem Einstieg. */
-  .explorer { min-height: var(--discovery-mobile-min-height, 100lvh); padding-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 28px); }
+  .explorer { min-height: var(--discovery-mobile-min-height, 100lvh); padding-top: calc(var(--site-nav-h) + 28px); }
   .mapSection { margin-top: 24px; }
   .geography { height: auto; min-height: 0; aspect-ratio: 640 / 550; }
   .mapHint { margin-top: 22px; }
@@ -59,10 +59,10 @@
 }
 
 @media (min-width: 768px) {
-  .explorer { padding-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px)); }
+  .explorer { padding-top: var(--site-nav-h); }
   /* Match the SVG box to its viewBox so shared-map snapshots scale uniformly. */
   .geography {
-    width: min(100%, calc((100svh - var(--site-nav-h) - var(--staging-banner-h, 0px) - 88px) * 640 / 550));
+    width: min(100%, calc((100svh - var(--site-nav-h) - 88px) * 640 / 550));
     height: auto;
     aspect-ratio: 640 / 550;
     margin-inline: auto;
@@ -76,9 +76,9 @@
 
 @media (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
 
-.explorer { min-height: 100svh; padding-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 8px); }
+.explorer { min-height: 100svh; padding-top: calc(var(--site-nav-h) + 8px); }
 .mapSection { margin-top: 0; }
-.geography { width: min(100%, calc((100svh - var(--site-nav-h) - var(--staging-banner-h, 0px) - env(safe-area-inset-bottom, 0px) - 80px) * 640 / 550)); height: auto; margin-inline: auto; }
+.geography { width: min(100%, calc((100svh - var(--site-nav-h) - env(safe-area-inset-bottom, 0px) - 80px) * 640 / 550)); height: auto; margin-inline: auto; }
 .mapHint { min-height: 56px; margin-top: 0; font-size: 14px; }
 .districtName { font-size: 18px; }
 .hintAction { font-size: 13px; }

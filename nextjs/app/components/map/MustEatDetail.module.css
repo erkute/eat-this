@@ -78,13 +78,6 @@
      messen, also ab der OBERSTEN Karte. Hier definiert, damit sowohl der
      Scrollport (--me-card-air) als auch .fdHeroWrap sie sehen. */
   --me-fan-drop: 38px;
-  /* svh, nicht dvh: dvh ist der DYNAMISCHE Viewport und wächst, sobald die
-     Browserleiste beim ersten Scrollen/Tippen einklappt. Die Karte wurde dabei
-     13px höher, und weil die Spalte darunter fest sitzt, rutschte alles ab der
-     Überschrift mit — beim ersten Blättern sichtbar. svh ist der kleine,
-     stabile Viewport: einmal berechnet, bleibt er. */
-  --fd-card-h: clamp(226px, 38svh, 340px);
-  --fd-title-size: clamp(32px, 9.2vw, 52px);
   align-content: stretch;
   padding: 0 18px calc(12px + env(safe-area-inset-bottom, 0px));
 }
@@ -119,12 +112,6 @@
 @media (max-width: 1023.98px) {
   .fdRest {
     flex-direction: row;
-  }
-}
-@media (max-height: 740px) {
-  .detail .scroll {
-    --fd-card-h: clamp(196px, 32svh, 260px);
-    --fd-title-size: clamp(28px, 8.2vw, 44px);
   }
 }
 @media (min-width: 1024px) {
@@ -248,7 +235,7 @@
   filter: none;
   text-shadow: none;
   font-family: var(--et-font-body);
-  font-weight: 900;
+  font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   min-width: 36px;
@@ -447,7 +434,7 @@
   color: var(--me-muted);
   font-family: var(--et-font-body);
   font-size: 10px;
-  font-weight: 850;
+  font-weight: 700;
   letter-spacing: 0.08em;
   line-height: 1;
   text-transform: uppercase;
@@ -1342,7 +1329,7 @@
   color: var(--me-muted);
   font-family: var(--et-font-display);
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 400;
   line-height: 1;
   text-align: center;
 }
@@ -2169,12 +2156,12 @@
   background-color: color-mix(in srgb, var(--et-ground) 95%, var(--et-fg));
   box-shadow: none;
 }
-.detail .scroll > .fdRestInline:focus-visible .fdV { font-weight: 900; }
+.detail .scroll > .fdRestInline:focus-visible .fdV { font-weight: 700; }
 .scroll > .fdRestInline .fdK {
   color: var(--et-muted);
   font-family: var(--et-font-body);
   font-size: 11px;
-  font-weight: 900;
+  font-weight: 700;
   letter-spacing: 0.08em;
 }
 .scroll > .fdRestInline .fdV {

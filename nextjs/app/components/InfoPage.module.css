@@ -15,7 +15,7 @@
 
 .title {
   margin: 0 0 32px;
-  font: 800 clamp(40px, 5.625vw, 72px) / 1.1 var(--et-font-body);
+  font: 700 clamp(40px, 5.625vw, 72px) / 1.1 var(--et-font-body);
   letter-spacing: -0.055em;
   overflow-wrap: anywhere;
   hyphens: auto;
@@ -32,7 +32,7 @@
 
 .body {
   max-width: 576px;
-  font: 500 18px / 1.4 var(--et-font-body);
+  font: 400 18px / 1.4 var(--et-font-body);
   overflow-wrap: anywhere;
 }
 

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getAdminAuth } from '@/lib/firebase/admin';
+import { verifyBearer } from '@/lib/firebase/bearerAuth';
 import { getFriendCards } from '@/lib/profile/friends.server';
 
 export const dynamic = 'force-dynamic';
@@ -19,16 +19,14 @@ export const revalidate = 0;
  * Daten.
  */
 export async function GET(req: Request) {
-  const authHeader = req.headers.get('authorization');
-  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
-  if (!token) return NextResponse.json({ error: 'auth required' }, { status: 401 });
-
-  let uid: string;
-  try {
-    uid = (await getAdminAuth().verifyIdToken(token, true)).uid;
-  } catch {
+  const auth = await verifyBearer(req);
+  if (auth.status === 'missing') {
+    return NextResponse.json({ error: 'auth required' }, { status: 401 });
+  }
+  if (auth.status === 'invalid') {
     return NextResponse.json({ error: 'invalid token' }, { status: 401 });
   }
+  const { uid } = auth;
 
   try {
     return NextResponse.json({ friends: await getFriendCards(uid) });

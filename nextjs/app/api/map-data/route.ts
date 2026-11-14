@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { compressedJson } from '@/lib/http/compressedJson';
-import { getAdminAuth } from '@/lib/firebase/admin';
+import { verifyBearer } from '@/lib/firebase/bearerAuth';
 import { resolveEntitlements } from '@/lib/firebase/entitlements';
 import { getCachedMapData } from '@/lib/map/cached-sanity';
 import { composeAccountSurface } from '@/lib/map/visible-restaurants.server';
@@ -15,24 +15,10 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export async function GET(req: Request) {
-  const authHeader = req.headers.get('authorization');
-  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
-
-  let uid: string | null = null;
-  let identity: Parameters<typeof resolveEntitlements>[1] = {};
-  if (token) {
-    try {
-      const decoded = await getAdminAuth().verifyIdToken(token, true);
-      uid = decoded.uid;
-      identity = {
-        email: decoded.email ?? null,
-        emailVerified: decoded.email_verified === true,
-        admin: decoded.admin === true,
-      };
-    } catch {
-      // Expired/invalid token → treat as anonymous.
-    }
-  }
+  // A missing, expired or invalid token means an anonymous caller.
+  const auth = await verifyBearer(req);
+  const uid = auth.status === 'ok' ? auth.uid : null;
+  const identity = auth.status === 'ok' ? auth.identity : {};
 
   const [ent, unlockedIds, { restaurants: all, mustEats: allMustEats, categories }] =
     await Promise.all([

@@ -24,6 +24,7 @@ import { loadSearch } from '@/lib/admin/searchConsole.server';
 import { berlinDay } from '@/lib/analytics/visitorHash';
 import { summarizeHome, type HomeDoc } from '@/lib/analytics/homeHeat';
 import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/admin';
+import { verifyBearer } from '@/lib/firebase/bearerAuth';
 import { isAdminEmail, isAdminToken } from '@/lib/firebase/entitlements';
 import { getCachedMapData } from '@/lib/map/cached-sanity';
 
@@ -223,22 +224,8 @@ export async function GET(request: Request) {
   const notFound = () =>
     NextResponse.json({ error: 'not found' }, { status: 404, headers: NO_STORE });
 
-  const header = request.headers.get('authorization');
-  const token = header?.startsWith('Bearer ') ? header.slice(7) : null;
-  if (!token) return notFound();
-
-  let isAdmin = false;
-  try {
-    const decoded = await getAdminAuth().verifyIdToken(token, true);
-    isAdmin = isAdminToken({
-      email: decoded.email ?? null,
-      emailVerified: decoded.email_verified === true,
-      admin: decoded.admin === true,
-    });
-  } catch {
-    return notFound();
-  }
-  if (!isAdmin) return notFound();
+  const auth = await verifyBearer(request);
+  if (auth.status !== 'ok' || !isAdminToken(auth.identity)) return notFound();
 
   const db = getAdminFirestore();
   const params = new URL(request.url).searchParams;

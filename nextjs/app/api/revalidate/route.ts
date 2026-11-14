@@ -1,15 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { envNumber } from '@/lib/env';
 import { revalidateTag, revalidatePath } from 'next/cache';
 import crypto from 'node:crypto';
 import { waitForFreshCdn } from '@/lib/sanity.server';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-
-const num = (v: string | undefined, d: number) => {
-  const n = Number(v);
-  return Number.isFinite(n) && n > 0 ? n : d;
-};
 
 function revalidateMapSurface(revalidated: string[]): void {
   revalidateTag('map-data');
@@ -66,7 +62,7 @@ function isValidSanitySignature(
   // die Leitung kam.
   const timestampMs = Number(t);
   if (!Number.isInteger(timestampMs)) return false;
-  const toleranceSeconds = num(process.env.SANITY_WEBHOOK_TOLERANCE_SECONDS, 300);
+  const toleranceSeconds = envNumber(process.env.SANITY_WEBHOOK_TOLERANCE_SECONDS, 300);
   if (Math.abs(Date.now() - timestampMs) > toleranceSeconds * 1000) return false;
 
   // base64url, NICHT hex. Sanity signiert nach Stripes Schema, kodiert die

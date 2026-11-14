@@ -68,7 +68,7 @@ export function isAdminEmail(email: string | null): boolean {
 
 // Identity attributes derived from a verified Firebase ID token (or, for
 // server-side lookups, from a UserRecord). These drive the admin decision.
-interface TokenIdentity {
+export interface TokenIdentity {
   email?: string | null;
   // From the ID token's `email_verified` claim / UserRecord.emailVerified.
   emailVerified?: boolean;

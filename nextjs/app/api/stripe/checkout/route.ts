@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import * as Sentry from '@sentry/nextjs';
-import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/admin';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { verifyBearer } from '@/lib/firebase/bearerAuth';
 import { getStripe } from '@/lib/stripe';
 import { resolvePriceId } from '@/lib/stripe-price';
 import { getPack } from '@/lib/stripe-catalog';
@@ -29,20 +30,12 @@ interface Body {
 //              page itself, the webhook later resolves email → uid via
 //              findOrCreateUserByEmail and mails a magic-link.
 export async function POST(req: Request) {
-  const authHeader = req.headers.get('authorization');
-  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
-
-  let uid: string | null = null;
-  let email: string | null = null;
-  if (token) {
-    try {
-      const decoded = await getAdminAuth().verifyIdToken(token, true);
-      uid = decoded.uid;
-      email = decoded.email ?? null;
-    } catch {
-      return NextResponse.json({ error: 'invalid_token' }, { status: 401 });
-    }
+  const auth = await verifyBearer(req);
+  if (auth.status === 'invalid') {
+    return NextResponse.json({ error: 'invalid_token' }, { status: 401 });
   }
+  const uid = auth.status === 'ok' ? auth.uid : null;
+  const email = auth.status === 'ok' ? auth.email : null;
 
   const body = (await req.json().catch(() => ({}))) as Body;
   if (!body.packId) return NextResponse.json({ error: 'missing_packId' }, { status: 400 });

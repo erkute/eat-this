@@ -10,7 +10,8 @@ import {
 } from '@/lib/rateLimitWindow';
 import { createAnthropicLlmClient, runBuddyTurn, type OwnedPacks } from '@/lib/buddy/orchestrator';
 import { isOutOfCredit } from '@/lib/buddy/outOfCredit';
-import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/admin';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { verifyBearer } from '@/lib/firebase/bearerAuth';
 import { resolveEntitlements } from '@/lib/firebase/entitlements';
 import {
   searchSpots,
@@ -81,18 +82,13 @@ function parseBody(body: unknown):
 async function resolveViewer(
   request: Request
 ): Promise<{ uid: string; owned: OwnedPacks } | undefined> {
-  const header = request.headers.get('authorization');
-  const token = header?.startsWith('Bearer ') ? header.slice(7) : null;
-  if (!token) return undefined;
+  const auth = await verifyBearer(request);
+  if (auth.status === 'missing') return undefined;
   try {
-    const decoded = await getAdminAuth().verifyIdToken(token, true);
-    const ent = await resolveEntitlements(decoded.uid, {
-      email: decoded.email ?? null,
-      emailVerified: decoded.email_verified === true,
-      admin: decoded.admin === true,
-    });
+    if (auth.status === 'invalid') throw auth.error;
+    const ent = await resolveEntitlements(auth.uid, auth.identity);
     return {
-      uid: decoded.uid,
+      uid: auth.uid,
       owned: { fullCatalog: ent.isAdmin || ent.hasAllBerlin, categorySlugs: ent.categorySlugs },
     };
   } catch (error) {

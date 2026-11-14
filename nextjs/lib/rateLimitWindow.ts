@@ -11,6 +11,7 @@
 // Deshalb der eigene Name und der eigene Ort. Der Gegenpart heisst
 // `checkRateLimit` / `checkRateLimitFailClosed` in `lib/rateLimit.ts`.
 import { getAdminFirestore } from '@/lib/firebase/admin';
+import { envNumber } from '@/lib/env';
 import { Timestamp } from 'firebase-admin/firestore';
 
 interface RateLimitState {
@@ -67,11 +68,6 @@ export function evaluateRateLimit(
   return { allowed: true, state };
 }
 
-const num = (v: string | undefined, d: number) => {
-  const n = Number(v);
-  return Number.isFinite(n) && n > 0 ? n : d;
-};
-
 // Remys Grenzen sind eine Geldfrage: jede Antwort kostet rund 1,4 Cent
 // Anthropic-Guthaben. Am 23.09.2026 war das Guthaben leer und Remy stumm;
 // danach auf Ansage gedeckelt — 10 Antworten am Tag pro Person, 50 für alle
@@ -82,8 +78,8 @@ const num = (v: string | undefined, d: number) => {
 // Per-session limits: catch one user's UI spamming.
 export function sessionLimitsFromEnv(): RateLimits {
   return {
-    perMinute: num(process.env.BUDDY_RATE_LIMIT_PER_MIN, 5),
-    perDay: num(process.env.BUDDY_RATE_LIMIT_PER_DAY, 10),
+    perMinute: envNumber(process.env.BUDDY_RATE_LIMIT_PER_MIN, 5),
+    perDay: envNumber(process.env.BUDDY_RATE_LIMIT_PER_DAY, 10),
   };
 }
 
@@ -93,8 +89,8 @@ export function sessionLimitsFromEnv(): RateLimits {
 // Mobilfunk-NAT teilen sich die 10 — ist bewusst in Kauf genommen.
 export function ipLimitsFromEnv(): RateLimits {
   return {
-    perMinute: num(process.env.BUDDY_RATE_LIMIT_IP_PER_MIN, 5),
-    perDay: num(process.env.BUDDY_RATE_LIMIT_IP_PER_DAY, 10),
+    perMinute: envNumber(process.env.BUDDY_RATE_LIMIT_IP_PER_MIN, 5),
+    perDay: envNumber(process.env.BUDDY_RATE_LIMIT_IP_PER_DAY, 10),
   };
 }
 
@@ -103,8 +99,8 @@ export function ipLimitsFromEnv(): RateLimits {
 // Personengrenze scheitert, soll nichts vom gemeinsamen Topf verbrauchen.
 export function globalLimitsFromEnv(): RateLimits {
   return {
-    perMinute: num(process.env.BUDDY_RATE_LIMIT_GLOBAL_PER_MIN, 20),
-    perDay: num(process.env.BUDDY_RATE_LIMIT_GLOBAL_PER_DAY, 50),
+    perMinute: envNumber(process.env.BUDDY_RATE_LIMIT_GLOBAL_PER_MIN, 20),
+    perDay: envNumber(process.env.BUDDY_RATE_LIMIT_GLOBAL_PER_DAY, 50),
   };
 }
 

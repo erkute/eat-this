@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
-import { getAdminAuth } from '@/lib/firebase/admin';
+import { verifyBearer } from '@/lib/firebase/bearerAuth';
 import { isAdminToken } from '@/lib/firebase/entitlements';
 import {
   clearPremiumAccessCookie,
@@ -13,26 +13,26 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export async function POST(request: NextRequest) {
-  const authHeader = request.headers.get('authorization');
-  const idToken = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
-  if (!idToken) {
+  const auth = await verifyBearer(request);
+  if (auth.status === 'missing') {
     // Only the same-origin fetch can add this header without a CORS preflight.
-    if (!authHeader && request.headers.get('X-EatThis-Action') === 'clear-premium-access') {
+    if (
+      !request.headers.get('authorization') &&
+      request.headers.get('X-EatThis-Action') === 'clear-premium-access'
+    ) {
       return clearSession();
     }
     return NextResponse.json({ error: 'auth required' }, { status: 401 });
   }
+  if (auth.status === 'invalid') {
+    return NextResponse.json({ error: 'invalid token' }, { status: 401 });
+  }
 
   try {
-    const decoded = await getAdminAuth().verifyIdToken(idToken, true);
     // Ob der Client den Admin-Eingang (Stats im Burger) zeigen darf. Die
     // Admin-Liste ist server-only; die Seiten unter /admin prüfen selbst
     // noch einmal, das hier schaltet nur die Sichtbarkeit des Links.
-    const admin = isAdminToken({
-      email: decoded.email ?? null,
-      emailVerified: decoded.email_verified === true,
-      admin: decoded.admin === true,
-    });
+    const admin = isAdminToken(auth.identity);
     const response = NextResponse.json({ ok: true, admin });
     response.headers.set('Cache-Control', 'private, no-store');
     // Identity transition is atomic from the browser's perspective: a
@@ -40,10 +40,10 @@ export async function POST(request: NextRequest) {
     // session. One for this account stays: /api/map-data sets it, may run in
     // parallel to this call, and the hourly token refresh lands here too.
     const capability = request.cookies.get(premiumAccessCookieName())?.value;
-    if (capability && !premiumAccessBelongsTo(capability, decoded.uid)) {
+    if (capability && !premiumAccessBelongsTo(capability, auth.uid)) {
       clearPremiumAccessCookie(response);
     }
-    await setPremiumSessionCookie(response, idToken);
+    await setPremiumSessionCookie(response, auth.token);
     return response;
   } catch {
     return NextResponse.json({ error: 'invalid token' }, { status: 401 });

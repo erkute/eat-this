@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getAdminAuth } from '@/lib/firebase/admin';
+import { envNumber } from '@/lib/env';
+import { verifyBearer } from '@/lib/firebase/bearerAuth';
 import { resolveEntitlements } from '@/lib/firebase/entitlements';
 import { getCachedMapData } from '@/lib/map/cached-sanity';
 import { composeAccountSurface } from '@/lib/map/visible-restaurants.server';
@@ -8,43 +9,27 @@ import { checkWindowedRateLimit } from '@/lib/rateLimitWindow';
 import { hydrateAuthorizedMustEats } from '@/lib/must-eat/private-store';
 import { setPremiumAccessCookie } from '@/lib/must-eat/premium-access';
 
-const num = (v: string | undefined, d: number) => {
-  const n = Number(v);
-  return Number.isFinite(n) && n > 0 ? n : d;
-};
-
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 // Any signed-in account may reveal a card, without a purchase check.
 // The browser checks the 50 m proximity; the server enforces account limits.
 export async function POST(req: Request) {
-  const authHeader = req.headers.get('authorization');
-  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
-  if (!token) {
+  const auth = await verifyBearer(req);
+  if (auth.status === 'missing') {
     return NextResponse.json({ error: 'auth required' }, { status: 401 });
   }
-
-  let uid: string;
-  let identity: Parameters<typeof resolveEntitlements>[1] = {};
-  try {
-    const decoded = await getAdminAuth().verifyIdToken(token, true);
-    uid = decoded.uid;
-    identity = {
-      email: decoded.email ?? null,
-      emailVerified: decoded.email_verified === true,
-      admin: decoded.admin === true,
-    };
-  } catch {
+  if (auth.status === 'invalid') {
     return NextResponse.json({ error: 'invalid token' }, { status: 401 });
   }
+  const { uid, identity } = auth;
 
   // Fail closed when the account quota cannot be checked: 10/minute, 15/day.
   const limit = await checkWindowedRateLimit(
     `reveal:${uid}`,
     {
-      perMinute: num(process.env.MUST_EAT_REVEAL_LIMIT_PER_MIN, 10),
-      perDay: num(process.env.MUST_EAT_REVEAL_LIMIT_PER_DAY, 15),
+      perMinute: envNumber(process.env.MUST_EAT_REVEAL_LIMIT_PER_MIN, 10),
+      perDay: envNumber(process.env.MUST_EAT_REVEAL_LIMIT_PER_DAY, 15),
     },
     'deny'
   );

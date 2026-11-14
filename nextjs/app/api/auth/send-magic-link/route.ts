@@ -30,7 +30,13 @@ function sanitizeContinueUrl(raw: string | undefined, origin: string, fallback: 
     ].filter(Boolean) as string[]
   );
   if (allowedOrigins.has(candidate.origin)) return candidate.toString();
-  if (/^https?:\/\/localhost(:\d+)?$/.test(candidate.origin)) return candidate.toString();
+  // A local dev server may run on any port; a deployed app never returns there.
+  if (
+    process.env.NODE_ENV !== 'production' &&
+    /^https?:\/\/localhost(:\d+)?$/.test(candidate.origin)
+  ) {
+    return candidate.toString();
+  }
   return fallback;
 }
 

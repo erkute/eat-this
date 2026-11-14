@@ -162,10 +162,9 @@ env:
     secret: VOYAGE_API_KEY
     availability:
       - RUNTIME
-  # Salt for hashing client IPs in the buddy rate-limiter (app/api/buddy).
-  # Without it the code falls back to a known constant ('eat-this-buddy'),
-  # so a secret salt is defense-in-depth: hashed IPs can't be correlated or
-  # reversed if logs leak. Set with:
+  # Salt for hashing client IPs in the buddy rate-limiter (app/api/buddy), so
+  # the stored hashes can't be recomputed from an IP. The route throws in
+  # production without it. Set with:
   #   firebase apphosting:secrets:set BUDDY_IP_SALT
   - variable: BUDDY_IP_SALT
     secret: BUDDY_IP_SALT

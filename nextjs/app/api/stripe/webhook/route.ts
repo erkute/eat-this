@@ -13,6 +13,7 @@ import {
   paymentIntentId,
   retrieveVerifiedCheckoutSession,
 } from '@/lib/stripe-session';
+import { revokeEntitlementForPayment } from '@/lib/stripe-revoke';
 import { sendMagicLinkEmail } from '@/lib/auth/sendMagicLink';
 import { getAppUrl } from '@/lib/constants';
 
@@ -65,6 +66,23 @@ async function refundDuplicateSession(
   Sentry.captureMessage(`Duplicate Stripe purchase refunded: ${session.id}`, 'warning');
 }
 
+// The payment behind a returned purchase: a fully refunded charge, or a dispute
+// the buyer won. A partial refund and an open dispute keep the pack.
+function returnedPaymentIntent(event: Stripe.Event): string | null {
+  const paymentIntent = (object: { payment_intent: string | { id: string } | null }) =>
+    typeof object.payment_intent === 'string'
+      ? object.payment_intent
+      : (object.payment_intent?.id ?? null);
+
+  if (event.type === 'charge.refunded') {
+    return event.data.object.refunded ? paymentIntent(event.data.object) : null;
+  }
+  if (event.type === 'charge.dispute.closed') {
+    return event.data.object.status === 'lost' ? paymentIntent(event.data.object) : null;
+  }
+  return null;
+}
+
 export async function POST(req: Request) {
   const sig = req.headers.get('stripe-signature');
   if (!sig) return NextResponse.json({ error: 'no_signature' }, { status: 400 });
@@ -77,11 +95,28 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'secret_missing' }, { status: 500 });
   }
 
-  let event;
+  let event: Stripe.Event;
   try {
     event = getStripe().webhooks.constructEvent(body, sig, secret);
   } catch {
     return NextResponse.json({ error: 'invalid_signature' }, { status: 400 });
+  }
+
+  if (event.type === 'charge.refunded' || event.type === 'charge.dispute.closed') {
+    const paymentIntent = returnedPaymentIntent(event);
+    if (!paymentIntent) {
+      return NextResponse.json({ received: true, ignored: event.type }, { status: 200 });
+    }
+    try {
+      const result = await revokeEntitlementForPayment(paymentIntent);
+      if (result === 'revoked') {
+        console.log(`[stripe/webhook] entitlement revoked after ${event.type}: ${paymentIntent}`);
+      }
+      return NextResponse.json({ received: true, result }, { status: 200 });
+    } catch (err) {
+      Sentry.captureException(err, { extra: { event: event.id, paymentIntent } });
+      return NextResponse.json({ error: 'revoke_failed' }, { status: 500 });
+    }
   }
 
   if (

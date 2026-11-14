@@ -68,3 +68,27 @@ export function formatPriceLabel(
   }
   return `${r.min}–${r.max} ${cur}`;
 }
+
+/**
+ * Eine Adresse aus Sanity ("KaDeWe, 6. Etage, Tauentzienstraße 21-24, 10789
+ * Berlin, Deutschland") als Zeilen: jeder Komma-Teil steht für sich, das Land
+ * entfällt — ein Berliner Guide braucht „Deutschland" nicht. So landet ein
+ * Hauszusatz wie „KaDeWe" oder „Hinterhof" auf einer eigenen Zeile, statt als
+ * Straße zu gelten und den Rest in eine einzige, umbrechende Zeile zu drücken.
+ */
+export function addressLines(address: string | null | undefined): string[] {
+  return (address ?? '')
+    .split(',')
+    .map((part) => part.trim())
+    .filter((part) => part && !/^(deutschland|germany)$/i.test(part));
+}
+
+/**
+ * Ein Instagram-Name in Stücken, die jeweils auf „." oder „_" enden. Zwischen
+ * den Stücken darf die Zeile brechen: ein Name, der auch die volle Breite
+ * sprengt, trennt sich dann an seinem eigenen Trennzeichen und nicht mitten im
+ * Wort.
+ */
+export function handleBreakParts(handle: string): string[] {
+  return handle.match(/[^._]*[._]+|[^._]+/g) ?? [];
+}

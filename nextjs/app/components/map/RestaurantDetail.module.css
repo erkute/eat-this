@@ -806,11 +806,25 @@
   white-space: nowrap;
 }
 
-/* Preis und Instagram nebeneinander. */
+/* Preis und Instagram nebeneinander, Instagram ab der Mitte. Ein Name, der
+   breiter ist als seine Hälfte, nimmt sich den Platz, den der Preis nicht
+   braucht; reicht auch der nicht, rutscht Instagram unter den Preis. Erst ein
+   Name, der die ganze Tafel sprengt, bricht — an „." oder „_". */
 .rdPair {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px 16px;
+}
+.rdPair > * {
+  flex: 1 0 auto;
+}
+.rdPair > * + * {
+  flex: 0 1 auto;
+  min-width: calc(50% - 8px);
+}
+.rdPair > :only-child {
+  flex: 1 1 0;
+  min-width: 0;
 }
 .rdV {
   margin: 0;

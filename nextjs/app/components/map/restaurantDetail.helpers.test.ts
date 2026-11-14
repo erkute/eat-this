@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { formatPriceLabel, classifyWebsite } from './restaurantDetail.helpers';
+import {
+  addressLines,
+  classifyWebsite,
+  formatPriceLabel,
+  handleBreakParts,
+} from './restaurantDetail.helpers';
 
 describe('formatPriceLabel', () => {
   it('formats min and max with euro', () => {
@@ -57,5 +62,43 @@ describe('classifyWebsite', () => {
     expect(classifyWebsite('JavaScript:alert(1)')).toBeNull();
     expect(classifyWebsite('data:text/html,<script>alert(1)</script>')).toBeNull();
     expect(classifyWebsite('vbscript:msgbox(1)')).toBeNull();
+  });
+});
+
+describe('addressLines', () => {
+  it('puts street and locality on two lines and drops the country', () => {
+    expect(addressLines('Ackerstraße 144, 10115 Berlin, Deutschland')).toEqual([
+      'Ackerstraße 144',
+      '10115 Berlin',
+    ]);
+    expect(addressLines('Ackerstraße 144, 10115 Berlin, Germany')).toEqual([
+      'Ackerstraße 144',
+      '10115 Berlin',
+    ]);
+  });
+  it('keeps a venue or floor in front of the street on its own lines', () => {
+    expect(addressLines('KaDeWe, 6. Etage, Tauentzienstraße 21-24, 10789 Berlin')).toEqual([
+      'KaDeWe',
+      '6. Etage',
+      'Tauentzienstraße 21-24',
+      '10789 Berlin',
+    ]);
+  });
+  it('returns no lines for a missing address', () => {
+    expect(addressLines(null)).toEqual([]);
+    expect(addressLines(undefined)).toEqual([]);
+    expect(addressLines(' , ')).toEqual([]);
+  });
+});
+
+describe('handleBreakParts', () => {
+  it('splits after dots and underscores, keeping every character', () => {
+    expect(handleBreakParts('wencheng_handpullednoodles')).toEqual(['wencheng_', 'handpullednoodles']);
+    expect(handleBreakParts('hier.restaurant.catering')).toEqual(['hier.', 'restaurant.', 'catering']);
+    expect(handleBreakParts('a__b.')).toEqual(['a__', 'b.']);
+  });
+  it('leaves a name without separators in one piece', () => {
+    expect(handleBreakParts('foodtechniqueberlin')).toEqual(['foodtechniqueberlin']);
+    expect(handleBreakParts('')).toEqual([]);
   });
 });

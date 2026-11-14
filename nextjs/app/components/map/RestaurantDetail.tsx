@@ -1,7 +1,15 @@
 'use client';
 import { sanityImagePosition } from '@/lib/sanity-image-presets';
 import type { CSSProperties } from 'react';
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import {
+  Fragment,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react';
 import { useRestaurantDetail, type RestaurantGalleryImage } from '@/lib/map/useRestaurantDetail';
 import type { MapRestaurant, MapMustEat } from '@/lib/types';
 import { localizedCuisine } from '@/lib/cuisineLabels';
@@ -21,7 +29,12 @@ import type { DetailOrigin } from '@/lib/map/phoneSheetSnaps';
 import { HeartIcon, BackIcon } from './icons';
 import { useHeartCount } from '@/lib/map/useHeartCount';
 import { heartCountShort } from '@/lib/map/heartLabel';
-import { classifyWebsite, formatPriceLabel } from './restaurantDetail.helpers';
+import {
+  addressLines,
+  classifyWebsite,
+  formatPriceLabel,
+  handleBreakParts,
+} from './restaurantDetail.helpers';
 import { normalizeName } from '@/lib/normalizeName';
 import { useLoginModal } from '@/lib/auth';
 import ShareButton from '../ShareButton';
@@ -243,18 +256,7 @@ export default function RestaurantDetail({
     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${r.name}, ${r.address}`)}`
     : (r.mapsUrl ?? null);
 
-  // Split a single-line address ("Street 1, 10119 Berlin, Deutschland") into
-  // street on line 1 and PLZ + city on line 2; drop the country.
-  const addressLines = r.address
-    ? (() => {
-        const parts = r.address
-          .split(',')
-          .map((p) => p.trim())
-          .filter((p) => p && !/^(deutschland|germany)$/i.test(p));
-        const [street, ...rest] = parts;
-        return { street, locality: rest.join(', ') };
-      })()
-    : null;
+  const addressParts = addressLines(r.address);
 
   // Editorial prose is DE-base with an optional EN override, same convention
   // as the public /restaurant/[slug] page — without pickLocale the /en map
@@ -471,7 +473,7 @@ export default function RestaurantDetail({
             die Knöpfe (Ansage 22.10.2026: „eine einheitliche Ebene, ein
             bisschen dezenter"). Bezirk und Küche stehen schon im Foto. */}
         <section className={styles.rdFacts} aria-label={locale === 'en' ? 'Details' : 'Steckbrief'}>
-          {addressLines && (
+          {addressParts.length > 0 && (
             <div className={styles.rdBlock}>
               <h3 className={styles.rdK}>{t('map.address')}</h3>
               <a
@@ -484,8 +486,9 @@ export default function RestaurantDetail({
                   restaurant_slug: r.slug,
                 })}
               >
-                {addressLines.street}
-                {addressLines.locality && <span>{addressLines.locality}</span>}
+                {addressParts.map((line, i) => (
+                  <span key={`${i}-${line}`}>{line}</span>
+                ))}
               </a>
               {walkingTime && (
                 <p className={styles.rdVMeta}>
@@ -537,7 +540,19 @@ export default function RestaurantDetail({
                   <h3 className={styles.rdK}>Instagram</h3>
                   <p className={styles.rdV}>
                     <a className={styles.rdVLink} href={igUrl} target="_blank" rel="noopener noreferrer">
-                      {igHandle ? `@${igHandle}` : 'Profil'}
+                      {igHandle ? (
+                        <>
+                          @
+                          {handleBreakParts(igHandle).map((part, i) => (
+                            <Fragment key={i}>
+                              {i > 0 && <wbr />}
+                              {part}
+                            </Fragment>
+                          ))}
+                        </>
+                      ) : (
+                        'Profil'
+                      )}
                     </a>
                   </p>
                 </div>

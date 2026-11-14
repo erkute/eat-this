@@ -23,7 +23,11 @@ import { buildHreflangAlternates, restaurantRobots, toOgLocale } from '@/lib/seo
 import { metadataSource } from '@/lib/seo/metadataSource';
 import { routing } from '@/i18n/routing';
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale';
-import { formatPriceLabel, classifyWebsite } from '@/app/components/map/restaurantDetail.helpers';
+import {
+  addressLines,
+  classifyWebsite,
+  formatPriceLabel,
+} from '@/app/components/map/restaurantDetail.helpers';
 import { isClosedSlot, localizeOpeningDays, localizeOpeningHours, withDash } from '@/lib/map/openingHours';
 import { buildSpotFlow } from '@/lib/spotFlow';
 import { sanityImageSize, sanitySrcSet } from '@/lib/sanity-image-presets';
@@ -278,11 +282,7 @@ export default async function RestaurantPage({ params }: PageProps) {
   // ins Leere — also kein Map-Knopf, dafür der Hinweis bei den Angaben.
   const onMap = r.isClosed !== true;
   const telHref = r.phone ? `tel:${r.phone.replace(/\s+/g, '')}` : null;
-  // Im Steckbrief ohne Land — ein Berliner Guide braucht „Deutschland" nicht.
-  const addressLines = (address ?? '')
-    .split(',')
-    .map((part) => part.trim())
-    .filter((part) => part && !/^(deutschland|germany)$/i.test(part));
+  const addressParts = addressLines(address);
   // Die Meta-Zeile unter dem Namen im Steckbrief: Bezirk · Küche · Preis.
   const metaParts = [
     districtName &&
@@ -470,11 +470,11 @@ export default async function RestaurantPage({ params }: PageProps) {
                 {de ? 'Vorübergehend geschlossen' : 'Temporarily closed'}
               </p>
             )}
-            {addressLines.length > 0 && (
+            {addressParts.length > 0 && (
               <div className={styles.briefBlock}>
                 <h3 className={styles.kicker}>{de ? 'Adresse' : 'Address'}</h3>
                 <p className={styles.briefAddress}>
-                  {addressLines.map((line) => (
+                  {addressParts.map((line) => (
                     <span key={line} className={styles.line}>
                       {line}
                     </span>

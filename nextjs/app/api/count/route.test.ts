@@ -11,7 +11,7 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock('@/lib/analytics/engagement.server', () => ({ writeInsight: mocks.writeInsight }));
-vi.mock('@/lib/rateLimitWindow', () => ({
+vi.mock('@/lib/rateLimit', () => ({
   checkWindowedRateLimit: mocks.checkRateLimit,
 }));
 

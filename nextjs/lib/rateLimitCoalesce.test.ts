@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { coalesceRateLimit } from './rateLimitCoalesce';
-import type { RateLimitDecision } from './rateLimitWindow';
+import type { RateLimitDecision } from './rateLimit';
 
 const state = { minuteStart: 0, minuteCount: 0, dayStart: 0, dayCount: 0 };
 const allow: RateLimitDecision = { allowed: true, state };

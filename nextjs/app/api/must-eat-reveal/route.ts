@@ -5,7 +5,7 @@ import { resolveEntitlements } from '@/lib/firebase/entitlements';
 import { getCachedMapData } from '@/lib/map/cached-sanity';
 import { composeAccountSurface } from '@/lib/map/visible-restaurants.server';
 import { getUnlockedMustEatIds, unlockMustEat } from '@/lib/firebase/unlockedMustEats.server';
-import { checkWindowedRateLimit } from '@/lib/rateLimitWindow';
+import { checkWindowedRateLimit } from '@/lib/rateLimit';
 import { hydrateAuthorizedMustEats } from '@/lib/must-eat/private-store';
 import { setPremiumAccessCookie } from '@/lib/must-eat/premium-access';
 

@@ -41,7 +41,7 @@ vi.mock('@/lib/map/visible-restaurants.server', () => ({
 }));
 
 const checkRateLimit = vi.fn();
-vi.mock('@/lib/rateLimitWindow', () => ({
+vi.mock('@/lib/rateLimit', () => ({
   checkWindowedRateLimit: (...args: unknown[]) => checkRateLimit(...args),
 }));
 

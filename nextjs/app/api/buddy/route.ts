@@ -2,12 +2,12 @@
 import { createHash } from 'node:crypto';
 import * as Sentry from '@sentry/nextjs';
 import { NextResponse } from 'next/server';
+import { checkWindowedRateLimit } from '@/lib/rateLimit';
 import {
-  checkWindowedRateLimit,
   sessionLimitsFromEnv,
   ipLimitsFromEnv,
   globalLimitsFromEnv,
-} from '@/lib/rateLimitWindow';
+} from '@/lib/buddy/rateLimits';
 import { createAnthropicLlmClient, runBuddyTurn, type OwnedPacks } from '@/lib/buddy/orchestrator';
 import { isOutOfCredit } from '@/lib/buddy/outOfCredit';
 import { getAdminFirestore } from '@/lib/firebase/admin';
@@ -160,13 +160,13 @@ export async function POST(request: Request) {
   const ipHash = clientIpHash(request);
   if (ipHash) {
     // `deny`: jede durchgelassene Anfrage kostet Anthropic-Tokens.
-    const ipLimit = await checkWindowedRateLimit(`ip:${ipHash}`, ipLimitsFromEnv(), 'deny');
+    const ipLimit = await checkWindowedRateLimit(`buddy:ip:${ipHash}`, ipLimitsFromEnv(), 'deny');
     if (!ipLimit.allowed) {
       return NextResponse.json({ error: 'rate_limited', reason: ipLimit.reason }, { status: 429 });
     }
   }
   const limit = await checkWindowedRateLimit(
-    `s:${parsed.sessionId}`,
+    `buddy:s:${parsed.sessionId}`,
     sessionLimitsFromEnv(),
     'deny'
   );
@@ -176,7 +176,7 @@ export async function POST(request: Request) {
   // Der gemeinsame Tagestopf zuletzt: wer schon an seiner eigenen Grenze
   // scheitert, verbraucht nichts davon. Eigener Grund, damit der Chat „für
   // heute ausgebucht" sagen kann statt „frag gleich nochmal".
-  const shared = await checkWindowedRateLimit('global', globalLimitsFromEnv(), 'deny');
+  const shared = await checkWindowedRateLimit('buddy:global', globalLimitsFromEnv(), 'deny');
   if (!shared.allowed) {
     const reason = shared.reason === 'per_day' ? 'global' : shared.reason;
     return NextResponse.json({ error: 'rate_limited', reason }, { status: 429 });

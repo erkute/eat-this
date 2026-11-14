@@ -3,7 +3,7 @@ import { envNumber } from '@/lib/env';
 import { FieldValue } from 'firebase-admin/firestore';
 import { getAdminFirestore } from '@/lib/firebase/admin';
 import { verifyBearer } from '@/lib/firebase/bearerAuth';
-import { checkWindowedRateLimit } from '@/lib/rateLimitWindow';
+import { checkWindowedRateLimit } from '@/lib/rateLimit';
 import { getCachedMapData } from '@/lib/map/cached-sanity';
 
 export const dynamic = 'force-dynamic';

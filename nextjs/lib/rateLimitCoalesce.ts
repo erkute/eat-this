@@ -1,4 +1,4 @@
-import type { RateLimitDecision } from './rateLimitWindow';
+import type { RateLimitDecision } from './rateLimit';
 
 /* Der Fenster-Begrenzer ist eine Firestore-Transaktion auf EIN Dokument je
    Schluessel. Sechs Karten, die eine Seite auf einmal laedt, kommen von

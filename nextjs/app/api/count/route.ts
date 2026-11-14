@@ -21,7 +21,7 @@ import {
   OVERFLOW_HOST,
   OVERFLOW_PATH,
 } from '@/lib/analytics/dayKeyBudget';
-import { checkWindowedRateLimit } from '@/lib/rateLimitWindow';
+import { checkWindowedRateLimit } from '@/lib/rateLimit';
 import {
   homeTargetKeys,
   homeTargetWithinBudget,

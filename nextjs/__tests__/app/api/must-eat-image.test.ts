@@ -55,7 +55,7 @@ const { readPremiumSessionUid } = vi.hoisted(() => ({
 const { checkWindowedRateLimit } = vi.hoisted(() => ({
   checkWindowedRateLimit: vi.fn(),
 }))
-vi.mock('@/lib/rateLimitWindow', () => ({
+vi.mock('@/lib/rateLimit', () => ({
   checkWindowedRateLimit: (...args: unknown[]) => checkWindowedRateLimit(...args),
   checkWindowedRateLimitBatch: (...args: unknown[]) => checkWindowedRateLimit(...args),
 }))

@@ -11,7 +11,7 @@ import {
 } from '@/lib/must-eat/premium-access';
 import { premiumSessionCookieName, readPremiumSessionUid } from '@/lib/must-eat/premium-session';
 import { coalesceRateLimit } from '@/lib/rateLimitCoalesce';
-import { checkWindowedRateLimitBatch } from '@/lib/rateLimitWindow';
+import { checkWindowedRateLimitBatch } from '@/lib/rateLimit';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;

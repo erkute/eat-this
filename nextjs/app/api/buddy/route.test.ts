@@ -9,8 +9,10 @@ const mocks = vi.hoisted(() => ({
 vi.mock('@sentry/nextjs', () => ({
   captureException: mocks.captureException,
 }));
-vi.mock('@/lib/rateLimitWindow', () => ({
+vi.mock('@/lib/rateLimit', () => ({
   checkWindowedRateLimit: vi.fn(),
+}));
+vi.mock('@/lib/buddy/rateLimits', () => ({
   sessionLimitsFromEnv: () => ({ perMinute: 5, perDay: 10 }),
   ipLimitsFromEnv: () => ({ perMinute: 5, perDay: 10 }),
   globalLimitsFromEnv: () => ({ perMinute: 20, perDay: 50 }),
@@ -33,7 +35,7 @@ vi.mock('@/lib/firebase/entitlements', () => ({
 
 import { POST } from './route';
 import { clientIpFromXff } from '@/lib/clientIp';
-import { checkWindowedRateLimit } from '@/lib/rateLimitWindow';
+import { checkWindowedRateLimit } from '@/lib/rateLimit';
 
 function req(body: unknown): Request {
   return new Request('http://localhost/api/buddy', {
@@ -262,9 +264,9 @@ describe('POST /api/buddy', () => {
     await POST(ipReq('203.0.113.7, 35.219.200.29, 66.102.6.195'));
     const keys = vi.mocked(checkWindowedRateLimit).mock.calls.map((c) => c[0]);
     // first call is the IP bucket (hashed, never the raw IP), then the session
-    expect(keys[0]).toMatch(/^ip:[a-f0-9]{40}$/);
+    expect(keys[0]).toMatch(/^buddy:ip:[a-f0-9]{40}$/);
     expect(keys[0]).not.toContain('203.0.113.7');
-    expect(keys).toContain('s:s1');
+    expect(keys).toContain('buddy:s:s1');
   });
 
   it('checks the shared daily budget last, so requests a person limit rejects never spend it', async () => {
@@ -274,7 +276,7 @@ describe('POST /api/buddy', () => {
     });
     await POST(ipReq('203.0.113.7, 35.219.200.29, 66.102.6.195'));
     const keys = vi.mocked(checkWindowedRateLimit).mock.calls.map((c) => c[0]);
-    expect(keys).toEqual([expect.stringMatching(/^ip:/), 's:s1', 'global']);
+    expect(keys).toEqual([expect.stringMatching(/^buddy:ip:/), 'buddy:s:s1', 'buddy:global']);
   });
 
   it('reports an exhausted shared budget as its own reason, without running Remy', async () => {
@@ -308,7 +310,7 @@ describe('POST /api/buddy', () => {
     const ipKeys = vi
       .mocked(checkWindowedRateLimit)
       .mock.calls.map((c) => c[0])
-      .filter((k) => k.startsWith('ip:'));
+      .filter((k) => k.startsWith('buddy:ip:'));
     expect(ipKeys[0]).toBe(ipKeys[1]);
   });
 });

@@ -32,7 +32,7 @@ vi.mock('@/lib/firebase/unlockedMustEats.server', () => ({
   getUnlockedMustEatIds: m.getUnlockedMustEatIds,
   unlockMustEat: m.unlockMustEat,
 }));
-vi.mock('@/lib/rateLimitWindow', () => ({
+vi.mock('@/lib/rateLimit', () => ({
   checkWindowedRateLimit: m.rateLimit,
 }));
 vi.mock('@/lib/must-eat/private-store', () => ({

@@ -1,6 +1,6 @@
 {
-  "name": "EAT THIS",
-  "short_name": "EAT THIS",
+  "name": "eat this.",
+  "short_name": "eat this.",
   "description": "We tell you what to eat \u2014 die kuratierte Food Map mit den besten Restaurants, Caf\u00e9s und Bars in Berlin.",
   "start_url": "/",
   "scope": "/",
@@ -15,19 +15,19 @@
   ],
   "icons": [
     {
-      "src": "/pics/favicon-192.png?v=20261112",
+      "src": "/pics/favicon-192.png?v=20261114",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/pics/favicon-maskable-512.png?v=20261112",
+      "src": "/pics/favicon-maskable-512.png?v=20261114",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/pics/favicon-512.png?v=20261112",
+      "src": "/pics/favicon-512.png?v=20261114",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
@@ -49,7 +49,7 @@
       "url": "/map",
       "icons": [
         {
-          "src": "/pics/favicon-192.png?v=20261112",
+          "src": "/pics/favicon-192.png?v=20261114",
           "sizes": "192x192"
         }
       ]
@@ -60,7 +60,7 @@
       "url": "/profile",
       "icons": [
         {
-          "src": "/pics/favicon-192.png?v=20261112",
+          "src": "/pics/favicon-192.png?v=20261114",
           "sizes": "192x192"
         }
       ]

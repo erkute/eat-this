@@ -13,8 +13,8 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | EAT THIS',
-    default: 'EAT THIS – Restaurants & Geheimtipps in Berlin',
+    template: '%s | eat this.',
+    default: 'eat this. – Restaurants & Geheimtipps in Berlin',
   },
   description:
     'Die kuratierte Food-Map mit den besten Restaurants, Cafés und Bars in Berlin. Frag Remy, er kennt jeden Spot und findet sofort deinen.',
@@ -28,20 +28,20 @@ export const metadata: Metadata = {
      viewportFit: 'cover' above; without both, the inset stays 0. */
   appleWebApp: {
     capable: true,
-    title: 'EAT THIS',
+    title: 'eat this.',
     statusBarStyle: 'black-translucent',
   },
   // Site-wide social-card defaults (Google, Meta/WhatsApp, Twitter/X) —
   // routes with richer cards (restaurant, news, …) override these.
   openGraph: {
     type: 'website',
-    siteName: 'EAT THIS',
+    siteName: 'eat this.',
     images: [
       {
         url: `${SITE_URL}/pics/og-card.png?v=${OG_CARD_VERSION}`,
         width: 1200,
         height: 630,
-        alt: 'EAT THIS – We tell you what to eat',
+        alt: 'eat this. – We tell you what to eat',
       },
     ],
   },

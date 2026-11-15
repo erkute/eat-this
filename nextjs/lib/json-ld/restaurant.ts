@@ -142,7 +142,7 @@ export function buildRestaurantJsonLd({
           {
             '@type': 'ListItem',
             position: 1,
-            name: 'Eat This Berlin',
+            name: 'eat this.',
             item: localeUrl(locale, '/'),
           },
           ...(r.bezirk?.slug && r.bezirk?.name

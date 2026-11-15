@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
           url: `${SITE_URL}/pics/og-card.png?v=${OG_CARD_VERSION}`,
           width: 1200,
           height: 630,
-          alt: 'EAT THIS - We tell you what to eat',
+          alt: 'eat this. – We tell you what to eat',
         },
       ],
       locale: toOgLocale(en ? 'en' : 'de'),

@@ -19,7 +19,7 @@ interface PageProps {
 
 // Der Title trägt "Berlin Food Map" vorn: das ist die Suchintention, für die
 // diese Seite die Landingpage sein soll, und "Karte" allein war für Google ein
-// Wort ohne Ort. Das (spa)-Layout hängt über sein `template` " | EAT THIS" an —
+// Wort ohne Ort. Das (spa)-Layout hängt über sein `template` " | eat this." an —
 // die Marke gehört deshalb NICHT in diesen String.
 const TITLE = {
   de: 'Berlin Food Map – Restaurants, Cafés & Bars',
@@ -64,13 +64,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       // Next ersetzt `openGraph` als Ganzes, es merged nicht in das Objekt des
       // Layouts hinein — ohne diese Zeile fiele `og:site_name` auf der
       // Kartenseite ersatzlos weg.
-      siteName: 'EAT THIS',
+      siteName: 'eat this.',
       images: [
         {
           url: ogImage,
           width: 1200,
           height: 630,
-          alt: 'EAT THIS - We tell you what to eat',
+          alt: 'eat this. – We tell you what to eat',
         },
       ],
       locale: toOgLocale(loc),

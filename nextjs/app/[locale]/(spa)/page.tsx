@@ -24,7 +24,7 @@ interface PageProps {
 }
 
 const TITLE = {
-  de: 'Restaurants, Cafés & Bars in Berlin | EAT THIS',
+  de: 'Restaurants, Cafés & Bars in Berlin | eat this.',
   en: 'eat this. | We know where to eat in Berlin',
 } as const;
 const DESCRIPTION = {
@@ -43,13 +43,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     description,
     openGraph: {
       type: 'website',
-      siteName: 'EAT THIS',
+      siteName: 'eat this.',
       title,
       description,
       url: localeUrl(locale, '/'),
       locale: locale === 'en' ? 'en_US' : 'de_DE',
       images: [
-        { url: OG_IMAGE, width: 1200, height: 630, alt: 'EAT THIS – We tell you what to eat' },
+        { url: OG_IMAGE, width: 1200, height: 630, alt: 'eat this. – We tell you what to eat' },
       ],
     },
     twitter: {

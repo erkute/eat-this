@@ -44,7 +44,7 @@ export function buildBezirkJsonLd({
           {
             '@type': 'ListItem',
             position: 1,
-            name: 'Eat This Berlin',
+            name: 'eat this.',
             item: localeUrl(locale, '/'),
           },
           {

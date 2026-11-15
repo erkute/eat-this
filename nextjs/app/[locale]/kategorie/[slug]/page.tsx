@@ -49,10 +49,9 @@ interface PageProps {
   params: Promise<{ locale: string; slug: string }>;
 }
 
-// Square (1:1) pack-card social images so Google's square SERP thumbnail
-// shows the FULL packet (padded on brand yellow) instead of center-cropping
-// the portrait booster art and cutting off the bottom. One per category slug;
-// bump the version to force re-fetch by Google/social caches.
+// Categories with their own booster pack art (public/pics/og/og_<slug>.png and
+// og_<slug>-square.png, from scripts/build-brand-cards.mts). Bump OG_PACK_VERSION
+// to force a re-fetch by Google and social caches.
 const PACK_OG_SLUGS = new Set([
   'breakfast',
   'coffee',
@@ -72,15 +71,21 @@ const PACK_OG_SLUGS = new Set([
 export const revalidate = 86400;
 
 /**
- * Das Bild, das diese Seite nach außen vertritt — Pack-Card plus Wortmarke auf
- * Markengelb. Eine Quelle für Open Graph *und* `primaryImageOfPage`: beide
- * beschreiben dieselbe Sache, und solange sie auseinanderliefen, zeigte die
- * Link-Vorschau das Pack und Googles Seitenbild ein beliebiges Restaurantfoto.
+ * Das Bild, das diese Seite nach außen vertritt: das Pack der Rubrik auf Papier.
+ * Breit (Pack plus Wortmarke) für Link-Vorschauen, quadratisch (nur das Pack) als
+ * `primaryImageOfPage`, weil Google das Bild neben dem Treffer quadratisch zuschneidet.
+ * Ohne eigenes Bild als `primaryImageOfPage` zeigte Google ein beliebiges Restaurantfoto.
  */
 function categorySocialImage(slug: string): string {
   return PACK_OG_SLUGS.has(slug)
     ? `${SITE_URL}/pics/og/og_${slug}.png?v=${OG_PACK_VERSION}`
     : `${SITE_URL}/pics/og-card.png?v=${OG_CARD_VERSION}`;
+}
+
+function categorySearchImage(slug: string): string {
+  return PACK_OG_SLUGS.has(slug)
+    ? `${SITE_URL}/pics/og/og_${slug}-square.png?v=${OG_PACK_VERSION}`
+    : `${SITE_URL}/pics/og-card-square.png?v=${OG_CARD_VERSION}`;
 }
 
 /** Siehe CARD_LIMIT auf der Bezirksseite: ohne Bestenliste Karten nur bis zu
@@ -195,15 +200,13 @@ export default async function KategorieDetailPage({ params }: PageProps) {
   const jsonLd = serializeJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
-      // Die Pack-Card, nicht das erste Restaurantfoto. Bis hierher war das
-      // Seitenbild ein beliebiger Spot aus der Liste — bei jedem Re-Crawl
-      // potenziell ein anderer, und keiner davon stellt die Kategorie dar.
-      // Dieselbe Grafik liegt schon auf Open Graph; die Seite vertritt sich
-      // damit überall gleich.
+      // Das Pack der Rubrik, nicht das erste Restaurantfoto: ein beliebiger Spot
+      // aus der Liste wäre bei jedem Re-Crawl potenziell ein anderer, und keiner
+      // davon stellt die Rubrik dar. Open Graph zeigt dasselbe Pack im Breitformat.
       ...buildWebPageNodes({
         pageUrl: localeUrl(locale, `/kategorie/${slug}`),
         locale: loc,
-        image: categorySocialImage(slug),
+        image: categorySearchImage(slug),
         caption: buildCategoryTitle(slug, label, loc),
       }),
       {
@@ -212,7 +215,7 @@ export default async function KategorieDetailPage({ params }: PageProps) {
           {
             '@type': 'ListItem',
             position: 1,
-            name: 'Eat This Berlin',
+            name: 'eat this.',
             item: localeUrl(locale, '/'),
           },
           {

@@ -4,10 +4,10 @@ import { METADATA_DESCRIPTION_MAX, METADATA_TITLE_MAX, buildBrandedTitle, buildP
 describe('buildBrandedTitle', () => {
   it('adds the compact brand once', () => {
     expect(buildBrandedTitle('Die beste Pizza in Berlin')).toBe(
-      'Die beste Pizza in Berlin | EAT THIS'
+      'Die beste Pizza in Berlin | eat this.'
     );
     expect(buildBrandedTitle('Die beste Pizza in Berlin | Eat This Berlin')).toBe(
-      'Die beste Pizza in Berlin | EAT THIS'
+      'Die beste Pizza in Berlin | eat this.'
     );
   });
 
@@ -19,7 +19,7 @@ describe('buildBrandedTitle', () => {
 
   it('keeps the brand while title and brand fit 60 together', () => {
     const title = 'Ari’s Berlin: Smash Burgers in a Courtyard Diner';
-    expect(buildBrandedTitle(title)).toBe(`${title} | EAT THIS`);
+    expect(buildBrandedTitle(title)).toBe(`${title} | eat this.`);
     expect(buildBrandedTitle(title).length).toBeLessThanOrEqual(METADATA_TITLE_MAX);
   });
 
@@ -29,7 +29,7 @@ describe('buildBrandedTitle', () => {
     );
     expect(title.length).toBeLessThanOrEqual(METADATA_TITLE_MAX);
     expect(title.endsWith('…')).toBe(true);
-    expect(title).not.toContain('EAT THIS');
+    expect(title).not.toContain('eat this.');
   });
 });
 

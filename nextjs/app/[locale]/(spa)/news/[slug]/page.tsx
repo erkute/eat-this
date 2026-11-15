@@ -4,7 +4,7 @@ import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { getArticleBySlug, getAllArticleSlugs, getAllNewsArticles } from '@/lib/sanity.server';
 import { serializeJsonLd, buildArticleSpotsItemList } from '@/lib/json-ld';
-import { BRAND_WORDMARK, OG_CARD_VERSION, SITE_URL } from '@/lib/constants';
+import { BRAND_LOGO, OG_CARD_VERSION, SITE_URL } from '@/lib/constants';
 import { localeUrl } from '@/lib/locale-url';
 import { INDEXABLE_ROBOTS, toOgLocale } from '@/lib/seo/metadata';
 import { metadataSource } from '@/lib/seo/metadataSource';
@@ -120,12 +120,12 @@ export default async function NewsArticlePage({ params }: PageProps) {
         image: a.imageUrl,
         datePublished: a.date,
         dateModified: a.revised || a.date,
-        author: { '@type': 'Organization', name: 'Eat This Berlin', url: SITE_URL },
+        author: { '@type': 'Organization', name: 'eat this.', url: SITE_URL },
         publisher: {
           '@type': 'Organization',
-          name: 'Eat This Berlin',
+          name: 'eat this.',
           url: SITE_URL,
-          logo: { '@type': 'ImageObject', url: `${SITE_URL}${BRAND_WORDMARK.src}` },
+          logo: { '@type': 'ImageObject', url: `${SITE_URL}${BRAND_LOGO.src}` },
         },
         mainEntityOfPage: { '@type': 'WebPage', '@id': localeUrl(locale, `/news/${slug}`) },
         inLanguage: de ? 'de' : 'en',
@@ -136,7 +136,7 @@ export default async function NewsArticlePage({ params }: PageProps) {
           {
             '@type': 'ListItem',
             position: 1,
-            name: 'Eat This Berlin',
+            name: 'eat this.',
             item: localeUrl(locale, '/'),
           },
           {

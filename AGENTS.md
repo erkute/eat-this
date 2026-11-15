@@ -13,6 +13,7 @@ npm run build:email-art    # Pflicht nach Textänderungen in scripts/build-email
 npm run build:email-spots  # Spot-Cards der Anmelde-Mail aus Sanity
 npm run build:deck-og-art  # Deck-Vorschaubild; nach Änderung an deck.collectLabel/collectBody oder den offenen Karten
 npm run build:basemap      # beide Map-Paletten
+npm run build:brand-cards  # Google- und Teilen-Bilder (og-card, Rubrik-Packs), danach OG_CARD_VERSION bzw. OG_PACK_VERSION erhöhen
 ```
 
 ## Deploy

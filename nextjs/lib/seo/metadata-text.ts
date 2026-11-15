@@ -1,9 +1,9 @@
 export const METADATA_TITLE_MAX = 60;
 export const METADATA_DESCRIPTION_MAX = 155;
-const METADATA_BRAND_SUFFIX = ' | EAT THIS';
+const METADATA_BRAND_SUFFIX = ' | eat this.';
 const METADATA_TITLE_TEXT_MAX = METADATA_TITLE_MAX - METADATA_BRAND_SUFFIX.length;
 
-const TRAILING_BRAND = /\s*(?:\||[·—–-])\s*eat this(?: berlin)?$/i;
+const TRAILING_BRAND = /\s*(?:\||[·—–-])\s*eat this\.?(?: berlin)?$/i;
 
 function truncateAtWord(text: string, max: number): string {
   if (text.length <= max) return text;

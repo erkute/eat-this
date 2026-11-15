@@ -1,18 +1,14 @@
-/* Seit 02.10.2026 im Aufbau von Kaleidoscope (manifesto.kaleidoscope.media,
-   Ansage „mach in dem Look"): alles mittig, Schlagzeile, Kapitel und Fazit
-   gross, das Foto über die ganze Breite, Fotos eckig. Schrift und Farben
-   bleiben die eigenen (Ansagen „Typo soll zu meinem Design passen" und „in
-   dem Rot-Gelb-Stil von mir, keine neuen Farben"): dieselbe Sprache wie die
-   Startseite (`.homeV2` in globals.css) — weisser Grund, Ink für Text,
-   Überschriften in Rot wie `.hv-title`, Gelb als Akzent;
-   Neue Haas Grotesk Text für Plakatives, Labels und Lesetext.
-   Davor stand der Artikel auf Ink.
+/* Im Aufbau von Kaleidoscope (manifesto.kaleidoscope.media): alles mittig,
+   Schlagzeile, Kapitel und Fazit groß, das Foto über die ganze Breite, Fotos
+   eckig. Schrift und Farben bleiben die eigenen, dieselbe Sprache wie die
+   Startseite (`.homeV2` in globals.css): weißer Grund, Ink für Text,
+   Überschriften in Rot wie `.hv-title`, Gelb als Akzent; Neue Haas Grotesk Text
+   für Plakatives, Labels und Lesetext. Keine neuen Farben.
 
    `--article-ground` ist der Grund, `--article-fg` die Schrift darauf,
    `--article-head` die Farbe der Überschriften. Gelbe Flächen
    (`--article-accent`: Knöpfe, Etiketten, Schlusszeichen) tragen Ink
-   (`--article-on-accent`). Fokusrahmen sind Ink — Gelb auf Weiss sähe man
-   nicht. */
+   (`--article-on-accent`). Fokusrahmen sind Ink, Gelb auf Weiß sähe man nicht. */
 .page {
   --et-sheet: none;
   --article-ground: var(--et-ground);
@@ -85,8 +81,7 @@ div.page {
   width: 100%;
   max-width: none;
   margin: 0;
-  /* Schwarz (Ansage 02.10.2026 „mach Headline schwarz"); die Kapitel
-     darunter bleiben rot. */
+  /* Die Schlagzeile ist schwarz; die Kapitel darunter bleiben rot. */
   color: var(--article-fg);
   /* The headline spans the page while the prose keeps its reading width. */
   font-size: clamp(40px, 5.2vw, 80px);
@@ -139,9 +134,8 @@ div.page {
   filter: saturate(1.04) contrast(1.03);
 }
 
-/* Der Vorspann wie der Lesetext.
-   Er steht mittig wie Titel und Zwischenüberschriften, erst der Lesetext ist
-   linksbündig (Ansage 21.10.2026). */
+/* Der Vorspann wie der Lesetext. Er steht mittig wie Titel und
+   Zwischenüberschriften, erst der Lesetext ist linksbündig. */
 .lede {
   max-width: var(--article-measure);
   margin: clamp(48px, 5.6vw, 88px) auto 0;
@@ -158,8 +152,8 @@ div.page {
 /* ------------------------------------------------------------ chapters --- */
 
 /* „Die Spots" als eine Zeile unter dem Kopf, mittig wie die Namenslisten bei
-   Kaleidoscope (Ansage 02.10.2026, statt der Kapitel-Leiste links). Jeder
-   Spot ist ein leises Feld wie „Teilen", unter der Maus gelb. */
+   Kaleidoscope. Jeder Spot ist ein leises Feld wie „Teilen", unter der Maus
+   gelb. */
 .chapters {
   display: grid;
   justify-items: center;
@@ -400,13 +394,11 @@ div.page {
   font-weight: 700;
 }
 
-/* Links im Text sind fett, sonst nichts — keine Unterstreichung (der
-   Browser brach die dicke gelbe an jeder Unterlänge), kein Marker-Streifen
-   (las sich als Hervorhebung, nicht als Link). Ansagen 02.10.2026: „so
-   komisch unterstrichen", „kein Marker". Unter der Maus werden sie rot wie
-   die Kapitel.
-   Die Links in der Spot-Karte tragen ihr eigenes Aussehen (Name, Knopf,
-   Bezirk · Küche). */
+/* Links im Text sind fett, sonst nichts: keine Unterstreichung (der Browser
+   bricht eine dicke gelbe an jeder Unterlänge), kein Marker-Streifen (liest
+   sich als Hervorhebung, nicht als Link). Unter der Maus werden sie rot wie die
+   Kapitel. Die Links in der Spot-Karte tragen ihr eigenes Aussehen (Name,
+   Knopf, Bezirk · Küche). */
 .content a:not(.inlineSpotNameLink):not(.inlineSpotMetaLink):not(.mustEat):not(.inlineIssue) {
   color: inherit;
   font-weight: 700;
@@ -525,13 +517,11 @@ div.page {
 /* Inline editorial photo — square corners like every photo in the article,
    a small quiet caption. The img keeps its intrinsic ratio; next/image
    ships width/height so the column doesn't jump while it loads. */
-/* Jedes Foto so breit wie die Spot-Karten — die Spalte —, der Aufmacher
-   eingeschlossen (Ansage 22.10.2026: „die Bilder immer in der gleichen
-   Breite"). Vorher war die Höhe gedeckelt, und Hochformate standen
-   schmal und mittig. Damit sie nicht über den Bildschirm wachsen, werden sie
-   höchstens 4:5 gezeigt (Höhe ≤ 125 % der Breite, mittig beschnitten);
-   Querformate bleiben ganz. `--img-frame`/`--img-offset` setzt nur das
-   Telefon (siehe unten). */
+/* Jedes Foto so breit wie die Spot-Karten, also die Spalte, der Aufmacher
+   eingeschlossen. Damit Hochformate nicht über den Bildschirm wachsen, werden
+   sie höchstens 4:5 gezeigt (Höhe ≤ 125 % der Breite, mittig beschnitten);
+   Querformate bleiben ganz. `--img-frame`/`--img-offset` setzt nur das Telefon
+   (siehe unten). */
 .inlineImage {
   container-type: inline-size;
   width: var(--img-frame, 100%);
@@ -558,11 +548,10 @@ div.page {
   text-align: left;
 }
 
-/* Die Spot-Karte (Ansage 21.10.2026: „ein cooles passendes Label, wo Text
-   im Bild ist"): das Foto füllt die Karte und bleibt klar, ohne Verlauf.
-   Darauf kleben Etiketten wie im Menü — der Name als Ink-Etikett mit gelber
-   Schrift und den Kratzern der Knöpfe, leicht schief, darunter Bezirk ·
-   Küche als weisses Papier-Etikett. Rechts unten der Weg auf die Map. */
+/* Die Spot-Karte: Das Foto füllt die Karte und bleibt klar, ohne Verlauf.
+   Darauf kleben Etiketten wie im Menü: der Name als Ink-Etikett mit gelber
+   Schrift und den Kratzern der Knöpfe, leicht schief, darunter Bezirk · Küche
+   als weißes Papier-Etikett. Rechts unten der Weg auf die Map. */
 .inlineSpot {
   position: relative;
   display: block;
@@ -891,10 +880,10 @@ div.page {
     padding-top: 30px;
   }
 
-  /* Randlos über die ganze Breite wie die Fotos im Text (13.11.2026). Ohne
-     `vh`: Chrome auf dem iPhone ändert es, während es beim Scrollen seine
-     Leisten ein- und ausblendet, und das Foto wurde dabei höher und niedriger
-     — es sah aus wie gezoomt (Betreiber, 26.09.2026). */
+  /* Randlos über die ganze Breite wie die Fotos im Text. Ohne `vh`: Chrome auf
+     dem iPhone ändert es, während es beim Scrollen seine Leisten ein- und
+     ausblendet, und das Foto würde dabei höher und niedriger, als werde es
+     gezoomt. */
   .heroMedia {
     justify-self: stretch;
     width: auto;
@@ -996,8 +985,8 @@ div.page {
   .relatedGrid {
     display: flex;
     grid-template-columns: none;
-    /* Nicht mittig wie am Desktop: WebKit schob das erste Heft sonst links
-       aus dem Bild, die Reihe begann am iPhone beim zweiten (03.10.2026). */
+    /* Nicht mittig wie am Desktop: WebKit schiebt das erste Heft sonst links
+       aus dem Bild, die Reihe begänne am iPhone beim zweiten. */
     justify-content: flex-start;
     gap: 18px;
     overflow-x: auto;
@@ -1037,9 +1026,8 @@ div.page {
 }
 @media (min-width: 1024px) {
   .page {
-    /* Text, Fotos, Aufmacher und Spot-Karten teilen eine Breite. Die
-       Spot-Karte war am Desktop schon „zu groß", breiter als die Spalte
-       (21.10.2026) — also gehen die Fotos auf ihr Mass. */
+    /* Text, Fotos, Aufmacher und Spot-Karten teilen eine Breite: Die Fotos
+       gehen auf das Maß der Spalte, die Spot-Karte ist nie breiter als sie. */
     --article-measure: 768px;
   }
   .imageSpread { width: calc(100vw - 36px); margin-inline: calc(50% - 50vw + 18px); }

@@ -165,11 +165,9 @@ describe('MapCanvasLayer viewport culling', () => {
 });
 
 describe('MapCanvasLayer draws every spot on its own', () => {
-  /* Markers used to be grouped by pixel radius. They are not any more (user
-     decision 2026-08-19): a grouped pin hides which spot is underneath, and
-     "hungry, standing here" wants to see and tap the actual spots. The
-     assertions below are the ones that guard against grouping coming back by
-     accident. */
+  /* Markers are not grouped by pixel radius: a grouped pin hides which spot is
+     underneath, and "hungry, standing here" wants to see and tap the actual
+     spots. The assertions below guard against grouping coming back by accident. */
 
   it('gives each pin its own marker even at one coordinate', async () => {
     render(layer([spot('spot-1'), spot('spot-2'), spot('spot-3')]));

@@ -237,22 +237,21 @@ export default function BuddyWidget() {
     return () => clearTimeout(t);
   }, [open, messages.length]);
 
-  /* Die Frage nach oben, die Antwort darunter — und dann STEHT die Ansicht.
+  /* Die Frage nach oben, die Antwort darunter, und dann steht die Ansicht.
 
-     Bis 18.09.2026 fuhr der Log dem Text hinterher. Eine Spot-Antwort ist aber
-     ~1700px lang, das Fenster zeigt ~540: 3,2 Fenster. Remy schreibt mit
-     100 Zeichen/s, gelesen wird mit 25 — die Ansicht fuhr einem unter den
-     Augen weg, und am Ende stand man bei Pack und Chips, die erste Empfehlung
-     1000px weiter oben. Man scrollte jede Antwort wieder hoch.
+     Der Log fährt dem Text nicht hinterher: Eine Spot-Antwort ist ~1700px lang,
+     das Fenster zeigt ~540. Remy schreibt mit 100 Zeichen/s, gelesen wird mit
+     25; die Ansicht führe einem unter den Augen weg, und am Ende stünde man bei
+     Pack und Chips, die erste Empfehlung 1000px weiter oben.
 
-     Noch früher blieb die Ansicht einfach stehen, wo sie war — die Frage unten
-     am Rand, Remy schrieb unsichtbar unter der Kante weiter. Deshalb jetzt
-     beides: die eben gestellte Frage gleitet an den OBEREN Rand (die Feder aus
+     Stehen bleiben, wo sie war, darf die Ansicht auch nicht: Dann stünde die
+     Frage unten am Rand, und Remy schriebe unsichtbar unter der Kante weiter.
+     Deshalb gleitet die eben gestellte Frage an den oberen Rand (die Feder aus
      `stickStep`), die Antwort füllt das Fenster darunter, und gescrollt wird
-     von da an nur noch vom Leser. Damit die Frage auch bei einer kurzen
-     Antwort oben stehen kann, hält die Antwort darunter eine Mindesthöhe
-     (`--buddy-anchor-min`). Beim Öffnen steht ein wiedergefundener Faden wie
-     bisher am Ende. */
+     von da an nur noch vom Leser. Damit die Frage auch bei einer kurzen Antwort
+     oben stehen kann, hält die Antwort darunter eine Mindesthöhe
+     (`--buddy-anchor-min`). Beim Öffnen steht ein wiedergefundener Faden am
+     Ende. */
   const lastTopRef = useRef(0);
   const glideRef = useRef(0);
   const userScrolledRef = useRef(false);
@@ -342,11 +341,11 @@ export default function BuddyWidget() {
   // and hand it back to whatever opened it on close.
   useEffect(() => {
     if (!open) return;
-    /* Auf Touch-Geräten holt ein Fokus im Feld sofort die Tastatur — sie fuhr
-       schon beim Tipp auf den Remy-Knopf aus und deckte den halben Chat
-       (Betreiber, 24.09.2026). Dort bekommt die Hülle den Fokus (Vorleser und
-       Tab landen trotzdem im Dialog), die Tastatur kommt erst mit dem Tipp
-       ins Feld. Mit Maus: das Feld, denn wer Remy öffnet, will schreiben. */
+    /* Auf Touch-Geräten holt ein Fokus im Feld sofort die Tastatur; sie führe
+       schon beim Tipp auf den Remy-Knopf aus und deckte den halben Chat. Dort
+       bekommt die Hülle den Fokus (Vorleser und Tab landen trotzdem im Dialog),
+       die Tastatur kommt erst mit dem Tipp ins Feld. Mit Maus: das Feld, denn
+       wer Remy öffnet, will schreiben. */
     const touch =
       typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches;
     const opener = document.activeElement;

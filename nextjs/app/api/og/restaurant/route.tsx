@@ -185,15 +185,12 @@ export async function GET(request: Request) {
   return new Response(new Uint8Array(jpeg), {
     headers: {
       'Content-Type': 'image/jpeg',
-      // Long CDN cache — the card only changes when Sanity content does.
-      // Der Cache greift seit dem 07.09.2026 auch wirklich: bis dahin strich
-      // App Hosting `public`/`s-maxage` auf jedem middleware-gematchten Pfad
-      // und haengte `private` an (gemessen auf prod, 25.08.2026), und diese
-      // Karte rechnete bei jedem Abruf neu — 1 bis 2 s. Das traf ausgerechnet
-      // Endpunkte, deren Publikum ausschliesslich aus fremden Maschinen
-      // besteht, fuer die ein Browser-Cache wertlos ist. `api/og` steht
-      // deshalb jetzt in der Ausnahmeliste des Matchers (siehe middleware.ts);
-      // der Preis ist, dass die drei Bilder auf Staging ohne Basic Auth
+      // Long CDN cache — the card only changes when Sanity content does. Der
+      // Cache greift, weil `api/og` in der Ausnahmeliste des Matchers steht
+      // (siehe middleware.ts): App Hosting streicht `public`/`s-maxage` auf
+      // jedem middleware-gematchten Pfad und hängt `private` an. Das Publikum
+      // dieser Endpunkte sind fremde Maschinen, für die ein Browser-Cache
+      // wertlos ist. Der Preis ist, dass die Bilder auf Staging ohne Basic Auth
       // offenliegen.
       'Cache-Control': 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800',
     },

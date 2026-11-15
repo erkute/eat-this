@@ -475,12 +475,12 @@ const ARTICLES_BY_SLUG_QUERY = `*[
 ] ${ARTICLE_PROJECTION}`;
 
 /**
- * Ab hier zaehlt ein Artikel als Treffer. An echten Anfragen kalibriert
- * (06.09.2026): thematisch passende Fragen landeten bei 0,52–0,67, fremde
- * ("Wie repariere ich mein Fahrrad", "Wetter morgen in Hamburg") bei hoechstens
- * 0,28. Ohne Schwelle liefe jede Frage in fuenf Karten, auch die, zu der wir
- * nichts geschrieben haben — und Remy verweist dann im Text auf einen Guide,
- * der nicht zur Frage passt.
+ * Ab hier zählt ein Artikel als Treffer. An echten Anfragen kalibriert:
+ * Thematisch passende Fragen landen bei 0,52–0,67, fremde ("Wie repariere ich
+ * mein Fahrrad", "Wetter morgen in Hamburg") bei höchstens 0,28. Ohne Schwelle
+ * liefe jede Frage in fünf Karten, auch die, zu der wir nichts geschrieben
+ * haben, und Remy verwiese dann im Text auf einen Guide, der nicht zur Frage
+ * passt.
  */
 export const ARTICLE_MIN_SCORE = 0.45;
 

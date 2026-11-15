@@ -20,10 +20,10 @@ const eslintConfig = [
     rules: { '@next/next/no-img-element': 'off' },
   },
   {
-    // next/image nur über app/components/SiteImage.tsx: dort bekommen
+    // next/image nur über app/components/SiteImage.tsx: Dort bekommen
     // Sanity-URLs den Sanity-Loader und gehen direkt an die CDN. Ein direkter
-    // Import schickte sie wieder durch den Optimierer der Instanz — Speicher,
-    // der auf Cloud Run fehlt (25.09.2026, siehe lib/imageLoader.ts).
+    // Import schickte sie durch den Optimierer der Instanz, und der kostet
+    // Speicher, der auf Cloud Run fehlt (siehe lib/imageLoader.ts).
     files: ['app/**/*.{ts,tsx}', 'lib/**/*.{ts,tsx}'],
     ignores: ['app/components/SiteImage.tsx', '**/*.test.{ts,tsx}'],
     rules: {

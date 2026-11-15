@@ -48,7 +48,7 @@ export function classifyWebsite(url: string | null | undefined): WebsiteInfo | n
  * Google leaves `endPrice` off its top band and only sends `startPrice: 100`,
  * which is how nearly every fine-dining spot arrives — those render open-ended
  * as "ab 100 €" / "from 100 €" rather than being dropped. Requiring both bounds
- * is what kept the price off 45 of 51 fine-dining pages until 25.08.2026.
+ * would keep the price off most fine-dining pages.
  *
  * A lone `max` stays null: "up to 20 €" is not a claim Places supports, and no
  * document in either dataset has one.

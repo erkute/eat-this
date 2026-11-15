@@ -191,15 +191,14 @@ const DECK_CARDS = [
 ] as const;
 
 /**
- * Die Tour nach der ersten Pack-Vergabe — auf JEDEM Anmeldeweg, weil sie an
- * `/api/starter-pack` hängt und nicht an einer Seite (siehe signInArrival).
- * Wer gerade sein Pack bekommen hat, öffnet es zuerst und sieht, was drin
- * ist; dann die Map, zu der die Karten fuehren, und am Ende die zwei Orte,
- * an denen es weitergeht. Bis 22.09.2026 kamen danach noch „Must Eats" und
- * „Hingehen. Aufdecken. Sammeln." — beide sagten, was der Stapel-Schritt
- * schon gesagt hatte (Nutzer, 22.09.2026).
+ * Die Tour nach der ersten Pack-Vergabe, auf jedem Anmeldeweg, weil sie an
+ * `/api/starter-pack` hängt und nicht an einer Seite (siehe signInArrival). Wer
+ * gerade sein Pack bekommen hat, öffnet es zuerst und sieht, was drin ist; dann
+ * die Map, zu der die Karten führen, und am Ende die zwei Orte, an denen es
+ * weitergeht. Mehr Schritte gibt es nicht: Sie würden wiederholen, was der
+ * Stapel-Schritt schon sagt.
  *
- * Alles passt ohne Scrollen in den Viewport: die Bildfläche ist der einzige
+ * Alles passt ohne Scrollen in den Viewport: Die Bildfläche ist der einzige
  * Teil, der schrumpft, Texte und Knöpfe behalten ihre Größe.
  */
 export default function SignInRewardPanel({ cards }: { cards: string[] | null }) {
@@ -564,9 +563,9 @@ export default function SignInRewardPanel({ cards }: { cards: string[] | null })
         </div>
         <div className={styles.copy}>
           <p className={`et-label ${styles.kicker}`}>{t.pack.tag}</p>
-          {/* Beide Texte liegen uebereinander in derselben Zelle — die Spalte
-              ist auf beiden Schritten gleich hoch, und die Buehne darueber
-              wird beim Weiterklicken nicht kleiner (Nutzer, 22.09.2026). */}
+          {/* Beide Texte liegen übereinander in derselben Zelle: Die Spalte ist
+              auf beiden Schritten gleich hoch, und die Bühne darüber wird beim
+              Weiterklicken nicht kleiner. */}
           <div className={styles.copyStack}>
             <div className={explaining ? styles.copyHidden : undefined} aria-hidden={explaining}>
               <h2 ref={explaining ? undefined : titleRef} tabIndex={-1} className={styles.headline}>

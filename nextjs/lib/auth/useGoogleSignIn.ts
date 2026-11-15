@@ -11,9 +11,11 @@ import { trackEvent } from '@/lib/analytics';
 type GoogleSignInPhase = 'idle' | 'busy';
 type GoogleSignInNote = 'cancelled' | 'blocked' | 'failed' | null;
 
-/** Die Zeile zu jeder Note — Schlüssel in translations.ts, mit `auth.`-Präfix:
- *  ohne findet next-intl den Text nicht und schreibt dem Leser den Schlüssel
- *  selbst hin (Nutzer, 28.08.2026). Einmal hier, nicht in jedem Knopf. */
+/**
+ * Die Zeile zu jeder Note: Schlüssel in translations.ts, mit `auth.`-Präfix.
+ * Ohne findet next-intl den Text nicht und schreibt dem Leser den Schlüssel
+ * selbst hin. Einmal hier, nicht in jedem Knopf.
+ */
 const NOTE_KEY: Record<NonNullable<GoogleSignInNote>, string> = {
   cancelled: 'auth.googleCancelled',
   blocked: 'auth.errGooglePopupBlocked',

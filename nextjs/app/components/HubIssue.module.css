@@ -379,8 +379,8 @@ html[data-theme='dark'] .filterReturn {
 
 /* ------------------------------------------------------------ register -- */
 
-/* Hinten im Heft: drei Spalten, Buchstaben rot (Ansage 03.10.2026 „nimm 3
-   Spalten"). Am Telefon fällt es auf eine Spalte zusammen. */
+/* Hinten im Heft: drei Spalten, Buchstaben rot. Am Telefon fällt es auf eine
+   Spalte zusammen. */
 .register {
   width: min(100%, var(--issue-wide));
   margin: 40px auto 0;

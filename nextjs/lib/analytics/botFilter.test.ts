@@ -8,8 +8,11 @@ const IPHONE =
 /** What a real Android phone sends since Chrome 110: model reduced to "K". */
 const ANDROID =
   'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Mobile Safari/537.36';
-/* Lighthouse 12's emulated phone, exactly as it arrives - no "Chrome-Lighthouse"
- * suffix. Verified 03.09.2026 against a local echo page and in the edge log. */
+/*
+ * Lighthouse 12's emulated phone, exactly as it arrives - no
+ * "Chrome-Lighthouse" suffix (checked against a local echo page and the edge
+ * log).
+ */
 const LIGHTHOUSE =
   'Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36';
 
@@ -35,8 +38,10 @@ describe('isAutomated', () => {
     expect(isAutomated(ua)).toBe(true);
   });
 
-  /* Seen 26.09.2026 in the Claude desktop app's browser pane. It has its own
-   * cookie jar, so the /admin/stats opt-out cookie never covers it. */
+  /*
+   * The Claude desktop app's browser pane has its own cookie jar, so the
+   * /admin/stats opt-out cookie never covers it.
+   */
   it('drops the Claude desktop app browser', () => {
     expect(
       isAutomated(

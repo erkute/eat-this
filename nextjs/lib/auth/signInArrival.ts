@@ -41,16 +41,15 @@ export function subscribeStarterPackGranted(listener: GrantedListener): () => vo
 }
 
 /**
- * Ob nach einer Anmeldung die Tour kommt — je Konto.
+ * Ob nach einer Anmeldung die Tour kommt, je Konto.
  *
- * Der Weg ins Profil wartet darauf (EmailLinkSignIn). Bis 14.10.2026 ging er
- * sofort, und das Profil stand offen da, bis `/api/starter-pack` antwortete
- * und die Tour aufging (Betreiber: „man darf nicht im Vorfeld das Profil
- * sehen"). Jetzt liegt der Ink-Grund der Tour schon, wenn die Seite wechselt.
+ * Der Weg ins Profil wartet darauf (EmailLinkSignIn): Das Profil darf nicht
+ * offen dastehen, bis `/api/starter-pack` antwortet und die Tour aufgeht. So
+ * liegt der Ink-Grund der Tour schon, wenn die Seite wechselt.
  *
- * Die Antwort kann vor der Frage kommen — der Auth-Listener feuert, bevor
- * `signInWithEmailLink` zurückkehrt —, deshalb gemerkt statt nur gemeldet.
- * Gelesen wird sie nur einmal: eine zweite Anmeldung im selben Seitenleben
+ * Die Antwort kann vor der Frage kommen (der Auth-Listener feuert, bevor
+ * `signInWithEmailLink` zurückkehrt), deshalb gemerkt statt nur gemeldet.
+ * Gelesen wird sie nur einmal: Eine zweite Anmeldung im selben Seitenleben
  * wartet auf ihre eigene Antwort statt auf die alte.
  */
 const ARRIVAL_WAIT_MS = 8000;

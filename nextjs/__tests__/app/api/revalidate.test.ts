@@ -58,9 +58,9 @@ describe('/api/revalidate', () => {
     expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurant:test-spot')
     expect(mocks.revalidateTag).toHaveBeenCalledWith('map-data')
     expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurant-siblings')
-    // Jede Spot-Seite haengt am blanken Tag `restaurant` — ohne ihn stuende
-    // eine Aenderung bis zum Ablauf der ISR-Frist nicht auf den uebrigen
-    // Spot-Seiten, seit dem 25.08.2026 also bis zu 24 Stunden.
+    // Jede Spot-Seite hängt am blanken Tag `restaurant`. Ohne ihn stünde eine
+    // Änderung bis zum Ablauf der ISR-Frist (24 Stunden) nicht auf den übrigen
+    // Spot-Seiten.
     expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurant')
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/restaurant/test-spot')
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/map')
@@ -92,7 +92,7 @@ describe('/api/revalidate', () => {
 
   // Die Projektion des Hooks schickt bei einer Karte nur `_type` und `_id`.
   // Ohne die ID kann waitForFreshCdn den Spot nicht finden, auf dessen Seite
-  // die Karte steht, und fällt auf die pauschale Pause zurück (14.10.2026).
+  // die Karte steht, und fällt auf die pauschale Pause zurück.
   it('reicht bei einer Must-Eat-Karte die Dokument-ID an den CDN-Abgleich', async () => {
     process.env.SANITY_WEBHOOK_SETTLE_MS = '5000'
     mocks.waitForFreshCdn.mockResolvedValue('fresh')
@@ -190,12 +190,9 @@ describe('/api/revalidate', () => {
     }
   )
 
-  // Die echte Webhook-Projektion sendet `"slug": slug.current` — einen
-  // STRING (Hook-Log vom 27.08.2026: { _id, _type, slug: 'beste-burger-berlin' }).
-  // Die Route las nur `doc.slug?.current`; auf dieser Payload war der Slug
-  // damit immer undefined und keine slug-spezifische Revalidierung lief je.
-  // Die Objekt-Tests oben haben den Irrtum mitgetragen — dieser hier prüft
-  // die Form, die wirklich über die Leitung geht.
+  // Die echte Webhook-Projektion sendet `"slug": slug.current`, also einen
+  // String ({ _id, _type, slug: 'beste-burger-berlin' }). Dieser Test prüft die
+  // Form, die wirklich über die Leitung geht.
   it('revalidates the article path when the webhook sends the slug as a plain string', async () => {
     const raw = JSON.stringify({
       _id: 'news-beste-burger-berlin',
@@ -268,16 +265,13 @@ describe('/api/revalidate', () => {
   })
 })
 
-// Diese beiden Tests halten die Kodierung fest, an der der Hook von seiner
-// Einrichtung bis zum 25.08.2026 gescheitert ist: die Route erwartete hex,
-// Sanity sendet base64url. Der Helfer `signature()` oben signierte damals
-// ebenfalls hex — die Suite war also mit dem Fehler einverstanden und grün,
-// während in Produktion jede einzelne Auslieferung mit 401 abgewiesen wurde.
+// Diese beiden Tests halten die Kodierung fest: Sanity sendet base64url, nicht
+// hex.
 //
-// Deshalb signiert der erste Test hier NICHT mit Nodes `digest('base64url')`,
-// sondern baut die Signatur so nach, wie sanity-io/webhook-toolkit sie
-// tatsächlich erzeugt (signature.ts). Ein gemeinsamer Helfer könnte sich mit
-// der Route zusammen irren; dieser Nachbau kann es nicht.
+// Der erste Test signiert deshalb nicht mit Nodes `digest('base64url')`,
+// sondern baut die Signatur so nach, wie sanity-io/webhook-toolkit sie erzeugt
+// (signature.ts). Ein gemeinsamer Helfer könnte sich mit der Route zusammen
+// irren; dieser Nachbau kann es nicht.
 describe('/api/revalidate: Signaturkodierung', () => {
   const RAW = JSON.stringify({ _type: 'category', slug: { current: 'lunch' } })
 

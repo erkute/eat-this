@@ -61,16 +61,15 @@ function ownerOf(doc: { ref: { parent: { parent: { id: string } | null } } }): s
 }
 
 /**
- * Konten aus Firebase Auth, nicht aus `users/`: dort liegen Seed-Dokumente
- * vom Mai 2026, die nie ein Konto waren. Admin- und Test-Konten fallen raus (`isOwnAccount`), sonst ist
- * der Betreiber jeden Tag das aktive Konto — und seine Testkaeufe waeren
- * Umsatz. Alles Weitere — Starter Packs,
- * Käufe, Aufdeckungen vor Ort, Einladungen, Checkout-Versuche — kommt aus den
- * Unter-Sammlungen, ueber Collection-Group-Abfragen ohne Filter; die brauchen
- * keinen Index.
+ * Konten aus Firebase Auth, nicht aus `users/`: Dort liegen Seed-Dokumente, die
+ * nie ein Konto waren. Admin- und Test-Konten fallen raus (`isOwnAccount`),
+ * sonst ist der Betreiber jeden Tag das aktive Konto, und seine Testkäufe wären
+ * Umsatz. Alles Weitere (Starter Packs, Käufe, Aufdeckungen vor Ort,
+ * Einladungen, Checkout-Versuche) kommt aus den Unter-Sammlungen, über
+ * Collection-Group-Abfragen ohne Filter; die brauchen keinen Index.
  *
  * Alles hier ist klein (zweistellige Kontenzahl, dreistellige Dokumente) und
- * wird bei jedem Aufruf frisch gelesen; ein Cache waere mehr Code als Nutzen.
+ * wird bei jedem Aufruf frisch gelesen; ein Cache wäre mehr Code als Nutzen.
  */
 /**
  * Konten, die nicht in die Zahlen gehören: der Admin und die Test-Konten des

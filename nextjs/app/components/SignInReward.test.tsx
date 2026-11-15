@@ -201,8 +201,8 @@ describe('Ankunft nach der Anmeldung', () => {
     expect(screen.getByRole('heading').textContent).toBe('20 zusätzliche Must Eats.');
   });
 
-  /* Hinter der Tour wechselt die Seite ins Profil — das soll man erst
-     danach sehen (Betreiber, 14.10.2026). */
+  /* Hinter der Tour wechselt die Seite ins Profil; das soll man erst danach
+     sehen. */
   it('verdeckt das Profil während der Namensabfrage ohne sichtbaren Ladetext', async () => {
     let answer: (prefill: null) => void = () => {};
     identityStep.identityStepPrefill.mockReturnValue(new Promise((resolve) => (answer = resolve)));

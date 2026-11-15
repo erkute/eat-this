@@ -26,13 +26,15 @@ interface Props {
   onClose: () => void;
   /** The chip that opened the picker — a click on it is not an outside click. */
   anchorEl?: HTMLElement | null;
-  /** Desktop: die Liste klappt IN der Kopfzeile auf und schiebt die Ergebnisse
-   *  nach unten, statt als Popover darüber zu schweben (User, 2026-08-27).
-   *  Dann kein Portal, kein Backdrop, keine Ankerrechnung und keine
-   *  Fokusfalle — das ist kein Dialog mehr, sondern ein aufgeklappter Teil der
-   *  Leiste. Mobile bleibt das Bottom-Sheet: dort liegt die Leiste in einer
-   *  Sheet mit Schnappunkten, und ein Block, der sie von innen wachsen lässt,
-   *  verschiebt genau die Höhe, an der die Schnappunkte rechnen. */
+  /**
+   * Desktop: Die Liste klappt in der Kopfzeile auf und schiebt die Ergebnisse
+   * nach unten, statt als Popover darüber zu schweben. Dann kein Portal, kein
+   * Backdrop, keine Ankerrechnung und keine Fokusfalle: Das ist kein Dialog,
+   * sondern ein aufgeklappter Teil der Leiste. Mobile bleibt das Bottom-Sheet:
+   * Dort liegt die Leiste in einer Sheet mit Schnappunkten, und ein Block, der
+   * sie von innen wachsen lässt, verschiebt genau die Höhe, an der die
+   * Schnappunkte rechnen.
+   */
   inline?: boolean;
   /** Label for the "Alle …" reset row. Omit to skip the reset row. */
   allLabel?: string;

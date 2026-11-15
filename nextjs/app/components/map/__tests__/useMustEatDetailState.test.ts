@@ -161,10 +161,9 @@ describe('useMustEatDetailState — handleCardClick auth gate', () => {
     expect(onUnlock).not.toHaveBeenCalled();
   });
 
-  /* Ein Gast wird nicht nach seinem Standort gefragt: der Ruecken ist fuer
-     ihn die Frage „was liegt darunter?", und die Antwort ist die Anmeldung —
-     egal, wo er steht (Betreiber, 07.09.2026). Die Karte zittert erst kurz
-     und gibt dann das Formular frei („bevor Anmelden angeht"). */
+  /* Ein Gast wird nicht nach seinem Standort gefragt: Der Rücken ist für ihn
+     die Frage „was liegt darunter?", und die Antwort ist die Anmeldung, egal,
+     wo er steht. Die Karte zittert erst kurz und gibt dann das Formular frei. */
   it('shakes the card for a guest, then routes to login — wherever they stand', () => {
     vi.useFakeTimers();
     try {

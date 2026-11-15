@@ -52,8 +52,8 @@ function metaLine(r: Spot, locale: Locale, showDistrict = false): ReactNode {
     formatPriceLabel(r, locale),
   ].filter((part): part is string => Boolean(part));
   if (!parts.length) return null;
-  // Jeder Teil bleibt beisammen — umbrochen wird nur am „·", nie mitten in
-  // „Prenzlauer Berg" oder „20–30 €" (21.10.2026).
+  // Jeder Teil bleibt beisammen: Umbrochen wird nur am „·", nie mitten in
+  // „Prenzlauer Berg" oder „20–30 €".
   return parts.map((part, index) => (
     <Fragment key={part}>
       {index > 0 && ' · '}
@@ -193,11 +193,10 @@ function byLetter<T extends Pick<Spot, 'name'>>(
 }
 
 /**
- * Das Register hinten im Heft: alle übrigen Spots alphabetisch in drei
- * Spalten (Ansage 03.10.2026), Buchstaben rot, je Spot Name und Küche ·
- * Preis. Die Liste kommt schon sortiert (directoryOrder in
- * lib/curated-ranking.ts). Ein Buchstabe verschwindet mit dem Filter, wenn
- * keiner seiner Spots passt.
+ * Das Register hinten im Heft: alle übrigen Spots alphabetisch in drei Spalten,
+ * Buchstaben rot, je Spot Name und Küche · Preis. Die Liste kommt schon
+ * sortiert (directoryOrder in lib/curated-ranking.ts). Ein Buchstabe
+ * verschwindet mit dem Filter, wenn keiner seiner Spots passt.
  */
 export function IssueRegister({
   restaurants,
@@ -293,8 +292,8 @@ export function IssueGuides({
 
 /**
  * Der Schluss der Übersichten: die neuesten Hefte aus dem Magazin, gelegt wie
- * „Weitere Ausgaben" unter einem Artikel, dazu der Weg zu allen. Bis 03.10.2026 endeten /bezirk und
- * /kategorie nach dem letzten Eintrag einfach — „da ist einfach Stille".
+ * „Weitere Ausgaben" unter einem Artikel, dazu der Weg zu allen. So enden
+ * /bezirk und /kategorie nicht einfach nach dem letzten Eintrag.
  */
 export function IssueMagazine({
   issues,
@@ -335,8 +334,7 @@ export function IssueMagazine({
       <div className={styles.links}>
         <Link href="/news" className="et-btn">
           {/* „Ausgaben" wie die Hefte selbst („Issue 27") und „Weitere
-              Ausgaben" unter dem Artikel — „Alle Stories" passte nicht
-              (Ansage 03.10.2026). */}
+              Ausgaben" unter dem Artikel, nicht „Alle Stories". */}
           {locale === 'de' ? 'Alle Ausgaben' : 'All issues'}
         </Link>
       </div>

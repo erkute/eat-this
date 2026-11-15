@@ -1,13 +1,10 @@
-// nextjs/lib/buddy/outOfCredit.ts
+// Ist Remy gescheitert, weil das Anthropic-Guthaben leer ist? Dann bricht jede
+// Antwort mit „Your credit balance is too low to access the Anthropic API" ab
+// (HTTP 400, invalid_request_error), und „Nochmal?" wäre eine Einladung, die
+// bis zum Aufladen ins Leere läuft. Die Route meldet diesen Fall deshalb
+// eigens, und der Chat sagt „für heute ausgebucht".
 //
-// Ist Remy gescheitert, weil das Anthropic-Guthaben leer ist? Am 23.09.2026
-// war genau das der Fall: jede Antwort brach mit „Your credit balance is too
-// low to access the Anthropic API" ab (HTTP 400, invalid_request_error), und
-// der Chat sagte „Sorry — da ist was schiefgelaufen. Nochmal?" — eine
-// Einladung, die bis zum Aufladen ins Leere lief. Die Route meldet diesen Fall
-// deshalb eigens, und der Chat sagt „für heute ausgebucht".
-//
-// Erkannt am Wortlaut der Fehlermeldung: die SDK-Fehlerklasse allein sagt nur
+// Erkannt am Wortlaut der Fehlermeldung: Die SDK-Fehlerklasse allein sagt nur
 // „400", und das ist auch jede kaputte Anfrage.
 const CREDIT = /credit balance is too low/i;
 

@@ -43,12 +43,12 @@ function forModel(spot: SpotCandidate): Omit<SpotCandidate, '_id' | 'image' | 'm
 }
 
 /**
- * Das Widget filterte bis zum 02.09.2026 selbst, über den Entitlement-Listener
- * — und der kennt den Admin-Zugang nicht (ADMIN_EMAILS plus verifizierte
- * Adresse, server-only, null Dokumente unter users/<uid>/entitlements). Remy
- * bot dem eigenen Admin-Konto darum Packs an, die ihm längst offenstanden.
- * Hier, wo das Token verifiziert ist, ist die Frage in einer Zeile beantwortet,
- * und eine Karte, die nie gesendet wird, muss der Client auch nicht verstecken.
+ * Hier entschieden, nicht im Widget: Dessen Entitlement-Listener kennt den
+ * Admin-Zugang nicht (ADMIN_EMAILS plus verifizierte Adresse, server-only, null
+ * Dokumente unter users/<uid>/entitlements), Remy böte dem Admin-Konto sonst
+ * Packs an, die ihm längst offenstehen. Hier, wo das Token verifiziert ist, ist
+ * die Frage in einer Zeile beantwortet, und eine Karte, die nie gesendet wird,
+ * muss der Client auch nicht verstecken.
  */
 function ownsPack(owned: OwnedPacks | undefined, pack: PackDef): boolean {
   if (!owned) return false;
@@ -86,27 +86,24 @@ interface OrchestratorDeps {
 
 const MAX_TOOL_ROUNDS = 4;
 /* Deckel für `search_spots` pro Runde. Ohne ihn entscheidet das Modell allein,
-   wie viele Suchen eine Antwort kostet — und am 08.09.2026 feuerte es in EINER
-   Runde 20 parallele Suchen ab (Sentry JAVASCRIPT-9V, belegt über 20
-   Sanity-Abfragen in 1,5 s zwischen zwei Modell-Aufrufen). Jede Trefferliste
-   ging damals mit ~10.500 Token ans Modell, zusammen 220.301 Token und damit
-   über Haikus 200k-Fenster. Voyage lehnte dabei 17 der 20 Embeddings mit 429
-   ab, die Suchen liefen also auch noch ohne semantische Sortierung.
+   wie viele Suchen eine Antwort kostet; es kann in einer Runde 20 parallele
+   Suchen abfeuern. Jede Trefferliste geht mit Tausenden Token ans Modell,
+   zusammen sprengt das das Kontextfenster, und Voyage lehnt die meisten der
+   Embeddings mit 429 ab, die Suchen laufen dann auch noch ohne semantische
+   Sortierung.
 
    Drei reichen für jede echte Frage: „Pizza oder Burger", „Kreuzberg gegen
    Neukölln", dazu ein Name. Mehr sind ein Modell, das sich eine Suche pro
    Bezirk zurechtlegt. Überzählige Aufrufe laufen nicht, bekommen aber ein
-   `is_error`-Ergebnis — die API verlangt auf JEDEN tool_use eine Antwort, und
+   `is_error`-Ergebnis: Die API verlangt auf jeden tool_use eine Antwort, und
    die Meldung sagt dem Modell, wie es weitermacht. Über alle Runden bleibt es
    bei höchstens MAX_TOOL_ROUNDS × 3 Suchen pro Antwort. */
 const MAX_SPOT_SEARCHES_PER_ROUND = 3;
 const MAX_TOKENS = 2048;
-/* Seit 09.09.2026 Sonnet statt Haiku. Grund ist die Sprache, nicht das
-   Denken: Haiku schrieb regelmäßig schiefes Deutsch („bestell du irgendetwas
-   Verrücktes", „zwischen Massenmark und Milchschaum-Theater"), und auf einer
-   Seite, deren Produkt die Stimme ist, ist das der teuerste Fehler. Gemessen
-   kostet der Wechsel ~0,7 → ~1,4 Cent pro Antwort (siehe die Token-Messung im
-   Commit zum Zuschnitt der Trefferliste). */
+/* Sonnet statt Haiku. Grund ist die Sprache, nicht das Denken: Haiku schreibt
+   regelmäßig schiefes Deutsch, und auf einer Seite, deren Produkt die Stimme
+   ist, ist das der teuerste Fehler. Der Preis: ~1,4 statt ~0,7 Cent pro
+   Antwort. */
 const MODEL = process.env.BUDDY_MODEL ?? 'claude-sonnet-5';
 
 function throwIfAborted(signal?: AbortSignal): void {

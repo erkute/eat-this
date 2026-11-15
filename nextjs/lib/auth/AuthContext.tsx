@@ -235,27 +235,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       announceSignedIn();
       return;
     } catch (error) {
-      /* Reported HERE rather than in the two call sites, both of which used to
-           swallow it whole. A Google sign-in that fails silently is invisible
-           three times over: no message on screen, nothing in the console, nothing
-           in Sentry — which is how a broken popup on staging survived three
-           rounds of guessing (user, 2026-08-26). The code IS the diagnosis, so it
-           goes in as a tag rather than being buried in the message. */
+      /* Reported HERE rather than in the two call sites. A Google sign-in that
+         fails silently is invisible three times over: no message on screen,
+         nothing in the console, nothing in Sentry. The code IS the diagnosis,
+         so it goes in as a tag rather than being buried in the message. */
       const { code, benign, blocked } = describeGoogleSignInError(error);
 
       if (blocked) {
-        /* Der Browser hat das Fenster nicht aufgehen lassen. Auf iOS Safari
-             ist das der Normalfall, solange Googles Iframe-Helfer beim Tippen
-             noch laedt: Safari erlaubt `window.open` nur im Klick-Task, und
-             `signInWithPopup` wartet vorher auf diesen Helfer. Auf dem Handy
-             dauert das — einmal ist er dort sogar ganz im Netz gescheitert
-             (auth/network-request-failed, 28.08.2026). Das Vorwaermen
-             (googlePopupWarmup.ts) verkuerzt die Wartezeit, aber es garantiert
-             sie nicht weg.
+        /* Der Browser hat das Fenster nicht aufgehen lassen. Auf iOS Safari ist
+           das der Normalfall, solange Googles Iframe-Helfer beim Tippen noch
+           lädt: Safari erlaubt `window.open` nur im Klick-Task, und
+           `signInWithPopup` wartet vorher auf diesen Helfer. Auf dem Handy
+           dauert das, und er kann dort auch ganz im Netz scheitern
+           (auth/network-request-failed). Das Vorwärmen (googlePopupWarmup.ts)
+           verkürzt die Wartezeit, aber es garantiert sie nicht weg.
 
-             Eine Navigation braucht keine Nutzer-Aktivierung und traegt
-             deshalb auch dann noch. Der Leser muss dafuer kein zweites Mal
-             tippen: wir schalten hier selbst um. */
+           Eine Navigation braucht keine Nutzer-Aktivierung und trägt deshalb
+           auch dann noch. Der Leser muss dafür kein zweites Mal tippen: Wir
+           schalten hier selbst um. */
         Sentry.captureMessage('Google-Popup geblockt — Wechsel auf Redirect', {
           level: 'info',
           tags: { auth_flow: 'google_popup', auth_error_code: code, auth_fallback: 'redirect' },

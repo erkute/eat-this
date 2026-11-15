@@ -1,17 +1,17 @@
 /* ============================================================
-   Spot-Seite /restaurant/[slug] im Heftlook nach 032c (Wahl 03.10.2026,
-   Entwurf A6; Vorbild magazine.032c.com „What Magazines Do").
+   Spot-Seite /restaurant/[slug] im Heftlook nach 032c (Vorbild
+   magazine.032c.com „What Magazines Do").
 
    Eine Spalte von 768px, alles mittig: der Name riesig, darunter nur der
-   Bezirk, dann der Vorspann gross und fett. Die Fotos stehen spaltenbreit und
+   Bezirk, dann der Vorspann groß und fett. Die Fotos stehen spaltenbreit und
    ungeschnitten zwischen dem Text, bei wenig Text in Bildgruppen. Am Telefon
-   bleiben sie randlos untereinander (lib/spotFlow.ts). Lesetext in Neue Haas Grotesk Text wie
-   bei 032c, alles Gesetzte in derselben Grotesk. Zwischentitel klein, fett,
-   versal. RestaurantDiscovery setzt den redaktionellen Abschluss.
+   bleiben sie randlos untereinander (lib/spotFlow.ts). Lesetext in Neue Haas
+   Grotesk Text wie bei 032c, alles Gesetzte in derselben Grotesk. Zwischentitel
+   klein, fett, versal. RestaurantDiscovery setzt den redaktionellen Abschluss.
 
-   Dunkler Grund wie Bezirke und Kategorien — den Grund selbst
-   stellt globals.css an html/body. Die Seite hängt nicht in `.app-pages`:
-   den Streifen unter der fixen Navigation hält der Kopf selbst frei.
+   Dunkler Grund wie Bezirke und Kategorien; den Grund selbst stellt globals.css
+   an html/body. Die Seite hängt nicht in `.app-pages`: Den Streifen unter der
+   fixen Navigation hält der Kopf selbst frei.
    ============================================================ */
 
 .page {
@@ -60,15 +60,15 @@
   overflow-wrap: anywhere;
 }
 
-/* Am Desktop ein Stück kleiner, in jeder Breite um denselben Anteil
-   (Ansage 07.10.2026). Das Telefon bleibt, wie es ist. */
+/* Am Desktop ein Stück kleiner, in jeder Breite um denselben Anteil. Das
+   Telefon bleibt, wie es ist. */
 @media (min-width: 768px) {
   .title {
     font-size: min(88px, 7vw, var(--word-fit, 100cqi));
   }
 }
 
-/* Unter dem Namen nur der Bezirk (Ansage 03.10.2026). */
+/* Unter dem Namen nur der Bezirk. */
 .district {
   display: inline-block;
   margin: 18px 0 0;
@@ -94,8 +94,8 @@
   margin: 0 auto;
 }
 
-/* Der Vorspann gehört zum Kopf und steht mittig wie Name und Bezirk; erst
-   der Lesetext darunter ist linksbündig (Ansage 21.10.2026). */
+/* Der Vorspann gehört zum Kopf und steht mittig wie Name und Bezirk; erst der
+   Lesetext darunter ist linksbündig. */
 .lede {
   font-family: var(--et-font-body);
   margin: clamp(32px, 3.6vw, 48px) 0 0;
@@ -111,8 +111,7 @@
 }
 
 /* Fotos hintereinander sind eine Strecke, kein neuer Abschnitt: dicht
-   untereinander, der Credit trennt sie (Ansage 22.10.2026: „so viel
-   Abstand"). */
+   untereinander, der Credit trennt sie. */
 .figure + .figure {
   margin-top: 24px;
 }
@@ -206,14 +205,13 @@
 
 /* -------------------------------------------------------- steckbrief ---- */
 
-/* Der Steckbrief (Wahl 07.10.2026 im Steckbrief-Labor, Fassung „Heft"): in
-   der Typografie der Seite selbst und zentriert wie der Kopf. Oben der Name,
-   darunter Bezirk · Küche · Preis wie der Bezirk unter dem grossen Namen;
-   dann wie beim Insider-Tipp kleine Zwischentitel über grosser Schrift.
-   Jede Zeile steht für sich mittig — auch die Zeiten: an einer Mittelachse
-   (Tage rechts, Zeiten links) wirkte der Block nach rechts versetzt.
-   Abgelehnt: eine Ink-Tafel mit gelben Labels („zu schwarz" für die weisse
-   Seite) und ein Datenblatt mit Haarlinien. */
+/* Der Steckbrief: in der Typografie der Seite selbst und zentriert wie der
+   Kopf. Oben der Name, darunter Bezirk · Küche · Preis wie der Bezirk unter dem
+   großen Namen; dann wie beim Insider-Tipp kleine Zwischentitel über großer
+   Schrift. Jede Zeile steht für sich mittig, auch die Zeiten: An einer
+   Mittelachse (Tage rechts, Zeiten links) wirkt der Block nach rechts versetzt.
+   Keine Ink-Tafel mit gelben Labels (zu schwarz für die weiße Seite) und kein
+   Datenblatt mit Haarlinien. */
 .brief {
   margin-top: clamp(48px, 5vw, 72px);
   text-align: center;
@@ -310,9 +308,9 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Wie auf einer Speisekarte (Ansage 21.10.2026: „geht das nicht besser?"):
-   links der Tag, rechts die Zeit, dazwischen eine gepunktete Führungslinie.
-   Mehrere Zeitspannen stehen rechtsbündig untereinander. */
+/* Wie auf einer Speisekarte: links der Tag, rechts die Zeit, dazwischen eine
+   gepunktete Führungslinie. Mehrere Zeitspannen stehen rechtsbündig
+   untereinander. */
 .hoursRow {
   display: flex;
   align-items: baseline;

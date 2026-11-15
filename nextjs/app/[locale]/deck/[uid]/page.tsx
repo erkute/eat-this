@@ -60,17 +60,13 @@ interface PageProps {
 }
 
 /**
- * Was ein geteilter Link in WhatsApp, iMessage oder Signal hermacht.
- *
- * Bis zum 06.09.2026 stand hier ein Titel und sonst nichts: kein Bild, keine
- * Beschreibung. Der Link, der der einzige Kanal ohne Werbebudget ist, sah in
- * jedem Chat aus wie ein Versehen (Nutzer: „der Link, den man weitergibt, ist
- * haesslich, ohne Bild").
+ * Was ein geteilter Link in WhatsApp, iMessage oder Signal hermacht: Titel,
+ * Beschreibung und Bild. Der Link ist der einzige Kanal ohne Werbebudget.
  *
  * `noindex, nofollow` bleibt und widerspricht dem nicht: Suchmaschinen sollen
- * die Seite nicht in den Index nehmen, die Vorschau-Abrufer der Messenger
- * lesen die OG-Tags trotzdem — sie halten sich an keine Robots-Regel und
- * sollen es hier auch nicht.
+ * die Seite nicht in den Index nehmen, die Vorschau-Abrufer der Messenger lesen
+ * die OG-Tags trotzdem. Sie halten sich an keine Robots-Regel und sollen es
+ * hier auch nicht.
  */
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale, uid } = await params;

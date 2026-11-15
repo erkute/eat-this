@@ -5,9 +5,9 @@ import { spotNameWithoutDistrict } from '@/lib/home/spotNameWithoutDistrict';
 import styles from './MapControls.module.css';
 
 /**
- * Vorschläge unter dem Suchfeld. Tippen filtert die Liste nicht mehr: hier
- * stehen die passenden Spots, ein Tipp öffnet einen davon, und erst Enter
- * bzw. „Suchen" filtert Liste und Karte (Betreiber, 29.09.2026).
+ * Vorschläge unter dem Suchfeld. Tippen filtert die Liste nicht: Hier stehen
+ * die passenden Spots, ein Tipp öffnet einen davon, und erst Enter bzw.
+ * „Suchen" filtert Liste und Karte.
  *
  * Hier stehen alle Treffer, die Vorschläge scrollen (suggestSpots).
  */
@@ -23,14 +23,13 @@ export default function MapSearchSuggestions({
   const sheetRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLUListElement | null>(null);
 
-  /* Am Telefon zog ein Wischen über die Vorschläge die Map bzw. die Liste
-     dahinter mit, die Vorschläge selbst standen still (Betreiber,
-     27.10.2026). Zwei Gründe: Die Höhe rechnete nicht mit der Tastatur, die
-     Liste reichte unter sie und passte nach `max-height` trotzdem ganz
-     hinein — es gab nichts zu scrollen. Und wo nichts scrollt, greift
+  /* Am Telefon darf ein Wischen über die Vorschläge nicht die Map bzw. die
+     Liste dahinter mitziehen. Dafür muss die Liste selbst scrollen können:
+     Rechnet die Höhe nicht mit der Tastatur, reicht die Liste unter sie und
+     passt nach `max-height` trotzdem ganz hinein. Und wo nichts scrollt, greift
      `overscroll-behavior` nicht, die Geste geht an die Seite.
 
-     Deshalb misst die Höhe am sichtbaren Ausschnitt (visualViewport, in px —
+     Deshalb misst die Höhe am sichtbaren Ausschnitt (visualViewport, in px;
      `vh` ändert Chrome auf iOS beim Scrollen), und eine Geste, die die Liste
      nicht mehr bewegen kann, bleibt hier liegen. */
   useEffect(() => {
@@ -95,8 +94,8 @@ export default function MapSearchSuggestions({
             const district = r.bezirk?.name ?? r.district ?? null;
             const cuisine = r.cuisineType ? localizedCuisine(r.cuisineType, locale) : null;
             const meta = [district, cuisine].filter(Boolean).join(' · ');
-            // Der Bezirk steht darunter schon: „AERA Charlottenburg" heisst
-            // hier nur „AERA" (31 Spots tragen ihn im Namen, Review 29.09.2026).
+            // Der Bezirk steht darunter schon: „AERA Charlottenburg" heißt hier
+            // nur „AERA" (viele Spots tragen ihn im Namen).
             const name = district
               ? spotNameWithoutDistrict(r.name, r.district ?? r.bezirk?.name)
               : r.name;

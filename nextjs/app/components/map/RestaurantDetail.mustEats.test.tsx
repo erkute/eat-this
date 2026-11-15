@@ -72,8 +72,7 @@ afterEach(() => {
 });
 
 /* Wer im Lokal steht, sieht schon im Restaurant-Detail, dass es etwas
-   aufzudecken gibt: die verdeckte Karte zittert wie im Must-Eat-Detail
-   (Betreiber, 24.09.2026). */
+   aufzudecken gibt: Die verdeckte Karte zittert wie im Must-Eat-Detail. */
 describe('RestaurantDetail must-eat cards within reach', () => {
   it('shakes only the covered card once the visitor is within 50 m', () => {
     renderAt({ lat: 52.52, lng: 13.405 });

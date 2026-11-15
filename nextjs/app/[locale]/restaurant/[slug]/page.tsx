@@ -211,18 +211,16 @@ function SpotPhoto({
 }
 
 /**
- * Die Spot-Seite im Heftlook nach 032c (Wahl 03.10.2026, Entwurf A6): eine
- * Spalte von 768px, der Name riesig, darunter nur der Bezirk, dann der
- * Vorspann gross und fett. Bei wenig Text stehen Galeriefotos als breite
- * Bildgruppen; Absätze bleiben zusammen (lib/spotFlow.ts).
- * Insider-Tipp und Must Eats sind eigene Abschnitte. Was man zum Hingehen
- * braucht — Adresse, Zeiten, Küche, Preis und die Knöpfe —, steht am Ende,
- * überschrieben mit dem Namen des Spots. Der Schluss führt über Kategorien
- * und zwei weitere Spots zurück ins Entdecken.
+ * Die Spot-Seite im Heftlook nach 032c: eine Spalte von 768px, der Name riesig,
+ * darunter nur der Bezirk, dann der Vorspann groß und fett. Bei wenig Text
+ * stehen Galeriefotos als breite Bildgruppen; Absätze bleiben zusammen
+ * (lib/spotFlow.ts). Insider-Tipp und Must Eats sind eigene Abschnitte. Was man
+ * zum Hingehen braucht (Adresse, Zeiten, Küche, Preis und die Knöpfe), steht am
+ * Ende, überschrieben mit dem Namen des Spots. Der Schluss führt über
+ * Kategorien und zwei weitere Spots zurück ins Entdecken.
  *
- * Weggefallen gegenüber der Ink-Fassung vom 25.09.2026: der Öffnungsstatus im
- * Kopf, Küche und Preis über dem Namen, Remy (Abschnitt und Knopf) und die
- * Map-Tafel am Ende — alles auf Ansage 03.10.2026.
+ * Nicht auf dieser Seite: Öffnungsstatus im Kopf, Küche und Preis über dem
+ * Namen, Remy (Abschnitt und Knopf) und eine Map-Tafel am Ende.
  */
 export default async function RestaurantPage({ params }: PageProps) {
   const { locale, slug } = await params;
@@ -341,8 +339,8 @@ export default async function RestaurantPage({ params }: PageProps) {
       />
       <main className={styles.page} data-page="restaurant">
         <SpotArrival slug={slug} />
-        {/* Unter dem Namen nur der Bezirk — keine Küche, kein Preis, kein
-            Status, keine Knöpfe (Ansage 03.10.2026). */}
+        {/* Unter dem Namen nur der Bezirk: keine Küche, kein Preis, kein
+            Status, keine Knöpfe. */}
         <header className={styles.head}>
           <h1 className={styles.title} style={titleFitStyle(displayName)}>
             {displayName}
@@ -441,12 +439,11 @@ export default async function RestaurantPage({ params }: PageProps) {
             </ul>
           )}
 
-          {/* Der Steckbrief (Wahl 07.10.2026 im Steckbrief-Labor, Fassung
-              „Heft"): in der Typografie der Seite selbst, zentriert wie der
-              Kopf — der Name, darunter Bezirk · Küche · Preis, dann wie beim
-              Insider-Tipp kleine Zwischentitel über grosser Schrift. Jede
-              Zeile für sich mittig. Abgelehnt: Ink-Tafel mit gelben Labels
-              („zu schwarz") und ein Datenblatt mit Haarlinien. */}
+          {/* Der Steckbrief: in der Typografie der Seite selbst, zentriert wie
+              der Kopf. Der Name, darunter Bezirk · Küche · Preis, dann wie beim
+              Insider-Tipp kleine Zwischentitel über großer Schrift. Jede Zeile
+              für sich mittig. Keine Ink-Tafel mit gelben Labels und kein
+              Datenblatt mit Haarlinien. */}
           <section className={styles.brief} aria-labelledby="spot-facts">
             <h2 id="spot-facts" className={styles.briefTitle}>
               {displayName}
@@ -554,7 +551,7 @@ export default async function RestaurantPage({ params }: PageProps) {
           </section>
 
           {/* Das Herz als Satz „Ich ♥ <Name>" nach dem Steckbrief, über „Im
-              Magazin" (Wahl 07.10.2026; davor stand der Name doppelt). */}
+              Magazin". */}
           <HeartButton
             restaurantId={r._id}
             name={r.name}

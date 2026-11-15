@@ -26,8 +26,8 @@ beforeEach(() => {
 })
 
 describe('waitForFreshCdn', () => {
-  // 14.10.2026: Karte publiziert, Webhook wartete pauschal fünf Sekunden,
-  // /restaurant/boii-boii baute gegen ein CDN ohne die Karte neu und blieb so.
+  // Ohne das baut die Seite des Spots gegen ein CDN ohne die Karte neu und
+  // bleibt so.
   it('wartet bei einer Must-Eat-Karte, bis das CDN die Seite ihres Spots frisch liefert', async () => {
     mocks.liveFetch.mockImplementation(async (query: string) =>
       query === mustEatRestaurantSlugQuery ? 'boii-boii' : NEW_PAGE

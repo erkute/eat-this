@@ -12,14 +12,14 @@ interface Props {
 }
 
 /**
- * Die Artikel, in denen dieser Spot vorkommt — seit 03.10.2026 als Hefte wie
- * auf /news (MagazineCover), ein Tipp schlägt das Heft auf (MagazineLink).
- * Daneben Rubrik, Datum und Titel.
+ * Die Artikel, in denen dieser Spot vorkommt, als Hefte wie auf /news
+ * (MagazineCover); ein Tipp schlägt das Heft auf (MagazineLink). Daneben
+ * Rubrik, Datum und Titel.
  *
- * Die Reihenfolge kommt aus der Query — je weniger Spots ein Artikel nennt,
- * desto weiter oben steht er. Der Link zeigt Google ausserdem, welche der
- * beiden Seiten die Entität ist: Restaurant-Seite und Ein-Spot-Artikel
- * konkurrieren sonst um dieselbe Marken-Suche.
+ * Die Reihenfolge kommt aus der Query: Je weniger Spots ein Artikel nennt,
+ * desto weiter oben steht er. Der Link zeigt Google außerdem, welche der beiden
+ * Seiten die Entität ist: Restaurant-Seite und Ein-Spot-Artikel konkurrieren
+ * sonst um dieselbe Marken-Suche.
  */
 export default function RestaurantArticlesSection({ articles, locale, classNames }: Props) {
   if (articles.length === 0) return null;

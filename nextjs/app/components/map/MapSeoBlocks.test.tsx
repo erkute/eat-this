@@ -17,8 +17,7 @@ describe('MapIntro', () => {
   });
 
   it('carries the title and nothing else — no subtitle over the map', () => {
-    // Die Zeile unter dem Titel stand am 01.09.2026 kurz hier und flog auf
-    // Wunsch wieder raus: über der Karte soll nur die Marke stehen. Ihre
+    // Keine Zeile unter dem Titel: Über der Karte steht nur die Marke. Ihre
     // Begriffe trägt die Meta-Description.
     expect(intro('de')).not.toContain('<p');
     // Der Name ist in beiden Sprachen derselbe, also auch das Markup.

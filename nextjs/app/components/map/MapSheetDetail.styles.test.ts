@@ -4,9 +4,7 @@ import postcss, { type AtRule, type Root, type Rule } from 'postcss';
 import { describe, expect, it } from 'vitest';
 
 /* Die beiden Details im Map-Sheet haben je ein eigenes Modul, der Mount um sie
-   herum ein drittes. Bis zum 26.09.2026 war das eine Datei, MapDetails.module.css,
-   in der sich die beiden Hälften mit `.detailV13:not(.detailV13MustEat)`
-   gegeneinander abgrenzten. */
+   herum ein drittes. */
 const MODULES = {
   sheet: 'MapSheetDetail.module.css',
   restaurant: 'RestaurantDetail.module.css',
@@ -128,10 +126,8 @@ describe('Map sheet detail CSS contracts', () => {
     expect(hasAnimationNone(mustEat, '.fdTopCardHint')).toBe(true);
   });
 
-  /* Die Blätter-Winkel stehen ab 768px an den Kartenkanten (absolut im
-     Stapel), auf dem Telefon gibt es sie nicht. Beides war schon einmal
-     anders und wurde je auf Ansage zurückgedreht — hier steht der Stand vom
-     03.09.2026 fest. */
+  /* Die Blätter-Winkel stehen ab 768px an den Kartenkanten (absolut im Stapel),
+     auf dem Telefon gibt es sie nicht. */
   it('pins the Must Eat pager arrows to the card edges from tablet up, hides them on phones', () => {
     for (const arrow of ['fdPagerPrev', 'fdPagerNext']) {
       let absolute = false;

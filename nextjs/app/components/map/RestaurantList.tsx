@@ -24,9 +24,9 @@ import styles from './RestaurantList.module.css';
 
 /* How far ahead of the screen a card starts fetching its photo, and the list
    appends its next rows. About four phone screens: the Sanity CDN answers a
-   photo it has not served lately in 200–650 ms, and a quick flick covers
-   3000+ px a second. Measured on the production build (390px viewport, Fast
-   4G, 23.09.2026): at 3500 px/s 1600 left 10–15 of 75 cards empty, 3200 none. */
+   photo it has not served lately in 200–650 ms, and a quick flick covers 3000+
+   px a second. On the production build (390px viewport, Fast 4G) a flick at
+   3500 px/s leaves 10–15 of 75 cards empty with 1600, none with 3200. */
 const PHOTO_LEAD_PX = 3200;
 // Native lazy-loading still fetches several phone screens ahead. Desktop's
 // visible rows get their real source in the server HTML; smaller screens start with

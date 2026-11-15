@@ -91,9 +91,9 @@ function makeState(overrides: Partial<MustEatDetailState> = {}): MustEatDetailSt
 
 describe('MustEatDetailMobile guest pitch', () => {
   /* Ohne Konto ist die verdeckte Karte keine Aufgabe, sondern das Angebot:
-     Starter Pack, gratis, zwanzig Must Eats, diese dabei. Standort-Logik
-     und Naeherungs-Hinweis haben hier nichts verloren — ein Gast hat kein
-     Deck, in das die Karte koennte (Betreiber, 07.09.2026). */
+     Starter Pack, zwanzig Must Eats, diese dabei. Standort-Logik und
+     Näherungs-Hinweis haben hier nichts verloren: Ein Gast hat kein Deck, in
+     das die Karte könnte. */
   it('reads like any covered card, asks no location, and names the tap as the way in', () => {
     const handleCardClick = vi.fn(async () => undefined);
     render(
@@ -118,9 +118,8 @@ describe('MustEatDetailMobile guest pitch', () => {
     expect(handleCardClick).toHaveBeenCalledTimes(1);
   });
 
-  /* Was eine verdeckte Karte ist, erklaeren die Folien der Must-Eats-Seite,
-     geoeffnet ueber den Knopf unter der Karte — nie von selbst (Betreiber,
-     31.10.2026). */
+  /* Was eine verdeckte Karte ist, erklären die Folien der Must-Eats-Seite,
+     geöffnet über den Knopf unter der Karte, nie von selbst. */
   describe('explainer', () => {
     const onboardingData = {
       mustEats: [{ ...mustEat, _id: 'open-1', dish: 'Klopse', image: '/open.webp' }],
@@ -207,12 +206,11 @@ describe('MustEatDetailMobile proximity states', () => {
     expect(container.textContent).not.toMatch(/2,4\s?km/);
   });
 
-  /* Without a fix the card used to read "Komm näher" over a "come within 50 m"
-     line — a guess dressed as a measurement, and a wrong one for anyone already
-     standing in the doorway. It has to name the actual blocker instead — and
-     since 02.09.2026 not IN the dish line: "Wo bist du?" in dish size read like
-     a dish. The dish line keeps saying what is under the card; the location
-     is its own chip below, and that chip is the button that asks. */
+  /* Without a fix the card names the actual blocker instead of guessing a
+     distance ("come within 50 m" is wrong for anyone already standing in the
+     doorway) — and not IN the dish line: "Wo bist du?" in dish size reads like
+     a dish. The dish line keeps saying what is under the card; the location is
+     its own chip below, and that chip is the button that asks. */
   it('asks for the location in a chip under the dish line when there is no fix', () => {
     const requestLocation = vi.fn();
     const { container } = render(
@@ -359,9 +357,9 @@ describe('MustEatDetailMobile proximity states', () => {
     expect(container.querySelector('[data-reveal-ready]')).not.toBeNull();
   });
 
-  /* Nach der Beute schließt sich die Bühne um die heimkehrende Karte. Das
-     Sheet darunter trägt dann schon das Gericht — kein „Du bist da." beim
-     Heimflug, kein Einblenden nach der Landung (Betreiber, 24.09.2026). */
+  /* Nach der Beute schließt sich die Bühne um die heimkehrende Karte. Das Sheet
+     darunter trägt dann schon das Gericht: kein „Du bist da." beim Heimflug,
+     kein Einblenden nach der Landung. */
   it('stands open under the reveal stage once the stage covers the sheet', () => {
     const revealed: MapMustEat = {
       ...mustEat,

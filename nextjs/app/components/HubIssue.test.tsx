@@ -98,7 +98,7 @@ describe('IssueSpots on a category page', () => {
 });
 
 describe('IssueMagazine', () => {
-  // Der Schluss der Übersichten (Ansage 03.10.2026: „da ist einfach Stille").
+  // Der Schluss der Übersichten.
   it('lays out the newest issues and a way to all of them', () => {
     const html = renderToStaticMarkup(
       <IssueMagazine

@@ -72,18 +72,18 @@ const size = (n: number) => ({ '--size': q(n) }) as CSSProperties;
 
 /**
  * Eine Titelseite des Eat-This-Hefts in einem von fünfzehn Looks nach
- * Mode-Magazinen (Auswahl 03.10.2026). Welcher Look, steht in
- * lib/magazineCover.ts: Gerichte mit Freisteller bekommen im Wechsel die
- * fünf Freisteller-Looks, alles andere geht reihum durch die zehn Foto-Looks.
+ * Mode-Magazinen. Welcher Look, steht in lib/magazineCover.ts: Gerichte mit
+ * Freisteller bekommen im Wechsel die fünf Freisteller-Looks, alles andere geht
+ * reihum durch die zehn Foto-Looks.
  *
- * Das Logo liegt vorne — ausser bei „Vor dem Logo“, wo genau das der Witz
- * ist. Im Heft bewegt sich nichts; Stapel, Neigung und Wurf legt die Seite
- * außen herum (Ansage: „das Magazin soll animiert sein, nicht der Inhalt").
+ * Das Logo liegt vorne, außer bei „Vor dem Logo“, wo genau das der Witz ist. Im
+ * Heft bewegt sich nichts; Stapel, Neigung und Wurf legt die Seite außen herum:
+ * Das Magazin ist animiert, nicht der Inhalt.
  *
- * Alles in `cqw` der Titelseite, damit sie in jeder Grösse gleich gesetzt
- * ist. Dasselbe Objekt auf der Startseite („Auf dem Teller"), im
- * Magazin-Index und unter „Weitere Ausgaben". Ein Tipp darauf schlägt das
- * Heft auf (MagazineLink) — im Artikel selbst steht es deshalb nicht.
+ * Alles in `cqw` der Titelseite, damit sie in jeder Größe gleich gesetzt ist.
+ * Dasselbe Objekt auf der Startseite („Auf dem Teller"), im Magazin-Index und
+ * unter „Weitere Ausgaben". Ein Tipp darauf schlägt das Heft auf
+ * (MagazineLink), im Artikel selbst steht es deshalb nicht.
  */
 export default function MagazineCover({
   title,
@@ -196,11 +196,9 @@ export default function MagazineCover({
   switch (look) {
     /* ── Freisteller-Looks ─────────────────────────────────────────────── */
     case 'perfect': {
-      // Nach Perfect, mit der Schlagzeile statt des Zitats: weiss, das Logo
-      // klein oben, das Gericht gross in der Mitte, die Schlagzeile unten.
-      // Erst stand die Schlagzeile gross oben und das Gericht klein unten
-      // rechts — „andersherum, das Bild muss grösser sein, die Headline
-      // nach unten" (Ansage 03.10.2026).
+      // Nach Perfect, mit der Schlagzeile statt des Zitats: weiß, das Logo
+      // klein oben, das Gericht groß in der Mitte, die Schlagzeile unten. Das
+      // Bild ist das Große, nicht die Schlagzeile.
       const c = cut as CutoutCover;
       body = (
         <>
@@ -218,10 +216,9 @@ export default function MagazineCover({
       break;
     }
     case 'paper': {
-      // Nach PAPER, in Rot und Schwarz wie Carnale: das Logo gross auf Rot,
+      // Nach PAPER, in Rot und Schwarz wie Carnale: das Logo groß auf Rot,
       // darunter ein schwarzes Studio-Feld mit dem Gericht, Ort und Ausgabe in
-      // den Ecken. Ansagen 03.10.2026: erst „Rot mit Weiss nicht so geil",
-      // dann Gelb auf Weiss „hässlich, mach rot schwarz wie Carnale".
+      // den Ecken. Kein Rot mit Weiß, kein Gelb auf Weiß.
       const c = cut as CutoutCover;
       tone = 'red';
       body = (
@@ -253,8 +250,8 @@ export default function MagazineCover({
       break;
     }
     case 'band': {
-      // Fussband: Farbe und Gericht oben, unten ein Ink-Streifen mit der
-      // Schlagzeile (höchstens zwei Zeilen, Ansage 03.10.2026) und dem Logo.
+      // Fußband: Farbe und Gericht oben, unten ein Ink-Streifen mit der
+      // Schlagzeile (höchstens zwei Zeilen) und dem Logo.
       const c = cut as CutoutCover;
       tone = altTone(issue, ['yellow', 'red']);
       body = (
@@ -338,8 +335,8 @@ export default function MagazineCover({
       break;
     }
     case 'still': {
-      // Stillleben nach Toilet Paper: das Gericht gross auf Gelb oder Rot,
-      // das Logo klein unten, die Schlagzeile oben rechts (Ansage 03.10.2026).
+      // Stillleben nach Toilet Paper: das Gericht groß auf Gelb oder Rot, das
+      // Logo klein unten, die Schlagzeile oben rechts.
       const c = cut as CutoutCover;
       tone = altTone(issue, ['yellow', 'red']);
       body = (
@@ -503,9 +500,8 @@ export default function MagazineCover({
     }
     case 'silver': {
       // Nach 032c, Ausgabe 49: das Logo in Silber, Leitsatz, die Schlagzeile
-      // gross unten links über dem Strichcode. Ansagen 03.10.2026: „besser zu
-      // lesen, etwas grösser"; „in die Mitte geklatscht würde ein Magazin
-      // nicht machen"; der rote Rücken links gefiel nicht.
+      // groß unten links über dem Strichcode, gut lesbar und nicht mittig. Kein
+      // roter Rücken links.
       body = (
         <>
           {photo(styles.fill)}
@@ -654,9 +650,8 @@ export default function MagazineCover({
     }
     default: {
       // Rote Fläche nach Carnale und 032c: das Foto im farbigen Rahmen,
-      // darunter die Schlagzeile, das Logo unten links. Erst lief das Logo
-      // über die ganze Breite — „viel zu gross, man kann die Headline nicht
-      // richtig lesen" (Ansage 03.10.2026).
+      // darunter die Schlagzeile, das Logo unten links. Das Logo bleibt klein,
+      // damit die Schlagzeile lesbar ist.
       tone = altTone(issue, ['red', 'yellow']);
       body = (
         <>

@@ -1,24 +1,21 @@
-// nextjs/lib/analytics/dayKeyBudget.ts
+// Die Obergrenze für die freien Map-Schlüssel im Tagesdokument.
 //
-// Die Obergrenze fuer die freien Map-Schluessel im Tagesdokument.
-//
-// `analytics_daily/<tag>` traegt fuenf Maps. `events` steht seit jeher auf
-// einer Allowlist — die anderen vier (`paths`, `entryPaths`, `continuations`,
-// `referrers`) nahmen bis 08.09.2026 jeden Schluessel an. Alle fuenf liegen in
-// EINEM Dokument, und Firestore deckelt ein Dokument bei 1 MB und 20.000
-// Indexeintraegen. Ist die Grenze gerissen, schlaegt jeder weitere
-// Schreibvorgang des Tages fehl — nicht nur der, der sie gerissen hat.
+// `analytics_daily/<tag>` trägt fünf Maps. `events` steht auf einer Allowlist;
+// die anderen vier (`paths`, `entryPaths`, `continuations`, `referrers`) haben
+// freie Schlüssel. Alle fünf liegen in einem Dokument, und Firestore deckelt
+// ein Dokument bei 1 MB und 20.000 Indexeinträgen. Ist die Grenze gerissen,
+// schlägt jeder weitere Schreibvorgang des Tages fehl, nicht nur der, der sie
+// gerissen hat.
 //
 // lib/analytics/pathKey.ts wirft schon alles weg, was keine Route dieser Seite
 // ist. Was bleibt, sind die dynamischen Slugs und die fremden Verweis-Hosts:
-// beide echt, beide unbegrenzt viele. Also ein Budget je Map. Was darueber
-// hinausgeht, faellt in einen einzigen Sammelschluessel — die Summe bleibt
-// richtig, nur die Aufschluesselung endet.
+// beide echt, beide unbegrenzt viele. Also ein Budget je Map. Was darüber
+// hinausgeht, fällt in einen einzigen Sammelschlüssel; die Summe bleibt
+// richtig, nur die Aufschlüsselung endet.
 //
-// Eine Allowlist der echten Slugs waere genauer, haette den Zaehler aber an
-// Sanity gehaengt: vier Abfragen im heissen Pfad, und auf Staging liefert
-// `sitemapEntries()` bewusst eine leere Liste — dort waere gar nichts mehr
-// gezaehlt worden.
+// Eine Allowlist der echten Slugs wäre genauer, hinge den Zähler aber an
+// Sanity: vier Abfragen im heißen Pfad, und auf Staging liefert
+// `sitemapEntries()` bewusst eine leere Liste, dort würde gar nichts gezählt.
 
 type BudgetedMap = 'paths' | 'entryPaths' | 'continuations' | 'referrers';
 

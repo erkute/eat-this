@@ -38,14 +38,13 @@ const ENTER_WINDOW_MS = 460 + ENTER_STAGGER_MS * ENTER_STAGGER_CAP;
    tight is visible popping. */
 const VIEWPORT_MARGIN = 0.6;
 
-/* Pins wachsen mit dem Zoom und stehen ab Straßenebene fest (Betreiber,
-   14.10.2026: weit draußen wirkten sie zu groß, und beim Zoomen änderte sich
-   nichts). Über der Stadt überlappen 400 gleich große Pins zu einer Fläche;
-   kleiner bleibt jeder einzelne lesbar. Unter PIN_ZOOM_FROM bleibt es bei
-   PIN_ZOOM_MIN, ab PIN_ZOOM_TO bei voller Größe — dazwischen linear. Das
-   Ergebnis steht als `--map-pin-zoom` am Container und wirkt als CSS-`scale`
-   auf .pinLogo (MapMarkers.module.css), nicht über React: ein Render pro
-   Zoom-Frame für jeden Marker wäre viel teurer als eine Variable. */
+/* Pins wachsen mit dem Zoom und stehen ab Straßenebene fest. Über der Stadt
+   überlappen 400 gleich große Pins zu einer Fläche; kleiner bleibt jeder
+   einzelne lesbar. Unter PIN_ZOOM_FROM bleibt es bei PIN_ZOOM_MIN, ab
+   PIN_ZOOM_TO bei voller Größe, dazwischen linear. Das Ergebnis steht als
+   `--map-pin-zoom` am Container und wirkt als CSS-`scale` auf .pinLogo
+   (MapMarkers.module.css), nicht über React: Ein Render pro Zoom-Frame für
+   jeden Marker wäre viel teurer als eine Variable. */
 const PIN_ZOOM_FROM = 11;
 const PIN_ZOOM_TO = 15;
 const PIN_ZOOM_MIN = 0.72;

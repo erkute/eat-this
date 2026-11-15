@@ -1,25 +1,18 @@
 /**
  * Warum eine Google-Anmeldung nicht zustande kam.
  *
- * Bis 26.08.2026 verschluckten beide Aufrufer den Fehler mit einem nackten
- * `catch {}`. Für den Leser hiess das: Popup geht auf, tut kurz etwas, ist
- * wieder weg, und nichts sagt ihm warum ("es tut sich 'n bisschen was und dann
- * ist wieder weg"). Für mich hiess es, dass auf Staging drei Vermutungen
- * nacheinander an einem Fehler scheiterten, den niemand je gesehen hat — er
- * stand weder in der Konsole noch in Sentry.
+ * Ein verschluckter Fehler hieße für den Leser: Popup geht auf, tut kurz etwas,
+ * ist wieder weg, und nichts sagt ihm warum. Und er stünde weder in der Konsole
+ * noch in Sentry.
  *
  * Zwei Dinge sind daran verschieden, und sie dürfen nicht gleich behandelt
- * werden: das Fenster selbst zumachen ist eine ENTSCHEIDUNG, kein Fehler. Wer
+ * werden: Das Fenster selbst zumachen ist eine Entscheidung, kein Fehler. Wer
  * abbricht, will keine rote Meldung.
  *
- * `benign` steuert deshalb NUR die Meldung auf dem Schirm — nicht mehr, ob
- * gemeldet wird. Die erste Fassung koppelte beides, und das war blind an genau
- * der Stelle, an der ich hinsehen wollte: `auth/popup-closed-by-user` ist auch
- * das, was Firebase liefert, wenn das Fenster ohne Ergebnis zugeht, weil die
- * Übergabe gescheitert ist. Ein kaputter Popup und ein Sinneswandel sehen von
- * aussen identisch aus. Auf Staging hat mich das eine Runde gekostet: der
- * Reporter lief nachweislich, meldete aber nichts, weil ich ausgerechnet
- * diesen Code stummgeschaltet hatte (26.08.2026).
+ * `benign` steuert deshalb nur die Meldung auf dem Schirm, nicht, ob gemeldet
+ * wird: `auth/popup-closed-by-user` ist auch das, was Firebase liefert, wenn
+ * das Fenster ohne Ergebnis zugeht, weil die Übergabe gescheitert ist. Ein
+ * kaputter Popup und ein Sinneswandel sehen von außen identisch aus.
  */
 const BENIGN = new Set([
   // Der Leser hat das Popup zugemacht.

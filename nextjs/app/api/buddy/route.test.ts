@@ -315,8 +315,8 @@ describe('POST /api/buddy', () => {
   });
 });
 
-// Hop selection verified against headers captured from a live Firebase App
-// Hosting staging probe (2026-06-09).
+// Hop selection matches the headers Firebase App Hosting sends (captured from a
+// staging probe).
 describe('clientIpFromXff', () => {
   it('picks the 3rd-from-right hop (real client) for the real App Hosting shapes', () => {
     // no spoof: <client>, <ingress>, <gfe>

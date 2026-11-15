@@ -18,22 +18,20 @@ export function generateStaticParams() {
 
 // Hardcoded bootstrap constant (no user input) — safely inlined via script tag.
 // Runs synchronously in <head>: sets data-active-page (read by CSS selectors
-// like [data-active-page="map"] .app-pages), locks portrait orientation on mobile,
-// When the address
-// carries a sign-in link from the mail: then the confirmation board
-// (EmailLinkSignIn) is the first thing on screen; data-email-link holds back
-// what opens by itself until the board closes, lib/auth/emailLinkPending.ts),
-// marks a freshly loaded article the same way (data-article-intro,
-// NewsArticleShell.module.css — only on a real load: an article opened from a
-// magazine has the opening as its intro, and a tab loaded out of sight would
-// never run it and keep the head blank; lib/articleMotion.ts drops the mark),
-// restores the shared theme before first paint on every route (lib/theme.ts),
-// starts the home page at the top on every load (scrollRestoration — Safari
-// restores the old position before hydration otherwise; Ansage 01.10.2026:
-// „bei einem Reload fängt die Seite wieder oben an" —
-// also with an anchor left in the address bar, e.g. #hub-starter from the
-// Must-Eats onboarding: a reload drops it before the browser can jump),
-// and applies the _authHint pre-hydration data-auth flag on <html> so
+// like [data-active-page="map"] .app-pages), locks portrait orientation on
+// mobile, When the address carries a sign-in link from the mail: then the
+// confirmation board (EmailLinkSignIn) is the first thing on screen;
+// data-email-link holds back what opens by itself until the board closes,
+// lib/auth/emailLinkPending.ts), marks a freshly loaded article the same way
+// (data-article-intro, NewsArticleShell.module.css — only on a real load: an
+// article opened from a magazine has the opening as its intro, and a tab loaded
+// out of sight would never run it and keep the head blank; lib/articleMotion.ts
+// drops the mark), restores the shared theme before first paint on every route
+// (lib/theme.ts), starts the home page at the top on every load
+// (scrollRestoration — Safari restores the old position before hydration
+// otherwise — also with an anchor left in the address bar, e.g. #hub-starter
+// from the Must-Eats onboarding: a reload drops it before the browser can
+// jump), and applies the _authHint pre-hydration data-auth flag on <html> so
 // signed-in-only/anon-only blocks can hide before paint. It deliberately does
 // not mutate React-owned text: a stale hint must never create a hydration
 // mismatch before Firebase resolves the real identity.

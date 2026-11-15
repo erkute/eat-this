@@ -73,12 +73,12 @@ function topLevelDeclarations(name: string, selector: string) {
 }
 
 describe('Map CSS architecture', () => {
-  /* iOS 26 Safari tints status and URL bar after the fixed element it finds
-     4px inside the edge, mid-width, if that element spans >= 90% of the
-     width; a blur without a solid colour comes out system grey, and so did
-     see-through bars over the blur (iPhone, 23.09.2026). Every zoom lays an
-     opaque full-width cap on both edges, and the gallery's transparent swipe
-     track stays off them so the probe hits the cap. */
+  /* iOS 26 Safari tints status and URL bar after the fixed element it finds 4px
+     inside the edge, mid-width, if that element spans >= 90% of the width; a
+     blur without a solid colour comes out system grey, and so do see-through
+     bars over the blur. Every zoom lays an opaque full-width cap on both edges,
+     and the gallery's transparent swipe track stays off them so the probe hits
+     the cap. */
   it('caps both edges of every photo zoom with an opaque colour', () => {
     for (const cap of ['.capTop', '.capBottom']) {
       const decl = topLevelDeclarations('ZoomCurtain.module.css', cap);
@@ -88,8 +88,8 @@ describe('Map CSS architecture', () => {
     expect(shared.position).toBe('fixed');
     expect([shared.left, shared.right]).toEqual(['0', '0']);
     /* Flush with the edge, not reaching past it: a bottom cap running 100lvh
-       beyond the viewport was not taken as an edge container, and the URL bar
-       showed the page (iOS simulator, 24.09.2026). */
+       beyond the viewport is not taken as an edge container, and the URL bar
+       shows the page. */
     expect(topLevelDeclarations('ZoomCurtain.module.css', '.capTop').top).toBe('0');
     expect(topLevelDeclarations('ZoomCurtain.module.css', '.capBottom').bottom).toBe('0');
     for (const cap of ['.capTop', '.capBottom']) {
@@ -209,15 +209,14 @@ describe('Map CSS architecture', () => {
     expect(layout).not.toContain("html:has(.shell [data-map-sheet][data-detail-kind='must-eat'])");
   });
 
-  /* iOS 26 Safari faerbt seine Leisten nach der background-color des obersten
+  /* iOS 26 Safari färbt seine Leisten nach der background-color des obersten
      fixierten oder sticky Elements an der Viewport-Kante und ignoriert
      theme-color. Auf dem Telefon ist das der sticky Karten-Wrapper, an beiden
-     Kanten — transparent hiess Systemgrau. Deckend bleibt er.
+     Kanten; transparent hieße Systemgrau. Deckend bleibt er.
 
-     Seit 04.09.2026 in Ink statt Papier: die Map steht auf demselben Grund wie
-     der Rest der Seite, also sollen die Leisten dunkel werden. Was der Test
-     festhaelt, ist unveraendert die DECKUNG — eine transparente Fassung faellt
-     hier durch, egal in welcher Farbe. */
+     In Ink: Die Map steht auf demselben Grund wie der Rest der Seite, also
+     sollen die Leisten dunkel werden. Was der Test festhält, ist die Deckung:
+     Eine transparente Fassung fällt hier durch, egal in welcher Farbe. */
   it('paints the phone map wrapper opaque, clear of the top edge, touching the bottom', () => {
     const wrapRules = declarationsInMedia(
       'MapLayout.module.css',
@@ -268,7 +267,7 @@ describe('Map CSS architecture', () => {
 
     expect(shellRules).toEqual([
       expect.objectContaining({
-        /* lvh: a dvh strip resized with Safari's toolbar (23.09.2026). */
+        /* lvh: a dvh strip resizes with Safari's toolbar. */
         '--detail-map-peek': '50lvh',
       }),
     ]);
@@ -286,10 +285,9 @@ describe('Map CSS architecture', () => {
         'min-height': 'calc(100dvh + var(--map-bar-overhang, 0px))',
       }),
     ]);
-    /* The restaurant detail keeps the list's full-height map — a map bounded
-       to the peek left black below it once the sheet was pulled lower
-       (27.09.2026) — and does not clip it: the canvas reaches up under the
-       status bar. */
+    /* The restaurant detail keeps the list's full-height map — a map bounded to
+       the peek leaves black below it once the sheet is pulled lower — and does
+       not clip it: the canvas reaches up under the status bar. */
     expect(layoutRules).toEqual([]);
     /* The viewport-tall minimum comes from the phone `.list` (above). */
     expect(sheetRules).toEqual([expect.objectContaining({ 'margin-top': '0' })]);
@@ -336,12 +334,11 @@ describe('Map CSS architecture', () => {
     ]);
   });
 
-  /* The map strip is the real map, and no row may show in it. On the phone
-     the map sits in a frame that lies over the sheet and ends at the sheet's
-     top edge — sticky, so that edge stops at the strip line (MapLayout.module.css,
-     "The map frame"). Layout the browser scrolls itself: every cut drawn from
-     a scroll timeline ran ahead of or behind the page on an iOS flick
-     (28.09.2026). */
+  /* The map strip is the real map, and no row may show in it. On the phone the
+     map sits in a frame that lies over the sheet and ends at the sheet's top
+     edge — sticky, so that edge stops at the strip line (MapLayout.module.css,
+     "The map frame"). Layout the browser scrolls itself: a cut drawn from a
+     scroll timeline runs ahead of or behind the page on an iOS flick. */
   it('covers the strip with the map frame, laid out with the page', () => {
     const phone = '(max-width: 767.98px)';
     /* One rule for both views that show the map. */

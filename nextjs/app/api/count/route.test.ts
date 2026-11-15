@@ -365,12 +365,13 @@ describe('POST /api/count', () => {
     expect(mocks.set).not.toHaveBeenCalled();
   });
 
-  /* Die App-Hosting-Edge ersetzt den User-Agent-Header, bevor die Anfrage den
-   * Origin erreicht — der Header ist in Produktion immer harmlos. Was der
-   * Browser wirklich ist, steht darum im Body (lib/analytics.ts). Live-Beweis
-   * vom 02.09.2026: `curl -A curl/8.0` mit uebergrossem Body bekam 413 statt
-   * 204, der Filter hatte den UA also nie gesehen — und Bingbot, Baidu-Render
-   * und der Azure-Crawler standen als Besucher in der Tafel. */
+  /*
+   * Die App-Hosting-Edge ersetzt den User-Agent-Header, bevor die Anfrage den
+   * Origin erreicht; der Header ist in Produktion immer harmlos. Was der
+   * Browser wirklich ist, steht darum im Body (lib/analytics.ts). Ohne das
+   * stünden Bingbot, Baidu-Render und der Azure-Crawler als Besucher in der
+   * Tafel.
+   */
   describe('User-Agent aus dem Body', () => {
     it('erkennt den Bot am Body-UA, auch wenn der Header harmlos ist', async () => {
       const res = await POST(
@@ -421,11 +422,13 @@ describe('POST /api/count', () => {
     }
   );
 
-  /* Das geteilte Deck traegt eine Firebase-UID im Pfad, und die ist gemischt
-   * gross und klein geschrieben. Sie fiel damit durch die Pfadpruefung — und
-   * ein verworfener Pfad verwarf bis zum 08.09.2026 die ganze Anfrage, VOR der
-   * Ereignis-Auswertung. Der Einladungsweg hatte deshalb null Aufrufe, null
-   * Einstiege, null Referrer und kein einziges `starter_pack_granted`. */
+  /*
+   * Das geteilte Deck trägt eine Firebase-UID im Pfad, und die ist gemischt
+   * groß und klein geschrieben. Ein Pfad, der durch die Pfadprüfung fällt,
+   * verwirft nur sich selbst, nicht die Ereignisse der Anfrage: Sonst hätte der
+   * Einladungsweg keine Aufrufe, keine Einstiege und kein
+   * `starter_pack_granted`.
+   */
   describe('Pfade mit einer Kennung darin', () => {
     const UID = 'Z2IJ8CJsAbCdEfGhIjKlMnOpQr01';
 

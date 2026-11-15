@@ -210,11 +210,10 @@ export default function NewsArticleShell({
   const content = articleContent(article, locale);
   const dateFormatted = formatDate(article.date, locale);
   // Die Spots eines Guides für die Zeile unter dem Kopf: nur Überschriften, die
-  // einen Spot eröffnen — direkt darunter steht seine Spot-Karte. Erzählende
+  // einen Spot eröffnen, direkt darunter steht seine Spot-Karte. Erzählende
   // Texte gliedern nach Themen („Als Berlin chinesisch essen lernte“), deren
-  // Überschriften sind keine Spots (Ansage 11.10.2026); ebenso wenig das Fazit
-  // oder ein Essay mit Zwischenüberschriften (Ansage 02.10.2026: „nur wenn
-  // Spots gelistet sind“).
+  // Überschriften sind keine Spots; ebenso wenig das Fazit oder ein Essay mit
+  // Zwischenüberschriften.
   const chapters = extractHeadings(
     content.filter(
       (block, i) =>
@@ -438,9 +437,9 @@ export default function NewsArticleShell({
   };
 
   const recommendations = relatedArticles.filter((a) => a.slug !== article.slug).slice(0, 3);
-  // Darunter liegen Hefte, also „Weitere Ausgaben" (Ansage 02.10.2026).
+  // Darunter liegen Hefte, also „Weitere Ausgaben".
   const moreLabel = de ? 'Weitere Ausgaben' : 'More issues';
-  // Nicht „Kapitel" (Ansage 02.10.2026): die Zeile zählt die Spots auf.
+  // Nicht „Kapitel": Die Zeile zählt die Spots auf.
   const chaptersLabel = de ? 'Die Spots' : 'The spots';
 
   // Das Datum; Hell/Dunkel stellt man im Menü um.
@@ -464,10 +463,10 @@ export default function NewsArticleShell({
       <ArticleMotion slug={article.slug} />
       <main className={styles.article}>
         <article>
-          {/* Der Kopf wie bei Kaleidoscope (Ansage 02.10.2026, Vorbild
-              manifesto.kaleidoscope.media): mittig Rubrik, die Schlagzeile
-              gross, klein die Credits; darunter das Foto
-              randlos mit schmalem Rahmen, dann der Vorspann als Auftakt. */}
+          {/* Der Kopf wie bei Kaleidoscope (manifesto.kaleidoscope.media):
+              mittig Rubrik, die Schlagzeile groß, klein die Credits; darunter
+              das Foto randlos mit schmalem Rahmen, dann der Vorspann als
+              Auftakt. */}
           <header className={styles.header} data-insight-header="">
             {/* Keine Brotkrume: der Artikeltitel ist zu lang für eine Zeile und
                 brach als dritte Krume um. Sie trug ohnehin keinen eigenen Link
@@ -502,10 +501,9 @@ export default function NewsArticleShell({
             )}
             {showLede && <p className={styles.lede}>{excerpt}</p>}
             {/* Die Spots als eine Zeile unter dem Kopf, wie die Namenslisten
-                bei Kaleidoscope — sie ersetzt die Kapitel-Leiste links, die
-                als einziges Element aus der Mitte fiel (Ansage 02.10.2026),
-                und gibt es jetzt auch am Telefon. Nur der Name, nicht die
-                ganze Überschrift; ein Tipp springt zum Spot. */}
+                bei Kaleidoscope, mittig wie alles andere und auch am Telefon.
+                Nur der Name, nicht die ganze Überschrift; ein Tipp springt zum
+                Spot. */}
             {chapters.length > 1 && (
               <nav className={styles.chapters} aria-label={chaptersLabel}>
                 <span className={styles.chaptersLabel}>{chaptersLabel}</span>

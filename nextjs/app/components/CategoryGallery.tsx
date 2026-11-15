@@ -4,9 +4,11 @@ import Image from './SiteImage';
 import CategoryPackLink from './CategoryPackLink';
 import styles from './CategoryGallery.module.css';
 
-/** Direct category links: the pack is the choice, including on touch screens.
- *  Farbblöcke (Ansage 22.10.2026): jedes Pack auf einer Fläche in seiner
- *  eigenen Farbe, der Name gross unten links. */
+/**
+ * Direct category links: the pack is the choice, including on touch screens.
+ * Farbblöcke: jedes Pack auf einer Fläche in seiner eigenen Farbe, der Name
+ * groß unten links.
+ */
 export default function CategoryGallery({ items, locale }: {
   items: { slug: string; label: string }[];
   locale: 'de' | 'en';

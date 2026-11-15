@@ -86,7 +86,7 @@ describe('LoginPanel — Starter Pack mit Texten zum Anlass', () => {
     };
     const { container } = panel();
     expect(title(container)).toBe('Für später');
-    // Der Kicker sagt, wozu das Herz da ist — nicht den Bezirk (Betreiber, 24.09.2026).
+    // Der Kicker sagt, wozu das Herz da ist, nicht den Bezirk.
     expect(container.querySelector('h2')?.previousElementSibling?.textContent).toBe(
       'Speichere deine Spots'
     );

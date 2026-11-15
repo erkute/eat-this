@@ -176,8 +176,8 @@ describe('RestaurantList card photos', () => {
     expect(photos(container).map((img) => img.getAttribute('loading'))).toEqual(['eager', 'eager', 'eager']);
   });
 
-  /* Scrolled to the bottom of ~230 spots, every card kept its decoded photos
-     and Safari killed the page on the iPhone (30.09.2026). */
+  /* Scrolled to the bottom of ~230 spots, cards that all keep their decoded
+     photos make Safari kill the page on the iPhone. */
   it('lets go of the photos of a card far behind on the phone, and fetches them back', async () => {
     phone = true;
     const { container } = render(list({ restaurants: photoSpots() }));

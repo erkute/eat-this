@@ -171,9 +171,8 @@ describe('getRestaurantPageData', () => {
     expect(result?.articles).toEqual([]);
   });
 
-  // Die Kategorie-Hälfte der Sibling-Abfrage ist am 24.08.2026 mit der zweiten
-  // Empfehlungszeile weggefallen. Der Test hält fest, dass sie nicht
-  // zurückkommt: sie kostete auf jeder Seite zwei weitere GROQ-Fenster.
+  // Die Sibling-Abfrage holt kein Kategorie-Fenster: Es kostete auf jeder Seite
+  // zwei weitere GROQ-Fenster.
   it('no longer fetches a category window', async () => {
     mockFetch.mockResolvedValue(row as never);
 

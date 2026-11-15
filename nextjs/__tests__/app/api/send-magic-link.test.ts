@@ -138,9 +138,9 @@ describe('/api/auth/send-magic-link localhost continue URL', () => {
   })
 })
 
-/* EN seit 21.09.2026: die Route benutzte das mitgeschickte `locale` nie, und
-   ohne eigene Continue-URL landete auch EN auf `/` — und `/` ist immer
-   Deutsch (localeDetection: false). */
+/* Die Route gibt das mitgeschickte `locale` weiter, und ohne eigene
+   Continue-URL landet EN auf `/en`: `/` ist immer Deutsch (localeDetection:
+   false). */
 describe('/api/auth/send-magic-link Sprache', () => {
   async function post(body: Record<string, unknown>) {
     const { POST } = await import('@/app/api/auth/send-magic-link/route')

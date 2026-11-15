@@ -11,18 +11,16 @@
 }
 
 /* Zwei Stapelbänder, weil MapLibre keinen Inline-z-index setzt und die Marker
-   rein nach dem DOM ordnet — und diese Reihenfolge ist NICHT die des
+   rein nach dem DOM ordnet, und diese Reihenfolge ist nicht die des
    React-Baums. Jeder Marker hängt sich beim Mounten an den Canvas-Container,
    ein durch einen Filterwechsel neu erzeugter landet also hinter denen, die
    schon da waren.
 
-   Der z-index gehört an die Marker-WURZEL — der innere .pinLogoActive-z-index
+   Der z-index gehört an die Marker-Wurzel: Der innere .pinLogoActive-z-index
    ordnet nur innerhalb dieses Markers, nicht gegen seine Geschwister.
 
-   .markerRootFree < .markerRootActive. Das dritte Band darunter trugen bis
-   zum 06.09.2026 die gesperrten Punkte; seit die Karte frei ist, gibt es
-   nur noch eine Sorte Pin — .markerRootFree hebt sie gemeinsam über alles,
-   was sonst im Container hängt. */
+   .markerRootFree < .markerRootActive. Es gibt nur eine Sorte Pin;
+   .markerRootFree hebt sie gemeinsam über alles, was sonst im Container hängt. */
 .markerRootFree:global(.maplibregl-marker) {
   z-index: 5;
 }

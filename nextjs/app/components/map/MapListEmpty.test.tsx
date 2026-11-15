@@ -141,10 +141,9 @@ describe('RestaurantList rows', () => {
     expect(names.indexOf('Geheime Ramen Bar')).toBeLessThan(names.indexOf('Freies Lokal'));
   });
 
-  /* Jede Zeile wärmt ihr Detail vor, sobald sie in Sichtweite kommt — bis zum
-     06.09.2026 war das für gesperrte Zeilen ausgenommen, weil /api/restaurant-
-     detail die bezahlten Felder auslieferte. Bezahlt wird dort nichts mehr:
-     die Story steht ohnehin indexiert auf der Spot-Seite. */
+  /* Jede Zeile wärmt ihr Detail vor, sobald sie in Sichtweite kommt, ohne
+     Ausnahme: /api/restaurant-detail liefert nichts Bezahltes, die Story steht
+     ohnehin indexiert auf der Spot-Seite. */
   it('warms the detail payload for every row that comes into view', () => {
     const observed: Element[] = [];
     vi.stubGlobal(

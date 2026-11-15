@@ -293,11 +293,10 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     mapDataLoading, mapDataError, onLocateMe,
   });
 
-  /* What is typed but not sent yet. The suggestions follow it; the list and
-     the pins wait for Enter — a list that changed with every letter was
-     restless, and what you look for is usually one spot (Betreiber,
-     29.09.2026). Follows `search` when that changes elsewhere (a picked
-     suggestion, a cleared filter). */
+  /* What is typed but not sent yet. The suggestions follow it; the list and the
+     pins wait for Enter — a list that changes with every letter is restless,
+     and what you look for is usually one spot. Follows `search` when that
+     changes elsewhere (a picked suggestion, a cleared filter). */
   const [draft, setDraft] = useState(search);
   const [draftFor, setDraftFor] = useState(search);
   if (draftFor !== search) {
@@ -318,13 +317,12 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     [onRestaurantClick]
   );
 
-  /* The search field takes focus without moving the page. `autoFocus` let
-     iOS Safari scroll the document to "reveal" the field — it is fixed
-     over the map strip and never needed revealing — and the keyboard going away
-     moved it again, so every tap on the magnifier walked the list further
-     down (user, 23.09.2026). Focus with preventScroll, and for as long as the
-     keyboard takes to come and go, put back any scroll that happened without
-     a finger on the screen. */
+  /* The search field takes focus without moving the page. With `autoFocus` iOS
+     Safari scrolls the document to "reveal" the field — it is fixed over the
+     map strip and never needs revealing — and the keyboard going away moves it
+     again, so every tap on the magnifier would walk the list further down.
+     Focus with preventScroll, and for as long as the keyboard takes to come and
+     go, put back any scroll that happened without a finger on the screen. */
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const searchVisible = searchOpen || Boolean(search);
   /* Only an actual open or close holds the page — not the first render (nor
@@ -395,11 +393,8 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
       data-map-view={sheetView}
       data-map-snap={snap}
     >
-      {/* Die H1 der Seite steht in MapIntro, über der Karte. Sie lag bis zum
-          01.09.2026 als `srOnly` hier: unsichtbar, und im Detail-Zustand stand
-          sie neben der H1 des geöffneten Spots — zwei H1 auf einer Seite.
-          Seitdem tragen die Detail-Panels h2, und die einzige H1 gehört der
-          Kartenseite selbst. */}
+      {/* Die H1 der Seite steht in MapIntro, über der Karte. Die Detail-Panels
+          tragen h2, und die einzige H1 gehört der Kartenseite selbst. */}
       <div className={styles.shell} data-map-shell="" data-map-view={sheetView}>
         {/* The body data attributes slide the floating search toolbar + burger
             chip off-screen at full/detail states (see MapControls.module.css). */}
@@ -432,9 +427,9 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               box. */}
           <div className={styles.mapFrame} data-map-frame="">
             <div className={styles.mapWrap} data-map-canvas="">
-              {/* Die H1 der Seite — im HTML, aber visuell ausgeblendet (seit
-                23.09.2026, siehe MapIntro). Steht in der Kartenhülle, damit
-                sie im Must-Eat-Takeover mit der Karte verschwindet. */}
+              {/* Die H1 der Seite: im HTML, aber visuell ausgeblendet (siehe
+                  MapIntro). Steht in der Kartenhülle, damit sie im
+                  Must-Eat-Takeover mit der Karte verschwindet. */}
               <MapIntro locale={locale} />
               <div className={styles.liveMapLayer} data-live-map-layer="">
                 <MapCanvasLayer
@@ -467,9 +462,8 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
 
           {/* Search stays visible above the map and the phone sheet. */}
           {/* Ein Formular, damit Enter bzw. „Suchen" auf der Handy-Tastatur
-               etwas tut: erst das Abschicken filtert Liste und Karte, und die
-               Tastatur geht und gibt den Blick darauf frei. Ohne <form> lief
-               die Taste ins Leere (23.09.2026). */}
+              etwas tut: Erst das Abschicken filtert Liste und Karte, und die
+              Tastatur geht und gibt den Blick darauf frei. */}
             <>
               <form
                 role="search"

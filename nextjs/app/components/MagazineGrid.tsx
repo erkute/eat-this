@@ -9,13 +9,12 @@ import styles from './MagazineGrid.module.css';
 
 const MOBILE = '(max-width: 599.98px) and (orientation: portrait)';
 
-/* Am Telefon liegen die Hefte als Stapel wie auf einem Couchtisch (Ansage
-   22.10.2026: „neu designen im Wischen auf Mobile, so ne geile GSAP-
-   Animation"): das oberste gerade, die übrigen schauen verdreht darunter
-   hervor. Man zieht das oberste zur Seite, es kippt mit dem Finger, fliegt
-   beim Loslassen weg und schiebt sich unten wieder unter den Stapel.
-   Bewusst Draggable statt Scroll-Snap — einen Stapel kann Scroll-Snap nicht;
-   senkrecht scrollt die Seite weiter nativ (allowNativeTouchScrolling). */
+/* Am Telefon liegen die Hefte als Stapel wie auf einem Couchtisch: das oberste
+   gerade, die übrigen schauen verdreht darunter hervor. Man zieht das oberste
+   zur Seite, es kippt mit dem Finger, fliegt beim Loslassen weg und schiebt
+   sich unten wieder unter den Stapel. Bewusst Draggable statt Scroll-Snap:
+   Einen Stapel kann Scroll-Snap nicht; senkrecht scrollt die Seite weiter nativ
+   (allowNativeTouchScrolling). */
 const POSES = [
   { x: 0, y: 0, rotation: 0, scale: 1 },
   { x: -10, y: 12, rotation: -4.5, scale: 0.955 },
@@ -65,8 +64,7 @@ export default function MagazineGrid({ articles, locale }: { articles: HubArticl
       let dragged = false;
       // Gerechnet wird nur mit dem Weg seit dem Antippen: Draggable zählt die
       // Position des Hilfselements über alle Züge weiter, und ab dem zweiten
-      // Heft startete das Ziehen sonst schon weit links („ab dem zweiten
-      // Magazin wieder zu schnell", 22.10.2026).
+      // Heft startete das Ziehen sonst schon weit links.
       let startX = 0;
       let lastX = 0;
       let lastT = 0;
@@ -116,8 +114,7 @@ export default function MagazineGrid({ articles, locale }: { articles: HubArticl
             const dx = this.x - startX;
             // Weg ist es erst nach einem bewussten Zug: ein gutes Drittel der
             // Breite, oder ein echter Wurf über mindestens 60 px. Ein schneller
-            // Fingeransatz beim Antippen reichte vorher schon (Ansage
-            // 22.10.2026: „wenn ich ziehen will, ist es schon längst links").
+            // Fingeransatz beim Antippen reicht nicht.
             const far = Math.abs(dx) > ol.clientWidth * 0.36
               || (Math.abs(dx) > 60 && Math.abs(velocity) > 0.9);
             if (far) {
@@ -151,10 +148,9 @@ export default function MagazineGrid({ articles, locale }: { articles: HubArticl
         items.forEach(item => gsap.set(item, { clearProps: 'all' }));
       };
     });
-    // Am Desktop hebt sich das Heft unter der Maus vom Tisch ab: es steigt,
-    // kippt leicht schief, wirft einen tieferen Schatten und neigt sich mit
-    // dem Zeiger (Ansage 22.10.2026: „auf Desktop ne passende Hover-
-    // Animation"). Animiert wird nur der Link im Heft: Titel und Datum darunter
+    // Am Desktop hebt sich das Heft unter der Maus vom Tisch ab: Es steigt,
+    // kippt leicht schief, wirft einen tieferen Schatten und neigt sich mit dem
+    // Zeiger. Animiert wird nur der Link im Heft: Titel und Datum darunter
     // bleiben stehen.
     mm.add('(min-width: 600px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)', () => {
       const covers = Array.from(ol.querySelectorAll<HTMLElement>(':scope > li > a'));
@@ -228,10 +224,10 @@ export default function MagazineGrid({ articles, locale }: { articles: HubArticl
     for (let step = 0; step < steps; step++) {
       const top = (from + step) % count;
       const card = items[top];
-      // Nach einem Wisch übernimmt der Wegflug das Tempo des Fingers und
-      // läuft aus (power2.out beginnt mit doppelter Durchschnittsgeschwindig-
-      // keit) — vorher bremste ein ease-in das Heft beim Loslassen auf null
-      // und riss es dann weg (Ansage 22.10.2026: „sehr abrupt am iPhone").
+      // Nach einem Wisch übernimmt der Wegflug das Tempo des Fingers und läuft
+      // aus (power2.out beginnt mit doppelter Durchschnittsgeschwindigkeit).
+      // Ein ease-in bremste das Heft beim Loslassen auf null und risse es dann
+      // weg.
       const fromSwipe = swipe && step === 0;
       const at = fromSwipe ? 0 : step * 0.16;
       const distance = ol.clientWidth * 1.15 - Math.abs(Number(gsap.getProperty(card, 'x')) || 0);

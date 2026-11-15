@@ -100,10 +100,9 @@ describe('ProfilePacks zeigt Besitz, nicht das Sortiment', () => {
     expect(locked[0].querySelector('img')).not.toBeNull();
   });
 
-  /* „Noch 9 Packs offen" hiess gemeint „neun stehen noch aus", stand aber
-     ueber einer Reihe GEOEFFNETER Packs und las sich damit als „neun sind
-     offen" — genau verkehrt herum (Nutzer, 31.08.2026). Der Knopf sagt jetzt,
-     wohin er fuehrt, und das stimmt bei jedem Besitzstand. */
+  /* Der Knopf sagt, wohin er führt, und das stimmt bei jedem Besitzstand. „Noch
+     9 Packs offen" über einer Reihe geöffneter Packs läse sich als „neun sind
+     offen", genau verkehrt herum. */
   it('sagt dasselbe, egal wie viel schon jemandem gehoert', () => {
     state.owned = new Set<string>();
     const nichts = render(<ProfilePacks uid="user-1" fullCatalog={false} />);

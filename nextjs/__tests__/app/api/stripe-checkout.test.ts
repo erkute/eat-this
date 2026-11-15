@@ -128,10 +128,9 @@ describe('/api/stripe/checkout', () => {
     expect(res.status).toBe(400)
   })
 
-  /* Seit die Packs Karten verkaufen statt Spots, kann eine Kategorie leer
-     sein — Fine Dining stand am 06.09.2026 auf null. Die Oberflaeche blendet
-     den Knopf aus; diese Pruefung faengt die veraltete Seite und den direkten
-     POST ab, und sie ist die verbindliche. */
+  /* Die Packs verkaufen Karten, nicht Spots, also kann eine Kategorie leer
+     sein. Die Oberfläche blendet den Knopf aus; diese Prüfung fängt die
+     veraltete Seite und den direkten POST ab, und sie ist die verbindliche. */
   it('returns 409 for a category pack that holds no card yet', async () => {
     mocks.packContents.mockResolvedValue({
       byCategory: { pizza: { spots: 33, mustEats: 0 } },

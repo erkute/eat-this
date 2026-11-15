@@ -93,7 +93,7 @@ describe('LoginBoard — Aufbau', () => {
     expect(screen.getByRole('link', { name: 'Datenschutzerklärung' })).toBeTruthy();
   });
 
-  // Kein Geschenk-Wording (Betreiber, 22.09.2026).
+  // Kein Geschenk-Wording.
   it('sagt nirgends gratis oder kostenlos', () => {
     const { container } = board();
     expect(container.textContent).not.toMatch(/gratis|kostenlos/i);

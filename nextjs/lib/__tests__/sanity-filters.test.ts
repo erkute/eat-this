@@ -40,11 +40,11 @@ describe('Katalogfilter in den Abfragen', () => {
 
   /**
    * Der Marker, mit dem eine Abfrage sich vom Katalogfilter ausnimmt. Muss
-   * einen Grund tragen — `// katalog-ausnahme: <warum>` — und im Kommentar
+   * einen Grund tragen (`// katalog-ausnahme: <warum>`) und im Kommentar
    * unmittelbar über der Abfrage stehen (oder in derselben Zeile).
    *
-   * Absichtlich unbequem: eine Ausnahme ohne Begründung ist genau der
-   * Zustand, aus dem der Fehler vom 05.09.2026 entstanden ist.
+   * Absichtlich unbequem: Eine Ausnahme ohne Begründung ist genau der Zustand,
+   * aus dem Katalogfehler entstehen.
    */
   const EXCEPTION = /katalog-ausnahme:\s*\S/;
 

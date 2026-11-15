@@ -80,10 +80,9 @@ describe('assembleAndWriteEntitlement', () => {
     expect(written.type).toBe('category')
     expect(written.slug).toBe('pizza')
     expect(written.mustEatIds).toEqual(['mustEat-1', 'mustEat-2', 'mustEat-3'])
-    /* Der Schnappschuss ist ein Beleg, keine Zugriffsliste: was das Pack
-       oeffnet, loest composeAccountSurface live aus `categorySlugs` auf. Ein
-       `restaurantIds` stand hier bis zum 06.09.2026 daneben und entschied die
-       Sichtbarkeit von SPOTS — die ist frei, also ist das Feld weg. */
+    /* Der Schnappschuss ist ein Beleg, keine Zugriffsliste: Was das Pack
+       öffnet, löst composeAccountSurface live aus `categorySlugs` auf. Ein
+       `restaurantIds` gehört nicht hinein, die Sichtbarkeit von Spots ist frei. */
     expect('restaurantIds' in written).toBe(false)
     expect(written.stripeSessionId).toBe('cs_test_123')
     expect(written.source).toBe('stripe')

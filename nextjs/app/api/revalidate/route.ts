@@ -108,17 +108,16 @@ export async function POST(req: NextRequest) {
   // Erst warten, dann invalidieren. Der Hook kommt rund eine Sekunde nach dem
   // Publish, die Seiten lesen Sanity aber über das API-CDN (lib/sanity.ts).
   // Baut eine Seite neu, bevor das CDN den neuen Stand hat, hält sie den alten
-  // bis zur 24-Stunden-Frist fest (09.10.2026 Comedor, 10.10.2026 zwei von 29
-  // Artikeln trotz fünf Sekunden Pause). Für Artikel und Restaurants wartet
-  // waitForFreshCdn, bis das CDN dieselbe Abfrage wie die Seite frisch
-  // beantwortet — bei einer Must-Eat-Karte die Seite ihres Spots (14.10.2026
-  // Boii Boii); sonst eine feste Pause. `SANITY_WEBHOOK_SETTLE_MS=0` schaltet
-  // das Warten ab (Tests).
+  // bis zur 24-Stunden-Frist fest; eine feste Pause von fünf Sekunden reicht
+  // dafür nicht immer. Für Artikel und Restaurants wartet waitForFreshCdn, bis
+  // das CDN dieselbe Abfrage wie die Seite frisch beantwortet, bei einer
+  // Must-Eat-Karte die Seite ihres Spots; sonst eine feste Pause.
+  // `SANITY_WEBHOOK_SETTLE_MS=0` schaltet das Warten ab (Tests).
   //
   // Eine frische Antwort heißt nicht, dass alle Knoten des CDN frisch sind:
-  // andere Abfragen, auch dieselbe, kommen danach noch Minuten lang teils alt
-  // (Kategorie- und Bezirksseiten, 06.11.2026). Dafür wirkt jede Invalidierung
-  // im cache-handler.cjs nach 2 und 10 Minuten noch einmal nach (FOLLOW_UP_MS).
+  // Andere Abfragen, auch dieselbe, kommen danach noch minutenlang teils alt
+  // (Kategorie- und Bezirksseiten). Dafür wirkt jede Invalidierung im
+  // cache-handler.cjs nach 2 und 10 Minuten noch einmal nach (FOLLOW_UP_MS).
   const settleMs = Number(process.env.SANITY_WEBHOOK_SETTLE_MS ?? 5000);
   const slugForSettle = typeof doc.slug === 'string' ? doc.slug : doc.slug?.current;
   let settled = 'off';

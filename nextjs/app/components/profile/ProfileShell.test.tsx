@@ -107,11 +107,11 @@ describe('ProfileShell map-data states', () => {
     expect(state.refetch).toHaveBeenCalledOnce();
   });
 
-  /* Der veraltete Stand meldet sich seit 04.09.2026 ueber die zentrale
-     Info-Karte (`window.showNotice`), nicht mehr als Balken IM Fluss: der
-     schob beim Erscheinen die ganze Seite nach unten, waehrend man sie ansah
-     (Nutzer, 04.09.2026). Der Test haelt beides fest — die Meldung geht
-     hinaus, und im Markup steht dafuer nichts mehr. */
+  /* Der veraltete Stand meldet sich über die zentrale Info-Karte
+     (`window.showNotice`), nicht als Balken im Fluss: Der schöbe beim
+     Erscheinen die ganze Seite nach unten, während man sie ansieht. Der Test
+     hält beides fest: Die Meldung geht hinaus, und im Markup steht dafür
+     nichts. */
   it('meldet veraltete Daten ueber die Info-Karte, nicht im Seitenfluss', () => {
     state.mapError = 'HTTP 500';
     state.restaurants = [{ _id: 'r-1', slug: 'cached-spot', categories: [] }];
@@ -138,8 +138,7 @@ describe('ProfileShell map-data states', () => {
   });
 });
 
-/* Nutzer, 24.09.2026: „sollte man oben noch die Moeglichkeit haben, Tabs zu
-   wechseln?" — die Seite war vier Bildschirme lang. */
+/* Die Seite ist vier Bildschirme lang, also lassen sich die Tabs oben wechseln. */
 describe('ProfileShell tabs', () => {
   afterEach(() => window.history.replaceState(null, '', '/'));
 

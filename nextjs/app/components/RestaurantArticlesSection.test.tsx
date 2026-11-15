@@ -64,7 +64,7 @@ describe('RestaurantArticlesSection', () => {
     expect(html).not.toContain('Wo ich jetzt meinen Kaffee trinke');
   });
 
-  // Seit 03.10.2026 ein Heft wie auf /news, mit der Ausgabe aus der Query.
+  // Ein Heft wie auf /news, mit der Ausgabe aus der Query.
   it('shows each article as an issue of the magazine', () => {
     const html = render([card({ issue: 21 })]);
     expect(html).toContain('data-magazine-cover');

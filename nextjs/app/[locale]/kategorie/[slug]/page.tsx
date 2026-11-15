@@ -273,9 +273,8 @@ export default async function KategorieDetailPage({ params }: PageProps) {
         />
 
         <HubFilterProvider queryKey="bezirk" slugs={districtFilters.map((b) => b.slug)}>
-          {/* Spiegelbild der Kategorie-Zeile auf den Bezirksseiten. Bis
-              25.08.2026 stand hier eine Reihe Links auf die Bezirks-Hubs — sie
-              versprach „Frühstück in Mitte" und lieferte „alle Spots in Mitte". */}
+          {/* Spiegelbild der Kategorie-Zeile auf den Bezirksseiten: filtert an
+              Ort und Stelle, „Frühstück in Mitte" bleibt beim Frühstück. */}
           {districtFilters.length > 1 && (
             <HubFilterBar
               facets={districtFilters}

@@ -191,9 +191,8 @@ function install() {
     const navType = (
       performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined
     )?.type;
-    // A reload of the home page starts at the top, where its intro plays
-    // (Ansage 01.10.2026); the head script already stopped Safari's own
-    // restore there.
+    // A reload of the home page starts at the top, where its intro plays; the
+    // head script already stopped Safari's own restore there.
     const homeReload =
       navType === 'reload' && document.documentElement.getAttribute('data-active-page') === 'start';
     if ((navType === 'back_forward' || navType === 'reload') && !homeReload) {

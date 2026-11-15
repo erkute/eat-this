@@ -35,21 +35,16 @@ export async function GET(_req: Request, { params }: { params: Promise<{ slug: s
       { error: 'not_found' },
       { status: 404, headers: { 'Cache-Control': 'no-store' } }
     );
-  // SWR is deliberately short. It used to be a day, which meant a returning
-  // visitor kept seeing the old body for up to 24h after an edit went live —
-  // the browser answers from its own cache and revalidates in the background,
-  // so the Sanity webhook (app/api/revalidate) that busts the
-  // `restaurant:<slug>` tag above only clears the SERVER cache. That is how
-  // the EN map texts still read German after a green rollout. Worst case is
-  // now max-age + SWR = 10 minutes; the instant re-open inside a session,
-  // which is the point of the header, is untouched.
-  // `s-maxage` and `public` do NOT arrive: App Hosting downgrades every
-  // response whose path the middleware matcher hits, stripping both and
-  // appending `private`. Measured on prod 25.08.2026 — this route is served as
-  // `max-age=300, stale-while-revalidate=300, private`, and `cdn-cache-status`
-  // is `miss` on every repeat. Only the browser cache is real here. Left in
-  // place because the intent is right and would take effect the moment
-  // `/api/*` leaves the matcher; not removed, so nobody re-derives it.
+  // SWR is deliberately short: the browser answers from its own cache and
+  // revalidates in the background, and the Sanity webhook (app/api/revalidate)
+  // that busts the `restaurant:<slug>` tag above only clears the SERVER cache.
+  // Worst case is max-age + SWR = 10 minutes; the instant re-open inside a
+  // session, which is the point of the header, is untouched. `s-maxage` and
+  // `public` do NOT arrive: App Hosting downgrades every response whose path
+  // the middleware matcher hits, stripping both and appending `private`. This
+  // route is served as `max-age=300, stale-while-revalidate=300, private`; only
+  // the browser cache is real here. They stay in place because the intent is
+  // right and would take effect the moment `/api/*` leaves the matcher.
   return NextResponse.json(detail, {
     headers: {
       'Cache-Control': 'public, max-age=300, s-maxage=3600, stale-while-revalidate=300',

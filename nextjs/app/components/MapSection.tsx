@@ -130,9 +130,8 @@ export default function MapSection({
     }
     /* The phone restaurant detail is window-scrolled like the list, its map
        stop is scroll 0 (phoneSheetSnaps.ts), and the snap below moves nothing
-       there (useBottomSheet leaves in-flow phone sheets alone). A tap on the
-       map above a pushed-up detail used to change the state and leave the
-       page where it was (user, 28.09.2026). */
+       there (useBottomSheet leaves in-flow phone sheets alone). So a tap on the
+       map above a pushed-up detail scrolls the page back to that stop. */
     if (isPhoneViewport() && sheetElRef.current?.dataset.detailKind === 'restaurant') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -142,22 +141,21 @@ export default function MapSection({
     }
   }, [sheetView, snap, setSnap, reapplySnap, scrollListToAnchor, sheetElRef]);
 
-  /* Der erste Tipp auf die Karte räumt nur weg (User, 04.09.2026).
-     Steht eine Detailansicht offen und liegt sie noch über der Karte, dann
-     wählt ein Tipp auf die Karte KEINEN Spot aus — egal, ob er zufällig einen
-     Pin trifft. Er klappt nur ein. Erst der zweite Tipp wählt wieder.
+  /* Der erste Tipp auf die Karte räumt nur weg. Steht eine Detailansicht offen
+     und liegt sie noch über der Karte, dann wählt ein Tipp auf die Karte keinen
+     Spot aus, egal, ob er zufällig einen Pin trifft. Er klappt nur ein. Erst
+     der zweite Tipp wählt wieder.
 
-     Der Grund: bei offener Sheet gibt es auf der Karte keinen Vorhang. Die
-     Fläche, auf die man zum Wegtippen zielt, IST die Karte, und dort stehen
-     rund 400 Pins — ein Wegtipp traf regelmäßig einen davon und öffnete einen
+     Der Grund: Bei offener Sheet gibt es auf der Karte keinen Vorhang. Die
+     Fläche, auf die man zum Wegtippen zielt, ist die Karte, und dort stehen
+     rund 400 Pins; ein Wegtipp träfe regelmäßig einen davon und öffnete einen
      fremden Spot.
 
-     Zwei Grenzen, damit die Sperre nicht mehr frisst als sie soll: nur auf
-     Mobil (auf dem Desktop liegt die Sheet neben der Karte, nicht darüber und
-     verdeckt nichts), und nur solange die Sheet NICHT schon auf peek steht —
-     ist sie bereits eingeklappt, liegt nichts mehr im Weg und ein Pin-Tipp
-     meint wieder den Pin. Listenzeilen sind nie betroffen, die kommen mit
-     origin === 'list'. */
+     Zwei Grenzen, damit die Sperre nicht mehr frisst, als sie soll: nur auf
+     Mobil (auf dem Desktop liegt die Sheet neben der Karte, nicht darüber, und
+     verdeckt nichts), und nur solange die Sheet nicht schon auf peek steht. Ist
+     sie bereits eingeklappt, liegt nichts im Weg und ein Pin-Tipp meint wieder
+     den Pin. Listenzeilen sind nie betroffen, die kommen mit origin === 'list'. */
   const mapTapOnlyDismisses = useCallback(
     (origin: DetailOrigin) =>
       origin === 'map' && sheetView === 'detail' && snap !== 'peek' && isSheetViewport(),
@@ -236,8 +234,8 @@ export default function MapSection({
   const pendingDetailSnapRef = useRef<'full' | 'peek' | null>(null);
   /* Phones: where the list's top edge stood on screen when a restaurant was
      opened from it. The detail opens with its own top edge there — the sheet
-     keeps the height the user had pulled it to instead of dropping back to
-     its resting stop (user, 23.09.2026). Consumed once by the effect below. */
+     keeps the height the user had pulled it to instead of dropping back to its
+     resting stop. Consumed once by the effect below. */
   const detailOpenTopRef = useRef<number | null>(null);
 
   useMapViewportVars(isActive);
@@ -272,12 +270,11 @@ export default function MapSection({
          phone fly below measures the sheet after this jump. */
       const sheet = selectedMustEat?._id ? null : sheetElRef.current;
       if (keepTop == null || !sheet) {
-        /* Instant: html scrolls smooth, and a spot picked in the search
-           from deep inside another detail closes the search in the same
-           render — its keyboard hold (MapSectionBody) reads scrollY right
-           after this and put the old depth back while the smooth scroll had
-           barely started. The new spot opened in the middle of its text
-           (user, 29.09.2026). */
+        /* Instant: html scrolls smooth, and a spot picked in the search from
+           deep inside another detail closes the search in the same render — its
+           keyboard hold (MapSectionBody) reads scrollY right after this and
+           would put the old depth back while a smooth scroll had barely
+           started, opening the new spot in the middle of its text. */
         window.scrollTo({ top: 0, behavior: 'instant' });
         return;
       }
@@ -393,9 +390,9 @@ export default function MapSection({
         origin,
       });
       // Kick off the detail-field fetch now so it's usually cached by the time
-      // the sheet finishes opening (the map payload no longer carries them).
-      // Locked spots need it too since 2026-08-23: their sheet opens with the
-      // spot's own shortDescription above the offer.
+      // the sheet finishes opening (the map payload does not carry them).
+      // Locked spots need it too: their sheet opens with the spot's own
+      // shortDescription above the offer.
       prefetchRestaurantDetail(r.slug);
       const isMobile = isSheetViewport();
       const isPhone = isPhoneViewport();
@@ -645,18 +642,14 @@ export default function MapSection({
     collapseSheetToPeek();
   }, [collapseSheetToPeek]);
 
-  /* Opening search moves NOTHING. It used to surface the list — an instant
-     ~204px window scroll on phones, a peek→mid snap on tablets — on the
-     reasoning that typing into a hidden result list is worse than a jump.
-     Removed 2026-07-29 on the user's call: with the search field no longer
-     leaving the viewport (see --map-visual-offset-top), the jump stopped being
-     masked by the bigger bug and just reads as the page lurching under your
-     thumb. Per-keystroke scrolling had already been removed earlier and must
-     stay gone.
+  /* Opening search moves NOTHING: no window scroll on phones, no snap on
+     tablets, and no scrolling per keystroke. The search field stays in the
+     viewport (see --map-visual-offset-top), and a jump there reads as the page
+     lurching under your thumb.
 
-     The desktop panel is the one thing still revealed: it IS the result list
-     there, so searching with it collapsed would filter into something the user
-     cannot see at all. That is not the list moving. */
+     The desktop panel is the one thing revealed: it IS the result list there,
+     so searching with it collapsed would filter into something the user cannot
+     see at all. That is not the list moving. */
   const revealPanelForSearch = useCallback(() => {
     if (sheetView !== 'list') return;
     setDesktopPanelHidden(false);
@@ -710,10 +703,10 @@ export default function MapSection({
      the air; the centroid index has been dead weight ever since. One camera
      owner is enough, and fitting the actual matches beats an average of them. */
   /* A picked filter shows its result set: the list comes up to 'mid' if it is
-     resting lower than that. Until 03.09.2026 only the Bezirk chip did this —
-     after "Pizza" the map flew to the matches while the list stayed peeking at
-     the bottom with one cropped row, and nothing said there were 33 of them.
-     A list already higher than 'mid' stays where the user put it. */
+     resting lower than that. Otherwise the map flies to the matches while the
+     list stays peeking at the bottom with one cropped row, and nothing says how
+     many there are. A list already higher than 'mid' stays where the user put
+     it. */
   const revealListForFilter = useCallback(() => {
     if (sheetView !== 'list') return;
     if (isPhoneViewport()) {

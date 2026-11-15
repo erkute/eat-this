@@ -3,20 +3,18 @@
 import type { AvatarChoice } from '@/lib/firebase/useUserProfile';
 
 /**
- * Name und Charakter — die erste Seite der Tour, für jedes neue Konto.
+ * Name und Charakter: die erste Seite der Tour, für jedes neue Konto.
  *
  * Die Tour (SignInReward) hängt an der Pack-Vergabe, also genau einmal pro
- * Konto und egal über welchen Weg: Magic-Link und Google landen hier gleich.
- * Bis 21.09.2026 bekam ein Google-Konto den Namen aus dem Google-Profil und
- * einen aus der uid geratenen Avatar, ohne je gefragt zu werden; bis
- * 22.09.2026 fragte der Magic-Link auf /welcome mit einem eigenen Formular.
+ * Konto und egal über welchen Weg: Magic-Link und Google landen hier gleich,
+ * und beide werden gefragt.
  *
- * Maßstab ist der gespeicherte Avatar, nicht der Anmeldeweg: wer schon einen
+ * Maßstab ist der gespeicherte Avatar, nicht der Anmeldeweg: Wer schon einen
  * Charakter hat, wird nicht noch einmal gefragt. Google startet mit dem
  * Vornamen aus dem Profil, der Magic-Link mit einem leeren Feld.
  *
- * Firebase wird erst hier geladen — die Tour hängt im Locale-Layout und soll
- * das Auth-SDK nicht selbst mitziehen.
+ * Firebase wird erst hier geladen; die Tour hängt im Locale-Layout und soll das
+ * Auth-SDK nicht selbst mitziehen.
  */
 
 /** Der Vorname, mit dem das Feld startet — `null` heißt: kein Schritt nötig. */

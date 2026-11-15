@@ -50,10 +50,9 @@ export default function MustEatsGallery({ initialMapData, copy, coverIds }: Prop
   const visible = useVisibleMustEats(seed);
   const faceUp = useMemo(() => new Set(visible.revealedMustEatIds), [visible.revealedMustEatIds]);
 
-  // Beide Flächen liegen in Kartennummer-Reihenfolge — die Nummer steht unten
+  // Beide Flächen liegen in Kartennummer-Reihenfolge; die Nummer steht unten
   // rechts auf jeder Karte. Oben die offenen, darunter nur die verdeckten:
-  // bis zum 27.10.2026 lag hier das ganze Set gemischt, die offenen Karten
-  // standen damit zweimal auf der Seite, unter „54 warten vor Ort“ lagen 62.
+  // Keine Karte steht zweimal auf der Seite.
   const all = useMemo(() => sortByCardNumber(visible.mustEats), [visible.mustEats]);
   const open = useMemo(
     () => all.filter((m) => faceUp.has(m._id) && !coverIds.includes(m._id)).slice(0, 6),
@@ -134,11 +133,10 @@ export default function MustEatsGallery({ initialMapData, copy, coverIds }: Prop
             <p className={`et-label ${styles.kicker}`}>{copy.openKicker}</p>
             <h2 className={styles.sectionTitle}>{copy.openTitle}</h2>
           </header>
-          {/* Ein Raster, das nur nach unten läuft — am Telefon zwei Karten
-              je Reihe (Betreiber, 27.10.2026; vorher ein Band zum Wischen).
-              Unter jeder Karte die Bildunterschrift wie im Heft:
-              Gericht und Spot. Die Nummer steht schon auf der Karte; im
-              aria-label bleibt sie, als Orientierung beim Vorlesen. */}
+          {/* Ein Raster, das nur nach unten läuft, am Telefon zwei Karten je
+              Reihe. Unter jeder Karte die Bildunterschrift wie im Heft: Gericht
+              und Spot. Die Nummer steht schon auf der Karte; im aria-label
+              bleibt sie, als Orientierung beim Vorlesen. */}
           <ol className={styles.feature}>
             {open.map((m) => {
               const no = cardNumber(m.order);

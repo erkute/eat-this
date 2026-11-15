@@ -1,16 +1,15 @@
 name: Uptime
 
-# Warum es das gibt: am 24.08.2026 antworteten Startseite und /map in
-# Produktion mit 500, weil das Sanity-CDN-Kontingent aufgebraucht war. Beide
-# Seiten sind force-dynamic und holen pro Request frisch; die ISR-Seiten
-# lebten von ihrem Cache und verdeckten den Ausfall. Aufgefallen ist er nur,
-# weil zufällig ein CI-Check die Live-Seite nicht erreichte.
+# Warum es das gibt: Startseite und /map sind force-dynamic und holen pro
+# Request frisch. Ist das Sanity-CDN-Kontingent aufgebraucht, antworten beide
+# mit 500, während die ISR-Seiten von ihrem Cache leben und den Ausfall
+# verdecken.
 #
-# Sentry überwacht `/` bereits im Minutentakt (Monitor 1196645) und hat den
-# Ausfall auch erwischt. Ein zweiter Monitor für /map kostet dort einen
-# bezahlten Seat — dieser Job ist die kostenlose Abdeckung dafür.
+# Sentry überwacht `/` bereits im Minutentakt (Monitor 1196645). Ein zweiter
+# Monitor für /map kostet dort einen bezahlten Seat; dieser Job ist die
+# kostenlose Abdeckung dafür.
 #
-# Er prüft außerdem eine Stufe FRÜHER als jeder reine Uptime-Check: die
+# Er prüft außerdem eine Stufe früher als jeder reine Uptime-Check: die
 # Sanity-Kontingente direkt. Die kippen, bevor die Seiten kippen.
 
 on:
@@ -69,20 +68,17 @@ jobs:
           check_page "https://www.eatthisdot.com/"    || true
           check_page "https://www.eatthisdot.com/map" || true
 
-          # Läuft die LAUFZEIT gerade am CDN vorbei? Dann ist ein 402 auf dem
-          # CDN der erwartete Zustand und kein Vorfall — sonst meldete dieser
-          # Job im Zehnminutentakt einen Ausfall, den wir längst umschifft
-          # haben. Der Job folgt damit der Konfiguration statt einer Kopie
-          # davon.
+          # Läuft die Laufzeit gerade am CDN vorbei? Dann ist ein 402 auf dem
+          # CDN der erwartete Zustand und kein Vorfall. Der Job folgt damit der
+          # Konfiguration statt einer Kopie davon.
           #
-          # Es reicht NICHT, `value: 'false'` zu finden: bis 29.08.2026 stand
-          # die Variable auf `availability: [BUILD]`, die Laufzeit lief also
-          # sehr wohl aufs CDN — ein echter CDN-Ausfall wäre stumm geblieben.
-          # Nötig ist beides: der Wert `false` UND eine `availability`, die die
-          # RUNTIME einschließt. Fehlt `availability` ganz, sind laut
-          # App-Hosting-Doku beide Phasen gemeint.
+          # Es reicht nicht, `value: 'false'` zu finden. Nötig ist beides: der
+          # Wert `false` und eine `availability`, die die RUNTIME einschließt;
+          # steht dort nur BUILD, läuft die Laufzeit sehr wohl aufs CDN. Fehlt
+          # `availability` ganz, sind laut App-Hosting-Doku beide Phasen
+          # gemeint.
           #
-          # `grep -A<n>` taugt dafür nicht — die feste Zeilenzahl schneidet die
+          # `grep -A<n>` taugt dafür nicht: Die feste Zeilenzahl schneidet die
           # `availability`-Liste ab und liest sich dann wie „nur BUILD". Also
           # den ganzen Listeneintrag herausschneiden und darin nachsehen.
           cdn_is_bypassed=$(awk '

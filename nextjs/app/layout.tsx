@@ -22,10 +22,10 @@ export const metadata: Metadata = {
   robots: INDEXABLE_ROBOTS,
   /* Installed to the home screen the page owns the whole screen, unlike a
      Safari tab where the status-bar band belongs to the browser and
-     env(safe-area-inset-top) is 0 (measured on-device 2026-07-27).
-     'black-translucent' is what actually extends the content under the status
-     bar — 'default' keeps the bar opaque and insets the page. Pairs with the
-     viewportFit: 'cover' above; without both, the inset stays 0. */
+     env(safe-area-inset-top) is 0. 'black-translucent' is what actually extends
+     the content under the status bar — 'default' keeps the bar opaque and
+     insets the page. Pairs with the viewportFit: 'cover' above; without both,
+     the inset stays 0. */
   appleWebApp: {
     capable: true,
     title: 'eat this.',

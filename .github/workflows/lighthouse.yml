@@ -32,21 +32,14 @@ jobs:
 
       - name: Wait for the rollout of THIS commit
         # Auf einen Push nach `main` baut App Hosting einen neuen Container und
-        # schaltet den Traffic erst um, wenn er steht — das dauert 5 bis 10
-        # Minuten. Solange antwortet die alte Version mit HTTP 200.
+        # schaltet den Traffic erst um, wenn er steht. Das dauert 5 bis 10
+        # Minuten, und so lange antwortet die alte Version mit HTTP 200. Ein
+        # Warten auf 200 würde also den Stand vor dem Push messen.
         #
-        # Genau daran hing der alte Schritt: er pollte die Startseite auf 200
-        # und lief sofort weiter. Am 22.08.2026 auditierte der Job `/map`
-        # von 20:47:58 bis 20:51:22, der Rollout wurde 20:51:45 fertig — die
-        # Zahlen im Report beschrieben den Stand VOR dem Push, sahen aber aus
-        # wie eine Messung danach. Für einen Job, dessen einziger Zweck das
-        # Messen der Produktion ist, ist das die teuerste Art zu lügen.
-        #
-        # Also auf das Signal warten, das den Traffic-Wechsel wirklich meldet:
-        # die Firebase-Integration hängt pro Commit einen Check-Run
-        # "App Hosting - Rollout (eat-this-8a13b/…)" an. Der steht auf
-        # `success`, wenn der neue Container den Traffic hat.
-        #
+        # Deshalb auf das Signal warten, das den Traffic-Wechsel wirklich
+        # meldet: Die Firebase-Integration hängt pro Commit einen Check-Run "App
+        # Hosting - Rollout (eat-this-8a13b/…)" an. Der steht auf `success`,
+        # wenn der neue Container den Traffic hat.
         if: github.event_name == 'push'
         env:
           GH_TOKEN: ${{ github.token }}

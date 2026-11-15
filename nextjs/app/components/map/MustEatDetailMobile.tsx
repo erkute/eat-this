@@ -26,10 +26,10 @@ import { useSwipePager } from './useSwipePager';
 import { CloseIcon, PinIcon } from './icons';
 
 const CARD_BACK = '/pics/card-back.webp?v=20261028';
-/* Gesetzt, sobald jemand in DIESER Sitzung gewischt hat — danach ruht der
-   Wisch-Hinweis bis zum nächsten Besuch. Er stand in localStorage und kam nie
-   wieder; wer die Geste einmal probiert hatte, sah auf dem Telefon danach kein
-   Zeichen mehr, dass es weitergeht (Nutzer, 02.09.2026). */
+/* Gesetzt, sobald jemand in dieser Sitzung gewischt hat; danach ruht der
+   Wisch-Hinweis bis zum nächsten Besuch. In sessionStorage, nicht für immer:
+   Sonst sähe, wer die Geste einmal probiert hat, auf dem Telefon nie wieder ein
+   Zeichen, dass es weitergeht. */
 const SWIPE_HINT_KEY = 'et:me-swipe-hint';
 const SWIPE_HINT_DONE = 'done';
 
@@ -100,12 +100,11 @@ export default function MustEatDetailMobile({
   const { name: restaurantName } = mustEat.restaurant;
   const restaurantPhoto = mustEat.restaurant.photo;
   const open = isUnlocked && !revealOrigin;
-  /* Der Text wechselt nicht erst nach der Landung, sondern sobald die Bühne
-     ihn verdeckt: Gericht und Beschreibung stehen dann fertig da, wenn die
-     Iris sich um die heimkehrende Karte schließt. Vorher stand beim Heimflug
-     noch „Du bist da." im Sheet, und erst nach der Landung blendete der Name
-     ein — ein zweiter, schwächerer Auftritt nach der Beute (Betreiber,
-     24.09.2026). Die Karte selbst bleibt bis zur Landung verborgen. */
+  /* Der Text wechselt nicht erst nach der Landung, sondern sobald die Bühne ihn
+     verdeckt: Gericht und Beschreibung stehen dann fertig da, wenn die Iris
+     sich um die heimkehrende Karte schließt. Sonst wäre der Name ein zweiter,
+     schwächerer Auftritt nach der Beute. Die Karte selbst bleibt bis zur
+     Landung verborgen. */
   const textOpen = isUnlocked && (!revealOrigin || revealCovered);
   const dishName = mustEat.dish ? normalizeName(mustEat.dish) : t('mustEats.covered');
   const closeAction = onViewRestaurant ?? onClose;
@@ -302,40 +301,33 @@ export default function MustEatDetailMobile({
     });
   };
 
-  /* Die Kopfzeile des verdeckten Zustands sitzt IM Namens-Track, nicht darunter.
-     Der Track ist reserviert, damit beim Aufdecken nichts springt — verdeckt
-     stand dort aber nur der unsichtbar gestellte Gerichtsname, seit das
-     "Verdeckt"-Badge raus ist also eine leere Fläche von ~90px zwischen Karte
-     und Text. Jetzt füllt die Kopfzeile sie, in der Größe des Gerichtsnamens,
-     und beim Aufdecken wird sie schlicht vom Gericht ersetzt: gleicher Track,
-     gleiche Höhe, kein Sprung.
+  /* Die Kopfzeile des verdeckten Zustands sitzt im Namens-Track, nicht
+     darunter. Der Track ist reserviert, damit beim Aufdecken nichts springt.
+     Die Kopfzeile füllt ihn in der Größe des Gerichtsnamens, und beim Aufdecken
+     wird sie vom Gericht ersetzt: gleicher Track, gleiche Höhe, kein Sprung.
 
-     Der Track gehört dabei dem GERICHT — auch ohne Standort-Fix. „Wo bist du?"
-     und „Standort blockiert" standen hier in Gerichtsgröße und lasen sich wie
-     der Name eines Gerichts (Nutzer, 02.09.2026). Eine Browser-Berechtigung ist
-     aber kein Produktmoment: die Zeile sagt jetzt in jedem verdeckten Zustand,
-     was unter der Karte liegt, und der Standort steht darunter als eigener
-     Chip (siehe .fdLocation).
+     Der Track gehört dabei dem Gericht, auch ohne Standort-Fix. Eine
+     Browser-Berechtigung ist kein Produktmoment: Die Zeile sagt in jedem
+     verdeckten Zustand, was unter der Karte liegt, und der Standort steht
+     darunter als eigener Chip (siehe .fdLocation).
 
-     Während gespeichert wird, steht hier nichts Eigenes mehr: die Karte ist
-     dann schon auf der Bühne des Aufdeckens (MustEatRevealOverlay), und was
-     sie in die Sammlung bringt, sagt die Bühne selbst — in Ruhe, nicht als
-     Aufblitzen im Feld des Gerichts (Betreiber, 24.09.2026). */
+     Während gespeichert wird, steht hier nichts Eigenes: Die Karte ist dann
+     schon auf der Bühne des Aufdeckens (MustEatRevealOverlay), und was sie in
+     die Sammlung bringt, sagt die Bühne selbst. */
   const coverHead = unlockError
     ? t('map.revealError')
     : canUnlock
       ? tMap('proximityHere')
       : tMap('proximityAway');
-  /* Ohne Fix trägt die Copy-Zeile nur den Chip — ein Schritt pro Zustand.
-     Der Satz, der die Karte erklärt („Ein Gericht, das du probieren musst …"),
+  /* Ohne Fix trägt die Copy-Zeile nur den Chip, ein Schritt pro Zustand. Der
+     Satz, der die Karte erklärt („Ein Gericht, das du probieren musst …"),
      kommt, sobald die App weiß, wo der Besucher ist.
 
-     Verweigert ist KEIN eigener Zustand der Karte: sie liest sich wie jede
-     verdeckte Karte, und erst der Tipp darauf sagt, was fehlt — als Meldung in
+     Verweigert ist kein eigener Zustand der Karte: Sie liest sich wie jede
+     verdeckte Karte, und erst der Tipp darauf sagt, was fehlt, als Meldung in
      der zentralen Info-Karte, wie auf Map und Startseite (siehe
-     onLocationBlocked in MustEatDetail). Ein stiller „Standort blockiert"-Chip
-     mit Hinweis darunter stand hier kurz und wurde als Fremdkörper abgelehnt
-     (Nutzer, 02.09.2026). */
+     onLocationBlocked in MustEatDetail). Kein stiller „Standort blockiert"-Chip
+     mit Hinweis darunter. */
   const explainerData = guest ? onboardingData : undefined;
   /* Einem Gast erklärt der Knopf „Wie funktioniert's?" die Karte (siehe
      unten) — der Näherungs-Hinweis sagte dasselbe noch einmal, und beide
@@ -357,11 +349,10 @@ export default function MustEatDetailMobile({
   const headInNameSlot = !textOpen;
   const slotText = headInNameSlot ? coverHead : dishName;
   const slotWeight = slotText.replace(/\s+/g, '').length;
-  /* Die Stufe hängt auch am LÄNGSTEN WORT, nicht nur an der Zeichenzahl: ein
-     Wort bricht nicht, und „RINDERGULASCH" (13 Versalien) war in der Grundgröße
-     breiter als der Rail — die Zeile stand links an und ragte rechts heraus,
-     die zweite Zeile mittig darunter (Nutzer, 02.09.2026: „nicht mittig
-     zentriert"). Ab 11 Buchstaben eine Stufe kleiner, ab 14 zwei. */
+  /* Die Stufe hängt auch am längsten Wort, nicht nur an der Zeichenzahl: Ein
+     Wort bricht nicht, und „RINDERGULASCH" (13 Versalien) ist in der Grundgröße
+     breiter als der Rail, die Zeile stünde dann nicht mittig. Ab 11 Buchstaben
+     eine Stufe kleiner, ab 14 zwei. */
   const longestWord = Math.max(...slotText.split(/\s+/).map((word) => word.length));
   const slotSizeClass =
     slotWeight > 22 || longestWord > 13
@@ -580,20 +571,18 @@ export default function MustEatDetailMobile({
               Angabe, die verdeckt wie aufgedeckt gilt und nicht schon im
               Restaurant-Streifen steht. */}
           <div className={styles.fdHead}>
-            {/* Der Zählstand in eigener Zeile über dem Kicker („1 / 23") — hinter
-                dem Kicker stand er als Anhängsel, der Nutzer wollte ihn
-                zentriert für sich (02.09.2026). Auf dem Telefon ist er neben dem
-                Nudge das Zeichen, dass der Stapel weitergeht. */}
+            {/* Der Zählstand in eigener Zeile über dem Kicker („1 / 23"),
+                zentriert für sich. Auf dem Telefon ist er neben dem Nudge das
+                Zeichen, dass der Stapel weitergeht. */}
             {position && position.count > 1 && (
               <p className={styles.fdKickerCount}>
                 {position.index} / {position.count}
               </p>
             )}
-            {/* Der Kicker: „MUST EAT · BEZIRK". Die Winkel standen kurz hier
-                neben der Schrift (02.09.2026), seit dem 03.09. wieder an der
-                Karte — im Rail und im Tablet-Sheet ist neben ihr Platz, und
-                geblättert wird die Karte, nicht der Kicker.
-                `data-detail-pager` misst useMapSheet weiter. */}
+            {/* Der Kicker: „MUST EAT · BEZIRK". Die Winkel stehen an der Karte,
+                nicht hier: Im Rail und im Tablet-Sheet ist neben ihr Platz, und
+                geblättert wird die Karte, nicht der Kicker. `data-detail-pager`
+                misst useMapSheet. */}
             <div className={styles.fdKickerRow} data-detail-pager>
               <p className={`et-label ${styles.fdKicker}`}>{kicker}</p>
             </div>
@@ -613,12 +602,10 @@ export default function MustEatDetailMobile({
           )}
 
           {/* Locked: Näherungs-Hinweis statt Beschreibung. Ohne Konto steht
-              hier statt des Hinweises „Wie funktioniert's?" (siehe unten) —
-              der Tipp auf den Ruecken oeffnet weiterhin sofort das
-              Anmeldeformular (MustEatDetail). Ein Anmelde-Block in der Karte
-              stand hier kurz und wurde als Fremdkoerper abgelehnt, eine Tafel
-              als Layer zwischen Tipp und Formular als Klick zu viel
-              (Betreiber, 07.09.2026). */}
+              hier statt des Hinweises „Wie funktioniert's?" (siehe unten); der
+              Tipp auf den Rücken öffnet sofort das Anmeldeformular
+              (MustEatDetail). Kein Anmelde-Block in der Karte und keine Tafel
+              zwischen Tipp und Formular. */}
           {!textOpen && (
             <div
               className={`${styles.fdProximity}${unlockError ? ` ${styles.fdProximityError}` : canUnlock ? ` ${styles.fdProximityReady}` : ''}`}
@@ -635,12 +622,11 @@ export default function MustEatDetailMobile({
               {/* Der Standort als eigenes Objekt: eine Taste, solange man den
                   Browser noch fragen darf. Der Kartentipp fragt weiterhin mit —
                   die Taste macht nur sichtbar, dass es etwas zu tun gibt. */}
-              {/* Ein Gast weiß nicht, was eine verdeckte Karte ist — der
-                  Tipp darauf führt ihn direkt zur Anmeldung. Erklärt wird
-                  deshalb hier, mit den Folien der Must-Eats-Seite, die dieser
-                  Knopf öffnet — nie von selbst (Betreiber, 31.10.2026). Er steht, wo ein angemeldeter Besucher den
-                  Standort-Chip hat — den bekommt ein Gast nie (Betreiber,
-                  28.09.2026). */}
+              {/* Ein Gast weiß nicht, was eine verdeckte Karte ist; der Tipp
+                  darauf führt ihn direkt zur Anmeldung. Erklärt wird deshalb
+                  hier, mit den Folien der Must-Eats-Seite, die dieser Knopf
+                  öffnet, nie von selbst. Er steht, wo ein angemeldeter Besucher
+                  den Standort-Chip hat; den bekommt ein Gast nie. */}
               {explainerData && (
                 <div className={styles.fdLocation}>
                   <MustEatsOnboarding
@@ -666,16 +652,13 @@ export default function MustEatDetailMobile({
           )}
         </div>
 
-        {/* Restaurant-Zeile: die GANZE Zeile ist der Weg zum Spot — Foto, Label,
-            Name, sonst nichts; dass sie ein Knopf ist, sagt ihr Ring (CSS).
-            Vorher stand rechts eine „Zum Spot"-Pille; sie nahm der Namensspalte
-            100px, und lange Namen brachen („Knödelwirt-/schaft SÜD", Nutzer
-            02.09.2026). Danach ein Pfeilkreis („mag den Pfeil nicht"), dann das
-            Wort „Zum Spot" („braucht man das?") — beides wieder raus. Der Name
-            bleibt einzeilig (Stufen unten, Ellipse als letztes Mittel), damit
-            die Zeile in jeder Karte gleich hoch ist: mit einem zweizeiligen
-            Namen war sie 9px höher und der Kartenstapel sprang beim Blättern.
-            Screenreader hören weiter „Zum Spot: <Name>". */}
+        {/* Restaurant-Zeile: Die ganze Zeile ist der Weg zum Spot. Foto, Label,
+            Name, sonst nichts: keine „Zum Spot"-Pille (sie nähme der
+            Namensspalte 100px, und lange Namen brächen), kein Pfeilkreis, kein
+            Wort. Der Name bleibt einzeilig (Stufen unten, Ellipse als letztes
+            Mittel), damit die Zeile in jeder Karte gleich hoch ist: Mit einem
+            zweizeiligen Namen wäre sie 9px höher und der Kartenstapel spränge
+            beim Blättern. Screenreader hören „Zum Spot: <Name>". */}
         {(() => {
           const rowContent = (
             <>

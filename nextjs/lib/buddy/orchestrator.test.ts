@@ -139,9 +139,9 @@ describe('runBuddyTurn', () => {
   });
 
   it('sends no pack teaser to an account that already owns it, or the whole catalog', async () => {
-    // Das Widget filterte bis zum 02.09.2026 am Entitlement-Listener, der den
-    // Admin-Zugang nicht kennt — Remy bot dem Admin-Konto Packs an, die ihm
-    // offenstanden. Jetzt fällt die Karte schon hier weg.
+    // Die Pack-Karte fällt schon hier weg, nicht erst im Widget: Dessen
+    // Entitlement-Listener kennt den Admin-Zugang nicht, Remy böte dem
+    // Admin-Konto sonst Packs an, die ihm offenstehen.
     const pizzaSpot = (id: string): SpotCandidate => ({
       _id: id,
       name: id,

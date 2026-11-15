@@ -41,19 +41,18 @@ function isOwnOrAutomated(): boolean {
  */
 const COUNT_ENDPOINT = '/api/count';
 
-/* Der User-Agent faehrt im Body mit, obwohl er im Header steht — weil er dort
- * nie ankommt. Die App-Hosting-Edge ersetzt UA und Aufrufer-IP, bevor Cloud
- * Run die Anfrage sieht (belegt 25.08.2026, siehe
- * lib/analytics/botFilter.ts). Der Bot-Filter der Route lief dadurch in
- * Produktion ins Leere: am 01.09.2026 kam rund ein Drittel aller Beacons von
- * Bingbot, Baidu-Render und einem Azure-Crawler mit Lighthouse-Kennung — alle
- * als Besucher gezaehlt. Live-Beweis: `curl -A curl/8.0` mit uebergrossem Body
- * bekam 413 statt 204, der Filter hatte den UA also nie gesehen.
+/*
+ * Der User-Agent fährt im Body mit, obwohl er im Header steht, weil er dort nie
+ * ankommt. Die App-Hosting-Edge ersetzt UA und Aufrufer-IP, bevor Cloud Run die
+ * Anfrage sieht (siehe lib/analytics/botFilter.ts). Der Bot-Filter der Route
+ * liefe sonst in Produktion ins Leere, und Bingbot, Baidu-Render und
+ * Lighthouse-Läufe würden als Besucher gezählt.
  *
- * Das ist derselbe String, den der Browser ohnehin in jeder Anfrage sendet —
+ * Das ist derselbe String, den der Browser ohnehin in jeder Anfrage sendet:
  * kein Zugriff auf Speicher, kein Fingerprint, nichts, was der Header nicht
- * schon traegt. Gekuerzt, damit der Beacon unter dem Groessenlimit der Route
- * bleibt. */
+ * schon trägt. Gekürzt, damit der Beacon unter dem Größenlimit der Route
+ * bleibt.
+ */
 const UA_MAX = 300;
 
 function userAgent(): string | undefined {

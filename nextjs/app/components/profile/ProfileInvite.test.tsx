@@ -75,10 +75,9 @@ describe('ProfileInvite', () => {
     expect(new URL(url).searchParams.get('ref')).toBe(UID);
   });
 
-  /* Der Kasten war eine gelbe Leiste mit zwei Zeilen und ging zwischen Deck
-     und gespeicherten Spots unter (Nutzer, 06.09.2026). Drei Karten machen
-     ihn zu einem Gegenstand — und drei sind es immer, auch bei einem leeren
-     Deck: ein Faecher aus einer Karte sieht aus wie ein Fehler. */
+  /* Drei Karten machen den Kasten zu einem Gegenstand, damit er zwischen Deck
+     und gespeicherten Spots nicht untergeht. Drei sind es immer, auch bei einem
+     leeren Deck: Ein Fächer aus einer Karte sieht aus wie ein Fehler. */
   it('haelt immer drei Karten hin und fuellt mit Rueckseiten auf', () => {
     const { container } = render(
       <ProfileInvite uid={UID} cards={['/api/must-eat-image/m1', '/api/must-eat-image/m2']} />

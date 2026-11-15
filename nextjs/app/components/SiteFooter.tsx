@@ -108,8 +108,7 @@ export default function SiteFooter() {
 
       </nav>
 
-      {/* Sprache und Hell/Dunkel in einer Zeile, wie im Menü (Ansage
-          22.10.2026: den Schalter auch im Footer). */}
+      {/* Sprache und Hell/Dunkel in einer Zeile, wie im Menü. */}
       <div className={styles.prefs}>
         <div className={styles.lang} role="group" aria-label="Language / Sprache">
           <button

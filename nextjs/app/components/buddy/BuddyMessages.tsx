@@ -26,12 +26,12 @@ function inlineMarkup(text: string, animate = false): React.ReactNode[] {
 }
 
 /* Das Einblenden, wie es Chat-Oberflächen machen (Streamdown / Vercel AI
-   Elements: `fadeIn`, 150 ms, `ease`, pro Wort): jedes Wort sitzt in einer
-   eigenen Spanne, und nur eine NEU eingehängte Spanne spielt ihre Animation —
-   der Text wächst hinten an, die Schlüssel davor bleiben, React lässt die
-   alten Wörter also in Ruhe. Ohne das ploppt jedes Wort hart auf den Schirm;
-   bei 25 Wörtern pro Sekunde ist das ein Flimmern, das sich wie Ruckeln liest
-   (Ansage 18.09.2026). Ist die Antwort fertig, fällt die Hülle wieder weg. */
+   Elements: `fadeIn`, 150 ms, `ease`, pro Wort): Jedes Wort sitzt in einer
+   eigenen Spanne, und nur eine neu eingehängte Spanne spielt ihre Animation.
+   Der Text wächst hinten an, die Schlüssel davor bleiben, React lässt die
+   vorhandenen Wörter also in Ruhe. Ohne das ploppt jedes Wort hart auf den
+   Schirm; bei 25 Wörtern pro Sekunde ist das ein Flimmern, das sich wie Ruckeln
+   liest. Ist die Antwort fertig, fällt die Hülle wieder weg. */
 function words(text: string, animate: boolean): React.ReactNode {
   if (!animate) return text;
   return text.split(/(\s+)/).map((w, i) =>
@@ -115,17 +115,14 @@ function Kicker({ children }: { children: React.ReactNode }) {
 
 /**
  * Ein Spot als kleine Fakten-Tafel: Foto, Name, die harten Angaben, der
- * Offen-Zustand. KEINE Beschreibung, solange Remy den Spot im Text vorstellt —
- * er formuliert seinen Absatz aus genau diesem Feld, die Karte sagte darunter
- * also dasselbe ein zweites Mal ("Erste Berliner Pizzeria mit original
- * Stefano-Ferrara-Holzofen …" stand am 08.09.2026 wörtlich zweimal
- * untereinander). In der Sammelausgabe am Ende (`showDesc`) hat er über die
- * Spots nichts geschrieben — dort ist die Beschreibung die einzige Auskunft.
+ * Offen-Zustand. Keine Beschreibung, solange Remy den Spot im Text vorstellt:
+ * Er formuliert seinen Absatz aus genau diesem Feld, die Karte sagte darunter
+ * also dasselbe ein zweites Mal. In der Sammelausgabe am Ende (`showDesc`) hat
+ * er über die Spots nichts geschrieben; dort ist die Beschreibung die einzige
+ * Auskunft.
  *
- * Die Fläche selbst ist der Weg zur Map. Kein „Auf der Map ansehen"-Balken
- * mehr: Pfeil, Verb und Ring sind an dieser Stelle der Site alle drei
- * abgelehnt worden, und vier schwarze Balken unter einer Antwort waren vier
- * Verben unter vier Flächen, die schon Knöpfe sind.
+ * Die Fläche selbst ist der Weg zur Map, ohne „Auf der Map ansehen"-Balken:
+ * kein Pfeil, kein Verb, kein Ring unter einer Fläche, die schon ein Knopf ist.
  */
 // Large landscape photos; wide chat windows show two cards side by side.
 export const SPOT_IMG_SIZES = '(max-width: 600px) calc(100vw - 76px), 390px';

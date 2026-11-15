@@ -146,9 +146,9 @@ describe('ProfileAlbum', () => {
 
     const { container } = render(<ProfileAlbum mustEats={mustEats} faceUpIds={new Set(['m1'])} />);
 
-    // Die Karte im Raster (ein Knopf) — nicht die Kopie im Faecher des Kopfes.
-    // Ein Daumennagel aus der Routen-Leiter, nicht das Original (~100 kB):
-    // das Raster zog sonst rund 2,5 MB (Prod-Log 25./26.09.2026).
+    // Die Karte im Raster (ein Knopf), nicht die Kopie im Fächer des Kopfes.
+    // Ein Daumennagel aus der Routen-Leiter, nicht das Original (~100 kB): Das
+    // Raster zöge sonst rund 2,5 MB.
     const image = container.querySelector<HTMLImageElement>(
       'button img[src="/api/must-eat-image/m1?w=360&auto=format&q=80"]'
     );
@@ -157,12 +157,11 @@ describe('ProfileAlbum', () => {
     expect(image?.getAttribute('srcset')).toContain('/api/must-eat-image/m1?w=720');
   });
 
-  /* Safari waehlt die srcset-Variante bei JEDER Attributaenderung neu. Deckte
-     sich eine Karte auf, verwendete React das <img> der Rueckseite weiter und
-     setzte nacheinander `src`, `srcset`, `sizes` — WebKit holte dabei die 360er
-     UND (srcset ohne sizes = 100vw) die 720er. Prod-Log 26.09.2026: ein iPhone
-     lud so jede Karte doppelt. Ein neues Element setzt React in der richtigen
-     Reihenfolge (sizes, srcset, src). */
+  /* Safari wählt die srcset-Variante bei jeder Attributänderung neu. Verwendete
+     React beim Aufdecken das <img> der Rückseite weiter und setzte nacheinander
+     `src`, `srcset`, `sizes`, holte WebKit die 360er und (srcset ohne sizes =
+     100vw) die 720er, ein iPhone lüde so jede Karte doppelt. Ein neues Element
+     setzt React in der richtigen Reihenfolge (sizes, srcset, src). */
   it('baut beim Aufdecken ein neues <img>, statt das der Rueckseite umzuschreiben', () => {
     // Verdeckt kommt die Karte ohne Bild (die Nutzlast streift es ab), offen mit.
     const card = (image?: string): MapMustEat[] => [

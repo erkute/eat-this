@@ -54,10 +54,10 @@ function Viewer({
   const reducedMotion = useReducedMotion();
   const photoLabel = (index: number) =>
     english ? `Photo ${index + 1} of ${count}` : `Foto ${index + 1} von ${count}`;
-  /* Beim Schliessen blendet der Vorhang 200 ms aus (ZoomCurtain). Foto,
-     Schliessen und Blättern standen in der Zeit voll deckend weiter — das X
-     lag sichtbar neben dem Burger, das Foto frei über der Seite (iOS-Audit
-     28.09.2026). Sie gehen jetzt sofort, nur der Vorhang läuft aus. */
+  /* Beim Schließen blendet der Vorhang 200 ms aus (ZoomCurtain). Foto,
+     Schließen und Blättern gehen sofort, nur der Vorhang läuft aus: Sonst
+     stünde das X in der Zeit sichtbar neben dem Burger, das Foto frei über der
+     Seite. */
   const leaving = !useIsPresent();
   const [page, setPage] = useState(startIndex);
   const dialogRef = useRef<HTMLDivElement>(null);

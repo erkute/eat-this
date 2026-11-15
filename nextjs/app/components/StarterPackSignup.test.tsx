@@ -56,7 +56,7 @@ describe('StarterPackSignup', () => {
     expect(html).toContain('>Starter Pack</h2>');
     expect(html).toContain('Starte deine Sammlung');
     expect(html).toContain('Schon 100 Must Eats in ganz Berlin. Dein Starter Pack zeigt dir die ersten. Den Rest entdeckst du vor Ort.');
-    // Kein „Gratis"-Kicker: Geschenk-Wording will der Betreiber nicht (22.09.2026).
+    // Kein „Gratis"-Kicker: kein Geschenk-Wording.
     expect(html).not.toMatch(/gratis|kostenlos/i);
   });
 

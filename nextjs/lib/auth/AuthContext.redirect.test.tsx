@@ -78,10 +78,10 @@ describe('signInWithGoogle — wenn der Browser das Fenster blockt', () => {
     }
   });
 
-  /* Der Kern der Sache: auf iOS Safari kommt `auth/popup-blocked` auch dann,
-     wenn vorgewärmt wurde — das Vorwärmen verkürzt die Wartezeit, garantiert
-     sie aber nicht weg (Nutzer, 28.08.2026). Eine Navigation braucht keine
-     Nutzer-Aktivierung und trägt deshalb auch dann noch. */
+  /* Der Kern der Sache: Auf iOS Safari kommt `auth/popup-blocked` auch dann,
+     wenn vorgewärmt wurde; das Vorwärmen verkürzt die Wartezeit, garantiert sie
+     aber nicht weg. Eine Navigation braucht keine Nutzer-Aktivierung und trägt
+     deshalb auch dann noch. */
   it('schaltet auf den Redirect um, statt den Fehler durchzureichen', async () => {
     mocks.signInWithPopup.mockRejectedValueOnce(blockedError());
     const { result } = await mountAuth();

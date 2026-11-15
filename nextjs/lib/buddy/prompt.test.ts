@@ -24,8 +24,8 @@ describe('buildSystemPrompt', () => {
   });
 
   it('puts the card first and keeps the prose short — the chat window shows ~540px', () => {
-    // 18.09.2026: Absatz-dann-Karte brauchte 8–9 s bis zur ersten Karte, und
-    // Fünf-Zeilen-Absätze machten eine Antwort drei Fenster lang.
+    // Karte vor Absatz, kurze Absätze: Sonst vergehen 8–9 s bis zur ersten
+    // Karte, und Fünf-Zeilen-Absätze machen eine Antwort drei Fenster lang.
     const p = buildSystemPrompt('de');
     expect(p).toMatch(/Marker `\[\[spot:<slug>\]\]` VOR jeden Mini-Absatz/);
     // Das Beispiel zeigt die Reihenfolge: Marker, dann Text.
@@ -35,10 +35,9 @@ describe('buildSystemPrompt', () => {
   });
 
   it('keeps the prose off the card — no second copy of the same facts', () => {
-    // Die Karte trägt Foto, Küche, Bezirk, Preis, Öffnungszeiten und stand am
-    // 08.09.2026 unter einem Absatz, der genau dasselbe Feld ausformuliert
-    // hatte: „Erste Berliner Pizzeria mit original Stefano-Ferrara-Holzofen …"
-    // wörtlich zweimal untereinander.
+    // Die Karte trägt Foto, Küche, Bezirk, Preis, Öffnungszeiten. Ein Absatz
+    // darüber, der dasselbe Feld ausformuliert, stünde wörtlich zweimal
+    // untereinander.
     const p = buildSystemPrompt('de');
     expect(p).toMatch(/Wiederhol diese Angaben NICHT im Text/);
     expect(p).toMatch(/Kurzbeschreibung des Spots/i);

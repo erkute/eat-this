@@ -46,20 +46,21 @@ import {
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-/** Events worth a counter. An unknown name is dropped, not stored: this endpoint
- *  is unauthenticated, and without an allowlist anyone could grow the day
- *  document one invented key at a time.
+/**
+ * Events worth a counter. An unknown name is dropped, not stored: this endpoint
+ * is unauthenticated, and without an allowlist anyone could grow the day
+ * document one invented key at a time.
  *
- *  Dieselbe Gefahr galt fuer `paths`, `entryPaths`, `continuations` und
- *  `referrers` — die nahmen bis 08.09.2026 jeden Schluessel an. Sie haben jetzt
- *  ihren eigenen Riegel: lib/analytics/pathKey.ts laesst nur echte Routen
- *  durch, lib/analytics/dayKeyBudget.ts deckelt, wie viele es werden. */
+ * Dieselbe Gefahr gilt für `paths`, `entryPaths`, `continuations` und
+ * `referrers`. Die haben ihren eigenen Riegel: lib/analytics/pathKey.ts lässt
+ * nur echte Routen durch, lib/analytics/dayKeyBudget.ts deckelt, wie viele es
+ * werden.
+ */
 const EVENTS = new Set([
   'begin_checkout',
   'checkout_already_owned',
   'checkout_error',
-  // `login` kommt aus EmailLinkSignIn (Magic-Link) und stand bis 28.08.2026
-  // nicht in dieser Liste.
+  // `login` kommt aus EmailLinkSignIn (Magic-Link).
   'login',
   'login_link_sent',
   'login_start',

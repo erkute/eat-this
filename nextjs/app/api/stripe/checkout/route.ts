@@ -58,11 +58,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'rate_limited' }, { status: 429 });
   }
 
-  /* Ein Pack ohne Karte ist eine leere Schachtel. Seit die Packs Karten
-     verkaufen und nicht mehr Spots, kann eine Kategorie leer sein — Fine
-     Dining stand am 06.09.2026 auf null. /packs blendet den Knopf dort aus;
-     diese Pruefung ist die verbindliche, weil sie auch eine veraltete Seite
-     und einen direkten POST abfaengt. */
+  /* Ein Pack ohne Karte ist eine leere Schachtel: Die Packs verkaufen Karten,
+     nicht Spots, also kann eine Kategorie leer sein. /packs blendet den Knopf
+     dort aus; diese Prüfung ist die verbindliche, weil sie auch eine veraltete
+     Seite und einen direkten POST abfängt. */
   if (pack.type === 'category' && pack.slug) {
     const contents = await getPackContents();
     if ((contents.byCategory[pack.slug]?.mustEats ?? 0) === 0) {

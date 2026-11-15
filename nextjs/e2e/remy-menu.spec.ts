@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
-/* Remy hat keinen Knopf in der Ecke mehr (Ansage 21.10.2026). Der Weg zu ihm
-   führt über „Frag Remy" im Menü — auf jeder Seite, auch nach dem Scrollen. */
+/* Remy hat keinen Knopf in der Ecke. Der Weg zu ihm führt über „Frag Remy" im
+   Menü, auf jeder Seite, auch nach dem Scrollen. */
 for (const route of ['/', '/news', '/en/news']) {
   for (const reduced of [false, true]) {
     test(`${route}: Remy opens from the menu and closes (reduced motion: ${reduced})`, async ({ page }) => {

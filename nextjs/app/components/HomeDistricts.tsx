@@ -13,13 +13,12 @@ const districts = [['mitte','Mitte'], ['kreuzberg','Kreuzberg'], ['neukoelln','N
 const STEP_MS = 2200;
 
 /**
- * Die Bezirke der Startseite. Auf der Karte wandert die rote Fläche
- * fortlaufend von Bezirk zu Bezirk der Liste, der Name daneben wird mit rot
- * (Ansage 21.10.2026: „hier sollte fortlaufend was passieren"). Zeigt jemand
- * auf einen Namen oder eine Fläche, hält sie dort an. Ein Klick auf eine
- * Fläche zoomt wie auf /bezirk in den Bezirk hinein und landet auf seiner
- * Seite; für Tastatur und Screenreader stehen nur die Namen, die Karte bleibt
- * ausgeblendet. Ausser Sicht und mit reduzierter Bewegung steht sie still auf
+ * Die Bezirke der Startseite. Auf der Karte wandert die rote Fläche fortlaufend
+ * von Bezirk zu Bezirk der Liste, der Name daneben wird mit rot. Zeigt jemand
+ * auf einen Namen oder eine Fläche, hält sie dort an. Ein Klick auf eine Fläche
+ * zoomt wie auf /bezirk in den Bezirk hinein und landet auf seiner Seite; für
+ * Tastatur und Screenreader stehen nur die Namen, die Karte bleibt
+ * ausgeblendet. Außer Sicht und mit reduzierter Bewegung steht sie still auf
  * Mitte.
  */
 export default function HomeDistricts({ locale }: { locale: 'de' | 'en' }) {

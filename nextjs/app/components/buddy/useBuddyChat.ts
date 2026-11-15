@@ -38,9 +38,9 @@ export function parseNdjsonLines(buffer: string, onEvent: (e: BuddyStreamEvent) 
 }
 
 /**
- * Was Remy sagt, wenn /api/buddy ablehnt (429). Seit 23.09.2026 gibt es
- * Tagesgrenzen (10 pro Person, 50 für alle) — „frag gleich nochmal" wäre dort
- * gelogen, also je Grund ein eigener Satz.
+ * Was Remy sagt, wenn /api/buddy ablehnt (429). Es gibt Tagesgrenzen (10 pro
+ * Person, 50 für alle), und „frag gleich nochmal" wäre dort gelogen, also je
+ * Grund ein eigener Satz.
  */
 export function limitNotice(reason: string | undefined, locale: Locale): string {
   const en = locale === 'en';

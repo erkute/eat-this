@@ -66,10 +66,9 @@ export default function MustEatDetail({
 }: MustEatDetailProps) {
   const tMustEats = useTranslations('mustEats');
   const locale = useLocale();
-  /* „Standort blockiert" ist keine Zeile der Karte, sondern eine Meldung — in
-     derselben Karte, mit denselben Worten, die Map und Startseite für eine
-     verweigerte Berechtigung zeigen (Nutzer, 02.09.2026: „soll eine Meldung
-     sein wie auf der Startseite"). Der Automat der Map schweigt im Detail
+  /* „Standort blockiert" ist keine Zeile der Karte, sondern eine Meldung, in
+     derselben Karte und mit denselben Worten, die Map und Startseite für eine
+     verweigerte Berechtigung zeigen. Der Automat der Map schweigt im Detail
      (MapSectionBody: sheetView !== 'detail'), also spricht hier der Tipp auf
      die Karte. Selbstabgang wie dort; „Alles klar" räumt früher ab. */
   const blockedNoticeRef = useRef<(() => void) | void>(undefined);
@@ -84,13 +83,13 @@ export default function MustEatDetail({
     blockedNoticeRef.current?.();
     blockedNoticeRef.current = undefined;
   }, [locationError]);
-  /* Die Abfrage, die die Karte selbst ausloest (Tipp auf den Ruecken oder den
-     Chip), beantwortet sie auch selbst. Bis 24.09.2026 blieb ein Fehlschlag
-     im Detail stumm: der Map-Automat schweigt dort, und wer die Freigabe
-     ablehnte oder keinen Fix bekam, sah — nichts. `request()` setzt den
-     Fehler vor jeder Abfrage auf null, jeder Fehlschlag ist also eine neue
-     Aenderung. Nur nach einer eigenen Frage: ein Fehler, der beim Oeffnen des
-     Details schon stand, gehoert dem Tipp (handleLocationBlocked). */
+  /* Die Abfrage, die die Karte selbst auslöst (Tipp auf den Rücken oder den
+     Chip), beantwortet sie auch selbst: Der Map-Automat schweigt im Detail, und
+     wer die Freigabe ablehnt oder keinen Fix bekommt, sähe sonst nichts.
+     `request()` setzt den Fehler vor jeder Abfrage auf null, jeder Fehlschlag
+     ist also eine neue Änderung. Nur nach einer eigenen Frage: Ein Fehler, der
+     beim Öffnen des Details schon stand, gehört dem Tipp
+     (handleLocationBlocked). */
   const askedRef = useRef(false);
   const handleRequestLocation = useCallback(() => {
     askedRef.current = true;
@@ -130,21 +129,17 @@ export default function MustEatDetail({
     }
   });
   /* Vorgespielt wird nur eine Karte, die schon offen ist. Eine verdeckte kommt
-     ohne Bild und Gericht vom Server (stripCoveredMustEats) — die Demo drehte
-     sie um und zeigte wieder den Rücken, mit leerem Namen darunter (Betreiber,
-     24.09.2026: „ist es normal, dass die Karte sich nicht aufdeckt?"). Eine
+     ohne Bild und Gericht vom Server (stripCoveredMustEats); die Demo drehte
+     sie um und zeigte wieder den Rücken, mit leerem Namen darunter. Eine
      verdeckte Karte verhält sich deshalb auch mit ?revealdemo wie immer. */
   const demo = demoSession && isUnlocked && Boolean(mustEat.image);
   // Keep the map in place and use the shared login layer. The previous
   // standalone route made this reveal flow leave the map entirely.
   const { open: openLoginModal } = useLoginModal();
-  /* Ein Gast tippt auf den Ruecken: sofort das Anmeldeformular, im
-     Starter-Pack-Modus. Dazwischen stand am 07.09.2026 fuer ein paar Stunden
-     eine Tafel als Layer („Gratis · Starter Pack · Starter Pack holen"), die
-     erst per Knopf zum Formular fuehrte — ein Klick zu viel (Betreiber,
-     07.09.2026: „soll sofort das Anmeldeformular oeffnen"). Die angetippte
-     Karte reist als Absicht mit (pendingStarterCard), damit das Pack sie
-     garantiert offen enthaelt. */
+  /* Ein Gast tippt auf den Rücken: sofort das Anmeldeformular, im
+     Starter-Pack-Modus, ohne Tafel dazwischen. Die angetippte Karte reist als
+     Absicht mit (pendingStarterCard), damit das Pack sie garantiert offen
+     enthält. */
   const handleRequireLogin = useCallback(() => {
     openLoginModal({ kind: 'card', mustEatId: mustEat._id });
   }, [openLoginModal, mustEat._id]);

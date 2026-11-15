@@ -14,9 +14,9 @@ vi.mock('./HubFragRemy', () => ({
 vi.mock('./HubFaq', () => ({ default: () => <div data-testid="faq" /> }));
 vi.mock('./SiteFooter', () => ({ default: () => '<footer data-testid="footer"></footer>' }));
 vi.mock('./HubHashScroll', () => ({ default: () => null }));
-/* Das Starter-Pack-Formular bietet seit 07.09.2026 auch Google an und liest
-   dafuer den Auth-Kontext; die Seite hier rendert ohne AuthProvider. Der
-   Mail-Weg bleibt echt — er kommt ohne Provider aus. */
+/* Das Starter-Pack-Formular bietet auch Google an und liest dafür den
+   Auth-Kontext; die Seite hier rendert ohne AuthProvider. Der Mail-Weg bleibt
+   echt, er kommt ohne Provider aus. */
 vi.mock('@/lib/auth/AuthContext', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/lib/auth/AuthContext')>()),
   useAuth: () => ({

@@ -308,7 +308,8 @@ describe('buildSiteJsonLd', () => {
     expect(organization.areaServed).toEqual({ '@type': 'City', name: 'Berlin' });
     // The bare name is contested; the Berlin forms are what tells the two apart.
     expect(organization.alternateName).toContain('Eat This Berlin');
-    expect(deWebsite.alternateName).toBe('Eat This Berlin');
+    expect(deWebsite.name).toBe('eat this.');
+    expect(deWebsite.alternateName).toEqual(['EAT THIS', 'Eat This Berlin']);
     expect(organization.description).toContain('Berlin');
     expect(buildSiteJsonLd('en')).not.toContain('SearchAction');
   });

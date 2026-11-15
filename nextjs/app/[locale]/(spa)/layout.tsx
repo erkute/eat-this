@@ -11,26 +11,26 @@ const SITE_URL = 'https://www.eatthisdot.com';
 // "Berlin" gehört in den Titel, nicht nur in die Description: "eat this"
 // allein gehört einem 2013er Food-Blog gleichen Namens, und der Zusatz ist
 // das, was die Marke für Google und für den Leser unterscheidbar macht.
-const TITLE = 'EAT THIS – Restaurants & Geheimtipps in Berlin';
+const TITLE = 'eat this. – Restaurants & Geheimtipps in Berlin';
 const DESCRIPTION =
   'Die kuratierte Food-Map mit Berlins besten Restaurants, Cafés und Bars — plus exklusive Must Eats. Frag Remy, er kennt jeden Spot auf der Map.';
 const OG_IMAGE = `${SITE_URL}/pics/og-card.png?v=${OG_CARD_VERSION}`;
 
 export const metadata: Metadata = {
-  // `absolute` bypasses the root '%s | EAT THIS' template — the brand
+  // `absolute` bypasses the root '%s | eat this.' template — the brand
   // title already carries "Berlin"; the suffix would just duplicate it. The
   // template re-establishes the compact suffix for child segments (news, about, …)
   // because `absolute` would otherwise null it out for the whole subtree.
-  title: { absolute: TITLE, template: '%s | EAT THIS' },
+  title: { absolute: TITLE, template: '%s | eat this.' },
   description: DESCRIPTION,
   openGraph: {
     type: 'website',
-    siteName: 'EAT THIS',
+    siteName: 'eat this.',
     title: TITLE,
     description: DESCRIPTION,
     url: SITE_URL,
     images: [
-      { url: OG_IMAGE, width: 1200, height: 630, alt: 'EAT THIS – We tell you what to eat' },
+      { url: OG_IMAGE, width: 1200, height: 630, alt: 'eat this. – We tell you what to eat' },
     ],
     locale: 'de_DE',
   },

@@ -45,7 +45,7 @@ export function buildMapJsonLd({
         pageUrl,
         locale,
         image: brandCard,
-        caption: 'EAT THIS – We tell you what to eat',
+        caption: 'eat this. – We tell you what to eat',
       }),
       ...(restaurants.length > 0
         ? [

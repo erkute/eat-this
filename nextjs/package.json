@@ -36,7 +36,8 @@
     "test:e2e": "playwright test",
     "audit:preview": "npx --yes @lhci/cli@0.15.1 autorun --config=../lighthouserc.preview.cjs",
     "audit:field": "tsx scripts/audit-field-vitals.mts",
-    "build:brand-icons": "tsx scripts/build-brand-icons.mts"
+    "build:brand-icons": "tsx scripts/build-brand-icons.mts",
+    "build:brand-cards": "tsx scripts/build-brand-cards.mts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.99.0",

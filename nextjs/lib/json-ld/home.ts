@@ -22,7 +22,7 @@ export function buildHomeJsonLd(faqs: LandingFaqEntry[], locale: 'de' | 'en' = '
         '@type': 'WebPage',
         '@id': `${pageUrl}#webpage`,
         url: pageUrl,
-        name: 'EAT THIS – Food Map',
+        name: 'eat this. – Food Map',
         inLanguage: locale === 'de' ? 'de-DE' : 'en-US',
         isPartOf: { '@id': `${SITE_URL}/#website` },
         primaryImageOfPage: { '@id': `${SITE_URL}/#squareimage` },
@@ -35,7 +35,7 @@ export function buildHomeJsonLd(faqs: LandingFaqEntry[], locale: 'de' | 'en' = '
         contentUrl: WIDE_IMAGE_URL,
         width: 1200,
         height: 630,
-        caption: 'EAT THIS – We tell you what to eat',
+        caption: 'eat this. – We tell you what to eat',
       },
       {
         '@type': 'ImageObject',
@@ -44,7 +44,7 @@ export function buildHomeJsonLd(faqs: LandingFaqEntry[], locale: 'de' | 'en' = '
         contentUrl: SQUARE_IMAGE_URL,
         width: 1200,
         height: 1200,
-        caption: 'EAT THIS – We tell you what to eat',
+        caption: 'eat this. – We tell you what to eat',
       },
       ...(faqs.length > 0
         ? [

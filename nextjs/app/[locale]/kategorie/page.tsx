@@ -45,7 +45,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
           url: `${SITE_URL}/pics/og-card.png?v=${OG_CARD_VERSION}`,
           width: 1200,
           height: 630,
-          alt: 'EAT THIS – We tell you what to eat',
+          alt: 'eat this. – We tell you what to eat',
         },
       ],
     },
@@ -75,7 +75,7 @@ export default async function KategorieIndexPage({ params }: PageProps) {
           {
             '@type': 'ListItem',
             position: 1,
-            name: 'Eat This Berlin',
+            name: 'eat this.',
             item: localeUrl(locale, '/'),
           },
           {

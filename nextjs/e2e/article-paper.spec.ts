@@ -19,7 +19,7 @@ for (const theme of ['light', 'dark'] as const) {
     await page.emulateMedia({ reducedMotion: english ? 'reduce' : 'no-preference' });
     await page.goto(`${prefix}/news/essen-trinken-schoeneberg`, { waitUntil: 'domcontentloaded' });
     await expect(page.locator('h1')).toContainText(/Schöneberg/);
-    await expect(page).toHaveTitle(/Schöneberg.*EAT THIS/);
+    await expect(page).toHaveTitle(/Schöneberg.*eat this\./);
     await page.evaluate(() => document.fonts.ready);
     const progress = page.locator('[data-reading-progress]');
     await expect(progress).toHaveCSS('mask-image', 'none');

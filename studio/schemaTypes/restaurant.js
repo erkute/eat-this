@@ -186,6 +186,16 @@ export default {
       validation: (Rule) => Rule.max(2000),
     },
     {
+      name: 'revised',
+      title: 'Text inhaltlich überarbeitet am',
+      description:
+        'Nur setzen, wenn sich die Beschreibung spürbar geändert hat: neue Fakten, neue Gerichte, neue Abschnitte. Google bekommt dieses Datum als „zuletzt geändert“. Leer gilt das Datum der Seitenvorlage.',
+      type: 'date',
+      group: 'texte',
+      fieldset: 'lang',
+      options: {dateFormat: 'DD.MM.YYYY'},
+    },
+    {
       name: 'tip',
       title: 'Deutsch',
       type: 'string',

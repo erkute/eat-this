@@ -24,6 +24,14 @@
 // 30 more came on 13.11.2026: spot URLs the Search Console still listed as
 // "Nicht gefunden (404)" and that answered 404 on that day. Their documents
 // are gone from Sanity and no district survives anywhere, so they go to /map.
+//
+// Three more on 16.11.2026, still 404 with Google impressions: the districts of
+// `chay-village-schoeneberg` and `vegd-vegan-burgers-f-hain` are in their
+// slugs; `traumback` left no trace of one and goes to /map.
+//
+// Ten more on 16.11.2026, deleted from Sanity that day while still in the
+// sitemap. Their districts come from the staging dataset, which kept the
+// documents.
 export const DELISTED_RESTAURANT_REDIRECTS: Readonly<Record<string, string>> = {
   '100-brote': '/bezirk/prenzlauer-berg',
   '136-berlin-restaurant': '/bezirk/mitte',
@@ -83,6 +91,7 @@ export const DELISTED_RESTAURANT_REDIRECTS: Readonly<Record<string, string>> = {
   'cafe-baier': '/bezirk/steglitz',
   'cafe-botanico': '/bezirk/neukoelln',
   'cafe-im-literaturhaus-wintergarten': '/map',
+  'cafe-komine': '/bezirk/schoeneberg',
   'cafe-neundrei': '/bezirk/mitte',
   'cafe-restaurant-manzini': '/bezirk/charlottenburg',
   'carl-sophie-spree-restaurant': '/kategorie/fine-dining',
@@ -90,6 +99,7 @@ export const DELISTED_RESTAURANT_REDIRECTS: Readonly<Record<string, string>> = {
   'cassambalis': '/bezirk/charlottenburg',
   'catbird-sandwiches-pizza': '/bezirk/schoeneberg',
   'chalet-suisse': '/kategorie/dinner',
+  'chay-village-schoeneberg': '/bezirk/schoeneberg',
   'chen-che': '/bezirk/mitte',
   'china-restaurant-fu-li-lai': '/bezirk/steglitz',
   'chungking-noodles': '/map',
@@ -98,6 +108,7 @@ export const DELISTED_RESTAURANT_REDIRECTS: Readonly<Record<string, string>> = {
   'curry-chili': '/bezirk/wedding',
   'daily-dumpling': '/bezirk/mitte',
   'das-cafe-in-der-gartenakademie': '/kategorie/breakfast',
+  'der-goldene-hahn': '/bezirk/kreuzberg',
   'der-kuchenladen': '/bezirk/charlottenburg',
   'der-weinlobbyist': '/bezirk/schoeneberg',
   'die-horn': '/bezirk/kreuzberg',
@@ -107,6 +118,8 @@ export const DELISTED_RESTAURANT_REDIRECTS: Readonly<Record<string, string>> = {
   'do-de-li': '/bezirk/charlottenburg',
   'doen-doen-kebap': '/bezirk/friedrichshain',
   'domberger-brot-werk-moabit': '/kategorie/breakfast',
+  'duo-sicilian-ice-cream': '/bezirk/kreuzberg',
+  'early-bird-gelato': '/bezirk/prenzlauer-berg',
   'eins44': '/bezirk/neukoelln',
   'einstein-unter-den-linden': '/map',
   'eis-hennig': '/kategorie/sweets',
@@ -128,11 +141,13 @@ export const DELISTED_RESTAURANT_REDIRECTS: Readonly<Record<string, string>> = {
   'fraeulein-frost': '/bezirk/neukoelln',
   'frau-behrens-torten-charlottenburg': '/bezirk/charlottenburg',
   'frau-mittenmang': '/map',
+  'frea-bakery': '/bezirk/mitte',
   'freischwimmer': '/bezirk/kreuzberg',
   'froindlichst-berlin-prenzlauer-berg': '/bezirk/prenzlauer-berg',
   'fuku-ramen': '/map',
   'ganymed-brasserie': '/bezirk/mitte',
   'garage-du-pont': '/map',
+  'garten-mitte': '/bezirk/mitte',
   'gastronomie-design-atelier-kumami': '/map',
   'geist-im-glas': '/bezirk/neukoelln',
   'gingis-izakaya': '/bezirk/prenzlauer-berg',
@@ -202,10 +217,12 @@ export const DELISTED_RESTAURANT_REDIRECTS: Readonly<Record<string, string>> = {
   'lovis-restaurant': '/bezirk/charlottenburg',
   'loxa': '/bezirk/charlottenburg',
   'lu-liba-restaurant': '/bezirk/schoeneberg',
+  'lucy-kantine': '/bezirk/neukoelln',
   'lue': '/bezirk/prenzlauer-berg',
   'lula-am-markt': '/bezirk/steglitz',
   'luna-doro': '/bezirk/mitte',
   'luuv-cafe': '/bezirk/prenzlauer-berg',
+  'luzii-berlin': '/bezirk/mitte',
   'ma-makan': '/bezirk/kreuzberg',
   'maedchenitaliener': '/map',
   'maide-manti-halal-food-production': '/map',
@@ -262,6 +279,7 @@ export const DELISTED_RESTAURANT_REDIRECTS: Readonly<Record<string, string>> = {
   'peking-ente-berlin': '/bezirk/mitte',
   'peter-schlemihl': '/bezirk/kreuzberg',
   'piazza-bra': '/kategorie/lunch',
+  'ponte-2-0-ristorante-italiano': '/bezirk/schoeneberg',
   'prater-gaststaette': '/bezirk/prenzlauer-berg',
   'princess-cheesecake': '/bezirk/mitte',
   'prism': '/map',
@@ -310,6 +328,7 @@ export const DELISTED_RESTAURANT_REDIRECTS: Readonly<Record<string, string>> = {
   'son-kitchen': '/bezirk/charlottenburg',
   'sorrel': '/bezirk/neukoelln',
   'spindler': '/bezirk/kreuzberg',
+  'sticksnsushi': '/bezirk/schoeneberg',
   'story-coffee-roesterei-p-berg': '/bezirk/prenzlauer-berg',
   'strassenbahndepot-heiligensee': '/map',
   'suedblock': '/bezirk/kreuzberg',
@@ -331,12 +350,14 @@ export const DELISTED_RESTAURANT_REDIRECTS: Readonly<Record<string, string>> = {
   'tobi-ornot-tobe-restaurant-by-tobias-felger': '/map',
   'toca-rouge': '/bezirk/mitte',
   'trattoria-senza': '/bezirk/mitte',
+  'traumback': '/map',
   'tucker-brunch-bar': '/bezirk/friedrichshain',
   'tupac-berlin': '/bezirk/kreuzberg',
   'udagawa': '/bezirk/steglitz',
   'umami-p-berg': '/bezirk/prenzlauer-berg',
   'ushido-japanese-bbq': '/bezirk/prenzlauer-berg',
   'van-loon-restaurantschiffe-und-reederei': '/bezirk/kreuzberg',
+  'vegd-vegan-burgers-f-hain': '/bezirk/friedrichshain',
   'vera': '/bezirk/friedenau',
   'veronika-berlin': '/bezirk/mitte',
   'viktoria-eis': '/bezirk/schoeneberg',

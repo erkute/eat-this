@@ -84,13 +84,13 @@ export async function sitemapEntries(): Promise<SitemapEntry[]> {
   if (isStaging) return [];
 
   const [restaurants, articles, bezirke, categorySlugs] = await Promise.all([
-    readSanity<{ slug: string; descriptionEn?: string; createdAt?: string }[]>(
+    readSanity<{ slug: string; descriptionEn?: string; createdAt?: string; revised?: string }[]>(
       // `seo.noIndex` ist der Schalter, mit dem die Redaktion eine Seite aus
       // dem Index nimmt (restaurantRobots setzt daraufhin `noindex,nofollow`).
       // Stünde sie trotzdem in der Sitemap, widersprächen sich zwei Signale —
       // dieselbe Falle wie bei den geschlossenen Spots. Heute trifft es null
       // Dokumente; die Regel steht hier, bevor es das erste tut.
-      `*[_type == "restaurant" && defined(slug.current) && !(_id in path("drafts.**")) && ${liveRestaurant()} && seo.noIndex != true] { "slug": slug.current, descriptionEn, "createdAt": _createdAt }`,
+      `*[_type == "restaurant" && defined(slug.current) && !(_id in path("drafts.**")) && ${liveRestaurant()} && seo.noIndex != true] { "slug": slug.current, descriptionEn, "createdAt": _createdAt, revised }`,
       {},
       { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['sitemap-restaurants'] } }
     ),
@@ -155,10 +155,18 @@ export async function sitemapEntries(): Promise<SitemapEntry[]> {
   // 248 spots 2026-08-25, including the 69 created after it — and the URL
   // Inspection API reported spots from 26.08., 27.09. and 05.10. as
   // "URL ist Google nicht bekannt".
+  //
+  // And except for a spot whose text the editors revised: `revised` is set by
+  // hand, like the article field of the same name, only when the description
+  // really changed. On 16.11.2026 155 spots got new texts while the sitemap
+  // still dated them 2026-08-25, and Google had not come back to any of them.
   const restaurantEntries = restaurants
     .filter(({ slug }) => !GONE_SLUGS.has(slug))
-    .flatMap(({ slug, descriptionEn, createdAt }) => {
-      const lastModified = createdAt ? laterOf(createdAt, TEMPLATE_REVISED) : TEMPLATE_REVISED;
+    .flatMap(({ slug, descriptionEn, createdAt, revised }) => {
+      const lastModified = [createdAt, revised].reduce<string>(
+        (latest, d) => (d ? laterOf(d, latest) : latest),
+        TEMPLATE_REVISED
+      );
       return hasEnContent({ descriptionEn })
         ? withAlternates(`/restaurant/${slug}`, lastModified, 0.8, 'monthly')
         : deOnly(`/restaurant/${slug}`, lastModified, 0.8, 'monthly');

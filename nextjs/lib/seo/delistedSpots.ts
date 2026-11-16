@@ -24,6 +24,10 @@
 // 30 more came on 13.11.2026: spot URLs the Search Console still listed as
 // "Nicht gefunden (404)" and that answered 404 on that day. Their documents
 // are gone from Sanity and no district survives anywhere, so they go to /map.
+//
+// Three more on 16.11.2026, still 404 with Google impressions: the districts of
+// `chay-village-schoeneberg` and `vegd-vegan-burgers-f-hain` are in their
+// slugs; `traumback` left no trace of one and goes to /map.
 export const DELISTED_RESTAURANT_REDIRECTS: Readonly<Record<string, string>> = {
   '100-brote': '/bezirk/prenzlauer-berg',
   '136-berlin-restaurant': '/bezirk/mitte',
@@ -90,6 +94,7 @@ export const DELISTED_RESTAURANT_REDIRECTS: Readonly<Record<string, string>> = {
   'cassambalis': '/bezirk/charlottenburg',
   'catbird-sandwiches-pizza': '/bezirk/schoeneberg',
   'chalet-suisse': '/kategorie/dinner',
+  'chay-village-schoeneberg': '/bezirk/schoeneberg',
   'chen-che': '/bezirk/mitte',
   'china-restaurant-fu-li-lai': '/bezirk/steglitz',
   'chungking-noodles': '/map',
@@ -331,12 +336,14 @@ export const DELISTED_RESTAURANT_REDIRECTS: Readonly<Record<string, string>> = {
   'tobi-ornot-tobe-restaurant-by-tobias-felger': '/map',
   'toca-rouge': '/bezirk/mitte',
   'trattoria-senza': '/bezirk/mitte',
+  'traumback': '/map',
   'tucker-brunch-bar': '/bezirk/friedrichshain',
   'tupac-berlin': '/bezirk/kreuzberg',
   'udagawa': '/bezirk/steglitz',
   'umami-p-berg': '/bezirk/prenzlauer-berg',
   'ushido-japanese-bbq': '/bezirk/prenzlauer-berg',
   'van-loon-restaurantschiffe-und-reederei': '/bezirk/kreuzberg',
+  'vegd-vegan-burgers-f-hain': '/bezirk/friedrichshain',
   'vera': '/bezirk/friedenau',
   'veronika-berlin': '/bezirk/mitte',
   'viktoria-eis': '/bezirk/schoeneberg',

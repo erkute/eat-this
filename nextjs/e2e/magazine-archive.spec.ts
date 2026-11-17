@@ -1,6 +1,36 @@
 import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
+test('the magazine does not darken the viewport edges ahead of the table', async ({ page, isMobile }) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.goto('/news');
+  const link = page.locator('[data-current-issue]');
+  const href = await link.getAttribute('href');
+  const edgeVisibility = await page.evaluateHandle(() => {
+    const states: Record<string, string[]> = {};
+    const observer = new MutationObserver(() => {
+      const overlay = document.body.querySelector('[class*="MagazineOpen_overlay"]');
+      if (!overlay) return;
+      const caps = overlay.querySelectorAll('[class*="MagazineOpen_cap"]');
+      const opening = document.documentElement.hasAttribute('data-magazine-opening');
+      states[opening ? 'opening' : 'lifting'] ??= Array.from(caps, (cap) => getComputedStyle(cap).visibility);
+      if (opening) observer.disconnect();
+    });
+    observer.observe(document.body, { childList: true });
+    observer.observe(document.documentElement, { attributeFilter: ['data-magazine-opening'] });
+    return states;
+  });
+
+  if (isMobile) await link.tap();
+  else await link.click();
+  await expect(page).toHaveURL(new RegExp(`${href}$`));
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+  expect(await edgeVisibility.jsonValue()).toEqual({
+    lifting: ['hidden', 'hidden'],
+    opening: ['visible', 'visible'],
+  });
+});
+
 for (const locale of ['de', 'en'] as const) {
   for (const [width, height, reduced] of [[375, 812, false], [568, 320, true], [667, 375, true], [1440, 1000, false]] as const) {
     test(`magazine archive ${locale} ${width}x${height}`, async ({ page, isMobile }) => {

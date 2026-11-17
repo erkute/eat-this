@@ -37,22 +37,21 @@ a.link:has([data-magazine-cover]):is(:active, [data-et-pressed]) {
   background: var(--table);
 }
 
-/* Die Leisten von Safari schwarz wie der Tisch (Ansage 02.10.2026: unter der
-   URL-Leiste stand beim Aufklappen Weiss oder Grau). Seit iOS 26 färbt Safari
-   sie nach dem fixierten Element, das es 4px innerhalb der Kante findet: der
-   Tisch wächst erst als Kreis von der Klickstelle, danach steht dort nur der
-   Schatten der Seite, und am Ende der Artikel — nichts davon ist für Safari
-   eine deckende Fläche. Dieselbe Lösung wie beim Foto-Zoom (ZoomCurtain, am
-   iPhone belegt): eine deckende Kappe an jeder Kante, über die ganze Breite
-   und bündig an der Kante, nie darüber hinaus. In die Leisten zeichnet Safari
-   nur die gefundene Farbe; im Fenster sind die Kappen 6px Tisch. */
+/* Safari übernimmt die Farbe des fixierten Elements 4px innerhalb der
+   Kante für seine Leisten. Die Kappen werden sichtbar, sobald der Tisch
+   das Fenster füllt. */
 .capTop,
 .capBottom {
   position: fixed;
   left: 0;
   right: 0;
   background-color: var(--table);
+  visibility: hidden;
   pointer-events: none;
+}
+
+:global(html[data-magazine-opening]) :is(.capTop, .capBottom) {
+  visibility: visible;
 }
 
 .capTop {
@@ -67,18 +66,9 @@ a.link:has([data-magazine-cover]):is(:active, [data-et-pressed]) {
 
 .book {
   position: absolute;
-  perspective: 2200px;
   transform-origin: 50% 50%;
+  transform-style: preserve-3d;
   will-change: transform;
-}
-
-/* Die rechte Seite: innen durchsichtig auf den Artikel darunter, aussen der
-   Tisch (ein Schatten ohne Weichzeichnung, der bis über jeden Rand reicht). */
-.page {
-  position: absolute;
-  inset: 0;
-  visibility: hidden;
-  box-shadow: 0 0 0 300vmax var(--table);
 }
 
 /* Das Heft liegt auf dem Tisch: ein weicher Schatten, keine Papierlagen. */
@@ -105,8 +95,7 @@ a.link:has([data-magazine-cover]):is(:active, [data-et-pressed]) {
   pointer-events: none;
 }
 
-/* Ein Streifen des Umschlags; der nächste steckt in ihm und dreht an seiner
-   rechten Kante. */
+/* Die Kanten der Streifen folgen einander im selben 3D-Raum. */
 .strip {
   position: absolute;
   top: 0;
@@ -120,16 +109,13 @@ a.link:has([data-magazine-cover]):is(:active, [data-et-pressed]) {
   position: absolute;
   inset: 0;
   overflow: hidden;
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
 }
 
 .front {
   transform: rotateY(0deg);
 }
 
-/* Bis zur Kante unsichtbar; den Tausch macht das Skript (WebKit hält sich
-   nicht verlässlich an `backface-visibility`). */
+/* An der Kante übernimmt die Innenseite. */
 .back {
   visibility: hidden;
   transform: rotateY(180deg);

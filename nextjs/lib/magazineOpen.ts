@@ -1,3 +1,4 @@
+import gsap from 'gsap';
 import { BRAND_WORDMARK } from '@/lib/constants';
 /**
  * Ein Heft aufschlagen (02.10.2026, Ansage: „wenn man auf einen Artikel
@@ -33,7 +34,6 @@ interface MagazineOpenClasses {
   overlay: string;
   table: string;
   book: string;
-  page: string;
   paper: string;
   shadow: string;
   gutter: string;
@@ -66,57 +66,76 @@ const LANDING_TIMEOUT = 6000;
 const PHOTO_TIMEOUT = 700;
 
 const LIFT = { duration: 420, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)' };
-const OPEN = { duration: 640, easing: 'cubic-bezier(0.45, 0, 0.2, 1)' };
+const OPEN = { duration: 820, easing: 'cubic-bezier(0.65, 0, 0.35, 1)' };
 const ENTER = { duration: 480, easing: 'cubic-bezier(0.65, 0, 0.35, 1)' };
 const NAV = { duration: 280, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)' };
 
-/** The cover is thin paper, not a board (Ansage: „wie ein Magazin, nicht
- *  wie ein Buch"): it turns in strips, each a little ahead of the one before,
- *  so it bends while it opens and lies flat at both ends. */
-const STRIPS = 3;
-/** How far the outer edge leads the spine at the middle of the turn. */
-const BEND = 36;
-/** The bend over the turn (offset, share of BEND); flat at both ends. */
-const BEND_CURVE: [number, number][] = [
-  [0, 0],
-  [0.25, 0.7],
-  [0.5, 1],
-  [0.75, 0.7],
-  [1, 0],
-];
+const STRIPS = 6;
+const TURN_STEPS = 48;
+const COVER_PERSPECTIVE = 4.25; // In Breiten des geschlossenen Hefts.
 
 let busy = false;
 
-function bendAt(p: number): number {
-  for (let i = 1; i < BEND_CURVE.length; i++) {
-    const [p1, v1] = BEND_CURVE[i];
-    const [p0, v0] = BEND_CURVE[i - 1];
-    if (p <= p1) return v0 + ((v1 - v0) * (p - p0)) / (p1 - p0);
-  }
-  return 0;
+/** Lokaler Winkel entlang des Umschlags, von 0 am Rücken bis 1 am Rand.
+ *  Die freie Kante hebt sich zuerst. Die Wölbung nimmt schon vor der
+ *  Hälfte ab, bis das Papier flach auf der anderen Seite liegt. */
+export function coverAngle(progress: number, across: number): number {
+  const curl = 64 * Math.sin(Math.PI * progress ** 0.7);
+  return 180 * progress + curl * across ** 1.35;
 }
 
-/** Progress at which strip `i` stands edge-on (90°) — where its front and
- *  back change places. Strip 0 turns evenly, each further strip adds its
- *  share of the bend. */
-export function edgeOnAt(i: number): number {
-  const angle = (p: number) => 180 * p + (i * BEND * bendAt(p)) / (STRIPS - 1);
-  let lo = 0;
-  let hi = 1;
-  for (let n = 0; n < 30; n++) {
-    const mid = (lo + hi) / 2;
-    if (angle(mid) < 90) lo = mid;
-    else hi = mid;
-  }
-  return (lo + hi) / 2;
+interface CoverStrip {
+  strip: HTMLElement;
+  front: HTMLElement;
+  back: HTMLElement;
 }
 
-/** Visibility that flips at `at` (progress of the turn). */
-function flip(at: number, from: 'visible' | 'hidden', to: 'visible' | 'hidden'): Keyframe[] {
+/** Der GSAP-Verlauf wird vorab in Keyframes umgerechnet. So bewegt der
+ *  Browser die 3D-Flächen, während der Artikel fertig rendert. */
+function turnCover(strips: CoverStrip[], gutter: HTMLElement, width: number): void {
+  const ease = gsap.parseEase('power2.inOut');
+  const progress = Array.from({ length: TURN_STEPS + 1 }, (_, step) => ease(step / TURN_STEPS));
+  const hinges = progress.map(() => ({ x: 0, z: 0 }));
+  const timing = { duration: OPEN.duration, fill: 'both' } as const;
+  const stripWidth = 1 / strips.length;
+
+  for (const [index, { strip, front, back }] of strips.entries()) {
+    const across = index / (strips.length - 1);
+    const poses = progress.map((p, step) => {
+      const angle = coverAngle(p, across);
+      const radians = (angle * Math.PI) / 180;
+      const cos = Math.cos(radians);
+      const sin = Math.sin(radians);
+      const hinge = hinges[step];
+      const x = (hinge.x - index * stripWidth) * width;
+      const z = hinge.z * width;
+      const transform = `translate3d(${x}px, 0, ${z}px) rotateY(${-angle}deg)`;
+      // Projektion der Blickrichtung auf die Flächennormale. Bei null
+      // sieht man nur die Kante, auch wenn der Streifen seitlich steht.
+      const facing = (COVER_PERSPECTIVE - hinge.z) * cos - (0.5 - hinge.x) * sin;
+      hinge.x += stripWidth * cos;
+      hinge.z += stripWidth * sin;
+      return { transform, facing };
+    });
+    strip.animate(poses.map(({ transform }) => ({ transform })), timing);
+
+    const after = poses.findIndex(({ facing }) => facing <= 0);
+    const beforeEdge = poses[after - 1].facing;
+    const edge = (after - 1 + beforeEdge / (beforeEdge - poses[after].facing)) / TURN_STEPS;
+    front.animate(flipAt(edge, 'visible', 'hidden'), timing);
+    back.animate(flipAt(edge, 'hidden', 'visible'), timing);
+  }
+
+  gutter.animate(progress.map((p) => ({
+    transform: `scaleX(${1 + 3.5 * Math.sin(Math.PI * p)})`,
+  })), timing);
+}
+
+function flipAt(offset: number, from: 'visible' | 'hidden', to: 'visible' | 'hidden'): Keyframe[] {
   return [
     { visibility: from },
-    { visibility: from, offset: at },
-    { visibility: to, offset: at },
+    { visibility: from, offset },
+    { visibility: to, offset },
     { visibility: to },
   ];
 }
@@ -225,6 +244,12 @@ interface Rect {
   h: number;
 }
 
+/** The table fills the viewport with a window cut out for the right page. */
+function pageWindow({ x, y, w, h }: Rect): string {
+  return `polygon(evenodd, 0 0, 100% 0, 100% 100%, 0 100%, 0 0,
+    ${x}px ${y}px, ${x + w}px ${y}px, ${x + w}px ${y + h}px, ${x}px ${y + h}px, ${x}px ${y}px)`;
+}
+
 /** Where the right page lies: closed in the middle, opened in the spread,
  *  and at the end as the whole window. Mirrors the book's transforms (centre
  *  origin), so each state can be computed without reading the screen. */
@@ -297,17 +322,12 @@ async function run({ link, cover, slug, navigate, classes }: Options) {
   };
   const table = div(classes.table);
   const book = div(classes.book);
-  const page = div(classes.page);
   const paper = div(classes.paper);
   paper.setAttribute('aria-hidden', 'true');
   const shadow = div(classes.shadow);
   const gutter = div(classes.gutter);
-  book.append(page, shadow, gutter);
-  // Safari färbt Status- und URL-Leiste nach dem fixierten Element mit
-  // deckender Farbe, das es an der Kante findet — ohne die Kappen traf es das
-  // Heft oder den durchscheinenden Artikel, und unter der URL-Leiste stand
-  // beim Aufklappen Weiss oder Grau (Ansage 02.10.2026). Zuletzt angehängt,
-  // damit sie über dem Heft liegen.
+  book.append(shadow, gutter);
+  // Safari übernimmt die Farbe der deckenden Kappen für seine Browserleisten.
   overlay.append(table, book, div(classes.capTop), div(classes.capBottom));
 
   // Die Innenseite des Umschlags: oben dieselbe Heftzeile wie vorn, unten
@@ -360,19 +380,16 @@ async function run({ link, cover, slug, navigate, classes }: Options) {
       top: `${g.top}px`,
       width: `${g.w}px`,
       height: `${g.h}px`,
+      perspective: `${g.w * COVER_PERSPECTIVE}px`,
     });
 
-    // Der Umschlag in Streifen, jeder im vorigen verschachtelt und an dessen
-    // rechter Kante angeschlagen. Vorn zeigt jeder seinen Teil der Titelseite,
-    // hinten seinen Teil der Innenseite — die liegt aufgeschlagen links vom
-    // Rücken, der innerste Streifen also an ihrem rechten Ende. 2px Überlappung
-    // gegen Haarfugen.
+    // Jeder Streifen zeigt seinen Ausschnitt der Titelseite und der
+    // Innenseite. Deren Ausschnitte laufen vom Rücken aus nach links.
     const stripW = g.w / STRIPS;
-    const strips: { strip: HTMLElement; front: HTMLElement; back: HTMLElement }[] = [];
-    let holder: HTMLElement = book;
+    const strips: CoverStrip[] = [];
     for (let i = 0; i < STRIPS; i++) {
       const strip = div(classes.strip);
-      strip.style.left = `${i === 0 ? 0 : stripW}px`;
+      strip.style.left = `${i * stripW}px`;
       strip.style.width = `${stripW + (i < STRIPS - 1 ? 2 : 0)}px`;
       const front = div(classes.front);
       const back = div(classes.back);
@@ -385,8 +402,7 @@ async function run({ link, cover, slug, navigate, classes }: Options) {
       front.append(outside);
       back.append(inner);
       strip.append(front, back);
-      holder.append(strip);
-      holder = strip;
+      book.append(strip);
       strips.push({ strip, front, back });
     }
 
@@ -417,9 +433,9 @@ async function run({ link, cover, slug, navigate, classes }: Options) {
       { ...LIFT, fill: 'forwards' }
     );
     await Promise.all([done(lift, LIFT), done(close, LIFT)]);
-    // Keep the browser canvas dark when the route switches to a light
-    // article. Safari can expose it at the viewport edges while compositing
-    // the transformed page's large shadow. The article gets its own ground.
+    close.cancel();
+    // The table now fills the viewport. Match the canvas and Safari's bars
+    // before navigating to the article underneath.
     document.documentElement.setAttribute('data-magazine-opening', '');
     navigate();
     const landed = await waitFor(landing, LANDING_TIMEOUT);
@@ -461,50 +477,37 @@ async function run({ link, cover, slug, navigate, classes }: Options) {
       const keep = Math.max(shown, vh - at.top) + 40;
       landed.style.clipPath = `inset(0 0 ${Math.max(0, at.height - keep)}px 0)`;
     }
-    // Zuletzt endet der Artikel ohne Transform, also genau an seinem Platz
-    // unter der Kopfleiste.
+    // Das Fenster im Tisch folgt der rechten Seite. Der Artikel endet an
+    // seinem Platz unter der Kopfleiste.
     const moveScene = (fromRect: Rect, toRect: Rect | null, timing: typeof OPEN) => {
-      const animations = scene.map(({ el, at }) =>
-        el.animate(
-          [
-            { transform: placeOn(fromRect, vw, vh, at) },
-            { transform: toRect ? placeOn(toRect, vw, vh, at) : 'translate(0px, 0px) scale(1)' },
-          ],
-          { ...timing, fill: 'forwards' }
-        )
-      );
+      const pageRect = toRect ?? rects.full;
+      const animations = [
+        table.animate(
+          [{ clipPath: pageWindow(fromRect) }, { clipPath: pageWindow(pageRect) }],
+          { ...timing, fill: 'both' }
+        ),
+        ...scene.map(({ el, at }) =>
+          el.animate(
+            [
+              { transform: placeOn(fromRect, vw, vh, at) },
+              { transform: toRect ? placeOn(toRect, vw, vh, at) : 'translate(0px, 0px) scale(1)' },
+            ],
+            { ...timing, fill: 'forwards' }
+          )
+        ),
+      ];
       if (paper.isConnected) {
         animations.push(paper.animate(
-          [{ transform: paperOn(fromRect) }, { transform: paperOn(toRect ?? rects.full) }],
+          [{ transform: paperOn(fromRect) }, { transform: paperOn(pageRect) }],
           { ...timing, fill: 'forwards' }
         ));
       }
       return animations;
     };
 
-    // 2 — aufschlagen. Die Seite übernimmt den Tisch (gleiche Farbe, ohne
-    // Sprung); auf ihr steht schon der Artikel.
-    page.style.visibility = 'visible';
-    table.remove();
+    // 2 — aufschlagen. Auf der rechten Seite steht schon der Artikel.
     gutter.style.visibility = 'visible';
-    // Der innerste Streifen dreht gleichmässig um den Rücken, jeder weitere
-    // eilt ihm um seinen Teil der Biegung voraus. Vorder- und Rückseite
-    // tauschen, wenn ein Streifen genau auf der Kante steht — nicht über
-    // `backface-visibility`: WebKit zeigte die Innenseite sonst schon in der
-    // ersten Hälfte, gespiegelt, über der Titelseite. Gleiche Kurve wie die
-    // Drehung, deshalb treffen die Offsets genau die Kante.
-    const turning = strips.map(({ strip, front, back }, i) => {
-      front.animate(flip(edgeOnAt(i), 'visible', 'hidden'), { ...OPEN, fill: 'forwards' });
-      back.animate(flip(edgeOnAt(i), 'hidden', 'visible'), { ...OPEN, fill: 'forwards' });
-      const frames: Keyframe[] =
-        i === 0
-          ? [{ transform: 'rotateY(0deg)' }, { transform: 'rotateY(-180deg)' }]
-          : BEND_CURVE.map(([offset, share]) => ({
-              offset,
-              transform: `rotateY(${(-BEND * share) / (STRIPS - 1)}deg)`,
-            }));
-      return strip.animate(frames, { ...OPEN, fill: 'forwards' });
-    });
+    turnCover(strips, gutter, g.w);
     const centre = book.animate(
       [
         { transform: 'translateX(0px) scale(1)' },
@@ -513,7 +516,7 @@ async function run({ link, cover, slug, navigate, classes }: Options) {
       { ...OPEN, fill: 'forwards' }
     );
     sceneAnimations.push(...moveScene(rects.closed, rects.open, OPEN));
-    await Promise.all([...turning.map((t) => done(t, OPEN)), done(centre, OPEN)]);
+    await done(centre, OPEN);
 
     // 3 — hineinzoomen: Seite und Artikel wachsen bis an den Fensterrand.
     const enter = book.animate(

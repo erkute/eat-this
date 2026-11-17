@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { dropResourceLoadErrors, isResourceLoadEvent } from './beforeSend';
+import { filterBrowserErrors, isResourceLoadEvent } from './beforeSend';
 
 /* Der Fall, der JAVASCRIPT-3N gefüllt hat: ein <link> im <head> scheitert, das
    DOM-Event landet über onunhandledrejection in Sentry — ohne Stacktrace, ohne
@@ -45,19 +45,82 @@ describe('isResourceLoadEvent', () => {
   );
 });
 
-describe('dropResourceLoadErrors', () => {
+describe('filterBrowserErrors', () => {
   it('verwirft das Sentry-Event beim Ressourcen-Fehler', () => {
-    expect(dropResourceLoadErrors({ event_id: 'x' }, { originalException: linkErrorEvent })).toBeNull();
+    expect(filterBrowserErrors({ event_id: 'x' }, { originalException: linkErrorEvent })).toBeNull();
   });
 
   it('gibt echte Fehler unverändert zurück', () => {
     const event = { event_id: 'x' };
-    expect(dropResourceLoadErrors(event, { originalException: new Error('kaputt') })).toBe(event);
+    expect(filterBrowserErrors(event, { originalException: new Error('kaputt') })).toBe(event);
   });
 
   it('gibt das Event auch ohne hint zurück', () => {
     const event = { event_id: 'x' };
-    expect(dropResourceLoadErrors(event)).toBe(event);
-    expect(dropResourceLoadErrors(event, {})).toBe(event);
+    expect(filterBrowserErrors(event)).toBe(event);
+    expect(filterBrowserErrors(event, {})).toBe(event);
+  });
+});
+
+describe('JAVASCRIPT-B5 browser extension error', () => {
+  const extensionError = {
+    type: 'TypeError',
+    value: "Cannot read properties of undefined (reading 'M_ID')",
+    mechanism: { type: 'auto.browser.global_handlers.onunhandledrejection', handled: false },
+    stacktrace: {
+      frames: [
+        { filename: 'app:///executors/200.js', lineno: 1, colno: 1442 },
+        { filename: 'app:///executors/200.js', lineno: 1, colno: 761 },
+      ],
+    },
+  };
+
+  it.each([
+    'app:///executors/200.js',
+    'chrome-extension://eppiocemhmnlbhjplcgkofciiegomcon/executors/200.js',
+  ])('drops the observed Urban VPN error in %s', (filename) => {
+    const event = {
+      exception: {
+        values: [{
+          ...extensionError,
+          stacktrace: { frames: extensionError.stacktrace.frames.map((frame) => ({ ...frame, filename })) },
+        }],
+      },
+    };
+    expect(filterBrowserErrors(event)).toBeNull();
+  });
+
+  it('keeps the same error message when an app frame is present', () => {
+    const event = {
+      exception: {
+        values: [{
+          ...extensionError,
+          stacktrace: {
+            frames: [
+              ...extensionError.stacktrace.frames,
+              { filename: 'app:///_next/static/chunks/app.js' },
+            ],
+          },
+        }],
+      },
+    };
+    expect(filterBrowserErrors(event)).toBe(event);
+  });
+
+  it('keeps a normalized stack whose location does not match the extension', () => {
+    const event = {
+      exception: {
+        values: [{
+          ...extensionError,
+          stacktrace: { frames: [{ filename: 'app:///executors/200.js', lineno: 1, colno: 42 }] },
+        }],
+      },
+    };
+    expect(filterBrowserErrors(event)).toBe(event);
+  });
+
+  it('keeps a different exception from the same script', () => {
+    const event = { exception: { values: [{ ...extensionError, value: 'Failed to fetch' }] } };
+    expect(filterBrowserErrors(event)).toBe(event);
   });
 });

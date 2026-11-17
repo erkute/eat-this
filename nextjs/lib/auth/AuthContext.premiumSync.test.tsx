@@ -330,3 +330,24 @@ it('keeps cookie cleanup alive when the visitor navigates away', async () => {
   });
   unmount();
 });
+
+it('clears the session via POST when the keepalive DELETE gets a 405', async () => {
+  vi.clearAllMocks();
+  mocks.getRedirectResult.mockResolvedValue(null);
+  const fetchMock = vi.fn()
+    .mockResolvedValueOnce(new Response(null, { status: 405 }))
+    .mockResolvedValueOnce(new Response(null, { status: 204 }));
+  global.fetch = fetchMock as typeof fetch;
+  const { result } = mountAuth();
+
+  await act(async () => { mocks.emitIdToken!(null); });
+  await waitFor(() => expect(result.current.loading).toBe(false));
+
+  expect(fetchMock).toHaveBeenCalledTimes(2);
+  expect(fetchMock).toHaveBeenNthCalledWith(2, '/api/auth/premium-access', {
+    method: 'POST',
+    redirect: 'error',
+    headers: { 'X-EatThis-Action': 'clear-premium-access' },
+  });
+  expect(mocks.captureException).not.toHaveBeenCalled();
+});

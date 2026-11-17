@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/nextjs';
 
-import { dropResourceLoadErrors } from '@/lib/sentry/beforeSend';
+import { filterBrowserErrors } from '@/lib/sentry/beforeSend';
 import { sentryEnabled, sentryEnvironment } from '@/lib/sentry/environment';
 
 Sentry.init({
@@ -8,12 +8,8 @@ Sentry.init({
   // Nur auf App Hosting, nie aus lokalen Servern (lib/sentry/environment.ts).
   enabled: sentryEnabled(),
 
-  // Ein gescheitertes <link>/<script> kommt als DOM-Event über den
-  // Rejection-Handler herein — ohne Titel, ohne Stacktrace. Solche Events
-  // haben JAVASCRIPT-3N gefüllt (56 Stück seit Mai, überwiegend Bots und
-  // Chunk-404s direkt nach einem Deploy). Der Filter wirft nur diese weg;
-  // echte Fehler mit Stacktrace bleiben unberührt (siehe lib/sentry/beforeSend.ts).
-  beforeSend: dropResourceLoadErrors,
+  // DOM-Ressourcenfehler und den bekannten Fehler der Urban-VPN-Erweiterung filtern.
+  beforeSend: filterBrowserErrors,
 
   // Kein Session-Tracking (Release Health). Es schickte pro Seitenaufruf drei
   // Umschläge über /monitoring — Start, sofort „exited" wegen der URL-Änderung

@@ -80,6 +80,29 @@ describe('/api/auth/premium-access', () => {
     expect(mocks.setSession).not.toHaveBeenCalled()
   })
 
+  it('clears both cookies when the browser sends the explicit POST fallback', async () => {
+    const response = await POST(new NextRequest('https://example.com/api/auth/premium-access', {
+      method: 'POST',
+      headers: { 'X-EatThis-Action': 'clear-premium-access' },
+    }))
+
+    expect(response.status).toBe(204)
+    expect(response.headers.get('Cache-Control')).toBe('private, no-store')
+    expect(mocks.clearAccess).toHaveBeenCalledExactlyOnceWith(response)
+    expect(mocks.clearSession).toHaveBeenCalledExactlyOnceWith(response)
+    expect(mocks.setSession).not.toHaveBeenCalled()
+  })
+
+  it('does not clear the session on a POST with no credentials or intent header', async () => {
+    const response = await POST(new NextRequest('https://example.com/api/auth/premium-access', {
+      method: 'POST',
+    }))
+
+    expect(response.status).toBe(401)
+    expect(mocks.clearAccess).not.toHaveBeenCalled()
+    expect(mocks.clearSession).not.toHaveBeenCalled()
+  })
+
   it('clears both cookies without an unread response body on logout', async () => {
     const response = await DELETE()
     expect(response.status).toBe(204)

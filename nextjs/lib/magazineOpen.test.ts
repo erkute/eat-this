@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   bookGeometry,
   canOpenMagazine,
-  edgeOnAt,
+  coverAngle,
   onPage,
   openMagazine,
   pageRects,
@@ -14,7 +14,6 @@ const classes = {
   overlay: 'overlay',
   table: 'table',
   book: 'book',
-  page: 'page',
   paper: 'paper',
   shadow: 'shadow',
   gutter: 'gutter',
@@ -118,15 +117,18 @@ describe('the article on the page', () => {
   });
 });
 
-describe('the cover bends like a magazine, not a board', () => {
-  it('turns its spine strip evenly, edge-on at half way', () => {
-    expect(edgeOnAt(0)).toBeCloseTo(0.5, 3);
+describe('the cover turn', () => {
+  it('lies flat at both ends of the turn', () => {
+    for (const across of [0, 0.5, 1]) {
+      expect(coverAngle(0, across)).toBe(0);
+      expect(coverAngle(1, across)).toBeCloseTo(180);
+    }
   });
 
-  it('lets the outer strips lead, so the cover curves while it turns', () => {
-    expect(edgeOnAt(1)).toBeLessThan(edgeOnAt(0));
-    expect(edgeOnAt(2)).toBeLessThan(edgeOnAt(1));
-    expect(edgeOnAt(2)).toBeGreaterThan(0.3);
+  it('peels past vertical at the free edge while the spine is still lifting', () => {
+    expect(coverAngle(0.25, 0)).toBeCloseTo(45);
+    expect(coverAngle(0.25, 0.5)).toBeGreaterThan(45);
+    expect(coverAngle(0.25, 1)).toBeGreaterThan(90);
   });
 });
 
@@ -168,9 +170,9 @@ describe('openMagazine', () => {
     await vi.waitFor(() => expect(navigate).toHaveBeenCalledTimes(1));
     await vi.waitFor(() => expect(document.querySelector('.overlay')).toBeNull());
     expect(link.style.visibility).toBe('');
-    // lift + table; per cover strip its turn and both faces (3 × 3);
-    // centring + article onto the page; entering + article + gutter
-    expect(animate).toHaveBeenCalledTimes(2 + 9 + 3 + 4);
+    // Each of the six strips turns while its two faces swap at the edge.
+    // The lift, spread and zoom also move the page, table and fold shadow.
+    expect(animate).toHaveBeenCalledTimes(2 + 6 * 3 + 5 + 5);
     // The article stands where it stands, without a transform left behind.
     expect(canvasHeldAtNavigation).toBe(true);
     expect(article?.style.transform).toBe('');

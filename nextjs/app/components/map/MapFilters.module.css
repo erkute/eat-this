@@ -6,7 +6,7 @@
   z-index: 2;
   container-type: inline-size;
   /* The bar stays put on the list's paper; rows swipe away behind it, not
-     through it (Ersan 26.10.2026). */
+     through it. */
   background: var(--et-list-paper-tile);
   color: var(--et-fg);
 }
@@ -53,7 +53,7 @@
   box-shadow: none;
   filter: var(--et-tape-lift);
   color: var(--et-tape-fg);
-  /* All four set must fit the panel without swiping (Ersan 26.10.2026):
+  /* All four set must fit the panel without swiping:
      the type follows the bar's width, 11px at most. */
   font: 700 clamp(8px, 2.25cqi, 11px) / 1.2 var(--et-font-body);
   letter-spacing: 0.02em;

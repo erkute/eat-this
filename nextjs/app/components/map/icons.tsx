@@ -18,7 +18,7 @@ export function CloseIcon() {
 }
 
 /* Zurück aus dem Spot-Detail, wie bei Airbnb. Neben der Lasche des
-   Desktop-Panels der einzige Richtungspfeil der App (Ersan, 28.10.2026). */
+   Desktop-Panels der einzige Richtungspfeil der App. */
 export function BackIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

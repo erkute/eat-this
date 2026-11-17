@@ -54,7 +54,7 @@ interface Props {
 
 // The Must Eats explainer: 3 steps around a demo card that flips like the
 // on-site reveal. It opens only from the "how does it work?" trigger this
-// component renders inline — never by itself (Ersan, 31.10.2026). SSR renders
+// component renders inline on its host page. SSR renders
 // only the trigger, so there is no portal on the server.
 export default function MustEatsOnboarding({
   initialMapData,

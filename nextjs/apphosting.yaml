@@ -96,11 +96,9 @@ env:
 
   # Admin-bypass allowlist for the entitlements resolver. Users whose
   # verified email matches one of these get isAdmin: true and see the full
-  # map (treated like a paid All-Berlin holder). Comma-separated, case-
-  # insensitive. Identifiers, not secrets — `value:` is fine, no Secret
-  # Manager needed.
+  # map (treated like a paid All-Berlin holder). Comma-separated, case-insensitive.
   - variable: ADMIN_EMAILS
-    value: dirtyersan@gmail.com
+    secret: ADMIN_EMAILS
     availability:
       - RUNTIME
 
@@ -108,7 +106,7 @@ env:
   # Starter Packs, Aufdeckungen, Umsatz). Getrennt von ADMIN_EMAILS, damit ein
   # Test-Konto keine Admin-Rechte bekommt. Die ADMIN_EMAILS fallen ohnehin raus.
   - variable: STATS_EXCLUDE_EMAILS
-    value: e.erkut@icloud.com
+    secret: STATS_EXCLUDE_EMAILS
     availability:
       - RUNTIME
 

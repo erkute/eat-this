@@ -6,7 +6,7 @@ const state = vi.hoisted(() => ({
     uid: 'Z2IJ8CJsEeQVlV5X4TiwhaOE7423',
     email: 'geheim@example.com',
     emailVerified: true,
-    displayName: 'Ersan Mustermann',
+    displayName: 'Alex Mustermann',
     photoURL: 'https://lh3.googleusercontent.com/a/secret=s96-c',
     customClaims: undefined as Record<string, unknown> | undefined,
   } as Record<string, unknown> | null,
@@ -115,7 +115,7 @@ afterEach(() => {
     uid: 'Z2IJ8CJsEeQVlV5X4TiwhaOE7423',
     email: 'geheim@example.com',
     emailVerified: true,
-    displayName: 'Ersan Mustermann',
+    displayName: 'Alex Mustermann',
     photoURL: 'https://lh3.googleusercontent.com/a/secret=s96-c',
     customClaims: undefined,
   };
@@ -258,7 +258,7 @@ describe('getPublicDeck', () => {
     state.visibleRestaurants = ALL_RESTAURANTS;
     state.mustEats = ALL_MUST_EATS;
 
-    expect((await getPublicDeck(OK_UID))?.name).toBe('Ersan');
+    expect((await getPublicDeck(OK_UID))?.name).toBe('Alex');
   });
 
   it('zaehlt je Bezirk, was dort aufgedeckt ist', async () => {

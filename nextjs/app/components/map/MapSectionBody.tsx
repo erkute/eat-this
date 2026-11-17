@@ -474,8 +474,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               <form
                 role="search"
                 className={controlStyles.mapSearchToolbar}
-                /* Am Telefon zu, bis jemand sucht: nur Lupe und Standort
-                   (Ersan, 30.10.2026). */
+                /* Am Telefon zu, bis jemand sucht: nur Lupe und Standort. */
                 data-collapsed={searchVisible || draft ? undefined : ''}
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => e.stopPropagation()}

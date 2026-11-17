@@ -78,10 +78,20 @@ function enqueueSessionMutation<T>(operation: () => Promise<T>): Promise<T> {
   return result;
 }
 
+const PREMIUM_ACCESS_URL = '/api/auth/premium-access';
+
 async function clearPremiumAccess(): Promise<void> {
-  // Cookie cleanup must finish even when this page is leaving.
-  const response = await fetch('/api/auth/premium-access', { method: 'DELETE', keepalive: true });
-  if (!response.ok) throw new Error('Failed to clear premium access');
+  // Keep cookie cleanup running if the page is leaving. If the request
+  // reaches the server as GET (JAVASCRIPT-AG), repeat it as a regular POST.
+  let response = await fetch(PREMIUM_ACCESS_URL, { method: 'DELETE', keepalive: true });
+  if (response.status === 405) {
+    response = await fetch(PREMIUM_ACCESS_URL, {
+      method: 'POST',
+      redirect: 'error',
+      headers: { 'X-EatThis-Action': 'clear-premium-access' },
+    });
+  }
+  if (!response.ok) throw new Error(`Failed to clear premium access (HTTP ${response.status})`);
 }
 
 /** Liefert, ob der Server das Konto als Admin kennt. */
@@ -91,7 +101,7 @@ async function synchronizePremiumAccess(user: User | null): Promise<boolean> {
     return false;
   }
   const idToken = await user.getIdToken();
-  const response = await fetch('/api/auth/premium-access', {
+  const response = await fetch(PREMIUM_ACCESS_URL, {
     method: 'POST',
     headers: { Authorization: `Bearer ${idToken}` },
   });

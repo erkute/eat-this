@@ -1,3 +1,5 @@
+import type { Event, EventHint } from '@sentry/nextjs';
+
 /**
  * Ressourcen-Ladefehler aus dem Fehler-Stream halten.
  *
@@ -39,13 +41,32 @@ export function isResourceLoadEvent(originalException: unknown): boolean {
   return RESOURCE_TAGS.has(tagName.toLowerCase());
 }
 
-/**
- * `beforeSend`-Hook für Sentry: `null` verwirft das Event, alles andere geht
- * unverändert raus.
- */
-export function dropResourceLoadErrors<TEvent>(
+const URBAN_VPN_EXECUTOR = 'chrome-extension://eppiocemhmnlbhjplcgkofciiegomcon/executors/200.js';
+
+function isUrbanVpnExecutorError(event: Event): boolean {
+  const values = event.exception?.values;
+  if (values?.length !== 1) return false;
+
+  const [exception] = values;
+  const frames = exception.stacktrace?.frames;
+  return (
+    exception.type === 'TypeError' &&
+    exception.value === "Cannot read properties of undefined (reading 'M_ID')" &&
+    exception.mechanism?.type === 'auto.browser.global_handlers.onunhandledrejection' &&
+    !!frames?.length &&
+    frames.every(
+      ({ filename, lineno, colno }) =>
+        filename === URBAN_VPN_EXECUTOR ||
+        (filename === 'app:///executors/200.js' && lineno === 1 && (colno === 761 || colno === 1442))
+    )
+  );
+}
+
+/** Den Urban-VPN-Fehler (JAVASCRIPT-B5) und DOM-Ressourcenfehler verwerfen. */
+export function filterBrowserErrors<TEvent extends Event>(
   event: TEvent,
-  hint?: { originalException?: unknown }
+  hint?: EventHint
 ): TEvent | null {
-  return isResourceLoadEvent(hint?.originalException) ? null : event;
+  if (isResourceLoadEvent(hint?.originalException) || isUrbanVpnExecutorError(event)) return null;
+  return event;
 }

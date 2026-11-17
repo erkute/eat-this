@@ -16,6 +16,10 @@ export async function POST(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
   const idToken = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
   if (!idToken) {
+    // Only the same-origin fetch can add this header without a CORS preflight.
+    if (!authHeader && request.headers.get('X-EatThis-Action') === 'clear-premium-access') {
+      return clearSession();
+    }
     return NextResponse.json({ error: 'auth required' }, { status: 401 });
   }
 
@@ -47,6 +51,10 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE() {
+  return clearSession();
+}
+
+function clearSession() {
   // The client only needs the cookie changes, so there is no body to leave unread.
   const response = new NextResponse(null, { status: 204 });
   response.headers.set('Cache-Control', 'private, no-store');

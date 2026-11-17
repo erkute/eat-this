@@ -9,7 +9,6 @@ const CLASSES = {
   overlay: styles.overlay,
   table: styles.table,
   book: styles.book,
-  page: styles.page,
   paper: styles.paper,
   shadow: styles.shadow,
   gutter: styles.gutter,

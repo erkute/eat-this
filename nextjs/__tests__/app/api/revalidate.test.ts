@@ -55,13 +55,13 @@ describe('/api/revalidate', () => {
 
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual(expect.objectContaining({ ok: true, type: 'restaurant', slug: 'test-spot' }))
-    expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurant:test-spot')
-    expect(mocks.revalidateTag).toHaveBeenCalledWith('map-data')
-    expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurant-siblings')
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurant:test-spot', { expire: 0 })
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('map-data', { expire: 0 })
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurant-siblings', { expire: 0 })
     // Jede Spot-Seite hängt am blanken Tag `restaurant`. Ohne ihn stünde eine
     // Änderung bis zum Ablauf der ISR-Frist (24 Stunden) nicht auf den übrigen
     // Spot-Seiten.
-    expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurant')
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurant', { expire: 0 })
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/restaurant/test-spot')
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/map')
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/en/map')
@@ -87,7 +87,7 @@ describe('/api/revalidate', () => {
     const res = await pending
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual(expect.objectContaining({ settled: 'fresh' }))
-    expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurant:comedor')
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurant:comedor', { expire: 0 })
   })
 
   // Die Projektion des Hooks schickt bei einer Karte nur `_type` und `_id`.
@@ -105,7 +105,7 @@ describe('/api/revalidate', () => {
       { fallbackMs: 5000 }
     )
     expect(await res.json()).toEqual(expect.objectContaining({ settled: 'fresh' }))
-    expect(mocks.revalidateTag).toHaveBeenCalledWith('mustEat')
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('mustEat', { expire: 0 })
   })
 
   it('invalidiert trotzdem, wenn der CDN-Abgleich scheitert', async () => {
@@ -116,7 +116,7 @@ describe('/api/revalidate', () => {
 
     const res = await POST(mkReq(raw, signature(raw, Date.now())))
     expect(res.status).toBe(200)
-    expect(mocks.revalidateTag).toHaveBeenCalledWith('article:restaurants-mitte')
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('article:restaurants-mitte', { expire: 0 })
     errors.mockRestore()
   })
 
@@ -165,8 +165,8 @@ describe('/api/revalidate', () => {
     const res = await POST(mkReq(raw, signature(raw, ts)))
 
     expect(res.status).toBe(200)
-    expect(mocks.revalidateTag).toHaveBeenCalledWith('mustEat')
-    expect(mocks.revalidateTag).toHaveBeenCalledWith('map-data')
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('mustEat', { expire: 0 })
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('map-data', { expire: 0 })
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/map')
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/en/map')
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/must-eats')
@@ -184,7 +184,7 @@ describe('/api/revalidate', () => {
       const res = await POST(mkReq(raw, signature(raw, ts)))
 
       expect(res.status).toBe(200)
-      expect(mocks.revalidateTag).toHaveBeenCalledWith('pack-contents')
+      expect(mocks.revalidateTag).toHaveBeenCalledWith('pack-contents', { expire: 0 })
       expect(mocks.revalidatePath).toHaveBeenCalledWith('/packs')
       expect(mocks.revalidatePath).toHaveBeenCalledWith('/en/packs')
     }
@@ -207,7 +207,7 @@ describe('/api/revalidate', () => {
     expect(await res.json()).toEqual(
       expect.objectContaining({ ok: true, type: 'newsArticle', slug: 'beste-burger-berlin' })
     )
-    expect(mocks.revalidateTag).toHaveBeenCalledWith('article:beste-burger-berlin')
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('article:beste-burger-berlin', { expire: 0 })
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/news/beste-burger-berlin')
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/en/news/beste-burger-berlin')
   })
@@ -219,7 +219,7 @@ describe('/api/revalidate', () => {
     const res = await POST(mkReq(raw, signature(raw, ts)))
 
     expect(res.status).toBe(200)
-    expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurant:gully-burger')
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurant:gully-burger', { expire: 0 })
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/restaurant/gully-burger')
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/en/restaurant/gully-burger')
   })
@@ -234,7 +234,7 @@ describe('/api/revalidate', () => {
     const res = await POST(mkReq(raw, signature(raw, ts)))
 
     expect(res.status).toBe(200)
-    expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurants-lite')
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurants-lite', { expire: 0 })
   })
 
   it('rendert die Sitemap auch bei Kategorie-Aenderungen neu', async () => {
@@ -295,7 +295,7 @@ describe('/api/revalidate: Signaturkodierung', () => {
     const res = await POST(mkReq(RAW, toolkitSignature(RAW, ts)))
 
     expect(res.status).toBe(200)
-    expect(mocks.revalidateTag).toHaveBeenCalledWith('category:lunch')
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('category:lunch', { expire: 0 })
   })
 
   it('weist dieselbe Signatur hex-kodiert ab — das war der Fehler', async () => {

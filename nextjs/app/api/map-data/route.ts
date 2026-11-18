@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { compressedJson } from '@/lib/http/compressedJson';
 import { verifyBearer } from '@/lib/firebase/bearerAuth';
 import { resolveEntitlements } from '@/lib/firebase/entitlements';
 import { getCachedMapData } from '@/lib/map/cached-sanity';
@@ -41,7 +40,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'auth required' }, { status: 401 });
     }
     const hydratedMustEats = await hydrateAuthorizedMustEats(allMustEats, surface.faceUpIds);
-    const res = await compressedJson(req, {
+    const res = NextResponse.json({
       restaurants: surface.restaurants,
       mustEats: hydratedMustEats,
       categories,
@@ -67,7 +66,7 @@ export async function GET(req: Request) {
   // nicht verlassen.
   const hydratedMustEats = await hydrateAuthorizedMustEats(allMustEats, surface.faceUpIds);
 
-  const res = await compressedJson(req, {
+  const res = NextResponse.json({
     restaurants: surface.restaurants,
     mustEats: stripCoveredMustEats(hydratedMustEats, surface.faceUpIds),
     categories,

@@ -1,12 +1,19 @@
 import * as Sentry from '@sentry/nextjs';
 
 import { filterBrowserErrors } from '@/lib/sentry/beforeSend';
-import { sentryEnabled, sentryEnvironment } from '@/lib/sentry/environment';
+import {
+  SENTRY_TUNNEL_PATH,
+  sentryDataCollection,
+  sentryEnabled,
+  sentryEnvironment,
+} from '@/lib/sentry/environment';
 
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
   // Nur auf App Hosting, nie aus lokalen Servern (lib/sentry/environment.ts).
   enabled: sentryEnabled(),
+
+  tunnel: { path: SENTRY_TUNNEL_PATH },
 
   // DOM-Ressourcenfehler und den bekannten Fehler der Urban-VPN-Erweiterung filtern.
   beforeSend: filterBrowserErrors,
@@ -31,9 +38,9 @@ Sentry.init({
   replaysSessionSampleRate: 0,
   replaysOnErrorSampleRate: 0,
 
-  // Keine IP. Mit `false` schickt das SDK `infer_ip: "never"`, Sentry leitet
-  // dann keine IP ab. Browser und Betriebssystem kommen über den User-Agent an.
-  sendDefaultPii: false,
+  // Keine Angaben zu Personen (lib/sentry/environment.ts). Browser und
+  // Betriebssystem kommen weiter über den User-Agent an.
+  dataCollection: sentryDataCollection,
 });
 
 export const captureException = Sentry.captureException;

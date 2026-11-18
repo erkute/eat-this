@@ -1,4 +1,3 @@
-import { brotliDecompressSync } from 'node:zlib'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('@/lib/map/cached-sanity', () => ({
@@ -288,31 +287,5 @@ describe('/api/map-data — welche Karten offen liegen', () => {
 
     await GET(mkReq(null))
     expect(getUnlockedMustEatIds).not.toHaveBeenCalled()
-  })
-})
-
-/* Next komprimiert Route-Handler nicht, und roh sind es rund 380 kB: Am Telefon
-   käme die Antwort deutlich später an, als der Server braucht. */
-describe('/api/map-data — Kompression', () => {
-  it('antwortet mit Brotli, wenn der Browser es anbietet', async () => {
-    const restaurants = Array.from({ length: 200 }, (_, i) =>
-      mkRestaurant(`r${String(i).padStart(3, '0')}`),
-    )
-    vi.mocked(getCachedMapData).mockResolvedValue({
-      restaurants: restaurants as any,
-      mustEats: [],
-      categories: [],
-    })
-    vi.mocked(resolveEntitlements).mockResolvedValue(baseEnt)
-
-    const req = new Request('https://example.com/api/map-data', {
-      headers: { 'accept-encoding': 'gzip, deflate, br' },
-    })
-    const res = await GET(req)
-
-    expect(res.headers.get('content-encoding')).toBe('br')
-    expect(res.headers.get('cache-control')).toBe('private, no-store')
-    const json = JSON.parse(brotliDecompressSync(Buffer.from(await res.arrayBuffer())).toString())
-    expect(json.restaurants).toHaveLength(200)
   })
 })

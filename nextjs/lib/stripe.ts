@@ -9,7 +9,7 @@ export function getStripe(): Stripe {
   const key = process.env.STRIPE_SECRET_KEY;
   if (!key) throw new Error('STRIPE_SECRET_KEY is not set');
   cached = new Stripe(key, {
-    apiVersion: '2025-02-24.acacia',
+    apiVersion: '2026-10-28.endive',
     typescript: true,
   });
   return cached;

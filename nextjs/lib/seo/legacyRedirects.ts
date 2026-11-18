@@ -17,7 +17,7 @@ export interface LegacyRestaurant {
 
 // Old→new restaurant slugs (locale-agnostic), redirected in middleware.ts. Not
 // in the page: a page that redirects while Next renders it on demand sends
-// `location` twice on EN (Next 15.5), and App Hosting joins them to
+// `location` twice on EN (seen on Next 15.5), and App Hosting joins them to
 // `/en/restaurant/x,/en/restaurant/x` — a 404. The middleware sends one.
 // Because it answers before Sanity is asked, a key must never be a live slug
 // again; a target may be a spot taken off the map, whose own redirect

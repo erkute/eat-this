@@ -16,9 +16,7 @@ import { describe, expect, it } from 'vitest';
  * drift; the bundle just quietly grows again:
  *
  *   1. `webpack.treeshake.removeTracing` in next.config.ts does the actual
- *      removal. `bundleSizeOptimizations.excludeTracing` looks like it would
- *      do the same and does not: only `webpack.treeshake` reaches
- *      setupTreeshakingFromConfig in @sentry/nextjs.
+ *      removal, and only in webpack builds (`--webpack` in package.json).
  *   2. `tracesSampleRate` must not come back in any of the three Sentry
  *      configs. It would be inert (the code it drives is gone) but it reads as
  *      if tracing were on.

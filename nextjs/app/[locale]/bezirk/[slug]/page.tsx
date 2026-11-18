@@ -52,7 +52,7 @@ export const revalidate = 86400;
 export async function generateStaticParams() {
   const bezirke = await getAllBezirkeWithStats();
   // Empty districts too, although their page only redirects (see below): a
-  // redirect Next renders on demand sends `location` twice on EN (Next 15.5),
+  // redirect Next renders on demand sent `location` twice on EN (seen on Next 15.5),
   // which App Hosting joins to `/en/bezirk,/en/bezirk` — a 404. Prerendered,
   // the first request is a cache hit and carries one; so does every later
   // background revalidation.

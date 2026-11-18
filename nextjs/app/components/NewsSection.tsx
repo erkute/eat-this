@@ -49,7 +49,7 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
                     sizes="(orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) 51svh, (max-width: 599.98px) 42vw, 320px"
                     widths={[320, 480, 800, 1200]} />
                 </span>)}
-                <MagazineLink href={`/news/${current.slug}`} className={styles.leadCover} data-current-issue="" aria-label={titleOf(current)}>
+                <MagazineLink href={`/news/${current.slug}`} className={styles.leadCover} data-current-issue="">
                   <MagazineCover
                     title={titleOf(current)} image={current.imageUrl} issue={issueOf(0)} date={current.date}
                     locale={locale} cover={current.cover} priority
@@ -73,8 +73,8 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
         {recent.length > 0 && <section className={styles.recent} data-recent-issues>
           <ul className={styles.featureList} role="list">
             {recent.map((article, index) => <li key={article.slug} className={styles.feature}>
-              <MagazineLink href={`/news/${article.slug}`} className={styles.featureLink} aria-label={titleOf(article)}>
-                <span className={styles.featureMedia}>
+              <MagazineLink href={`/news/${article.slug}`} className={styles.featureLink}>
+                <span className={styles.featureMedia} aria-hidden="true">
                   <MagazineCover
                     title={titleOf(article)} image={article.imageUrl} issue={issueOf(index + 1)} date={article.date}
                     locale={locale} cover={article.cover}
@@ -97,8 +97,8 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
           </div>
           <ul className={styles.archiveList} role="list">
             {archive.map((article, index) => <li key={article.slug} className={styles.archiveItem}>
-              <MagazineLink href={`/news/${article.slug}`} className={styles.archiveLink} aria-label={titleOf(article)}>
-                <span className={styles.archiveCover}>
+              <MagazineLink href={`/news/${article.slug}`} className={styles.archiveLink}>
+                <span className={styles.archiveCover} aria-hidden="true">
                   <MagazineCover
                     title={titleOf(article)} image={article.imageUrl} issue={issueOf(index + 3)} date={article.date}
                     locale={locale} cover={article.cover} sizes="(orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) 144px, (max-width: 1099.98px) 116px, 152px"

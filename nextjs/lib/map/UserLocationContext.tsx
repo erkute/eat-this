@@ -37,16 +37,13 @@ export function UserLocationProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<UserLocationError | null>(null);
 
   /* `prompt: false` fuer den stillen Aufruf beim Mounten: dort ist die
-     Berechtigung bereits erteilt, es erscheint kein Dialog — und ohne Dialog
-     gibt es auch keinen Geisterklick abzufangen.
+     Berechtigung bereits erteilt, es erscheint kein Dialog, und ohne Dialog
+     gibt es keinen Geisterklick abzufangen.
 
      Still heisst auch: `loading` und `error` bleiben unberichtet, wie bei
-     useUserLocation. Der Besucher hat gerade nichts angefragt — HubNearby
-     zeigte sonst auf jedem Laden „Wir suchen dich" als Karte mit Scrim ueber
-     der ganzen Seite, nur weil eine alte Freigabe still wieder aufgenommen
-     wurde. Die Position selbst wird weiter gespeichert, damit die Nahe-Liste
-     und der Bezirks-Gruss stimmen; ein Fehler dabei (widerrufene Freigabe)
-     bleibt stumm, die naechste bewusste Anfrage meldet ihn selbst. */
+     useUserLocation; der Besucher hat gerade nichts angefragt. Die Position
+     wird weiter gespeichert; ein Fehler dabei bleibt stumm, die naechste
+     bewusste Anfrage meldet ihn selbst. */
   const request = useCallback(
     ({ prompt = true }: { prompt?: boolean } = {}): Promise<UserLocation | null> => {
       const silent = !prompt;

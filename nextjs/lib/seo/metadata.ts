@@ -12,12 +12,11 @@ type AppLocale = 'de' | 'en';
  * the result instead of the photo.
  *
  * A page with a conditional noindex must name this constant in the other
- * branch. `robots: cond ? 'noindex,nofollow' : undefined` looks like it falls
- * back to the parent but does NOT: Next merges the key as present-and-
- * undefined and drops the inherited value, so the page ships with no robots
- * meta at all (verified against a production build). Writing `'index,follow'`
- * by hand is the same trap one step further: it keeps the page indexable while
- * silently dropping the image and snippet directives.
+ * branch. `robots: cond ? 'noindex,nofollow' : undefined` does NOT fall back to
+ * the parent: Next merges the key as present-and-undefined and drops the
+ * inherited value, so the page ships with no robots meta at all. Writing
+ * `'index,follow'` by hand keeps the page indexable but drops the image and
+ * snippet directives.
  */
 export const INDEXABLE_ROBOTS =
   'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
@@ -43,18 +42,16 @@ export function restaurantRobots(r: { seo?: { noIndex?: boolean }; isClosed?: bo
 
 /**
  * Builds the `alternates.canonical` + `alternates.languages` block that every
- * page's `generateMetadata` needs.
- *
- * There are exactly two shapes, and picking the wrong one is the SEO bug
- * CLAUDE.md gotcha #3 warns about (Google flagged EN URLs without real
- * translations as duplicates):
+ * page's `generateMetadata` needs. There are exactly two shapes; the wrong one
+ * makes Google flag EN URLs without real translations as duplicates.
  *
  * - **EN live** (default, `hasEnContent` omitted/true): index, news and SPA
  *   pages always have an EN variant → canonical stays on the current locale,
  *   the `en` alternate is emitted.
  * - **EN gated** (`hasEnContent: false`): restaurant/bezirk detail pages whose
  *   document has no `descriptionEn` → canonical points at the DE URL and NO
- *   `en` alternate is emitted, so Google doesn't index a thin/duplicate EN page.
+ *   `en` alternate is emitted, so Google doesn't index a thin/duplicate EN
+ *   page.
  *
  * `de` and `x-default` always resolve to the DE URL.
  */

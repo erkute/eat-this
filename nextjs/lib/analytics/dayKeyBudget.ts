@@ -21,9 +21,11 @@ type BudgetedMap = 'paths' | 'entryPaths' | 'continuations' | 'referrers';
 
 const BUDGETED_MAPS: readonly BudgetedMap[] = ['paths', 'entryPaths', 'continuations', 'referrers'];
 
-/** Der Katalog hat rund 380 URLs, mal zwei Sprachen. 1200 laesst also
- *  reichlich Luft und deckelt vier Maps bei zusammen 4800 Indexeintraegen —
- *  ein Viertel dessen, was ein Dokument vertraegt. */
+/**
+ * 1200 laesst reichlich Luft ueber die Katalog-URLs beider Sprachen und deckelt
+ * vier Maps bei zusammen 4800 Indexeintraegen, ein Viertel dessen, was ein
+ * Dokument vertraegt.
+ */
 export const MAP_KEY_BUDGET = 1200;
 
 /** Kein Pfad dieser Seite (`/other` steht in keiner Route) und kein Host —

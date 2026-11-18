@@ -26,10 +26,8 @@ interface LineChartProps {
   /** Beschriftung der x-Achse (YYYY-MM-DD), gehört zur ersten Reihe. */
   days: string[];
   /**
-   * Alle Reihen teilen EINE Skala. Darum nur zusammenlegen, was in derselben
-   * Größenordnung liegt: Besucher und Aufrufe in einem Diagramm machten bei
-   * 1.470 Aufrufen gegen 163 Besucher die Besucherreihe zum Strich am Boden —
-   * genau die Zahl unlesbar, auf die es ankommt.
+   * Alle Reihen teilen eine Skala. Darum nur zusammenlegen, was in derselben
+   * Größenordnung liegt; sonst wird die kleinere Reihe zum Strich am Boden.
    */
   series: Series[];
   height?: number;
@@ -45,11 +43,10 @@ const LABEL_GAP = 60;
 const PAD = { top: 12, right: 12, bottom: 26, left: 44 };
 
 /**
- * Die tatsächliche Pixelbreite des Diagramms. Auf einer festen 720er-viewBox,
- * skaliert auf die Karte, schrumpfte die 10,5px-Achsenschrift in der schmalen
- * Spalte („Impressionen und Position", rund 240px) auf etwa 3,5px und wäre
- * nicht lesbar. Mit der echten Breite bleibt Schrift Schrift, und die Zahl der
- * Datumsmarken richtet sich nach dem Platz.
+ * Die tatsächliche Pixelbreite des Diagramms: auf einer festen viewBox,
+ * skaliert auf eine schmale Karte, schrumpfte die Achsenschrift unlesbar klein.
+ * Mit der echten Breite bleibt Schrift Schrift, und die Zahl der Datumsmarken
+ * richtet sich nach dem Platz.
  */
 function useWidth() {
   const ref = useRef<HTMLDivElement>(null);
@@ -138,9 +135,8 @@ export function LineChart({
           // Der letzte Tag steht immer da; ein regulärer Strich zu dicht davor
           // fällt weg, sonst liefen „21.09.22.09." ineinander.
           const last = i === n - 1;
-          // In Pixeln gemessen, nicht in Tagen: bei 30 Tagen und jeder dritten
-          // Marke standen „20.09." und „22.09." zwei Tage, aber nur ~35px
-          // auseinander und liefen ineinander.
+          // In Pixeln gemessen, nicht in Tagen: sonst liefen nahe Marken
+          // ineinander.
           const regular = i % labelEvery === 0 && (last || x(n - 1) - x(i) >= LABEL_GAP);
           if (!regular && !last) return null;
           return (
@@ -148,8 +144,8 @@ export function LineChart({
               key={day}
               x={x(i)}
               y={height - 8}
-              // Am Rand bündig statt mittig — mittig ragte das letzte Datum
-              // über die 12px rechts hinaus und wurde abgeschnitten.
+              // Am Rand bündig statt mittig, sonst ragte das letzte Datum
+              // hinaus.
               textAnchor={last && n > 1 ? 'end' : i === 0 && n > 1 ? 'start' : 'middle'}
               className={styles.axisText}
             >

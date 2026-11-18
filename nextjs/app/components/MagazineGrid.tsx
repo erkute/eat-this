@@ -63,8 +63,7 @@ export default function MagazineGrid({ articles, locale }: { articles: HubArticl
 
       let dragged = false;
       // Gerechnet wird nur mit dem Weg seit dem Antippen: Draggable zählt die
-      // Position des Hilfselements über alle Züge weiter, und ab dem zweiten
-      // Heft startete das Ziehen sonst schon weit links.
+      // Position des Hilfselements über alle Züge weiter.
       let startX = 0;
       let lastX = 0;
       let lastT = 0;

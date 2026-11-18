@@ -123,14 +123,13 @@ function posix(path: string): string {
 }
 
 /**
- * Überschreibt jeden Kommentar mit Leerzeichen — gleiche Länge, gleiche
+ * Überschreibt jeden Kommentar mit Leerzeichen, gleiche Länge, gleiche
  * Zeilenumbrüche, also bleiben alle Offsets und Zeilennummern gültig.
  *
- * Nötig, weil ein Kommentar, der einen Fund BESCHREIBT (»`styles.content` gibt
- * es nicht mehr«), sonst selbst als Fund gemeldet wird. Deshalb ein Scanner
- * und kein Regex: `//` in einem String (`'https://…'`) darf keinen
- * Zeilenkommentar öffnen. In Template-Literalen wird `${…}` weiter als Code
- * gelesen — genau dort steht `` `${styles.a} ${styles.b}` ``.
+ * Nötig, weil ein Kommentar, der einen Fund beschreibt, sonst selbst als Fund
+ * gemeldet wird. Ein Scanner statt Regex: `//` in einem String (`'https://…'`)
+ * darf keinen Zeilenkommentar öffnen. In Template-Literalen wird `${…}` weiter
+ * als Code gelesen, genau dort steht `` `${styles.a} ${styles.b}` ``.
  */
 export function stripComments(source: string): string {
   const out = [...source];

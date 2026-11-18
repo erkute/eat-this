@@ -14,15 +14,13 @@ import styles from './BurgerDrawer.module.css';
 /*
  * Ein Menü-Link, der erst auf Absicht lädt.
  *
- * `prefetch={false}` allein nimmt zwar den Prefetch-Sturm beim Öffnen weg
- * (Nexts Viewport-Prefetcher holte sonst alle 13 Routen mitten in der
- * Tür-Animation, ~86ms Main-Thread), kostet aber die erste Menü-Navigation
- * spürbar: unter Slow 4G rund 1200ms kalt gegen 640ms warm.
+ * `prefetch={false}` allein nähme den Prefetch-Sturm beim Öffnen weg (Nexts
+ * Viewport-Prefetcher holte sonst alle Routen mitten in der Tür-Animation),
+ * kostet aber die erste Menü-Navigation spürbar.
  *
  * Deshalb kein Prefetch, solange das Wort nur sichtbar ist, aber einer, sobald
- * der Finger daraufliegt. Derselbe Handgriff wie in MapIntentLink: Pointer-Down
- * kommt gut 100ms vor dem Klick, und der Prefetch läuft dann in einem Frame, in
- * dem nichts animiert.
+ * der Finger daraufliegt, wie in MapIntentLink: Pointer-Down kommt vor dem
+ * Klick, und der Prefetch läuft in einem Frame, in dem nichts animiert.
  */
 function DrawerLink({ href, children, ...props }: ComponentProps<typeof Link>) {
   const router = useRouter();
@@ -62,8 +60,7 @@ export default function BurgerDrawer() {
   }, []);
 
   // `restoreScroll` bewusst ohne Vorgabewert: die Antwort ist an jeder
-  // Aufrufstelle eine andere, und ein Default hat hier schon einmal die
-  // falsche gewählt (siehe onPanelClick).
+  // Aufrufstelle eine andere (siehe onPanelClick).
   const closeBurger = useCallback((restoreScroll: boolean) => {
     closeBurgerDrawer(restoreScroll);
   }, []);

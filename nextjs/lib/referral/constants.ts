@@ -29,14 +29,13 @@ export const UID_SHAPE = /^[a-zA-Z0-9]{20,40}$/;
 // eine Stunde genauso eindeutig wie zehn Minuten.
 export const ACCOUNT_FRESHNESS_MS = 60 * 60 * 1000;
 
-// Anti-farming cap: max successful referrals an inviter is REWARDED for. Past
-// the cap the friend still gets their own welcome card — only the
-// inviter-side reward stops.
+// Anti-farming cap: max successful referrals an inviter is rewarded for. Past
+// the cap the friend still gets their own welcome card; only the inviter-side
+// reward stops.
 //
-// Die Obergrenze ist gegen den STAPEL zu lesen, nicht für sich: 15 Karten sind
-// bei 26 im Stapel über die Hälfte, bei den geplanten 100+ ein Siebtel. Sie
-// bleibt bewusst so hoch: fünfzehn echte Einladungen sind mehr wert als
-// fünfzehn Karten, und wer sie fälscht, muss dafür fünfzehn frische Konten mit
-// verschiedenen Adressen anlegen. Wenn der Stapel wider Erwarten klein bleibt,
-// ist DIESE Zahl die Stellschraube — nicht die Belohnung selbst.
+// Die Obergrenze ist gegen den Stapel zu lesen, nicht für sich. Sie bleibt
+// bewusst hoch: fünfzehn echte Einladungen sind mehr wert als fünfzehn Karten,
+// und wer sie fälscht, braucht fünfzehn frische Konten mit verschiedenen
+// Adressen. Bleibt der Stapel klein, ist diese Zahl die Stellschraube, nicht
+// die Belohnung selbst.
 export const MAX_REFERRALS_PER_INVITER = 15;

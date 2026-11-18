@@ -17,9 +17,10 @@ export type UserTier = 'anon' | 'pending' | 'starter' | 'allBerlin';
 
 /** Was Auth und Server über dieses Konto bisher gesagt haben. */
 interface MapSurface {
-  /** Firebase hat den Nutzer noch nicht gemeldet. Solange ist `uid === null`
-      nicht „Gast", sondern „unbekannt" — und ein angemeldeter Besucher sah in
-      diesem Fenster auf jedem Laden das Banner, das im SSR-HTML ohnehin steht. */
+  /**
+   * Firebase hat den Nutzer noch nicht gemeldet. Solange ist `uid === null`
+   * nicht „Gast", sondern „unbekannt".
+   */
   authLoading: boolean;
   /** Admin oder All-Berlin: ganzer Katalog, alles offen. */
   fullCatalog: boolean;
@@ -68,11 +69,10 @@ export function useUserTier(uid: string | null, surface: MapSurface): UserTier {
 /**
  * Darf dieser Zustand eine Pack-Werbefläche zeigen?
  *
- * Eine Funktion statt `tier !== 'allBerlin'` an jeder Fläche: die Verneinung war
- * an zwei Stellen ausgeschrieben und beide bekamen den Ladezustand falsch. Wer
- * die nächste Promo baut, fragt hier — und die Antwort ist im Zweifel nein.
- * Eine Werbung lässt sich eine Sekunde später immer noch einblenden;
- * zurücknehmen lässt sie sich nicht.
+ * Eine Funktion statt `tier !== 'allBerlin'` an jeder Fläche, damit der
+ * Ladezustand überall gleich gilt. Wer die nächste Promo baut, fragt hier, und
+ * die Antwort ist im Zweifel nein: eine Werbung lässt sich später einblenden,
+ * nicht zurücknehmen.
  */
 export function showsPackPromos(tier: UserTier): boolean {
   return tier === 'anon' || tier === 'starter';

@@ -83,17 +83,14 @@ export const restaurantMapDetailQuery = `
   }
 `;
 
-/* Derselbe Katalogfilter wie oben. Ohne ihn hing Karte 022 (Crapulix) an einem
-   geschlossenen Lokal: die Map liess den Spot weg, schickte die Karte aber mit
-   — im Album stand ein Platz, den niemand mehr vor Ort umdrehen kann, und das
-   All-Berlin-Pack versprach 25 Karten, waehrend das Deck 26 Plaetze zeigte.
-   Solange die Karten das Produkt sind, muessen alle vier Flaechen (Map, Album,
-   geteiltes Deck, Pack-Zahl) dieselbe Menge meinen.
+/* Derselbe Katalogfilter wie oben: eine Karte an einem geschlossenen Lokal
+   stuende sonst in Album und Pack-Zahl, waehrend die Map den Spot weglaesst.
+   Alle vier Flaechen (Map, Album, geteiltes Deck, Pack-Zahl) muessen dieselbe
+   Menge meinen.
 
    Sortiert nach Kartennummer: das Must-Eat-Detail blaettert durch genau diese
-   Liste (Vor/Zurueck, „3 / 39"), und mehrere Karten eines Spots stehen in
-   ihrer Reihenfolge. Ohne order kam die Liste in Sanitys _id-Folge
-   (022, 021, 036, …). */
+   Liste (Vor/Zurueck, „3 / 39"), und mehrere Karten eines Spots stehen in ihrer
+   Reihenfolge. */
 export const mapMustEatsQuery = `
   *[_type == "mustEat" && ${liveRestaurant('restaurantRef->')}] | order(order asc, _id asc) {
     _id,

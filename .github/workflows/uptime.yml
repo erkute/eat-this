@@ -99,8 +99,7 @@ jobs:
             echo "INFO CDN-Nothebel ist für die Laufzeit gezogen (SANITY_USE_CDN=false) — CDN-Kontingent wird nur berichtet, nicht gemeldet."
           fi
 
-          # CDN und normale API ziehen auf GETRENNTE Kontingente — genau daran
-          # hing der 24.08.: das CDN war leer, die API trug noch. Beide einzeln
+          # CDN und normale API ziehen auf getrennte Kontingente. Beide einzeln
           # prüfen, sonst liest sich ein halber Ausfall wie ein ganzer.
           probe_sanity() {
             host="$1"; label="$2"; fatal="$3"

@@ -1,21 +1,18 @@
 /*
  * Kacheln des nächsten Spots vorladen, solange ein Detail offen ist.
  *
- * Beim Blättern fliegt die Kamera 400 ms zum Nachbarn, und MapLibre fordert
- * dessen z14-Kacheln erst am Ende des Flugs an; Häuser gibt es erst ab z14, z13
- * trägt nur Straßen. Am Telefon im Mobilnetz stünde der Kartenstreifen sonst
- * gut eine Sekunde schwarz, die Häuser kämen nach ~1,8 s (9 Mbit/s, sechs
- * z14-Kacheln, 1,44 MB). Erst beim Tipp anzufordern hilft kaum: Der Engpass ist
- * die Datenmenge, nicht der späte Start.
+ * Beim Blättern fliegt die Kamera zum Nachbarn, und MapLibre fordert dessen
+ * z14-Kacheln erst am Ende des Flugs an (Häuser gibt es erst ab z14). Am
+ * Telefon im Mobilnetz stünde der Kartenstreifen sonst eine Weile schwarz; der
+ * Engpass ist die Datenmenge, nicht der späte Start.
  *
- * Vorgeladen wird nur die Kachel, in der der Spot liegt, plus ihre z13-Mutter:
- * ~0,37 MB statt ~1,65 MB für den ganzen Ausschnitt. Die Mitte steht, sobald
- * die Kamera ankommt; die Ränder laden nach.
+ * Vorgeladen wird nur die Kachel, in der der Spot liegt, plus ihre z13-Mutter,
+ * ein Bruchteil des ganzen Ausschnitts. Die Mitte steht, sobald die Kamera
+ * ankommt; die Ränder laden nach.
  *
  * Der Weg ist der HTTP-Cache: OpenFreeMap schickt zehn Jahre `max-age`, und
- * MapLibres eigene Anfrage aus dem Worker trifft die vorgeladene Antwort (5 ms
- * statt ~1,2 s). Der Körper wird gelesen, damit die Antwort vollständig im
- * Cache landet.
+ * MapLibres eigene Anfrage aus dem Worker trifft die vorgeladene Antwort. Der
+ * Körper wird gelesen, damit die Antwort vollständig im Cache landet.
  */
 
 import type { Map as MapLibreMap } from 'maplibre-gl';

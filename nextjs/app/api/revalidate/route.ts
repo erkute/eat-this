@@ -20,11 +20,9 @@ function revalidateMustEatSurface(revalidated: string[]): void {
   revalidated.push('path:/must-eats', 'path:/en/must-eats');
 }
 
-// Die Pack-Karten versprechen Zahlen: „Alle N Must Eats", „N Spots". Die
-// stammen aus packContentsQuery, das drei Dokumenttypen zaehlt — restaurant,
-// mustEat und category. Ohne diesen Aufruf haengen sie an ihrem eigenen
-// 24-Stunden-Timer: eine frisch publizierte Karte war einen Tag lang auf
-// /packs nicht mitgezaehlt, waehrend Map und Restaurantseite sie schon zeigten.
+// Die Pack-Karten versprechen Zahlen („Alle N Must Eats", „N Spots") aus
+// packContentsQuery, das restaurant, mustEat und category zaehlt. Ohne diesen
+// Aufruf haengen sie am eigenen 24-Stunden-Timer.
 function revalidatePackContents(revalidated: string[]): void {
   revalidateTag('pack-contents');
   revalidatePath('/packs');
@@ -62,14 +60,11 @@ function isValidSanitySignature(
   const toleranceSeconds = envNumber(process.env.SANITY_WEBHOOK_TOLERANCE_SECONDS, 300);
   if (Math.abs(Date.now() - timestampMs) > toleranceSeconds * 1000) return false;
 
-  // base64url, nicht hex. Sanity signiert nach Stripes Schema, kodiert die
+  // base64url, nicht hex: Sanity signiert nach Stripes Schema, kodiert die
   // Signatur aber base64url (sanity-io/webhook-toolkit, signature.ts):
   //   btoa(...).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
-  //
-  // Mit `digest('hex')` stimmten die Längen nie überein, die Prüfung schlüge
-  // immer fehl, und jede Content-Änderung hinge bis zum Ablauf der ISR-Frist.
-  // Der zugehörige Test prüft deshalb gegen die Kodierung, die wirklich über
-  // die Leitung geht.
+  // Der zugehörige Test prüft gegen die Kodierung, die wirklich über die
+  // Leitung geht.
   const expected = crypto.createHmac('sha256', secret).update(`${t}.${rawBody}`).digest('base64url');
 
   const a = Buffer.from(v1, 'utf8');
@@ -128,12 +123,9 @@ export async function POST(req: NextRequest) {
   }
 
   const type = doc._type;
-  // Die Webhook-Projektion liefert `"slug": slug.current` — also einen
-  // STRING, kein Objekt. Ein reines `doc.slug?.current` ist auf dieser
-  // Payload immer undefined, und die slug-spezifische Revalidierung
-  // (article:<slug>, restaurant:<slug>, …) lief damit seit Einrichtung des
-  // Hooks kein einziges Mal; sichtbar wurde das nur nicht, weil Container-
-  // Neustarts den ISR-Cache ohnehin regelmäßig leerten.
+  // Die Webhook-Projektion liefert `"slug": slug.current`, also einen String,
+  // kein Objekt; ein reines `doc.slug?.current` wäre auf dieser Payload immer
+  // undefined.
   const slug = typeof doc.slug === 'string' ? doc.slug : doc.slug?.current;
   const revalidated: string[] = [];
 

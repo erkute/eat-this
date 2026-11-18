@@ -67,15 +67,12 @@ export function useMapViewportVars(isActive: boolean): void {
       /* How far the visual viewport has slid down inside the layout viewport.
          Non-zero only while the iOS keyboard is up: the layout viewport keeps
          its full height, Safari scrolls the visual one to keep the caret clear,
-         and anything `position: fixed` — which anchors to the LAYOUT viewport —
-         rides up out of sight with it. On an iPhone 16e simulator (iOS 26.3)
-         tapping the magnifier puts offsetTop at 96 while the toolbar's own
-         `top: 14px` leaves its client rect at -82, i.e. fully above the visible
-         area. The phone controls add this back onto their `top`
-         (MapControls.module.css). Kept off `transform`, which those three need
-         for their retreat animation.
+         and anything `position: fixed` (anchored to the layout viewport) rides
+         up out of sight with it, the search toolbar included. The phone
+         controls add this back onto their `top` (MapControls.module.css), kept
+         off `transform`, which those three need for their retreat animation.
 
-         Only while a text field has focus, i.e. while there IS a keyboard.
+         Only while a text field has focus, i.e. while there is a keyboard.
          Safari slides the visual viewport for other reasons too: the burger
          drawer pins the page (body position: fixed), Safari unfolds its bars,
          and the offset it reports would push burger and search down while the

@@ -42,15 +42,11 @@ export function categoryDistrictLinks(
 
 /**
  * Die Gegenrichtung: die Kategorien, die in einem Bezirk vertreten sind,
- * häufigste zuerst. Verlinkt vom Bezirks-Hub nach `/kategorie/{slug}`.
+ * häufigste zuerst, verlinkt vom Bezirks-Hub nach `/kategorie/{slug}`.
  *
- * Bis hierher lief die Verlinkung einseitig — die Kategorie-Seiten zeigten über
- * `categoryDistrictLinks` längst in die Bezirke, zurück kam nichts. Damit hingen
- * die Kategorie-Hubs intern nur am `/kategorie`-Index und an der Startseiten-Rail.
- *
- * `categories` liefert `restaurantsByBezirkQuery` bereits mit (CATEGORY_PROJECTION),
- * eine zusätzliche Abfrage braucht es also nicht. Das Label folgt der Seitensprache;
- * gezählt und entdoppelt wird über den Slug, weil DE und EN denselben Hub meinen.
+ * `categories` liefert `restaurantsByBezirkQuery` bereits mit
+ * (CATEGORY_PROJECTION). Das Label folgt der Seitensprache; gezählt und
+ * entdoppelt wird über den Slug, weil DE und EN denselben Hub meinen.
  */
 export function bezirkCategoryLinks(
   restaurants: Array<Pick<RestaurantCard, 'categories'>>,
@@ -101,13 +97,9 @@ const CATEGORY_GUIDES: Record<string, readonly string[]> = {
 };
 
 /**
- * Dieselbe Beziehung für die Bezirke. Sie fehlte ganz: die sechs Bezirks-Guides
- * hingen allein an der `/news`-Liste, während ihr Hub sie mit keinem Wort
- * nannte — dieselbe Konstellation aus zwei konkurrierenden Antworten, die es
- * bei `coffee` schon einmal gab.
- *
- * `essen-trinken-schoeneberg` bricht das Namensmuster der übrigen fünf; die
- * Zuordnung läuft deshalb über diese Tabelle und nicht über den Slug.
+ * Dieselbe Beziehung für die Bezirke. `essen-trinken-schoeneberg` bricht das
+ * Namensmuster der übrigen; die Zuordnung läuft deshalb über diese Tabelle und
+ * nicht über den Slug.
  */
 const BEZIRK_GUIDES: Record<string, readonly string[]> = {
   mitte: ['restaurants-mitte'],

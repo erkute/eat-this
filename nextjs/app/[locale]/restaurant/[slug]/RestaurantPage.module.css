@@ -1,18 +1,12 @@
-/* ============================================================
-   Spot-Seite /restaurant/[slug] im Heftlook nach 032c (Vorbild
-   magazine.032c.com „What Magazines Do").
+/* Spot-Seite /restaurant/[slug] im Heftlook nach 032c: eine Spalte von 768px,
+   alles mittig, der Name riesig, darunter nur der Bezirk, dann der Vorspann
+   groß und fett. Die Fotos stehen spaltenbreit und ungeschnitten zwischen dem
+   Text, bei wenig Text in Bildgruppen; am Telefon randlos untereinander
+   (lib/spotFlow.ts). RestaurantDiscovery setzt den redaktionellen Abschluss.
 
-   Eine Spalte von 768px, alles mittig: der Name riesig, darunter nur der
-   Bezirk, dann der Vorspann groß und fett. Die Fotos stehen spaltenbreit und
-   ungeschnitten zwischen dem Text, bei wenig Text in Bildgruppen. Am Telefon
-   bleiben sie randlos untereinander (lib/spotFlow.ts). Lesetext in Neue Haas
-   Grotesk Text wie bei 032c, alles Gesetzte in derselben Grotesk. Zwischentitel
-   klein, fett, versal. RestaurantDiscovery setzt den redaktionellen Abschluss.
-
-   Dunkler Grund wie Bezirke und Kategorien; den Grund selbst stellt globals.css
-   an html/body. Die Seite hängt nicht in `.app-pages`: Den Streifen unter der
-   fixen Navigation hält der Kopf selbst frei.
-   ============================================================ */
+   Den Grund stellt globals.css an html/body. Die Seite hängt nicht in
+   `.app-pages`: den Streifen unter der fixen Navigation hält der Kopf selbst
+   frei. */
 
 .page {
   --et-muted: var(--et-copy);

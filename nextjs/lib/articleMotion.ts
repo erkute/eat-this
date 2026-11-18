@@ -71,9 +71,8 @@ function deal(list: HTMLElement): Scene | null {
   const items = Array.from(list.children) as HTMLElement[];
   if (!items.length) return null;
   // Am Telefon ist die Liste ein Querscroller mit Einrasten, und Einrastpunkte
-  // folgen verschobenen Elementen: Der Streifen rastete sonst auf das noch
-  // versetzte erste Heft ein (205 px statt 0) und liefe beim Austeilen mit,
-  // erst nach links, dann plötzlich nach rechts; WebKit bliebe mit
+  // folgen verschobenen Elementen: der Streifen rastete sonst auf das noch
+  // versetzte erste Heft ein und liefe beim Austeilen mit; WebKit bliebe mit
   // angeschnittenem Heft stehen. Solange ein Heft unterwegs ist, rastet nichts
   // ein, und der Streifen steht am Anfang.
   const settle = (dealt: boolean) => {

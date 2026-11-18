@@ -53,8 +53,8 @@
      dem Zoom Frame für Frame, statt hinterherzuziehen. Außerhalb der großen
      Map (Startseite) fehlt die Variable, dort bleibt es bei 1. */
   scale: var(--map-pin-zoom, 1);
-  /* transform/filter only: width+height were in here too, so selecting a pin
-     ran a layout animation on every mounted marker at once. */
+  /* transform/filter only: animating width/height would run a layout animation
+     on every mounted marker at once. */
   transition:
     transform 0.16s ease,
     filter 0.24s ease;
@@ -66,11 +66,9 @@
   outline-offset: 4px;
 }
 
-/* First-load drop-in ---------------------------------------------------- The
-   pins are DOM and the basemap is WebGL, so the markers would paint a frame or
-   more before the tiles — yellow on white. MapCanvasLayer holds them until
-   MapLibre's first complete rendering, which means they have to ARRIVE rather
-   than just be there.
+/* First-load drop-in. The pins are DOM and the basemap is WebGL, so the markers
+   would paint before the tiles. MapCanvasLayer holds them until MapLibre's
+   first complete rendering, so they have to arrive rather than just be there.
 
    Die Bewegung gehört nur an den inneren Marker; MapLibre positioniert die
    Wurzel. `backwards` hält verzögerte Marker vor dem ersten Animationsframe

@@ -1,8 +1,7 @@
-// nextjs/lib/buddy/packTeaser.ts
 // Booster-Pack teaser for the buddy chat: when a spot search lands clearly in
-// one pack category, the APP shows a pack card under Remy's answer — Remy's
-// own text stays sales-free (his prompt forbids the salesman voice). The pick
-// is anchored on the user's own cuisine term when that term names a pack topic;
+// one pack category, the app shows a pack card under Remy's answer; Remy's own
+// text stays sales-free (his prompt forbids the salesman voice). The pick is
+// anchored on the user's own cuisine term when that term names a pack topic;
 // otherwise a deterministic majority vote over the curated category refs of the
 // top results decides. All teaser copy comes verbatim from the stripe-catalog.
 import { CATALOG, type PackDef } from '@/lib/stripe-catalog';

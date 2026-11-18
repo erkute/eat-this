@@ -269,10 +269,8 @@ describe('MustEatDetailMobile proximity states', () => {
     expect(screen.getByLabelText('Standort blockiert')).toBeTruthy();
   });
 
-  /* Ein Wort bricht nicht: „RINDERGULASCH" (13 Versalien) war in der Grundgröße
-     breiter als der 331px-Rail und stand links an, während die zweite Zeile
-     mittig saß. Die Größenstufe muss deshalb auch am längsten Wort hängen, nicht
-     nur an der Zeichenzahl. */
+  /* Ein Wort bricht nicht: ein langes Versalwort wie „RINDERGULASCH" muss die
+     Größenstufe auch dann senken, wenn der Name insgesamt kurz ist. */
   it('drops a size step for a long single word even when the name is short overall', () => {
     render(
       <MustEatDetailMobile
@@ -286,9 +284,8 @@ describe('MustEatDetailMobile proximity states', () => {
     expect(screen.getByRole('heading', { level: 2 }).className).toMatch(/fdNameLong/);
   });
 
-  /* Die ganze Restaurant-Zeile ist der Weg zum Spot — die „Zum Spot"-Pille
-     nahm der Namensspalte 100px und ließ lange Namen brechen. Fürs Ohr bleibt
-     der Knopf, was er war. */
+  /* Die ganze Restaurant-Zeile ist der Weg zum Spot; so behält die Namensspalte
+     ihre volle Breite. Fürs Ohr bleibt der Knopf, was er war. */
   it('makes the whole restaurant row the way to the spot', () => {
     const onViewRestaurant = vi.fn();
     render(

@@ -24,17 +24,14 @@ interface ComposeAccountSurfaceArgs {
 
 /**
  * Die Definition von „was gehört diesem Konto", an genau einer Stelle, für
- * /api/map-data und lib/profile/publicDeck.server.ts. Zwei Kopien laufen still
- * auseinander: Fehlt der Admin-Zweig in einer, meldet das geteilte Deck „0 von
- * 24", während das Profil desselben Kontos „24 von 24" zeigt.
+ * /api/map-data und lib/profile/publicDeck.server.ts; zwei Kopien liefen still
+ * auseinander.
  *
  * Sie entscheidet nur über Karten. Die Spots sind frei: `restaurants` ist für
- * jeden der ganze Katalog, und dass eine Karte verdeckt danebenliegt, ist das
- * Sichtbare an der Staffelung. Ein Kartenrücken auf einem offenen Spot ist eine
+ * jeden der ganze Katalog, und ein Kartenrücken auf einem offenen Spot ist eine
  * Einladung hinzugehen.
  *
- * Wer hier eine weitere Quelle offener Karten ergänzt, ergänzt sie überall. Das
- * ist der ganze Zweck.
+ * Wer hier eine weitere Quelle offener Karten ergänzt, ergänzt sie überall.
  */
 export async function composeAccountSurface({
   all,

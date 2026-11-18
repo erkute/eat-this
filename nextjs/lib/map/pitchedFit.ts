@@ -168,10 +168,9 @@ export function pitchedCameraForPoints(points: LngLat[], view: FitView): FitCame
 }
 
 /**
- * Der Median in Länge und Breite — die dichteste Stelle eines Bestands, der
- * sich um eine Mitte ballt. Für eine Kamera, die nicht alles zeigen kann:
- * die Mitte der Box legte ein einzelner Spot in Steglitz fest, und die
- * dichte Mitte hing dann am oberen Rand.
+ * Der Median in Länge und Breite, die dichteste Stelle eines Bestands. Für eine
+ * Kamera, die nicht alles zeigen kann: die Mitte der Box legte ein einzelner
+ * Ausreißer fest.
  */
 export function medianPoint(points: LngLat[]): LngLat | null {
   if (!points.length) return null;

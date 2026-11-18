@@ -28,10 +28,10 @@ interface LoginBoardProps {
   intent?: LoginIntent | null;
   /**
    * Wann Firebases Popup-Helfer fuer Google vorlaedt (googlePopupWarmup.ts):
-   * 'mount' im Modal — wer es oeffnet, will sich anmelden, und ohne Vorlauf
+   * 'mount' im Modal, denn wer es oeffnet, will sich anmelden, und ohne Vorlauf
    * frisst der Popup-Blocker den ersten Klick. 'intent' auf den Tafeln der
-   * Seiten: der Cookie-Hinweis verspricht, Google Sign-In lade „nur wenn du
-   * es nutzt", also erst, wenn die Hand zum Knopf geht.
+   * Seiten: Google Sign-In laedt nur, wenn es genutzt wird, also erst, wenn die
+   * Hand zum Knopf geht.
    */
   googleWarmup: 'mount' | 'intent';
 }

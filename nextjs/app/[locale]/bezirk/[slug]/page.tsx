@@ -68,8 +68,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   // Brandlos in Sanity wie hier: die Bezirksseiten hängen keinen Marken-Suffix
   // an, siehe buildPlainTitle. Die 11 Zeichen gehen an den Titel selbst, damit
-  // „Berlin" neben den Bezirksnamen passt — 491 der 506 Impressionen dieser
-  // Seiten kommen auf Anfragen, die „Berlin" enthalten.
+  // „Berlin" neben den Bezirksnamen passt: fast alle Impressionen dieser Seiten
+  // kommen auf Anfragen mit „Berlin".
   const fallbackTitleDe = `Restaurants in Berlin-${b.name}`;
   const fallbackTitleEn = `Restaurants in Berlin-${b.name}`;
   const title = pickLocale(

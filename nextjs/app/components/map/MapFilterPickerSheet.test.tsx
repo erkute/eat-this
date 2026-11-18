@@ -108,18 +108,11 @@ describe('MapFilterPickerSheet: Außenklick', () => {
 });
 
 /**
- * Wegtippen darf nie auf der Karte darunter ankommen.
- *
- * Das Sheet schloss auf `touchstart`/`mousedown` an `document`. Damit war der
- * Backdrop weg, bevor der Klick kam — der Klick landete auf der Karte und
- * oeffnete einen Spot. Dagegen stand ein Abfaenger, der genau den naechsten
- * Klick schluckte, mit einer Frist von 400 ms. Ein bedaechtiger Tipp ist
- * laenger: mit 600 ms Finger auf demselben Punkt ging reproduzierbar ein
- * fremder Spot auf.
- *
- * Jetzt nimmt der Backdrop den Klick selbst an — damit ist der Tipp
- * verbraucht und es gibt gar kein Zeitfenster mehr. Diese Tests halten beide
- * Haelften fest.
+ * Wegtippen darf nie auf der Karte darunter ankommen: der Backdrop nimmt den
+ * Klick selbst an, damit ist der Tipp verbraucht, ohne Zeitfenster. Ein
+ * Schließen auf `touchstart`/`mousedown` an `document` nähme den Backdrop weg,
+ * bevor der Klick kommt, und der öffnete einen Spot. Diese Tests halten beide
+ * Hälften fest.
  */
 describe('MapFilterPickerSheet wegtippen', () => {
   const backdrop = (container: HTMLElement) =>

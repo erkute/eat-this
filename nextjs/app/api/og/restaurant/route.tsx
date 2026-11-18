@@ -1,9 +1,9 @@
-// Dynamic Open Graph card for a restaurant — a branded 1200×630 share image
+// Dynamic Open Graph card for a restaurant: a branded 1200×630 share image
 // (photo + scrim + name + cuisine/district + Eat This wordmark). Generated on
-// demand and CDN-cached, mirroring the email spot-card route, so there is NO
-// build-time cost for the ~680 restaurant pages. Addressed by Sanity slug only
-// (validated), so there is no SSRF surface — the photo URL is built server-side
-// from Sanity data. Referenced from the restaurant page's generateMetadata.
+// demand and CDN-cached, so there is no build-time cost for the restaurant
+// pages. Addressed by Sanity slug only (validated), so there is no SSRF
+// surface: the photo URL is built server-side from Sanity data. Referenced from
+// the restaurant page's generateMetadata.
 
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -64,8 +64,7 @@ export async function GET(request: Request) {
 
   // Dieselbe Query wie die Restaurant-Seite, obwohl hier nur sechs Felder
   // gebraucht werden: der Cache-Eintrag ist damit derselbe, und die OG-Route
-  // kostet keine eigene Sanity-Anfrage mehr. Zwei Queries für dasselbe
-  // Dokument wären zwei Einträge.
+  // kostet keine eigene Sanity-Anfrage.
   const page = await getRestaurantPageData(slug);
   if (!page) {
     return new Response('not found', { status: 404 });

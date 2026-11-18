@@ -236,7 +236,7 @@ describe('stickStep', () => {
 
   it('startet aus dem Stand sacht und nimmt Fahrt auf', () => {
     const { moves } = glide(250);
-    // Die Fassung davor fuhr im ersten Bild mit ~35 px los.
+    // Die Feder fährt sacht an, statt im ersten Bild zu springen.
     expect(moves[0]).toBeLessThanOrEqual(10);
     expect(moves[1]).toBeGreaterThan(moves[0]);
     expect(Math.max(...moves)).toBeLessThan(25);

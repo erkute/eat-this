@@ -47,10 +47,9 @@ export interface SpotCardData {
 }
 
 /**
- * Die Must-Eat-Karte oben rechts, wie `.mustPeek` auf der Restaurantliste (dort
- * 54–68 px auf rund 360 px Kartenbreite, 5° gekippt), hier etwas größer, 120 px
- * auf 536 px Anzeigebreite. Größer deckte sie das Foto zu. Breite im 2x-Bitmap;
- * die Höhe folgt dem Format der Karte (720×989).
+ * Die Must-Eat-Karte oben rechts, wie `.mustPeek` auf der Restaurantliste, hier
+ * etwas größer (120 px auf 536 px Anzeigebreite); größer deckte sie das Foto
+ * zu. Breite im 2x-Bitmap; die Höhe folgt dem Format der Karte.
  */
 const CARD_WIDTH = 240;
 const CARD_HEIGHT = Math.round((CARD_WIDTH * 989) / 720);

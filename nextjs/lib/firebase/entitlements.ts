@@ -117,14 +117,11 @@ export async function resolveEntitlements(
 /**
  * Gehoert dieses Restaurant zu einer gekauften Kategorie?
  *
- * EIN gemeinsames Tag reicht — ein Spot, der `lunch` UND `breakfast` traegt,
- * kommt in beiden Packs vor. Genau dieselbe Regel zaehlt `packContentsQuery`
- * fuer die Zahl auf der Pack-Karte; laufen die beiden auseinander, ist die
- * Zahl eine Luege, die ein Kaeufer nachpruefen kann.
- *
- * Der Vorgaenger hiess `isRestaurantVisible` und entschied, ob ein Spot auf
- * der Karte auftaucht. Das entscheidet niemand mehr — die Karte ist frei; was
- * hier haengt, sind die KARTEN dieses Spots.
+ * Ein gemeinsames Tag reicht: ein Spot, der `lunch` und `breakfast` traegt,
+ * kommt in beiden Packs vor. Dieselbe Regel zaehlt `packContentsQuery` fuer die
+ * Zahl auf der Pack-Karte; laufen die beiden auseinander, ist die Zahl falsch,
+ * und ein Kaeufer kann es nachpruefen. Entschieden werden hier die Karten
+ * dieses Spots, nicht ob er auf der Map steht.
  */
 export function ownsCategoryOf(
   r: { categories?: { slug: string }[] },

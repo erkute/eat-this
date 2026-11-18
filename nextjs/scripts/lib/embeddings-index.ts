@@ -37,10 +37,10 @@ const slugsQuery = (filter: string) => `*[${filter}].slug.current`;
 
 /**
  * Abweichung mit Ansage: `liveRestaurant()` aus `lib/sanity-filters.ts`
- * schreibt `isOpen != false`, hier steht `isOpen == true`. Remys Abruf
- * (`lib/buddy/retrieval.ts`) filtert seit jeher so, und der Index muss Remys
- * Schnitt abbilden, nicht den der Seiten. Heute liefern beide dieselben Spots;
- * sie fallen erst auseinander, wenn ein Dokument gar kein `isOpen` gesetzt hat.
+ * schreibt `isOpen != false`, hier steht `isOpen == true`, weil Remys Abruf
+ * (`lib/buddy/retrieval.ts`) so filtert und der Index Remys Schnitt abbilden
+ * muss. Die beiden fallen erst auseinander, wenn ein Dokument gar kein `isOpen`
+ * gesetzt hat.
  */
 const RESTAURANT_FILTER =
   '_type == "restaurant" && isOpen == true && isClosed != true && defined(slug.current)';
@@ -53,7 +53,6 @@ export const SPOT_INDEX: IndexSpec = {
   filter: RESTAURANT_FILTER,
   slugsQuery: slugsQuery(RESTAURANT_FILTER),
   // Nicht null: ein einzelner neuer Laden wuerde sonst jeden PR blockieren.
-  // Deutlich unter den 27 %, mit denen der Drift zuletzt unbemerkt lief.
   maxMissingPct: 5,
   rebuildCommand: 'npm run embed:restaurants',
 };
@@ -63,10 +62,8 @@ export const ARTICLE_INDEX: IndexSpec = {
   path: 'lib/buddy/article-embeddings.json',
   filter: ARTICLE_FILTER,
   slugsQuery: slugsQuery(ARTICLE_FILTER),
-  // Strenger als bei den Spots, weil der Bestand klein ist: bei 24 Artikeln
-  // waeren 5 % rechnerisch ein einzelner — und der faellt bei den Artikeln
-  // schwerer ins Gewicht, weil die semantische Suche dort nicht bloss
-  // umsortiert, sondern die Treffermenge bestimmt.
+  // Strenger als bei den Spots: der Bestand ist klein, und die semantische
+  // Suche bestimmt bei den Artikeln die Treffermenge, statt nur umzusortieren.
   maxMissingPct: 0,
   rebuildCommand: 'npm run embed:articles',
 };
@@ -82,9 +79,8 @@ export interface EmbeddingsIndex {
 
 /**
  * Kein eigenes Muster: geprueft wird gegen genau die Zeichenklasse, an der zur
- * Laufzeit der `[[spot:…]]`-Marker haengt. Eine Kopie hier wuerde irgendwann
- * von ihr abweichen — und dann gruen melden, was Remy nicht darstellen kann. Fuer Artikel ist es dieselbe Frage eine Ebene weiter:
- * der Slug wird zu `/news/<slug>`.
+ * Laufzeit der `[[spot:…]]`-Marker haengt; eine Kopie wuerde irgendwann
+ * abweichen. Fuer Artikel wird der Slug zu `/news/<slug>`.
  */
 const PATH_SAFE_SLUG = SPOT_SLUG_RE;
 

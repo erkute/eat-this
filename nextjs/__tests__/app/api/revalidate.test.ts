@@ -309,11 +309,8 @@ describe('/api/revalidate: Signaturkodierung', () => {
   })
   it('weist einen Zeitstempel in Sekunden ab — das war der zweite Fehler', async () => {
     // Sanity sendet `t` in Millisekunden (MINIMUM_TIMESTAMP im Toolkit ist
-    // 1609459200000). Die Route verglich ihn gegen `Date.now() / 1000`; die
-    // Differenz lag dauerhaft bei ~1,7 Billionen und riss jede Toleranz. Auch
-    // dieser Fehler allein hätte den Hook für immer auf 401 gehalten — und
-    // auch ihn hat die Suite mitgetragen, weil sie ebenfalls in Sekunden
-    // signierte.
+    // 1609459200000); gegen Sekunden verglichen, risse die Differenz jede
+    // Toleranz. Der Test signiert darum wie das Toolkit.
     const seconds = Math.floor(Date.now() / 1000)
     const v1 = crypto
       .createHmac('sha256', SECRET)

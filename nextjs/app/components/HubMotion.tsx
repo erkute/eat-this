@@ -5,13 +5,10 @@ import { useGSAP } from '@gsap/react';
 import { appScroller } from '@/lib/dom/appScroller';
 import { onFirstView } from '@/lib/home/dealIn';
 
-/* Bewusst ohne ScrollTrigger: Das Plugin hält ab dem Registrieren eine leere
-   requestAnimationFrame-Schleife am Laufen, für die ganze Sitzung und auf jeder
-   Seite. Damit rechnet der Hauptthread jedes Frame mit, und selbst reine
-   Compositor-Animationen (Laufband, schwebende Telefone) kosten
-   Stil-Neuberechnungen: 60/s im Leerlauf, am gedrosselten Telefon rund ein
-   Viertel der Hauptthread-Zeit. Ausgelöst wird hier per IntersectionObserver,
-   was am Scrollweg hängt, über einen passiven Scroll-Listener. */
+/* Bewusst ohne ScrollTrigger: das Plugin hält ab dem Registrieren eine leere
+   requestAnimationFrame-Schleife am Laufen, auf jeder Seite, und selbst reine
+   Compositor-Animationen kosten dann in jedem Frame Stil-Neuberechnungen.
+   Ausgelöst wird per IntersectionObserver. */
 gsap.registerPlugin(useGSAP);
 
 /**

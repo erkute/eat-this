@@ -99,12 +99,11 @@ async function resolveViewer(
 
 /**
  * Die geherzten Spots eines Kontos, als Slug-Liste. `users/{uid}/favorites` ist
- * die Quelle (dieselbe wie die Karte), gelesen mit dem Admin-SDK — die uid
+ * die Quelle (dieselbe wie die Karte), gelesen mit dem Admin-SDK; die uid
  * stammt aus dem verifizierten Token, nie aus dem Body.
  *
- * Ältere Einträge tragen keinen `slug` (das Feld kam später dazu): die fallen
- * still raus, statt die Liste zu kippen. Ein Fehler beim Lesen heißt „keine
- * Merkliste", nicht „Chat kaputt".
+ * Einträge ohne `slug` fallen still raus, statt die Liste zu kippen. Ein Fehler
+ * beim Lesen heißt „keine Merkliste", nicht „Chat kaputt".
  */
 async function savedSpotSlugs(uid: string): Promise<string[]> {
   try {

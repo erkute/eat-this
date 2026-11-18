@@ -11,11 +11,9 @@ import {
  * fällt weg, Standort-Keyword bleibt. Sanity `seo.metaTitle` überschreibt den
  * Builder im Aufrufer.
  *
- * Ohne Marken-Suffix, aus demselben Grund wie auf den Bezirksseiten (siehe
- * `buildPlainTitle`): Die 11 Zeichen kosten hier mehr, als sie bringen. Mit nur
- * 49 Zeichen würde rund ein Drittel der kuratierten Titel mitten im Satz
- * gekappt, und gekappt würde die zweite Hälfte: der Bezirk oder die
- * Spezialität. Die Titel sind für 60 Zeichen geschrieben, nicht für 49.
+ * Ohne Marken-Suffix, wie auf den Bezirksseiten (`buildPlainTitle`): die Titel
+ * sind für 60 Zeichen geschrieben, und mit dem Suffix würde ein Teil mitten im
+ * Satz gekappt, gerade Bezirk oder Spezialität.
  */
 export function buildRestaurantTitle(opts: {
   name: string;

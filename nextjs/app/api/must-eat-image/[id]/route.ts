@@ -31,19 +31,14 @@ const PUBLIC_CACHE_CONTROL = 'public, max-age=300, stale-while-revalidate=3600';
 const COVERED_CACHE_CONTROL = `private, max-age=${PREMIUM_ACCESS_TTL_SECONDS}`;
 const NO_STORE = 'private, no-store';
 
-// Aufrufer hängen über `sanityImageLoader` ein Sanity-artiges
-// `?w=…&auto=format&q=…` an, und die Route skaliert selbst: Das Original aus
-// dem Bucket wären 124 kB für einen 69×90-Daumennagel.
+// Aufrufer hängen über `sanityImageLoader` ein `?w=…&auto=format&q=…` an, und
+// die Route skaliert selbst.
 //
-// Die Breite rastet auf eine feste Leiter ein, statt jede Zahl zu akzeptieren:
-// Ein beliebiges `?w=` wäre ein CPU-Verstärker, jede neue Zahl ein neuer
-// sharp-Lauf und ein eigener Eintrag im Prozess-Cache
-// (lib/must-eat/private-image). 440 is the home teaser's 2x rung (208 px slot
-// on a phone): without it that case falls through to 720 and downloads 63 kB
-// for a 208 px card instead of 28 kB. 540 is the 3x rung for the 170–180 px
-// grid cards (album, pack, gallery): without it those phones fall through to
-// 720, the slowest variant. Add rungs deliberately — every new number is
-// another sharp run.
+// Die Breite rastet auf eine feste Leiter ein: ein beliebiges `?w=` wäre ein
+// CPU-Verstärker, jede neue Zahl ein sharp-Lauf und ein Eintrag im
+// Prozess-Cache (lib/must-eat/private-image). 440 ist die 2x-Sprosse des
+// Startseiten-Teasers, 540 die 3x-Sprosse der 170–180-px-Rasterkarten; ohne sie
+// fielen beide auf 720. Neue Sprossen nur mit Vorsatz.
 const ALLOWED_WIDTHS = [90, 180, 360, 440, 540, 720, 1200] as const;
 
 function pickWidth(raw: string | null): number | null {
@@ -66,15 +61,13 @@ function pickQuality(raw: string | null): number {
   return ALLOWED_QUALITIES.find((q) => q >= n) ?? DEFAULT_QUALITY;
 }
 
-// Der Server-Riegel vor bezahlten Bytes: Ein Treffer kostet einen GCS-Download
+// Der Server-Riegel vor bezahlten Bytes: ein Treffer kostet einen GCS-Download
 // plus einen sharp-Lauf. Großzügig, weil eine Startseite sechs Karten auf
 // einmal holt und hinter einer NAT mehrere Leute sitzen.
 //
-// Er steht nur vor dieser Arbeit, nicht vor jeder Anfrage: Als Transaktion auf
-// ein Dokument je IP vor jedem Bild stritten sich sechs gleichzeitig ladende
-// Karten um dieses Dokument und warteten in Retries. Was aus dem Prozess-Cache
-// kommt, hat den Bucket nie berührt und braucht keinen Riegel; der
-// Verweigerungs-Zweig (403) kostet nichts.
+// Er steht nur vor dieser Arbeit, nicht vor jeder Anfrage: was aus dem
+// Prozess-Cache kommt, hat den Bucket nie berührt, und der Verweigerungs-Zweig
+// (403) kostet nichts.
 const IMAGE_RATE_LIMITS = { perMinute: 240, perDay: 6000 };
 
 // Gleichzeitige Anfragen derselben IP teilen sich eine Transaktion — der Rest

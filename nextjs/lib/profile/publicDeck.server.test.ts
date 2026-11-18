@@ -216,9 +216,9 @@ describe('getPublicDeck', () => {
     expect(deck?.total).toBe(4);
   });
 
-  /* Die Nummern stehen hier nicht mehr, die Reihenfolge schon: dieselbe wie
-     im eigenen Deck, weil beides `buildAlbum` baut. Sonst liegt dieselbe
-     Karte auf zwei Seiten an zwei Stellen. */
+  /* Keine Nummern, aber dieselbe Reihenfolge wie im eigenen Deck, weil beides
+     `buildAlbum` baut; sonst liegt dieselbe Karte auf zwei Seiten an zwei
+     Stellen. */
   it('legt die Karten in dieselbe Reihenfolge wie das eigene Deck', async () => {
     state.visibleRestaurants = ALL_RESTAURANTS;
     state.mustEats = [
@@ -274,10 +274,9 @@ describe('getPublicDeck', () => {
     expect(deck?.cards.length).toBe(4);
   });
 
-  /* Ein leeres Set waere hier still falsch: `isAlbumMustEatCollected` faellt
-     sonst auf `m.image` zurueck, und das Bild haengt an einer Hydration, die
-     diese Seite nie aufruft — das Deck meldete 0 von 24, waehrend das eigene
-     Profil 24 von 24 zeigt. */
+  /* Ein leeres Set waere hier still falsch: `isAlbumMustEatCollected` fiele auf
+     `m.image` zurueck, und das Bild haengt an einer Hydration, die diese Seite
+     nie aufruft. */
   it('zeigt beim Admin-Konto alles offen, so wie es sein eigenes Profil tut', async () => {
     state.ent = { ...state.ent, isAdmin: true, hasAllBerlin: true };
     // Was composeAccountSurface im Admin-Zweig liefert: ganzer Katalog, alles offen.

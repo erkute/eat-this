@@ -90,21 +90,20 @@ function distinctiveTokens(name: string): string[] {
     .filter((t) => t.length >= 3 && !GENERIC_NAME_WORDS.has(t));
 }
 
-/** Owner-uploaded Places photos carry the business name as their author
- *  attribution (e.g. "Foto: 136 Berlin Restaurant"); guest photos carry a
- *  person's name. We match on the restaurant's DISTINCTIVE words so a business
- *  whose Google name varies the generic part still counts — "Albatross Bakery"
- *  matches "Albatross Bäckerei" on the shared token "albatross". A spot whose
- *  name is entirely generic/short falls back to a whole-name containment check.
+/**
+ * Owner-uploaded Places photos carry the business name as their author
+ * attribution (e.g. "Foto: 136 Berlin Restaurant"); guest photos carry a
+ * person's name. We match on the restaurant's distinctive words so a business
+ * whose Google name varies the generic part still counts: "Albatross Bakery"
+ * matches "Albatross Bäckerei" on the shared token "albatross". A spot whose
+ * name is entirely generic/short falls back to a whole-name containment check.
  *
- *  ONE strong token is enough, not all of them. The uploading Google profile
- *  frequently carries a different name than the Places entry — "Zeus Pizza &
- *  Pide" uploads as "Zeus Pizzeria – Friedrichshain", "ABC - Allans Breakfast
- *  Club" as "Allan's ABC", "Ushido - Japanese bbq" as plain "Ushido". Requiring
- *  every token rejected all three, and with them 13 genuine owner photos.
- *  The trade-off is a guest whose display name happens to contain the brand
- *  word ("Annabelle" for a spot called "Anna"); the 4-char floor keeps that
- *  rare, and a wrong hero is a Studio correction, not a broken page. */
+ * One strong token is enough, not all of them: the uploading Google profile
+ * often carries a different name than the Places entry ("Zeus Pizza & Pide"
+ * uploads as "Zeus Pizzeria – Friedrichshain"). The trade-off is a guest whose
+ * display name happens to contain the brand word; the 4-char floor keeps that
+ * rare, and a wrong hero is a Studio correction, not a broken page.
+ */
 export function isOwnerPhoto(
   displayName: string | null | undefined,
   restaurantName: string

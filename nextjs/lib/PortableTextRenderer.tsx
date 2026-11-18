@@ -231,8 +231,8 @@ export function PortableTextRenderer({
     }
     if (raw._type === 'articleCard') {
       flushList();
-      // Ein Verweis auf den nächsten Artikel gehört nicht mehr ins Fazit:
-      // er schliesst es und steht für sich.
+      // Ein Verweis auf den nächsten Artikel gehört nicht ins Fazit: Er
+      // schließt es und steht für sich.
       flushConclusion();
       const card = renderArticleCard?.(raw as unknown as ArticleCardBlock);
       if (card) sink().push(<Fragment key={raw._key ?? sink().length}>{card}</Fragment>);

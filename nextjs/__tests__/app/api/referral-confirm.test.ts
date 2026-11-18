@@ -151,9 +151,9 @@ describe('/api/referral/confirm', () => {
     expect(res.cookies.get('pending_referrer')?.value).toBe('');
   });
 
-  // Alter aus der Konstante ableiten, nicht als Literal: das Fenster ist ein
-  // Produktwert und wurde schon einmal verschoben. Ein hartes "60 Minuten" stand danach genau
-  // auf der Grenze und behauptete das Gegenteil von dem, was es prueft.
+  // Alter aus der Konstante ableiten, nicht als Literal: Das Fenster ist ein
+  // Produktwert. Ein hartes "60 Minuten" stünde genau auf der Grenze und
+  // behauptete das Gegenteil von dem, was es prüft.
   function agedFriend(ms: number) {
     mockGetUser.mockImplementation(async (uid: string) =>
       uid === FRIEND
@@ -173,8 +173,8 @@ describe('/api/referral/confirm', () => {
     expect(res.cookies.get('pending_referrer')?.value).toBe('');
   });
 
-  // Ein Confirm, der etwas spaeter kommt als die Kontoerstellung, darf die
-  // Einladung nicht verlieren — genau daran starb sie frueher still.
+  // Ein Confirm, der etwas später kommt als die Kontoerstellung, darf die
+  // Einladung nicht verlieren.
   it('account still inside the window → both sides written', async () => {
     primeHappyPath();
     agedFriend(ACCOUNT_FRESHNESS_MS - 60_000);

@@ -1,8 +1,8 @@
-/* Builds both Eat This map palettes from the pinned CARTO layer structure.
- * Sources, geometry, zoom hierarchy and transit overlays stay unchanged.
- * Seit 22.10.2026 die „Druckfassung" (Betreiber-Wahl gegen die bisherige
- * Karte): Papier und Ink wie die Seite — keine Strassenkonturen, Strassen als
- * Ink-Striche in wenigen Stärken, Wasser und Grün nur leise, Gebäude flach,
+/*
+ * Builds both Eat This map palettes from the pinned CARTO layer structure.
+ * Sources, geometry, zoom hierarchy and transit overlays stay unchanged. Die
+ * „Druckfassung": Papier und Ink wie die Seite, keine Straßenkonturen, Straßen
+ * als Ink-Striche in wenigen Stärken, Wasser und Grün nur leise, Gebäude flach,
  * Beschriftung in Ink auf Papier-Hof. Das Papierkorn darüber legt
  * MapLayout.module.css. Regenerate with npm run build:basemap and commit
  * public/basemap/style.json and style-dark.json.
@@ -221,10 +221,10 @@ for (const layer of style.layers) {
   }
 }
 
-/* Gebäude flach: die Vorlage zeichnet sie als zwei Flächen (Grundriss und
-   ein um 2 px versetztes „Dach"); beide fliegen raus, an ihre Stelle tritt
-   unten ein leiser Ink-Ton ab Zoom 14 — Grundrisse wie auf einem gedruckten
-   Stadtplan statt grauer Klötze (bis 22.10.2026 standen sie in 3D). */
+/* Gebäude flach: Die Vorlage zeichnet sie als zwei Flächen (Grundriss und ein
+   um 2 px versetztes „Dach"); beide fliegen raus, an ihre Stelle tritt unten
+   ein leiser Ink-Ton ab Zoom 14: Grundrisse wie auf einem gedruckten Stadtplan
+   statt grauer Klötze in 3D. */
 const BUILDING_LAYERS = ['building', 'building-top'];
 const buildingAt = style.layers.findIndex(
   (layer: { id: string }) => layer.id === BUILDING_LAYERS[0]
@@ -292,10 +292,9 @@ style.layers = style.layers.filter((layer: { id: string }) => !BUILDING_LAYERS.i
     layer.paint = p;
   }
 
-  /* Schriftgrössen wie bei Google Maps (Ansage 22.10.2026; die Schrift
-     bleibt unsere): Strassen 10–12,5px ohne Sperrung, Ortsteile 10–12px,
-     Stadtnamen höchstens 16px statt bis 22, Parks und Gewässer 10–11px.
-     Zoom → Pixel, linear dazwischen. */
+  /* Schriftgrößen wie bei Google Maps (die Schrift bleibt unsere): Straßen
+     10–12,5px ohne Sperrung, Ortsteile 10–12px, Stadtnamen höchstens 16px,
+     Parks und Gewässer 10–11px. Zoom → Pixel, linear dazwischen. */
   const stops = (...pairs: [number, number][]) => ({ stops: pairs });
   const SIZES: Record<string, object> = {
     roadname_minor: stops([15, 10], [17, 11]),

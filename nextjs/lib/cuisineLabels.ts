@@ -1,14 +1,10 @@
-// DE-Labels für die kanonischen cuisineType-Werte (EN-Seiten nutzen den
-// rohen Sanity-Wert). Venue-Typen als Nomen, Küchen als Adjektiv-Tag —
-// kurz genug fürs 62-Zeichen-Title-Budget. Unbekannte Werte fallen auf den
-// Rohwert zurück.
+// DE-Labels für die kanonischen cuisineType-Werte (EN-Seiten nutzen den rohen
+// Sanity-Wert). Venue-Typen als Nomen, Küchen als Adjektiv-Tag, kurz genug fürs
+// 62-Zeichen-Title-Budget. Unbekannte Werte fallen auf den Rohwert zurück.
 //
-// Die Tabelle deckt den Bestand vollständig ab (Stand 09.09.2026 nachgezogen:
-// sechs Werte waren seit dem letzten Abgleich dazugekommen und standen auf 13
-// Spots englisch auf den deutschen Seiten — aufgefallen in Remys Chat, wo
-// „ITALIAN / PIZZA" neben „ITALIENISCH" in derselben Antwort stand). Kommt in
-// Sanity ein neuer cuisineType dazu, steht er auf den deutschen Seiten roh und
-// damit englisch da — dann gehört hier eine Zeile nach.
+// Die Tabelle deckt den Bestand vollständig ab. Kommt in Sanity ein neuer
+// cuisineType dazu, steht er auf den deutschen Seiten roh und damit englisch
+// da; dann gehört hier eine Zeile nach.
 export const CUISINE_LABELS_DE: Record<string, string> = {
   American: 'Amerikanisch',
   Austrian: 'Österreichisch',
@@ -22,7 +18,7 @@ export const CUISINE_LABELS_DE: Record<string, string> = {
   European: 'Europäisch',
   'Fine Dining': 'Fine Dining',
   French: 'Französisch',
-  // Que (Asian-Latino, 28.09.2026) — auf Deutsch dasselbe Wort.
+  // Que (Asian-Latino): auf Deutsch dasselbe Wort.
   Fusion: 'Fusion',
   German: 'Deutsche Küche',
   'German / Fast Food': 'Imbiss',

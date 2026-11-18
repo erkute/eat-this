@@ -154,8 +154,8 @@ describe('cut-out reports', () => {
     expect(isDish({ ...report, edges: 3, labels: { food: 0.53 } })).toBe(false);
   });
 
-  // Ansage 03.10.2026: nie eine Person ausschneiden. Gemessen: der Mann mit
-  // dem Döner 0,44, Gäste im Hintergrund (Charlottenburg) 0.
+  // Nie eine Person ausschneiden. Ein Mann, der den Döner hält, liegt mit 0,44
+  // seines Rahmens im Freisteller, Gäste im Hintergrund mit 0.
   it('never takes a person holding the food for a dish', () => {
     expect(isDish({ ...report, labels: { food: 0.97 }, person: 0.44 })).toBe(false);
     expect(isDish({ ...report, labels: { food: 0.59 }, person: 0 })).toBe(true);

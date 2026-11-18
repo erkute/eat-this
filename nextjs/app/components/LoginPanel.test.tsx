@@ -75,8 +75,8 @@ describe('LoginPanel — Starter Pack mit Texten zum Anlass', () => {
     expect(container.innerHTML).toContain('starter-pack-front.webp');
   });
 
-  /* Vorher bekam ein Gast mit Herz „Einloggen" und „Dein Deck wartet" — ohne
-     je ein Deck gehabt zu haben. */
+  /* Ein Gast mit Herz hat noch kein Deck: Er bekommt das Starter Pack, nicht
+     „Einloggen" und „Dein Deck wartet". */
   it('zeigt beim Herz nur das Starter Pack', () => {
     modal.reason = {
       kind: 'heart',

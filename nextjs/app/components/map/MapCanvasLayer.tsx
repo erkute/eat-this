@@ -114,7 +114,7 @@ export default function MapCanvasLayer({
     if (paintedRef.current) return;
     paintedRef.current = true;
     // Read before revealing: the lazy Map ref does not exist in our mount
-    // effect. Revealing first used to mount the entire catalogue, then remove
+    // effect. Revealing first would mount the entire catalogue, then remove
     // every offscreen marker in a second commit.
     readBounds();
     setPainted(true);

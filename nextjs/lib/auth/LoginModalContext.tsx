@@ -8,15 +8,13 @@ import type { LoginIntent } from './loginContinueUrl';
 /**
  * Wonach der Gast gegriffen hat, als der Login dazwischenkam.
  *
- * Das Modal zeigt genau das: die angetippte Karte, den Spot mit dem Herz.
- * Ohne Grund (Burger-Menü, Starter-Pack-Tafel) steht das Starter Pack da.
+ * Das Modal zeigt genau das: die angetippte Karte, den Spot mit dem Herz. Ohne
+ * Grund (Burger-Menü, Starter-Pack-Tafel) steht das Starter Pack da.
  *
- * Einen eigenen Einloggen-Modus gibt es nicht mehr. Der Server weiß beim
- * Absenden, ob die Adresse schon ein Konto hat, und schickt entsprechend die
- * Anmelde- oder die Login-Mail (lib/auth/sendMagicLink.ts). Die Frage „neu
- * oder schon dabei?" musste der Gast vorher selbst beantworten — und bekam
- * beim Herz auf einem Spot „Dein Deck wartet", ohne je ein Deck gehabt zu
- * haben.
+ * Einen eigenen Einloggen-Modus gibt es nicht. Der Server weiß beim Absenden,
+ * ob die Adresse schon ein Konto hat, und schickt entsprechend die Anmelde-
+ * oder die Login-Mail (lib/auth/sendMagicLink.ts). Die Frage „neu oder schon
+ * dabei?" muss der Gast nicht selbst beantworten.
  */
 export type LoginReason =
   | { kind: 'map-prompt' }

@@ -93,10 +93,10 @@ export function useBuddyChat() {
   }, []);
 
   /* Abbruch der laufenden Antwort. Remy schreibt bis zu 2048 Token; wer nach
-     dem zweiten Satz merkt, dass er die falsche Frage gestellt hat, musste
-     vorher zusehen. Der Abbruch beendet den Lesestrom, das bereits Gesagte
-     bleibt stehen — die Route bricht ihrerseits den Anthropic-Stream ab
-     (cancel() im ReadableStream), es laeuft also nichts weiter. */
+     dem zweiten Satz merkt, dass er die falsche Frage gestellt hat, soll nicht
+     zusehen müssen. Der Abbruch beendet den Lesestrom, das bereits Gesagte
+     bleibt stehen; die Route bricht ihrerseits den Anthropic-Stream ab
+     (cancel() im ReadableStream), es läuft also nichts weiter. */
   const abortRef = useRef<AbortController | null>(null);
   const stop = useCallback(() => {
     abortRef.current?.abort();

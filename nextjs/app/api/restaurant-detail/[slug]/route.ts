@@ -6,11 +6,11 @@ import { RESTAURANT_ARTICLE_LIMIT } from '@/lib/queries';
 
 // On-demand detail fields for the map detail sheet (address, phone, tip,
 // description, …). Same editorial/contact fields the public /restaurant/[slug]
-// SEO page renders, so no auth gate — the point is that they no longer ship
+// SEO page renders, so no auth gate — the point is that they do not ship
 // up-front in the map payload for every spot. The two projections are separate
-// and have drifted before (`phone` was here and not there, which left the
-// public page unable to offer a call button); the overlap the UI depends on is
-// pinned by lib/__tests__/restaurantContactFields.test.ts.
+// and can drift (a `phone` here and not there leaves the public page unable to
+// offer a call button); the overlap the UI depends on is pinned by
+// lib/__tests__/restaurantContactFields.test.ts.
 
 // 24 Stunden. Die Frist ist nicht der Weg, auf dem Inhalte live gehen — das ist
 // der Sanity-Webhook auf /api/revalidate. Hintergrund und Bedingung an dieser

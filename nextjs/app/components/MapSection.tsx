@@ -406,8 +406,8 @@ export default function MapSection({
       /* Apply the detail's padding before the detail renders, so MapLibre
          never eases from the list padding into it. */
       if (isPhone) mapRef.current?.jumpTo({ padding: phoneDetailFlyPadding() });
-      // Both mobile sheet AND desktop sidebar render the detail inline now —
-      // desktop no longer uses a centered floating modal that hid the marker.
+      // Both mobile sheet AND desktop sidebar render the detail inline; a
+      // centered floating modal on desktop would hide the marker.
       setSheetView('detail');
       // List/search/deep-link → open fully (the user clicked to read content).
       // Pin-tap on the map → open at the middle stage (the photo) so the
@@ -693,15 +693,11 @@ export default function MapSection({
     revealPanelForSearch();
   }, [revealPanelForSearch]);
 
-  /* Bezirk is the one chip with extra work on top of setting state: it lifts a
-     collapsed list so the results are actually in view.
-
-     It used to fly the camera here as well — onto the district's centroid at
-     zoom 13, from an index of averaged coordinates kept for that one purpose.
-     That flight never finished. Setting the state re-runs the filter-refit
-     effect below one commit later, and its `fitBounds` cancels whatever is in
-     the air; the centroid index has been dead weight ever since. One camera
-     owner is enough, and fitting the actual matches beats an average of them. */
+  /* Bezirk is a chip like the others: it sets state and lifts a collapsed list
+     so the results are actually in view. It does not fly the camera itself:
+     setting the state re-runs the filter-refit effect one commit later, and its
+     `fitBounds` would cancel whatever is in the air. One camera owner is
+     enough, and fitting the actual matches beats an average of them. */
   /* A picked filter shows its result set: the list comes up to 'mid' if it is
      resting lower than that. Otherwise the map flies to the matches while the
      list stays peeking at the bottom with one cropped row, and nothing says how

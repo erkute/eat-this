@@ -373,7 +373,7 @@ const PLZ_TO_ORTSTEIL: Record<string, string> = {
   '10707': 'Charlottenburg',
   '10711': 'Charlottenburg',
   '10719': 'Charlottenburg',
-  // Wilmersdorf (Bezirk Charlottenburg-Wilmersdorf) — added 2026-05-11
+  // Wilmersdorf (Bezirk Charlottenburg-Wilmersdorf)
   '10713': 'Wilmersdorf',
   '10715': 'Wilmersdorf',
   '10717': 'Wilmersdorf',
@@ -702,13 +702,12 @@ export async function importGalleryPhotos(
 
 /**
  * Places sends its most expensive tier open-ended: `startPrice: 100` with no
- * `endPrice`. Requiring both bounds silently dropped exactly that band, which
- * is why 45 of 51 fine-dining spots had no price at all until 25.08.2026 —
- * the gap looked like sloppy curation and was this line. Open ranges now come
- * through with `max` undefined and render as "ab 100 €".
+ * `endPrice`. Requiring both bounds would silently drop exactly that band,
+ * which is nearly every fine-dining spot. Open ranges come through with `max`
+ * undefined and render as "ab 100 €".
  *
- * A lone `endPrice` is still rejected: Places does not emit it, and a bare
- * upper bound has no sensible label.
+ * A lone `endPrice` is rejected: Places does not emit it, and a bare upper
+ * bound has no sensible label.
  */
 function buildPriceRange(pr?: Place['priceRange']) {
   if (!pr?.startPrice?.units) return null;

@@ -20,9 +20,9 @@ describe('BuddyAvatarFallback', () => {
     const idle = renderToStaticMarkup(<BuddyAvatarFallback mood="idle" />);
     expect(idle).toMatch(/buddy\.webp/);
   });
-  // Talking used to lay a second, differently framed body over the base,
-  // which showed Remy's shoulders twice. Every mood draws one body; talking
-  // and laughing only change the mouth.
+  // Every mood draws one body; talking and laughing only change the mouth. A
+  // second, differently framed body over the base would show Remy's shoulders
+  // twice.
   it('draws exactly one body per mood, plus the mouth sprite', () => {
     for (const mood of MOODS) {
       const html = renderToStaticMarkup(<BuddyAvatarFallback mood={mood} />);

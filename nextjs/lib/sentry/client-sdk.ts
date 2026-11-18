@@ -12,11 +12,11 @@ Sentry.init({
   beforeSend: filterBrowserErrors,
 
   // Kein Session-Tracking (Release Health). Es schickte pro Seitenaufruf drei
-  // Umschläge über /monitoring — Start, sofort „exited" wegen der URL-Änderung
-  // beim Laden, neuer Start —, rund 4.200 am Tag bei einer Handvoll echter
-  // Fehler. Sentry drosselte davon täglich über hundert mit 429, und der
-  // Rewrite-Proxy verlor einige mit HPE_HEADER_OVERFLOW (500 im Log).
-  // Gemessen 25.09.2026; ohne die Pings gehen nur noch Fehler über den Tunnel.
+  // Umschläge über /monitoring (Start, sofort „exited" wegen der URL-Änderung
+  // beim Laden, neuer Start), Tausende am Tag bei einer Handvoll echter Fehler.
+  // Sentry drosselt davon viele mit 429, und der Rewrite-Proxy verliert einige
+  // mit HPE_HEADER_OVERFLOW (500 im Log). Ohne die Pings gehen nur Fehler über
+  // den Tunnel.
   integrations: (defaults) => defaults.filter((i) => i.name !== 'BrowserSession'),
 
   // No tracesSampleRate: performance tracing is tree-shaken out of the bundle
@@ -33,9 +33,8 @@ Sentry.init({
   replaysSessionSampleRate: 0,
   replaysOnErrorSampleRate: 0,
 
-  // Keine IP (Betreiber, 02.10.2026). Mit `false` schickt das SDK
-  // `infer_ip: "never"`, Sentry leitet dann keine IP mehr ab. Browser und
-  // Betriebssystem kommen weiter über den User-Agent an.
+  // Keine IP. Mit `false` schickt das SDK `infer_ip: "never"`, Sentry leitet
+  // dann keine IP ab. Browser und Betriebssystem kommen über den User-Agent an.
   sendDefaultPii: false,
 });
 

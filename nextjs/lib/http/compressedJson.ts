@@ -5,14 +5,14 @@ import { brotliCompress, constants, gzip } from 'node:zlib';
 import { NextResponse } from 'next/server';
 
 /* Next komprimiert Seiten und Chunks, Antworten von Route-Handlern aber nicht:
-   /api/map-data ging mit 379 kB roh raus, egal was der Browser anbot
-   (gemessen 26.09.2026). Am Server brauchte die Route p99 0,73 s, am Telefon
-   kam sie mit p90 2,4 s und bis zu 9 s an — die Zeit steckte in der Leitung,
-   nicht im Rechnen. Komprimiert sind es rund 50–60 kB.
+   /api/map-data ginge mit rund 380 kB roh raus, egal was der Browser anbietet.
+   Am Server braucht die Route unter einer Sekunde, am Telefon käme sie mit
+   mehreren Sekunden an; die Zeit steckt in der Leitung, nicht im Rechnen.
+   Komprimiert sind es rund 50–60 kB.
 
-   Brotli bei Qualitaet 5: nah an gzip -9 in der Groesse, aber schnell genug
-   fuer eine Antwort pro Aufruf. Beides laeuft im libuv-Threadpool, nicht auf
-   dem Event-Loop. Unter der Schwelle lohnt der Umweg nicht. */
+   Brotli bei Qualität 5: nah an gzip -9 in der Größe, aber schnell genug für
+   eine Antwort pro Aufruf. Beides läuft im libuv-Threadpool, nicht auf dem
+   Event-Loop. Unter der Schwelle lohnt der Umweg nicht. */
 
 const brotli = promisify(brotliCompress);
 const gzipAsync = promisify(gzip);

@@ -829,8 +829,8 @@
 }
 @media (max-width: 380px), (max-height: 740px) {
   .detail .scroll {
-    /* Gemessen 375x667: verdeckt braucht die Zeile 148,8px (84 + 7 + 57,8) —
-       der alte 136px-Boden lag 12,8px darunter. */
+    /* Bei 375x667 braucht die verdeckte Zeile 148,8px (84 + 7 + 57,8); der
+       Boden liegt darüber. */
     --me-mid-slot: clamp(152px, 20dvh, 158px);
   }
   .detail .fdMid {
@@ -982,38 +982,30 @@
   }
 }
 
-/* ── Must-Eat-Detail: elastisch statt fest verplant ─────────────────────────
+/*
+ * ── Must-Eat-Detail: elastisch statt fest verplant ─────────────────────────
  *
- * Das Panel war ein festes Pixelbudget: `.scroll` stand auf
- * `overflow: hidden`, und jede Zeile — `--me-mid-slot`, `--me-rest-slot`,
- * `--me-pager-slot` — bekam height, min-height UND max-height auf denselben
- * Wert. Das trägt exakt so lange, wie jeder String einzeilig bleibt. Gemessen
- * auf www.eatthisdot.com/map?me=… bei 1512×900:
+ * Die Slots (`--me-mid-slot`, `--me-rest-slot`, `--me-pager-slot`) sind
+ * Mindestmaße, keine festen Höhen. Ein festes Pixelbudget mit `overflow:
+ * hidden` trägt nur, solange jeder String einzeilig bleibt: Bei einem
+ * zweizeiligen Namen würde die zweite Zeile mittig durchgeschnitten, und
+ * Unterlängen würden abrasiert („Komm näher" → „KOMM NAHER").
  *
- *   .fdV  ("Bubar Crepes und Galettes")  scrollHeight 45 / clientHeight 38
- *         → die zweite Zeile wurde mittig durchgeschnitten.
- *   .fdProximity  max-height 5.12em (81.9px) bei ~85px Inhalt
- *         → die Unterlängen von "Komm näher" wurden abrasiert; gerendert
- *           stand da "KOMM NAHER".
+ * Der Kartenstapel ist der Stoßdämpfer: Er nimmt den freien Platz und gibt ihn
+ * wieder her, wenn Name oder Beschreibung mehr brauchen. Geschnitten wird nur
+ * dort, wo ein line-clamp es ansagt.
  *
- * Die Slots bleiben — aber als MINDESTmaß. Der Kartenstapel ist der
- * Stoßdämpfer: er nimmt den freien Platz und gibt ihn wieder her, wenn Name
- * oder Beschreibung mehr brauchen. Geschnitten wird nur noch dort, wo ein
- * ehrlicher line-clamp es ansagt.
- *
- * GRID WAR HIER DAS FALSCHE WERKZEUG, zweimal. Ein `auto`-Track wird über
- * max-content bemessen, und max-content ermittelt der Browser bei
- * UNBEGRENZTER Breite — eine umbrechende Headline meldet dort eine Zeile
- * statt drei. `minmax(slot, auto)` wuchs deshalb nie mit. Gemessen auf
- * 375×812: die Mittelzeile blieb bei 158px, während .fdMid 249px brauchte,
- * und `justify-content: flex-end` schob die Differenz nach oben — hinter den
- * Kartenstapel, der mit z-index: 3 darüber liegt. In einer Flex-Spalte
- * ergeben sich die Höhen aus dem echten Layout bei der tatsächlichen Breite.
- * Reihenfolge = DOM-Reihenfolge = die alte Zeilenreihenfolge; die Abstände,
- * die vorher eigene Gap-Tracks waren, sind jetzt margin-top.
+ * Eine Flex-Spalte, kein Grid. Ein `auto`-Track wird über max-content bemessen,
+ * und max-content ermittelt der Browser bei unbegrenzter Breite; eine
+ * umbrechende Headline meldet dort eine Zeile statt drei, und `minmax(slot,
+ * auto)` wüchse deshalb nie mit: Die Mittelzeile bliebe bei 158px, während
+ * .fdMid 249px braucht, und `justify-content: flex-end` schöbe die Differenz
+ * nach oben, hinter den Kartenstapel. In einer Flex-Spalte ergeben sich die
+ * Höhen aus dem echten Layout bei der tatsächlichen Breite. Reihenfolge =
+ * DOM-Reihenfolge; die Abstände sind margin-top.
  *
  * Steht so weit hinten, weil `.scroll` in vielen Blöcken vorkommt und
- * Quellreihenfolge hier trägt — siehe den Kopf von MapControls.module.css.
+ * Quellreihenfolge hier trägt; siehe den Kopf von MapControls.module.css.
  */
 
 .detail .scroll {
@@ -1071,33 +1063,30 @@
   min-height: var(--me-mid-slot);
   max-height: none;
   margin: 0;
-  /* `overflow: hidden` wäre hier gefährlich: zusammen mit
-     `justify-content: flex-end` schiebt zu wenig Platz das ERSTE Kind über die
-     Oberkante — und das ist die Headline. Sie verschwände komplett, statt dass
-     unten etwas knapp wird. Passieren kann das jetzt nicht mehr (die Zeile
-     wächst), aber die Kante bleibt trotzdem offen: falls doch, will man den
-     Fehler sehen und nicht die Überschrift verlieren. Horizontal klemmt
-     weiterhin .scroll. */
+  /* `overflow: hidden` wäre hier gefährlich: Zusammen mit `justify-content:
+     flex-end` schiebt zu wenig Platz das erste Kind über die Oberkante, und das
+     ist die Headline. Sie verschwände komplett, statt dass unten etwas knapp
+     wird. Die Zeile wächst zwar mit, die Kante bleibt trotzdem offen: Falls
+     doch, will man den Fehler sehen und nicht die Überschrift verlieren.
+     Horizontal klemmt .scroll. */
   overflow: visible;
 }
 
-/* Der Gerichtsname stand in einer Box fester Höhe mit `overflow: hidden`, und
-   seine Zeilenhöhe ist KLEINER als die Schriftgröße (0.98 auf dem Phone, 1.14
-   auf dem Rail). Alles, was über die Zeilenbox hinausragt — Umlautpunkte,
-   Oberlängen — lief damit gegen eine Kante: aus "Döner" wurde "Doner", nach
-   demselben Muster wie "Komm näher" → "Komm naher".
+/* Die Zeilenhöhe des Gerichtsnamens ist kleiner als die Schriftgröße (0.98 auf
+   dem Phone, 1.14 auf dem Rail). Mit `overflow: hidden` liefe alles, was über
+   die Zeilenbox hinausragt (Umlautpunkte, Oberlängen), gegen eine Kante: Aus
+   "Döner" würde "Doner".
 
-   Der verdeckte Zustand hat keine Sonderrolle mehr: dort steht jetzt die
+   Der verdeckte Zustand hat keine Sonderrolle: Dort steht die
    Zustands-Kopfzeile im selben Track wie sonst der Gerichtsname, also gilt
    dieselbe Regel für beide.
 
-   `overflow: visible` löst das Abschneiden — die HÖHE bleibt trotzdem fest.
-   Vorher stand hier `height: auto; max-height: none`, und damit maß sich der
-   Track an seinem Text: je nach Namenslänge griff eine andere Größenklasse und
-   eine zweite Zeile kam dazu, gemessen 88px ("Morning Bun"), 92px ("Biang
-   Biang Lamb") und 100px ("Tomate Slice"). Weil der Track über der Copy sitzt,
-   wanderte damit beim Blättern die halbe Ansicht. Fest plus sichtbar
-   überstehend: Unterlängen ragen heraus, das Layout steht. */
+   `overflow: visible` löst das Abschneiden, die Höhe bleibt trotzdem fest. Mäße
+   sich der Track an seinem Text (`height: auto`), griffe je nach Namenslänge
+   eine andere Größenklasse und eine zweite Zeile käme dazu (88px bei "Morning
+   Bun", 100px bei "Tomate Slice"). Weil der Track über der Copy sitzt, wanderte
+   damit beim Blättern die halbe Ansicht. Fest plus sichtbar überstehend:
+   Unterlängen ragen heraus, das Layout steht. */
 
 .fdName {
   overflow: visible;
@@ -1121,7 +1110,7 @@
 .fdMidLocked .fdProximity {
   flex: 0 0 auto;
   height: auto;
-  /* Der Copy-Slot, den vorher die zweite Grid-Zeile reserviert hat. */
+  /* Der Copy-Slot: der Mittelteil ohne Namensfeld und Abstand. */
   min-height: calc(var(--me-mid-slot) - var(--me-name-slot) - var(--me-name-copy-gap));
   max-height: none;
   overflow: visible;
@@ -1152,8 +1141,8 @@
 
 @media (max-width: 1023.98px) {
   .fdText {
-    /* Drei Zeilen entsprechen dem, was der alte Höhen-Clip auf dem Phone
-       faktisch übrig ließ (Slot 158px minus Namensfeld ≈ 3,4 Zeilen). */
+    /* Drei Zeilen: so viel passt auf dem Phone unter das Namensfeld (Slot 158px
+       minus Namensfeld ≈ 3,4 Zeilen). */
     -webkit-line-clamp: 3;
     line-clamp: 3;
   }
@@ -1256,9 +1245,8 @@
        oben bis unter das Schließen-X (gemessen 21px Abstand). Was hier an Höhe
        fehlt, wird oben zu Luft. */
     --me-card-h: min(45svh, 380px);
-    /* Nicht mehr an --me-card-w gekoppelt: der Stapel schrumpft jetzt mit
-       seinem Platz, die Untergrenze muss also nur noch eine lesbare Karte
-       tragen. */
+    /* Nicht an --me-card-w gekoppelt: Der Stapel schrumpft mit seinem Platz,
+       die Untergrenze muss also nur eine lesbare Karte tragen. */
     --me-hero-min: clamp(190px, 26dvh, 260px);
     /* Das Schließen-X ist hier `fixed` und rechnet Safe-Area plus
        --map-visual-offset-top ein (siehe .fdClose unten) — das Polster über
@@ -1426,7 +1414,7 @@
   }
 }
 
-/* Alles auf eine Zeile — die alten Regeln legten die Pille in eine zweite. */
+/* Alles auf eine Zeile; die Regeln weiter oben legten die Pille in eine zweite. */
 
 .scroll > .fdRestInline:has(.fdRestPhoto) > .fdRestPhoto {
   grid-column: 1;
@@ -1636,27 +1624,24 @@
   }
 }
 
-/* ── Restaurant-Layer, neu ───────────────────────────────────────────────────
+/*
+ * ── Restaurant-Layer, neu ───────────────────────────────────────────────────
  *
- * Vorher eine graue Panel-Kachel: Foto-Thumbnail links, Name daneben, darunter
- * eine schwarze Pille über die volle Breite. Sie war der schwerste Block im
- * Sheet und stand als zweite "Karte" gegen die Must-Eat-Karte, um die es geht.
- *
- * Jetzt Markensprache: keine Fläche, Struktur aus Weißraum und Typo. Foto
- * quadratisch, Name in der Markenschrift, die Aktion als kompakte Ink-Pille in
- * Inhaltsbreite — alles auf EINER Zeile. Der Block ist damit rund 30px
- * flacher; die gehen an die Karte darüber.
+ * Markensprache: keine eigene Kachel, Struktur aus Weißraum und Typo. Foto
+ * quadratisch, Name in der Markenschrift, alles auf einer Zeile. Der Block ist
+ * flach, damit die Must-Eat-Karte darüber, um die es geht, den Platz bekommt
+ * und keine zweite „Karte" gegen sie steht.
  *
  * Fläche, Rand, Rundung und Innenabstand kommen aus dem Block
- * „Restaurant-Streifen auf Ink" — eine Haarlinie hat dieser Block nie
- * gezeichnet.
+ * „Restaurant-Streifen auf Ink"; eine Haarlinie zeichnet dieser Block nicht.
  *
- * Die Selektoren tragen `:has(.fdRestPhoto)` mit, weil die früheren Regeln das
- * tun und den drei Kindern feste Grid-Plätze geben (die Pille lag in Zeile 2).
- * Ohne dieselbe Spezifität gewinnt die alte Platzierung.
+ * Die Selektoren tragen `:has(.fdRestPhoto)` mit, weil die Regeln weiter oben
+ * das tun und den drei Kindern feste Grid-Plätze geben (die Pille läge in Zeile
+ * 2). Ohne dieselbe Spezifität gewinnt deren Platzierung.
  *
- * `display` kommt aus dem Block weiter oben, der den Streifen aufs Grid setzt —
- * hier steht nur, wie das Grid aussieht. */
+ * `display` kommt aus dem Block weiter oben, der den Streifen aufs Grid setzt;
+ * hier steht nur, wie das Grid aussieht.
+ */
 
 /* ── Restaurant-Streifen auf Ink ─────────────────────────────────────────────
    Eine Stufe heller als der Grund (--me-soft), gelbes Label in der
@@ -1897,8 +1882,8 @@
     --me-fan-overhang: 42px;
   }
 
-  /* Spur = Luft zur Karte + die alte 44px-Taste; der Glyph steht 11px vom
-     äußeren Rand, also weiter 26px vor der Silhouette. */
+  /* Spur = Luft zur Karte + 44px Taste; der Glyph steht 11px vom äußeren Rand,
+     also 26px vor der Silhouette. */
 
   .fdPagerPrev,
   .fdPagerNext {

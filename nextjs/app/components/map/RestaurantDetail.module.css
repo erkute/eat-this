@@ -53,8 +53,8 @@
   display: block;
 }
 /* The resting tilt rides on the li as a variable, not as a `transform` on the
-   img: as a rule it out-specified every state below it, so pressing a card
-   used to do nothing at all. */
+   img: as a rule it would out-specify every state below it, and pressing a card
+   would do nothing at all. */
 .rdMustGrid li:nth-child(odd) {
   --medish-tilt: -2.5deg;
 }
@@ -269,16 +269,15 @@
    the translucent bottom URL bar. (The Must Eat detail owns a fixed
    card/pager composition — its own module.) */
 @media (max-width: 767.98px) {
-  /* `overflow: visible` als Kurzform stand hier einmal und hat die x-Achse der
-     Regel weiter oben mitgerissen. Das Blaettern schiebt den Hero per
-     translateX um eine volle Viewport-Breite — ohne Klemme in x wuchs damit
-     das DOKUMENT auf 750px (gemessen bei 375px Viewport), und mit ihm die
-     Layout-Viewport-Breite: `innerWidth` sprang 375 -> 750, iOS Safari zog die
-     Seite auf Bildschirmbreite zusammen und beim Loslassen wieder auf. Genau
-     das "klein ziehen und wieder gross werden" waehrend des Wisches. Die
-     y-Achse bleibt `visible` — der Telefon-Detailfluss ist Absicht (siehe
-     Kommentar am Blockanfang), nur `clip` in x hält den Fluss und macht keinen
-     Scroll-Container auf (anders als `hidden`). */
+  /* Nicht `overflow: visible` als Kurzform: Sie risse die x-Achse der Regel
+     weiter oben mit. Das Blättern schiebt den Hero per translateX um eine volle
+     Viewport-Breite; ohne Klemme in x wüchse damit das Dokument auf 750px (bei
+     375px Viewport), und mit ihm die Layout-Viewport-Breite: `innerWidth`
+     spränge 375 -> 750, iOS Safari zöge die Seite auf Bildschirmbreite zusammen
+     und beim Loslassen wieder auf. Die y-Achse bleibt `visible`, der
+     Telefon-Detailfluss ist Absicht (siehe Kommentar am Blockanfang); nur
+     `clip` in x hält den Fluss und macht keinen Scroll-Container auf (anders
+     als `hidden`). */
 
   [data-map-sheet][data-view='detail'] .detail,
   [data-map-sheet][data-view='detail'] .scroll {
@@ -372,10 +371,9 @@
    seine eigenen --me-*-Tokens (MustEatDetail.module.css).
    ══════════════════════════════════════════════════════════════════════════ */
 
-/* Der Grund des Sheets selbst. Die hellen Fassungen davor sind entfernt;
-   am schwersten wog der Phone-Block bei `[data-map-sheet][data-view='detail']`.
-   Deshalb hier BEIDE Fassungen: die schlanke fuer Desktop, die
-   attributgefuehrte fuer das Telefon. Gleiches Gewicht, spaetere Zeile. */
+/* Der Grund des Sheets selbst, in beiden Fassungen: die schlanke für Desktop,
+   die attributgeführte für das Telefon
+   (`[data-map-sheet][data-view='detail']`). Gleiches Gewicht, spätere Zeile. */
 
 .detail,
 .detail .scroll {

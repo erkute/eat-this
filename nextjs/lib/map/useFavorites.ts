@@ -6,12 +6,12 @@ import { useLoginModal } from '@/lib/auth';
 import { rememberPendingHeart, settlePendingHeart } from './pendingHeart';
 import { notify } from '@/lib/notice';
 
-/* Beim Speichern sagt das gefuellte Herz alles (Betreiber, 27.10.2026). Nur
-   der allererste Spot erfaehrt einmal, dass die gespeicherten Spots im Profil
-   liegen — die Map markiert sie sonst nirgends. Gemerkt pro Geraet im
-   localStorage: ein Profilflag kostete fuer einen Satz einen Schreibvorgang
-   mehr, und auf einem neuen Geraet kommt der Hinweis ohnehin nur, wenn die
-   Liste dort leer ist. Ohne Speicher lieber kein Hinweis als jedes Mal einer. */
+/* Beim Speichern sagt das gefüllte Herz alles. Nur der allererste Spot erfährt
+   einmal, dass die gespeicherten Spots im Profil liegen; die Map markiert sie
+   sonst nirgends. Gemerkt pro Gerät im localStorage: Ein Profilflag kostete für
+   einen Satz einen Schreibvorgang mehr, und auf einem neuen Gerät kommt der
+   Hinweis ohnehin nur, wenn die Liste dort leer ist. Ohne Speicher lieber kein
+   Hinweis als jedes Mal einer. */
 const PROFILE_HINT_KEY = 'eatthis_saved_spots_hint';
 
 function profileHintSeen(): boolean {
@@ -37,9 +37,11 @@ interface FavoriteEntry {
   photo?: string;
   district?: string;
   note?: string;
-  /** „War da" statt „will hin" — die zweite eigene Anmerkung neben der
-   *  Notiz. Fehlt auf jedem Spot, der vor dem 06.09.2026 gespeichert wurde,
-   *  und das heisst dasselbe wie `false`: gespeichert, aber noch offen. */
+  /**
+   * „War da" statt „will hin": die zweite eigene Anmerkung neben der Notiz.
+   * Fehlt auf älteren Einträgen, und das heißt dasselbe wie `false`:
+   * gespeichert, aber noch offen.
+   */
   visited?: boolean;
 }
 

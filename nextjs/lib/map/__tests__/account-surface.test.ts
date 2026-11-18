@@ -56,14 +56,12 @@ function compose(over: Record<string, unknown> = {}) {
   } as Parameters<typeof composeAccountSurface>[0]);
 }
 
-/* Diese Ableitung stand bis zum 31.08.2026 zweimal da — in /api/map-data und
-   in publicDeck.server.ts — und ist auseinandergelaufen: der Admin-Zweig
-   fehlte in der zweiten Kopie, das geteilte Deck meldete „0 von 24", waehrend
-   das Profil desselben Kontos „24 von 24" zeigte. Kein Test hielt die beiden
-   zusammen. Jetzt gibt es nur noch eine Definition, und hier steht sie fest. */
+/* Diese Ableitung gibt es genau einmal, für /api/map-data und für
+   publicDeck.server.ts. Zwei Kopien laufen auseinander: Fehlt der Admin-Zweig
+   in einer, meldet das geteilte Deck „0 von 24", während das Profil desselben
+   Kontos „24 von 24" zeigt. Hier steht die eine Definition fest. */
 describe('composeAccountSurface', () => {
-  /* Die eine Zeile, an der der ganze Umbau vom 06.09.2026 haengt: es gibt
-     keine gesperrten SPOTS mehr, fuer niemanden. Gestaffelt ist nur der
+  /* Es gibt keine gesperrten Spots, für niemanden. Gestaffelt ist nur der
      Kartenstapel. */
   it('gibt jedem jeden Spot — auch ohne Konto', async () => {
     const s = await compose();

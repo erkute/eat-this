@@ -25,36 +25,35 @@ const nextConfig: NextConfig = {
   generateBuildId: async () => `et-${Date.now()}-${randomUUID().slice(0, 8)}`,
   // `inlineCss` bleibt aus: Es schreibt das ganze CSS in jede Seite und noch
   // einmal in deren RSC-Daten, und nichts davon kommt aus dem Browser-Cache.
-  // `cssChunking` bleibt aus: Es legt kleine Module seitenübergreifend zusammen,
-  // sodass eine Seite auch die Stile fremder Seiten lädt. So lädt jede Seite nur
-  // ihre eigenen Module (gemessen 05.11.2026, Startseite: 5 statt 12 Dateien,
-  // 30 statt 47 kB). Ein Modul kann dadurch in mehreren Dateien stehen; zwischen
+  // `cssChunking` bleibt aus: Es legt kleine Module seitenübergreifend
+  // zusammen, sodass eine Seite auch die Stile fremder Seiten lädt. So lädt
+  // jede Seite nur ihre eigenen Module (Startseite: 5 statt 12 Dateien, 30
+  // statt 47 kB). Ein Modul kann dadurch in mehreren Dateien stehen; zwischen
   // Modulen bleibt das Überschreiben mit gleicher Spezifität also tabu.
   experimental: { cssChunking: false },
   /**
    * Metadaten in den `<head>`, nicht in den Body.
    *
    * Next 15 streamt `<title>`, `<meta>` und `<link rel="canonical">` in den
-   * Body und blockt nur fuer Bots, die kein JavaScript ausfuehren. Nexts
-   * Standardliste dafuer verlangt einen Bindestrich am Google-Namen
+   * Body und blockt nur für Bots, die kein JavaScript ausführen. Nexts
+   * Standardliste dafür verlangt einen Bindestrich am Google-Namen
    * (`[\w-]+-Google|Google-[\w-]+`, siehe
    * `next/dist/shared/lib/router/utils/html-bots.js`).
    *
-   * Auf Firebase App Hosting kommt aber bei JEDER Anfrage der blanke
-   * User-Agent `Google` am Origin an — die Edge ersetzt den echten, bevor
-   * Cloud Run ihn sieht. Nexts Liste trifft ihn nicht, also landeten
-   * Metadaten auf `/` und `/map` grundsaetzlich im Body, hinter `</head>`
-   * (nachgemessen 06.09.2026 an den Byte-Offsets). Google ignoriert ein
+   * Auf Firebase App Hosting kommt aber bei jeder Anfrage der blanke User-Agent
+   * `Google` am Origin an; die Edge ersetzt den echten, bevor Cloud Run ihn
+   * sieht. Nexts Liste trifft ihn nicht, also landeten Metadaten auf `/` und
+   * `/map` grundsätzlich im Body, hinter `</head>`. Google ignoriert ein
    * `rel="canonical"` im Body laut eigener Doku, und in der Seitenindexierung
-   * standen genau diese beiden Seiten mit ihren Query-Varianten unter
-   * „Duplikat – vom Nutzer nicht als kanonisch festgelegt".
+   * stünden diese Seiten mit ihren Query-Varianten unter „Duplikat – vom Nutzer
+   * nicht als kanonisch festgelegt".
    *
-   * `Google` deckt die Standardeintraege `[\w-]+-Google`, `Google-[\w-]+`
-   * und `googleweblight` mit ab; der Rest der Liste ist Nexts Original.
-   * Weil die Edge den UA bei jedem Aufruf schickt, heisst das praktisch:
-   * blockende Metadaten fuer alle. Gemessen am Standalone-Build (je 10 Laeufe,
-   * Median): `/` 24 → 25 ms, `/map` 28 → 30 ms. Ein bis zwei Millisekunden,
-   * weil `generateMetadata` auf beiden Seiten ohne Datenabruf auskommt.
+   * `Google` deckt die Standardeinträge `[\w-]+-Google`, `Google-[\w-]+` und
+   * `googleweblight` mit ab; der Rest der Liste ist Nexts Original. Weil die
+   * Edge den UA bei jedem Aufruf schickt, heißt das praktisch: blockende
+   * Metadaten für alle. Am Standalone-Build kostet das ein bis zwei
+   * Millisekunden (`/` 24 → 25 ms, `/map` 28 → 30 ms), weil `generateMetadata`
+   * auf beiden Seiten ohne Datenabruf auskommt.
    */
   htmlLimitedBots:
     /Google|Chrome-Lighthouse|Slurp|DuckDuckBot|baiduspider|yandex|sogou|bitlybot|tumblr|vkShare|quora link preview|redditbot|ia_archiver|Bingbot|BingPreview|applebot|facebookexternalhit|facebookcatalog|Twitterbot|LinkedInBot|Slackbot|Discordbot|WhatsApp|SkypeUriPreview|Yeti/i,
@@ -111,21 +110,19 @@ const nextConfig: NextConfig = {
     // SiteImage uses 80; the responsive window paper keeps its fine creases
     // at 90. Next's default 75 remains available for existing callers.
     qualities: [75, 80, 90],
-    // Sanity-Bilder gehen direkt an die Sanity-CDN (app/components/SiteImage.tsx
-    // setzt für sie `sanityImageLoader`), nur eigene Bilder laufen über den
-    // Optimierer. Gemessen am 25.09.2026 (Standalone-Build, lokal): 510
-    // Sanity-Varianten über den Optimierer kosteten +95 MiB Prozessspeicher,
-    // die auch im Leerlauf blieben, und 30 MiB Bild-Cache — auf Cloud Run
-    // beides RAM. Mit ~550 MiB Last-RSS und neu geschriebenen ISR-Seiten ergab
-    // das den 1-GiB-Überlauf vom 25.09. Kein globaler `loaderFile`: der schaltet
-    // `/_next/image` ganz ab. Kein `remotePatterns` mehr: der Optimierer nimmt
-    // keine Sanity-URL an, also kann niemand die Instanz als Verkleinerer
-    // für sie benutzen.
-    // Local next/image assets live below /pics and /buddy. The checkout logo
-    // set is gone from here on purpose: the payment marks are inline SVG now
-    // (app/components/PaymentMarks.tsx), which the optimizer never sees.
-    // Omitting `search` keeps cache-bust queries such as card-back.webp?v=6
-    // valid.
+    // Sanity-Bilder gehen direkt an die Sanity-CDN
+    // (app/components/SiteImage.tsx setzt für sie `sanityImageLoader`), nur
+    // eigene Bilder laufen über den Optimierer. Am Standalone-Build kosten 510
+    // Sanity-Varianten über den Optimierer +95 MiB Prozessspeicher, die auch im
+    // Leerlauf bleiben, und 30 MiB Bild-Cache, auf Cloud Run beides RAM. Mit
+    // ~550 MiB Last-RSS und neu geschriebenen ISR-Seiten reißt das die
+    // 1-GiB-Grenze. Kein globaler `loaderFile`: Der schaltet `/_next/image`
+    // ganz ab. Kein `remotePatterns`: Der Optimierer nimmt keine Sanity-URL an,
+    // also kann niemand die Instanz als Verkleinerer für sie benutzen. Local
+    // next/image assets live below /pics and /buddy. The payment marks are
+    // inline SVG (app/components/PaymentMarks.tsx), which the optimizer never
+    // sees. Omitting `search` keeps cache-bust queries such as
+    // card-back.webp?v=6 valid.
     localPatterns: [{ pathname: '/pics/**' }, { pathname: '/buddy/**' }],
   },
 
@@ -157,23 +154,20 @@ const nextConfig: NextConfig = {
       // Without a destination a Report-Only policy tells nobody anything.
       'report-uri /api/csp-report',
     ].join('; ');
-    // Bilder, die unter GLEICHEM Namen ersetzt werden. Dieselbe Rechnung wie
-    // beim Kartenstyle unten, und sie ist am 05.09.2026 teuer gelernt worden:
-    // die Telefone im Hero der Startseite wurden ausgetauscht, lagen als neue
-    // Bytes auf prod (byte-verglichen) — und jeder Browser, der die Seite
-    // schon einmal geladen hatte, zeigte weiter die alten. `immutable` heisst,
-    // dass nicht einmal ein Reload revalidiert, und die Dateinamen tragen
-    // keine Version. Ein Jahr lang.
+    // Bilder, die unter gleichem Namen ersetzt werden. Dieselbe Rechnung wie
+    // beim Kartenstyle unten: Mit `immutable` zeigte jeder Browser, der die
+    // Seite schon einmal geladen hat, nach einem Austausch weiter die alten
+    // Bytes; `immutable` heißt, dass nicht einmal ein Reload revalidiert, und
+    // die Dateinamen tragen keine Version.
     //
-    // Der naheliegende Gegenzug waere ein `?v=`-Token an jeder Aufrufstelle
-    // gewesen — drei fuer die Telefone allein, und beim naechsten Bild denkt
-    // wieder jemand nicht daran. Eine Stunde Frische kostet stattdessen ein
-    // paar bedingte Anfragen, die mit 304 ohne Rumpf zurueckkommen, und
-    // `stale-while-revalidate` haelt die Wartezeit bei null.
+    // Ein `?v=`-Token an jeder Aufrufstelle wäre die Alternative, und beim
+    // nächsten Bild denkt jemand nicht daran. Eine Stunde Frische kostet
+    // stattdessen ein paar bedingte Anfragen, die mit 304 ohne Rumpf
+    // zurückkommen, und `stale-while-revalidate` hält die Wartezeit bei null.
     //
-    // Der Bild-Optimierer erbt diese Spanne fuer `<Image>`-Aufrufe, mit
-    // `minimumCacheTTL` (ein Tag) als Untergrenze — `/about` und die Hubs
-    // heilen darum in einem Tag statt in einer Stunde, aber sie heilen.
+    // Der Bild-Optimierer erbt diese Spanne für `<Image>`-Aufrufe, mit
+    // `minimumCacheTTL` (ein Tag) als Untergrenze; `/about` und die Hubs heilen
+    // darum in einem Tag statt in einer Stunde, aber sie heilen.
     const replaceableAssetHeaders = [
       { key: 'Cache-Control', value: 'public, max-age=3600, stale-while-revalidate=86400' },
     ];

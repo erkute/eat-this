@@ -2,12 +2,10 @@
  * Bettet die Magazin-Artikel mit Voyage ein und schreibt die Vektoren nach
  * lib/buddy/article-embeddings.json (eingecheckt als statisches Asset).
  *
- * Warum es das braucht: `search_articles` filterte bis zum 06.09.2026 mit
- * einem GROQ-`match` ueber `*<ganze Frage>*`. Das Werkzeug bekommt vom Modell
- * aber eine FORMULIERUNG („Was macht Berliner Kaffee besonders"), kein
- * Stichwort — und ein Wildcard-match darauf trifft nie. Gemessen: die Frage 0
- * Treffer, „kaffee" 3, „doener" 0 (die Artikel schreiben „Döner", `match` ist
- * diakritikablind). Das Werkzeug war fuer die Anfragen, die es bekommt, tot.
+ * Warum es das braucht: `search_articles` bekommt vom Modell eine Formulierung
+ * („Was macht Berliner Kaffee besonders"), kein Stichwort. Ein GROQ-`match`
+ * über `*<ganze Frage>*` trifft darauf nie, und „doener" findet nichts, weil
+ * die Artikel „Döner" schreiben.
  *
  * Run from `nextjs/`:
  *   npm run embed:articles

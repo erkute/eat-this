@@ -7,8 +7,8 @@ import type { useMapCamera } from './useMapCamera';
 
 /* How long the search query has to hold still before the camera follows it.
    Long enough that typing "kreuzberg" flies once rather than once per letter,
-   short enough that the move still reads as the answer to what was typed.
-   Was 450 ms; taken down to 300 on 22.08.2026 because the wait read as lag. */
+   short enough that the move still reads as the answer to what was typed; at
+   450 ms the wait reads as lag. */
 const SEARCH_REFIT_DELAY_MS = 300;
 
 type Camera = ReturnType<typeof useMapCamera>;
@@ -85,11 +85,11 @@ export function useMapCameraRefit({
     });
   }, [initialCamera]);
   /* The filter set the camera was last fitted to. The effect also re-runs when
-     a detail opens or closes (it has to, to skip the open one), and until
-     03.09.2026 every CLOSE counted as a filter change: the whole catalogue was
-     framed again, Brandenburg-wide, over whatever the close handler had just
-     flown to. Only a filter that differs from the last fitted one refits —
-     on the change itself, or on close if it changed while a detail was open. */
+     a detail opens or closes (it has to, to skip the open one), but a close is
+     not a filter change: refitting there would frame the whole catalogue again
+     over whatever the close handler has just flown to. Only a filter that
+     differs from the last fitted one refits — on the change itself, or on close
+     if it changed while a detail was open. */
   const lastFittedFilterKeyRef = useRef(filterKey);
   useEffect(() => {
     if (detailOpen) return;

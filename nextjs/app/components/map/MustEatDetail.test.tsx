@@ -175,8 +175,8 @@ describe('MustEatDetail blocked location', () => {
     delete window.showNotice;
   });
 
-  /* Die Karte fragt selbst nach dem Standort — und sagt dann auch, wenn das
-     nichts wurde. Vorher blieb ein Fehlschlag im Detail stumm. */
+  /* Die Karte fragt selbst nach dem Standort und sagt dann auch, wenn das
+     nichts wurde. */
   it('answers its own failed location request', () => {
     const showNotice = vi.fn();
     window.showNotice = showNotice;

@@ -47,14 +47,14 @@ export async function GET(req: Request) {
       categories,
       totalCount: all.length,
       revealedMustEatIds: Array.from(surface.faceUpIds),
-      // Der Client kann das nicht selbst entscheiden. Der Admin-Zugang haengt
-      // an ADMIN_EMAILS plus verifizierter Adresse (isAdminToken) — beides
-      // server-only —, und das Konto, das ihn nutzt, hat weder einen
-      // admin-Claim noch ein Entitlement-Dokument. Das Profil las bisher nur
-      // users/<uid>/entitlements und zeigte deshalb „466 von 466 Spots" ueber
-      // zehn verschlossenen Packs: zwei Wahrheiten auf einem Bildschirm.
-      // WARUM nicht, sondern nur DASS alles offen ist — mehr braucht die
-      // Oberflaeche nicht, und der Grund geht sie nichts an.
+      // Der Client kann das nicht selbst entscheiden. Der Admin-Zugang hängt an
+      // ADMIN_EMAILS plus verifizierter Adresse (isAdminToken), beides
+      // server-only, und das Konto, das ihn nutzt, hat weder einen admin-Claim
+      // noch ein Entitlement-Dokument. Ohne dieses Feld läse das Profil nur
+      // users/<uid>/entitlements und zeigte alle Spots offen über lauter
+      // verschlossenen Packs: zwei Wahrheiten auf einem Bildschirm. Nur dass
+      // alles offen ist, nicht warum: Mehr braucht die Oberfläche nicht, und
+      // der Grund geht sie nichts an.
       fullCatalog: true,
     });
     res.headers.set('Cache-Control', 'private, no-store');

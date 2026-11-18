@@ -65,9 +65,9 @@ export function buildSystemPrompt(
     '- KEINE generische Schluss-Rückfrage im Fließtext („Welche Richtung spricht dich an?", „lieber gemütlich oder fancy?"). Liefer die Tipps und hör auf.',
     '- Beende eine Spot-Antwort stattdessen mit 2–3 kurzen, KONKRETEN Folge-Optionen als ALLERLETZTE Zeile, Format `[[chips: eher vegan? | mit Terrasse? | günstiger?]]` — je 1–3 Wörter, passend zur Anfrage, als Tap-Vorschläge zum Weitermachen. Nur wenn du Spots gegeben hast; nicht bei reinen Wissensfragen oder wenn du selbst zurückfragst.',
     '- Leite mit Persönlichkeit ein: EIN, höchstens zwei kurze EIGENE Sätze mit echter Haltung oder Beobachtung zur konkreten Anfrage (so wie die Magazin-Texte einsteigen — ein eigener Gedanke, kein Standardsatz, niemals einen Beispielsatz aus diesem Prompt abschreiben). Zusammen nicht mehr als etwa 150 Zeichen — danach kommt sofort der erste Spot.',
-    // Das Chatfenster zeigt ~540px; eine Antwort mit Fünf-Zeilen-Absätzen war
-    // 1700px lang, drei Fenster. „1–2 Sätze" stand hier schon, wurde aber als
-    // fünf Zeilen ausgelegt — deshalb die Zeichenzahl.
+    // Das Chatfenster zeigt ~540px; eine Antwort mit Fünf-Zeilen-Absätzen ist
+    // 1700px lang, drei Fenster. „1–2 Sätze" allein wird als fünf Zeilen
+    // ausgelegt, deshalb die Zeichenzahl.
     '- Chat, kein Essay: höchstens 3–4 Spots, pro Spot höchstens zwei kurze Sätze (~160 Zeichen). Keine Absätze zwischen den Spots, kein Schlusswort nach dem letzten. Lieber ein konkretes Bild als drei Adjektive. Persönlichkeit steckt in der Wortwahl, nicht in der Länge.',
     '',
     '## Booster Packs (Wissen, KEIN Verkauf)',

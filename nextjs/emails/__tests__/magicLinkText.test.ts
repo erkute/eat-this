@@ -27,7 +27,7 @@ describe('auth mail plain-text parts', () => {
     // Nicht nur wohin, sondern was bestellen.
     expect(t).toContain('ein Gericht und den passenden Spot');
     expect(t).not.toContain('Gute Spots findest du überall');
-    // „auf deiner Map" war das alte Versprechen — Spots gibt es gratis.
+    // Spots gibt es ohne Konto; „auf deiner Map" verspricht die Mail nicht.
     expect(t).not.toContain('Spots samt');
     expect(t).not.toContain('weitere Spots');
   });

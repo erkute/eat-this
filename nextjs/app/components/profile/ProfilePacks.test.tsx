@@ -77,8 +77,8 @@ describe('ProfilePacks artwork delivery', () => {
 });
 
 describe('ProfilePacks zeigt Besitz, nicht das Sortiment', () => {
-  /* Der Laden stand vorher IM Profil: zehn Kaufknoepfe unter einer
-     Ueberschrift, die „Meine Packs" heisst. */
+  /* Der Laden gehört nicht ins Profil: keine zehn Kaufknöpfe unter einer
+     Überschrift, die „Meine Packs" heißt. */
   it('fuehrt zum Sortiment mit EINEM Knopf statt zehn Kaufkarten', () => {
     state.owned = new Set(['category-pizza']);
     const { container } = render(<ProfilePacks uid="user-1" fullCatalog={false} />);

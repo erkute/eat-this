@@ -451,9 +451,9 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 />
               </div>
 
-              {/* Desktop floating modals removed — both mobile and desktop now
-                render the detail in the side panel / bottom sheet so the
-                selected marker stays visible on the map. */}
+              {/* No floating modals on desktop: both mobile and desktop render
+                  the detail in the side panel / bottom sheet so the selected
+                  marker stays visible on the map. */}
             </div>
 
             {/* Geometry anchor for the map credit during phone sheet gestures. */}

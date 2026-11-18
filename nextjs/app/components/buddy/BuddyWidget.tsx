@@ -447,16 +447,15 @@ export default function BuddyWidget() {
     return () => window.removeEventListener('keydown', onKey);
   }, [open, closePanel]);
 
-  /* Wegtippen schließt — das macht der Vorhang selbst, siehe `onClick` am
+  /* Wegtippen schließt; das macht der Vorhang selbst, siehe `onClick` am
      `.scrim` im Markup. Er liegt `fixed; inset: 0` über der ganzen Seite, der
      Klick landet also auf ihm und ist damit verbraucht.
 
-     Vorher hing das an einem `pointerdown` auf `document`, ohne jede Sicherung.
-     Damit war das Panel weg, bevor der Klick kam, und der traf, was darunter
-     lag — auf jeder Seite, denn Remy ist überall. Ein `click` auf dem Vorhang
-     erfüllt nebenbei auch den Grund, aus dem hier `pointerdown` stand: eine
-     Wischgeste, die innen beginnt und außen endet, erzeugt gar keinen Klick
-     auf dem Vorhang und schließt deshalb nicht. */
+     Nicht über ein `pointerdown` auf `document`: Damit wäre das Panel weg,
+     bevor der Klick kommt, und der träfe, was darunter liegt, auf jeder Seite,
+     denn Remy ist überall. Ein `click` auf dem Vorhang lässt auch eine
+     Wischgeste in Ruhe, die innen beginnt und außen endet: Sie erzeugt keinen
+     Klick auf dem Vorhang und schließt deshalb nicht. */
 
   // Stage chips / CTA hand-off: open the panel and (optionally) ask right away.
   // `send` self-guards against empty text and concurrent streams.
@@ -487,10 +486,10 @@ export default function BuddyWidget() {
     void sendWithLocationIfNeeded(text);
   };
 
-  /* Standort aus der Eingabezeile heraus freigeben. „In meiner Nähe" stand nur
-     im leeren Chat: ab der ersten Frage kam man an die Freigabe nicht mehr
-     heran, und wer sie nicht erteilt hat, bekam stillschweigend stadtweite
-     Antworten, ohne zu sehen, woran es lag. */
+  /* Standort aus der Eingabezeile heraus freigeben. Stünde „In meiner Nähe" nur
+     im leeren Chat, käme man ab der ersten Frage nicht mehr an die Freigabe
+     heran, und wer sie nicht erteilt hat, bekäme stillschweigend stadtweite
+     Antworten, ohne zu sehen, woran es liegt. */
   const toggleGeo = useCallback(async () => {
     if (location || locating) return;
     const loc = await requestLocation();
@@ -654,9 +653,8 @@ export default function BuddyWidget() {
                   <span aria-hidden="true">{t.reset}</span>
                 </button>
               )}
-              {/* Das Feld bleibt schreibbar, solange Remy antwortet — vorher
-                  war es gesperrt, der Fokus sprang heraus und die nächste
-                  Frage musste warten, bis er fertig war. */}
+              {/* Das Feld bleibt schreibbar, solange Remy antwortet: Die
+                  nächste Frage muss nicht warten, bis er fertig ist. */}
               <input
                 ref={inputRef}
                 className={styles.input}

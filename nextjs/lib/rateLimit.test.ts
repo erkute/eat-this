@@ -107,9 +107,11 @@ describe('evaluateRateLimit', () => {
   });
 });
 
-/* Die Fehlerpolitik gab es bis 08.09.2026 nicht: eine Firestore-Stoerung flog
- * ungefangen durch den Aufrufer hindurch. Aus einem Beacon, das 204 antworten
- * sollte, wurde ein 500 und ueber `onRequestError` ein Vorfall in Sentry. */
+/*
+ * Eine Firestore-Störung darf nicht ungefangen durch den Aufrufer fliegen: Aus
+ * einem Beacon, das 204 antworten soll, würde sonst ein 500 und über
+ * `onRequestError` ein Vorfall in Sentry.
+ */
 describe('checkWindowedRateLimit unter Firestore-Ausfall', () => {
   beforeEach(() => {
     mocks.getAdminFirestore.mockImplementation(scriptedFirestore);

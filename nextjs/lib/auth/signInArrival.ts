@@ -4,12 +4,10 @@
  * Die Starter-Pack-Einblendung nach einer Anmeldung (SignInReward).
  *
  * Der verlässliche Auslöser ist die Vergabe selbst: `/api/starter-pack`
- * antwortet `granted: true` GENAU EINMAL pro Konto, egal über welchen Weg die
- * Anmeldung lief und auf welcher Seite sie herauskommt. Ein Zustandswechsel
+ * antwortet `granted: true` genau einmal pro Konto, egal über welchen Weg die
+ * Anmeldung lief und auf welcher Seite sie herauskommt. Einen Zustandswechsel
  * im selben Dokument (erst kein `uid`, dann einer) gibt es nur beim
- * Google-Popup — Magic-Link und Redirect laden hart neu und kamen früher
- * wortlos an.
- *
+ * Google-Popup; Magic-Link und Redirect laden hart neu.
  */
 
 /** Bekommt die offenen Karten des frisch vergebenen Packs (Must-Eat-IDs). */

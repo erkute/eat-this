@@ -104,16 +104,15 @@
     min-height: calc(100dvh - var(--detail-map-peek, 190px) + var(--map-bar-overhang, 0px));
   }
 
-  /* `overflow: visible` als Kurzform stand hier einmal und hat die x-Achse der
-     Regel weiter oben mitgerissen. Das Blaettern schiebt den Hero per
-     translateX um eine volle Viewport-Breite — ohne Klemme in x wuchs damit
-     das DOKUMENT auf 750px (gemessen bei 375px Viewport), und mit ihm die
-     Layout-Viewport-Breite: `innerWidth` sprang 375 -> 750, iOS Safari zog die
-     Seite auf Bildschirmbreite zusammen und beim Loslassen wieder auf. Genau
-     das "klein ziehen und wieder gross werden" waehrend des Wisches. Die
-     y-Achse bleibt `visible` — der Telefon-Detailfluss ist Absicht (siehe
-     Kommentar am Blockanfang), nur `clip` in x hält den Fluss und macht keinen
-     Scroll-Container auf (anders als `hidden`). */
+  /* Nicht `overflow: visible` als Kurzform: Sie risse die x-Achse der Regel
+     weiter oben mit. Das Blättern schiebt den Hero per translateX um eine volle
+     Viewport-Breite; ohne Klemme in x wüchse damit das Dokument auf 750px (bei
+     375px Viewport), und mit ihm die Layout-Viewport-Breite: `innerWidth`
+     spränge 375 -> 750, iOS Safari zöge die Seite auf Bildschirmbreite zusammen
+     und beim Loslassen wieder auf. Die y-Achse bleibt `visible`, der
+     Telefon-Detailfluss ist Absicht (siehe Kommentar am Blockanfang); nur
+     `clip` in x hält den Fluss und macht keinen Scroll-Container auf (anders
+     als `hidden`). */
 
   [data-map-sheet][data-view='detail'] .detailMount:not(.detailMountMustEat) {
     width: auto;

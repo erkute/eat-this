@@ -97,10 +97,9 @@ export function UserLocationProvider({ children }: { children: ReactNode }) {
   );
 
   /* Resume an existing grant without prompting. Shares hasGeolocationPermission
-     with MapSection's auto-centre — the one surface that used to skip this check
-     and fired the system dialog on first paint. Permission is per-origin, so a
-     prompt on any page would poison it everywhere: both callers stay on the
-     same gate. */
+     with MapSection's auto-centre, so neither fires the system dialog on first
+     paint. Permission is per-origin, so a prompt on any page would poison it
+     everywhere: both callers stay on the same gate. */
   useEffect(() => {
     let cancelled = false;
     void hasGeolocationPermission().then((granted) => {

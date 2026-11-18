@@ -160,12 +160,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           admin = result;
         })
         .catch((error: unknown) => {
-          /* Die Bild-Sitzung ist ein Nebenaufruf. Faellt sie aus, fehlen
-             signierte Bilder — die Anmeldung selbst haelt Firebase, und genau
-             die hat der Code hier bisher weggeworfen: ein einziger
-             Fehlschlag zeigte „nicht angemeldet", bis eine Stunde spaeter das
-             Token rotierte. Also: melden statt schlucken, und den angemeldeten
-             Zustand behalten. */
+          /* Die Bild-Sitzung ist ein Nebenaufruf. Fällt sie aus, fehlen
+             signierte Bilder; die Anmeldung selbst hält Firebase, und die darf
+             ein Fehlschlag hier nicht wegwerfen: Sonst zeigte die App „nicht
+             angemeldet", bis eine Stunde später das Token rotiert. Also: melden
+             statt schlucken, und den angemeldeten Zustand behalten. */
           Sentry.captureException(error, {
             level: 'error',
             tags: {

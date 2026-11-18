@@ -80,13 +80,13 @@ export function useMustEatDetailState({
       ? 0.18
       : Math.max(0.18, Math.min(1, 1 - distance / 500));
 
-  /* No fix, and nothing standing in the way of asking for one. This card is
-     not "too far" — the app does not know where the visitor is, and the
-     shake it used to answer with told them nothing. Asking is a deliberate
-     gesture (the card tap or the chip under it): the payoff is on screen and
-     the ask is unmistakable, which is what keeps a first-paint prompt (and
-     the permanent "Don't Allow" it collects) off the map. Null once the
-     browser has said no — re-asking is dead UI then. */
+  /* No fix, and nothing standing in the way of asking for one. This card is not
+     "too far" — the app does not know where the visitor is, and a shake would
+     tell them nothing. Asking is a deliberate gesture (the card tap or the chip
+     under it): the payoff is on screen and the ask is unmistakable, which is
+     what keeps a first-paint prompt (and the permanent "Don't Allow" it
+     collects) off the map. Null once the browser has said no — re-asking is
+     dead UI then. */
   const canRequestLocation = needsLocation && !locationDenied && Boolean(onRequestLocation);
   const requestLocation = useCallback(() => {
     trackEvent('must_eat_reveal_attempt', {

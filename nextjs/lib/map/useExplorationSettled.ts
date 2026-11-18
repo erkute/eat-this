@@ -5,17 +5,16 @@ import { useEffect, useState } from 'react';
 export const EXPLORATION_SETTLE_MS = 1500;
 
 /**
- * Hat der Besucher die Karte schon angefasst — verschoben, gezoomt, die Liste
- * gescrollt — und ist die Geste zur Ruhe gekommen?
+ * Hat der Besucher die Karte schon angefasst (verschoben, gezoomt, die Liste
+ * gescrollt), und ist die Geste zur Ruhe gekommen?
  *
- * Die Standort-Frage kam bis 28.09.2026 800 ms nach der Cookie-Antwort: zwei
- * Dialoge hintereinander, bevor man die Karte überhaupt gesehen hatte. Jetzt
- * wartet sie hierauf. Die Ruhe-Frist verhindert, dass die Frage samt Scrim
+ * Die Standort-Frage wartet hierauf: Sie kommt nicht, bevor man die Karte
+ * überhaupt gesehen hat. Die Ruhe-Frist verhindert, dass die Frage samt Scrim
  * mitten ins Wischen springt.
  *
  * Gezählt wird Eingabe, nicht Bewegung: Scrollrad, Wischen, Ziehen mit
  * gedrückter Maustaste. Programmatisches Scrollen (Scroll-Keeper, Detail
- * öffnen) und blosses Überfahren mit der Maus sind keine Geste. Kommt keine,
+ * öffnen) und bloßes Überfahren mit der Maus sind keine Geste. Kommt keine,
  * bleibt es aus.
  */
 export function useExplorationSettled(): boolean {

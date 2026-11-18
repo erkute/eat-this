@@ -7,14 +7,13 @@
 /**
  * Breite, mit der Fotos bei der Places Photo API abgeholt werden.
  *
- * Stand 28.08.2026 lagen dadurch 138 von 466 Hero-Fotos unter 1200px und 323
- * von 685 Galeriebildern — zu wenig fuer die 900px breite Bildspalte der
- * Detailseite, die auf einem 2x-Schirm 1800 Geraetepixel will. Die API gibt
- * bis 4800px her und rechnet pro Anfrage ab, nicht pro Pixel: breiter zu
- * ziehen kostet beim Import nichts, nur Sanity-Speicher.
+ * Die 900px breite Bildspalte der Detailseite will auf einem 2x-Schirm 1800
+ * Gerätepixel; unter 1200px ist ein Foto dafür zu klein. Die API gibt bis
+ * 4800px her und rechnet pro Anfrage ab, nicht pro Pixel: Breiter zu ziehen
+ * kostet beim Import nichts, nur Sanity-Speicher.
  *
- * Aendert nur, was ab jetzt importiert wird — Bestandsfotos bleiben so klein,
- * wie sie geholt wurden, und brauchen einen Nachimport.
+ * Ändert nur, was neu importiert wird; Bestandsfotos bleiben so klein, wie sie
+ * geholt wurden, und brauchen einen Nachimport.
  */
 export const PLACES_PHOTO_MAX_WIDTH_PX = 2400;
 

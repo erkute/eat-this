@@ -246,9 +246,9 @@ export default async function RestaurantPage({ params }: PageProps) {
   const tipText = pickLocale(r.tip, r.tipEn, loc);
   const displayName = normalizeName(r.name);
   const heroAssetKey = imageAssetKey(r.photo);
-  // The hero photo is NOT a gallery item. It used to be prepended here, which
-  // showed the same picture twice on every spot that has no extra gallery
-  // images (Bari et al.) — header photo, then the identical "gallery".
+  // The hero photo is NOT a gallery item: prepended here, it would show the
+  // same picture twice on every spot that has no extra gallery images — header
+  // photo, then the identical "gallery".
   const galleryImages = (r.gallery ?? [])
     .filter((img): img is typeof img & { thumb: string; full: string } =>
       Boolean(img?.thumb && img?.full)

@@ -27,13 +27,10 @@ export const MAP_FILTER_DEFAULTS: MapFilterState = {
   openOnly: false,
 };
 
-/* `cat` and `bezirk` are pre-existing inbound params — the kategorie, bezirk
-   and guide pages link into the map with them („Zur Map“). Their names and
-   slug values are therefore fixed; `price`, `q` and `open` are new.
-   `cuisine` stand hier bis zum 27.08.2026 und ist ersatzlos weg — der Filter
-   las ein ungeprüftes Freitextfeld aus. Alte Links mit ?cuisine= verlieren
-   still ihren Filter und zeigen die ganze Karte; das ist das Verhalten, das
-   ein unbekannter Parameter hier immer schon hatte. */
+/* `cat` and `bezirk` are inbound params the kategorie, bezirk and guide pages
+   link into the map with („Zur Map“), so their names and slug values are fixed.
+   A parameter that is not in this list, such as an old `?cuisine=`, is ignored
+   and the link shows the whole map. */
 const MAP_FILTER_KEYS = ['cat', 'bezirk', 'price', 'q', 'open'] as const;
 
 /** The current URL with `params` swapped in, path and hash untouched. Both map

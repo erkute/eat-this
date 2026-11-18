@@ -77,25 +77,17 @@ export function bezirkCategoryLinks(
 /**
  * Die Kategorieseiten, denen ein Magazin-Guide dieselbe Frage beantwortet.
  *
- * Vorgeschichte: `/guides/beste-cafes-berlin` und `/kategorie/coffee` haben
- * sich gegenseitig aus dem Index gedrängt (derselbe Fall wie bei den
- * Bäckereien, siehe die Redirect-Liste in next.config.ts). Der `/guides/`-Pfad
- * ist seitdem 308 auf die Kategorieseite — der gleichnamige Sanity-Artikel
- * unter `/news/beste-cafes-berlin` lebt aber weiter und trägt praktisch
- * denselben Titel wie der Hub.
+ * Hub und Guide konkurrieren sonst um dieselbe Suche: Der Sanity-Artikel unter
+ * `/news/beste-cafes-berlin` trägt praktisch denselben Titel wie
+ * `/kategorie/coffee`. Ein Redirect wäre falsch, die beiden Seiten sind nicht
+ * dasselbe: Der Hub listet jeden Café-Spot, der Guide erzählt einige davon aus.
+ * Diese Zeile stellt die Beziehung her, Übersicht und Vertiefung statt zwei
+ * konkurrierender Antworten. (Die alten `/guides/`-Pfade leiten auf die
+ * Kategorieseiten weiter, siehe next.config.ts.)
  *
- * Ein Redirect wäre hier falsch: die beiden Seiten sind nicht dasselbe. Der Hub
- * listet jeden Café-Spot, der Guide erzählt vierzehn davon aus. Was fehlte, war
- * die Beziehung — der Hub verlinkte den Artikel mit keinem einzigen Wort,
- * womit für Google zwei konkurrierende Antworten nebeneinander standen statt
- * Übersicht und Vertiefung. Diese Zeile stellt sie her.
- *
- * Am 26.08.2026 sind vierzehn Guides dazugekommen, die dieselben Head-Terms
- * bedienen wie bestehende Hubs — `coffee` war ab da nicht mehr der Sonderfall,
- * sondern der einzige gepflegte Eintrag einer Liste, die zehn hätte haben
- * müssen. Mehrere Guides pro Hub sind der Normalfall, nicht die Ausnahme:
- * `sweets` nennt in seinem eigenen Title „Eis, Donuts & Patisserie" und hat
- * für jedes davon einen. Die Reihenfolge folgt dieser Aufzählung.
+ * Mehrere Guides pro Hub sind der Normalfall: `sweets` nennt in seinem eigenen
+ * Title „Eis, Donuts & Patisserie" und hat für jedes davon einen. Die
+ * Reihenfolge folgt dieser Aufzählung.
  */
 const CATEGORY_GUIDES: Record<string, readonly string[]> = {
   coffee: ['beste-cafes-berlin'],

@@ -53,10 +53,10 @@ function ogPhotoUrl(photo: string): string {
 export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
   const slug = params.get('slug') ?? '';
-  /* Die Karte trug bisher immer den rohen Sanity-Wert, also „Mexican" auch
-     unter einem deutschen Beitrag. Die Locale kommt aus dem Aufrufer, weil die
-     Route selbst keinen Pfad-Kontext hat; ohne Parameter bleibt es Deutsch,
-     die Standard-Locale der Seite. */
+  /* Die Küche steht in der Sprache des Beitrags, nicht als roher Sanity-Wert
+     („Mexican" unter einem deutschen Beitrag). Die Locale kommt aus dem
+     Aufrufer, weil die Route selbst keinen Pfad-Kontext hat; ohne Parameter
+     bleibt es Deutsch, die Standard-Locale der Seite. */
   const locale = params.get('locale') === 'en' ? 'en' : 'de';
   if (!isValidSlug(slug)) {
     return new Response('invalid slug', { status: 400 });

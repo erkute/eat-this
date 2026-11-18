@@ -37,16 +37,16 @@ interface LoginBoardProps {
 }
 
 /**
- * Die Anmeldung — EIN Aufbau fuer alle Stellen, an denen sie steht: das
- * Modal (LoginPanel), die Starter-Pack-Tafel der Startseite und die
- * Beitritts-Tafel des geteilten Decks. Vorher waren das drei Formulare mit
- * eigenen Texten, eigener Knopfform und eigenem Verhalten nach dem Absenden.
+ * Die Anmeldung: ein Aufbau für alle Stellen, an denen sie steht: das Modal
+ * (LoginPanel), die Starter-Pack-Tafel der Startseite und die Beitritts-Tafel
+ * des geteilten Decks, mit denselben Texten, derselben Knopfform und demselben
+ * Verhalten nach dem Absenden.
  *
- * Links die Szene, rechts Ueberschrift und Formular. Die Szene bleibt stehen,
- * wenn die Mail raus ist: das, worauf man wartet, verschwindet nicht.
+ * Links die Szene, rechts Überschrift und Formular. Die Szene bleibt stehen,
+ * wenn die Mail raus ist: Das, worauf man wartet, verschwindet nicht.
  *
- * „Anmelden" steht nur auf dem Knopf — nie als Ueberschrift. Der Titel sagt,
- * was man bekommt; der Knopf, was man tut.
+ * „Anmelden" steht nur auf dem Knopf, nie als Überschrift. Der Titel sagt, was
+ * man bekommt; der Knopf, was man tut.
  */
 export default function LoginBoard({
   art,

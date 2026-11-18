@@ -1,13 +1,14 @@
-/* Findet `styles.foo`-Zugriffe, für die es in `foo.module.css` keine Klasse
+/*
+ * Findet `styles.foo`-Zugriffe, für die es in `foo.module.css` keine Klasse
  * gibt. Ein CSS-Modul ist zur Laufzeit ein Objekt; ein Zugriff auf einen
  * fehlenden Schlüssel ist `undefined`, und React lässt `className={undefined}`
- * kommentarlos ganz weg. Kein Fehler, keine Warnung — nur ein Element ohne
- * Stil. So verlor die geteilte Deck-Seite am 04.09.2026 ihr komplettes Layout.
+ * kommentarlos ganz weg. Kein Fehler, keine Warnung, nur ein Element ohne Stil;
+ * so verliert eine Seite ihr komplettes Layout.
  *
- * Bewusst textuell statt über einen echten Parser: die Zugriffe stehen im JSX
+ * Bewusst textuell statt über einen echten Parser: Die Zugriffe stehen im JSX
  * immer als `styles.klasse`, und ein Regex kostet keine Abhängigkeit. Dafür
- * gilt: dynamische Schlüssel (`styles[key]`, Template-Literale) sind hier
- * nicht entscheidbar und werden gemeldet, nicht verschwiegen.
+ * gilt: Dynamische Schlüssel (`styles[key]`, Template-Literale) sind hier nicht
+ * entscheidbar und werden gemeldet, nicht verschwiegen.
  */
 import { readFileSync, readdirSync } from 'node:fs';
 import { dirname, relative, resolve, sep } from 'node:path';

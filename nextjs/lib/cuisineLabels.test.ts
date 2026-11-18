@@ -11,10 +11,10 @@ describe('localizedCuisine', () => {
     expect(localizedCuisine('Wine Bar', 'de')).toBe('Weinbar');
   });
 
-  /* Die sechs Werte, die am 09.09.2026 im Bestand standen, aber nicht in der
-     Tabelle: 13 Spots trugen auf den deutschen Seiten ein englisches Label.
-     Aufgefallen in Remys Chat, wo „ITALIAN / PIZZA" und „ITALIENISCH" in
-     derselben Antwort untereinander standen. */
+  /* Werte, die im Bestand stehen und in der Tabelle leicht fehlen: Ohne Eintrag
+     trägt ein Spot auf den deutschen Seiten ein englisches Label, und in Remys
+     Chat stehen dann „ITALIAN / PIZZA" und „ITALIENISCH" in derselben Antwort
+     untereinander. */
   it.each([
     ['Italian / Pizza', 'Pizza'],
     ['Japanese / Ramen', 'Ramen'],

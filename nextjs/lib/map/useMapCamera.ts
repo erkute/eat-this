@@ -58,13 +58,11 @@ const SHEET_IDLE_MS = 150;
  * viewport pixels. Out of sight is under the sheet, or up under the
  * search/burger row.
  *
- * Only while there is map to speak of below that row. With the sheet up at
- * the map strip — or scrolled past it, its top edge far above the screen —
- * the strip is scenery around a detail being read, and the camera leaves it
- * alone. Until 29.09.2026 it pulled the pin into the strip, and with the
- * sheet scrolled past it counted every pin as covered: the map shifted
- * inside the strip while reading, at the end of a detail on every further
- * pull (Betreiber).
+ * Only while there is map to speak of below that row. With the sheet up at the
+ * map strip — or scrolled past it, its top edge far above the screen — the
+ * strip is scenery around a detail being read, and the camera leaves it alone:
+ * otherwise the map would shift inside the strip while reading, at the end of a
+ * detail on every further pull.
  */
 export function pinNeedsFollow(anchorY: number, sheetTop: number, safeTop: number): boolean {
   const belowControls = PIN_SAFE_TOP + safeTop;
@@ -141,10 +139,10 @@ export function useMapCamera({
      flyTos, sheetView already 'detail') and the open-click handlers (whose
      closures still see sheetView 'list').
 
-     Measured from the sheet's real top edge, not assumed at its resting
-     stop: paging to the next spot keeps the scroll position, and with the
-     sheet pushed halfway up the spot was centred in the whole strip — under
-     the sheet (user, 23.09.2026). */
+     Measured from the sheet's real top edge, not assumed at its resting stop:
+     paging to the next spot keeps the scroll position, and with the sheet
+     pushed halfway up the spot would be centred in the whole strip — under the
+     sheet. */
   const phoneDetailFlyPadding = useCallback(() => {
     if (isLandscapePanelViewport()) return landscapePanelPadding();
     /* Mirrors --detail-map-peek in MapLayout.module.css. */
@@ -233,13 +231,13 @@ export function useMapCamera({
     flyToSpot,
   ]);
 
-  /* The phone detail sheet moves after the flight that opened it — pulled
-     down to the map, up to the strip, to the lowest stop. The camera stayed
-     where the open left it: pulled down, the pin stood at the very top under
-     the search and burger row with nothing but empty streets below it
-     (iOS Safari, audit 28.09.2026). Once the sheet is at rest, bring the pin
-     back into the uncovered map — only if it is out of sight, and only if the
-     SHEET moved: a map the user panned away on purpose stays where it is. */
+  /* The phone detail sheet moves after the flight that opened it — pulled down
+     to the map, up to the strip, to the lowest stop. If the camera stayed where
+     the open left it, a pulled-down sheet would leave the pin at the very top
+     under the search and burger row with nothing but empty streets below it.
+     Once the sheet is at rest, bring the pin back into the uncovered map — only
+     if it is out of sight, and only if the SHEET moved: a map the user panned
+     away on purpose stays where it is. */
   useEffect(() => {
     if (!isActive || sheetView !== 'detail' || !selectedRestaurantId) return;
     if (selectedRestaurantLng == null || selectedRestaurantLat == null) return;
@@ -390,18 +388,14 @@ export function useMapCamera({
   /* The camera the map opens on: every spot, framed for the canvas as it is
      laid out right now (the phone list resting at its first stop, the tablet
      sheet, the desktop panel beside the canvas). Asked by MapCanvas before its
-     first frame, when mapRef is still empty — so the canvas is measured
-     from the map wrap, and the phone's apron below the viewport comes from
-     that height rather than a guess.
+     first frame, when mapRef is still empty — so the canvas is measured from
+     the map wrap, and the phone's apron below the viewport comes from that
+     height rather than a guess. A fixed opening point would leave the spots
+     running off the edge on desktop and under the sheet on a tablet.
 
-     Until 28.09.2026 the map opened on a fixed point at Alexanderplatz: the
-     spots ran off the left and bottom edge on desktop, the top third of the
-     phone showed Lübars, and on a portrait tablet the whole cloud sat under
-     the sheet.
-
-     Never much further out than that old zoom, though. The whole catalogue
-     only fits at zoom 12 on a wide desktop; on a phone it takes 10.4, and
-     there the pins melt into one yellow slab with Brandenburg above it. */
+     Never much further out than city level, though. The whole catalogue only
+     fits at zoom 12 on a wide desktop; on a phone it takes 10.4, and there the
+     pins melt into one slab with Brandenburg above it. */
   const initialCamera = useCallback(
     (spots: LngLat[], canvas: { width: number; height: number }): InitialCamera | null => {
       if (!spots.length || canvas.width <= 0 || canvas.height <= 0) return null;

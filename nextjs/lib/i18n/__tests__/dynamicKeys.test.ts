@@ -6,10 +6,9 @@ import { translations, type Lang } from '@/lib/i18n/translations';
  * Schlüssel, die im Code erst zur Laufzeit zusammengesetzt werden.
  *
  * `t(\`avatarChoice${c}\`)` steht in keiner Suche nach `avatarChoice1`, kein
- * Compiler und kein Linter sieht die Verbindung. Genau deshalb sind die drei
- * Namen in 24ee6c3 mitgelöscht worden, ohne dass etwas rot wurde — und im
- * Profil standen ab da die Schlüssel selbst statt „Spot Scout“ (Nutzer,
- * 28.08.2026). Zusammengesetzte Schlüssel brauchen deshalb eine Liste, die
+ * Compiler und kein Linter sieht die Verbindung. Werden solche Schlüssel
+ * gelöscht, wird nichts rot, und im Profil stehen die Schlüssel selbst statt
+ * „Spot Scout“. Zusammengesetzte Schlüssel brauchen deshalb eine Liste, die
  * jemand pflegt: diese hier.
  */
 const ZUSAMMENGESETZT: Record<string, string[]> = {

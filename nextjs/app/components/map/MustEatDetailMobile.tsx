@@ -510,11 +510,11 @@ export default function MustEatDetailMobile({
                   disabled={unlocking}
                   aria-busy={unlocking || undefined}
                   data-reveal-ready={canUnlock && !unlocking ? '' : undefined}
-                  /* The accessible name has to follow the same state machine
-                     as the copy above. Without a fix "Zu weit weg" is the same
-                     guess the headline used to make — and here it is the ONLY
-                     thing a screen reader gets, since the tap now opens the
-                     permission prompt rather than revealing anything. */
+                  /* The accessible name has to follow the same state machine as
+                     the copy above. Without a fix "Zu weit weg" would be a
+                     guess — and here it is the ONLY thing a screen reader gets,
+                     since the tap opens the permission prompt rather than
+                     revealing anything. */
                   aria-label={
                     /* Ohne Konto oeffnet der Tipp das Anmeldeformular — und
                        so heisst die Karte auch, mit demselben kurzen Wort wie
@@ -530,8 +530,8 @@ export default function MustEatDetailMobile({
                           : t('map.tooFarToReveal')
                   }
                   /* Auch die verdeckte Karte verschwindet während des Zooms:
-                     der Zoom blättert inzwischen weiter, und landet er auf einer
-                     verdeckten Karte, läge sonst deren Rücken doppelt da —
+                     Der Zoom blättert weiter, und landet er auf einer
+                     verdeckten Karte, läge sonst deren Rücken doppelt da,
                      Zoom-Klon plus Slot-Karte. */
                   style={{
                     ...(revealOrigin || state.zoomActive ? { visibility: 'hidden' } : {}),
@@ -559,13 +559,11 @@ export default function MustEatDetailMobile({
             Näherungs-Hinweis (locked) hängen direkt unter der Karte; läuft der
             Text über, klemmt fdMid statt den fixen Footer zu verdrängen. */}
         <div className={`${styles.fdMid}${!textOpen ? ` ${styles.fdMidLocked}` : ''}`}>
-          {/* Ein Track für beides: verdeckt trägt er die Zustands-Kopfzeile,
-              aufgedeckt den Gerichtsnamen — in derselben Größe, unten im
+          {/* Ein Track für beides: Verdeckt trägt er die Zustands-Kopfzeile,
+              aufgedeckt den Gerichtsnamen, in derselben Größe, unten im
               2-Zeilen-Feld verankert, sodass eine zweite Zeile nach oben füllt
-              und nichts darunter springt. Vorher stand hier verdeckt der
-              unsichtbar gestellte Gerichtsname und die Kopfzeile eine Etage
-              tiefer; das ergab eine leere Fläche zwischen Karte und Text und
-              zwei konkurrierende Zustandsanzeigen. */}
+              und nichts darunter springt. So gibt es keine leere Fläche
+              zwischen Karte und Text und nur eine Zustandsanzeige. */}
           {/* Kicker und Gerichtsname als ein Kopf, wie im Onboarding jede Folie
               (Kicker → Titel → Text). Der Kicker nennt den Bezirk: die eine
               Angabe, die verdeckt wie aufgedeckt gilt und nicht schon im

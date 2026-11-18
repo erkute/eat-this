@@ -728,9 +728,8 @@ a.quiet {
 }
 
 /* ── Desktop: Bild als halbe Tafel, Text und Fuss rechts ──────────────── */
-/* Das Bild nimmt die ganze linke Haelfte ueber volle Hoehe; Text und Fuss
-   stehen zusammen rechts. Vorher lag der Fuss mittig unter beiden Spalten,
-   und das Bild blieb in einer schmalen Spalte klein. */
+/* Das Bild nimmt die ganze linke Hälfte über volle Höhe; Text und Fuß stehen
+   zusammen rechts. */
 @media (min-width: 601px) {
   .panel {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -771,9 +770,9 @@ a.quiet {
     padding-top: 28px;
   }
   .packStage {
-    /* So gross, dass das versiegelte Pack (1,91 Kartenbreiten hoch) etwa so
-       hoch steht wie das Pack-Bild auf der Sammlungs-Seite — vorher sprang
-       dasselbe Pack zwischen Seite 1 und 5 um ein Drittel. */
+    /* So groß, dass das versiegelte Pack (1,91 Kartenbreiten hoch) etwa so hoch
+       steht wie das Pack-Bild auf der Sammlungs-Seite; sonst spränge dasselbe
+       Pack zwischen Seite 1 und 5 um ein Drittel. */
     --card-width: min(44cqw, 46cqh, 200px);
   }
   .panelGo {

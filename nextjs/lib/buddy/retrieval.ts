@@ -280,13 +280,12 @@ interface RetrievalDeps {
 
 const SPOTS_LIMIT = 30;
 /**
- * Drei statt frueher fuenf. Die Treffer sind nach Punkten sortiert, der
- * Schwanz ist also der schwaechste Teil — bei „Was macht Berliner Kaffee
- * besonders" stand auf Platz fuenf ein Schoeneberg-Guide (0,48: ueber der
- * Schwelle, aber kein Kaffee-Text). Unter einer Chat-Antwort sind drei Karten
- * ohnehin genug. Die Schwelle bleibt, wo sie gemessen wurde: sie liegt
- * mittig in der Luecke zwischen passend und fremd, ein hoeherer Wert haette
- * die schwaecheren echten Treffer mitgenommen.
+ * Drei. Die Treffer sind nach Punkten sortiert, der Schwanz ist also der
+ * schwächste Teil: Bei „Was macht Berliner Kaffee besonders" stünde auf Platz
+ * fünf ein Schöneberg-Guide (0,48: über der Schwelle, aber kein Kaffee-Text).
+ * Unter einer Chat-Antwort sind drei Karten ohnehin genug. Die Schwelle bleibt,
+ * wo sie gemessen wurde: Sie liegt mittig in der Lücke zwischen passend und
+ * fremd, ein höherer Wert nähme die schwächeren echten Treffer mit.
  */
 const ARTICLES_LIMIT = 3;
 export const MIN_SEMANTIC_CANDIDATES = 8;
@@ -452,13 +451,13 @@ const ARTICLE_PROJECTION = `{
 }`;
 
 /**
- * Rueckfallweg, wenn die semantische Suche nicht verfuegbar ist — kein Key,
- * kein Index, oder Voyage bremst (der Free-Tier laesst 3 Anfragen pro Minute).
+ * Rückfallweg, wenn die semantische Suche nicht verfügbar ist: kein Key, kein
+ * Index, oder Voyage bremst (der Free-Tier lässt 3 Anfragen pro Minute).
  *
- * Er sucht bewusst nach EINZELNEN Wortstaemmen, nicht nach der ganzen Frage.
- * Ein `match "*Was macht Berliner Kaffee besonders*"` trifft nie — genau daran
- * war das Werkzeug vorher tot. Mit bis zu drei Tokens aus der Frage bleibt
- * wenigstens ein grober Treffer moeglich, wenn das Ranking gerade ausfaellt.
+ * Er sucht bewusst nach einzelnen Wortstämmen, nicht nach der ganzen Frage: Ein
+ * `match "*Was macht Berliner Kaffee besonders*"` trifft nie. Mit bis zu drei
+ * Tokens aus der Frage bleibt wenigstens ein grober Treffer möglich, wenn das
+ * Ranking gerade ausfällt.
  */
 const ARTICLES_KEYWORD_QUERY = `*[
   _type == "newsArticle"

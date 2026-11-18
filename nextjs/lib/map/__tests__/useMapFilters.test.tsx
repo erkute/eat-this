@@ -190,9 +190,9 @@ describe('useMapFilters Must Eats', () => {
   });
 });
 
-/* Bis zum 23.09.2026 hob eine Suchanfrage jeden Chip auf: „pizza" mit
-   Bezirk Mitte zeigte Pizza aus ganz Berlin. Wer filtert und dann tippt, sucht
-   innerhalb dessen, was die Chips übrig lassen. */
+/* Eine Suchanfrage hebt die Chips nicht auf: „pizza" mit Bezirk Mitte zeigt
+   Pizza in Mitte. Wer filtert und dann tippt, sucht innerhalb dessen, was die
+   Chips übrig lassen. */
 describe('useMapFilters Suche mit Chips', () => {
   it('sucht nur in dem, was die Chips übrig lassen', () => {
     const { result } = mount();
@@ -244,8 +244,7 @@ describe('useMapFilters with the paywalled spots in', () => {
     expect(result.current.optionCounts.byValue.price.get('100')).toBeUndefined();
   });
 
-  /* Marker und Liste zeigen dieselben Treffer — bis zum 06.09.2026 waren das
-     zwei Mengen, weil die Karte gesperrte Spots anders zeichnete. */
+  /* Marker und Liste zeigen dieselben Treffer. */
   it('hands the map and the list the same matches', () => {
     const { result } = mount();
     act(() => result.current.setPrice('u10'));
@@ -379,8 +378,8 @@ describe('useMapFilters list order', () => {
 });
 
 /**
- * Die zwei Regeln, die den Chip-Rail am 27.08.2026 gekürzt haben: Bezirke erst
- * ab fünf Spots, und ein Spot ohne gepflegten Preis fällt in keine Stufe.
+ * Die zwei Regeln, die den Chip-Rail kurz halten: Bezirke erst ab fünf Spots,
+ * und ein Spot ohne gepflegten Preis fällt in keine Stufe.
  */
 describe('useMapFilters, gekürzte Auswahllisten', () => {
   it('bietet nur Bezirke mit mindestens fünf Spots an', () => {
@@ -485,14 +484,14 @@ describe('useMapFilters Suche', () => {
 });
 
 /**
- * Nachgemessen am echten Katalog (23.09.2026), jeweils 0 Treffer:
- * - „pizza neukölln" — der ganze Satz musste in EINEM Feld stehen.
- * - „doener", „neukoelln", „fruehstueck" — Umlaute ausgeschrieben, wie man
+ * Anfragen, die am echten Katalog Treffer finden müssen:
+ * - „pizza neukölln": Der Satz muss nicht in einem Feld stehen.
+ * - „doener", „neukoelln", „fruehstueck": Umlaute ausgeschrieben, wie man
  *   sie auf einer Tastatur ohne Umlaute tippt.
- * - „strasse" — alle Adressen schreiben „straße".
- * - „x-berg", „f'hain" — so heissen die Kieze im Alltag.
- * Und „eis" holte „Speiselokal" und „Geist im Glas" zu den Eisdielen: ein
- * kurzes Wort zählt deshalb nur am Wortanfang.
+ * - „strasse": Alle Adressen schreiben „straße".
+ * - „x-berg", „f'hain": So heißen die Kieze im Alltag.
+ * Und „eis" darf nicht „Speiselokal" und „Geist im Glas" zu den Eisdielen
+ * holen: Ein kurzes Wort zählt deshalb nur am Wortanfang.
  */
 describe('useMapFilters Suche, zweite Runde', () => {
   const KATALOG: MapRestaurant[] = [
@@ -548,17 +547,17 @@ describe('useMapFilters Suche, zweite Runde', () => {
   });
 
   it('findet ein Wort nicht mitten in einem anderen', () => {
-    /* „eis" steckt in „Speiselokal" — bis 30.10.2026 ein Treffer. */
+    /* „eis" steckt in „Speiselokal" und ist dort kein Treffer. */
     const amSpeiselokal = { lat: 52.5, lng: 13.4 };
     expect(liste('eis', amSpeiselokal)).toEqual(['Natur Eis']);
   });
 });
 
 /**
- * Nachgemessen auf Produktion (28.09.2026), jeweils 0 Treffer:
- * - „kastanienallee", „weserstr" — die Adresse fehlte im Kartenpayload.
- * - „brunch", „kebab", „nkln" — kein Synonym, keine Schreibvariante.
- * - „piza" — ein Buchstabe daneben, und nichts kam.
+ * Anfragen, die auf Produktion Treffer finden müssen:
+ * - „kastanienallee", „weserstr": Die Adresse steht im Kartenpayload.
+ * - „brunch", „kebab", „nkln": Synonyme und Schreibvarianten.
+ * - „piza": ein Buchstabe daneben.
  */
 describe('useMapFilters Suche, dritte Runde', () => {
   const KATALOG: MapRestaurant[] = [
@@ -607,7 +606,7 @@ describe('useMapFilters Suche, dritte Runde', () => {
     expect(liste('nkln')).toEqual(['Gazzo']);
     expect(liste('gelato')).toEqual(['Jones Ice Cream']);
     expect(liste('wein')).toEqual(['Rutz']);
-    /* Pasta meint Pasta, nicht jede italienische Küche (30.10.2026). */
+    /* Pasta meint Pasta, nicht jede italienische Küche. */
     expect(liste('pasta')).toEqual([]);
     expect(liste('brot')).toEqual(['Crapulix']);
   });

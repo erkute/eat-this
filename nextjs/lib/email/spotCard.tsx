@@ -38,24 +38,26 @@ export interface SpotCardData {
   area: string;
   /** Roh-URL aus dem Sanity-CDN, Query-String optional. */
   photo: string;
-  /** Die offene Must-Eat-Karte des Spots als PNG-Data-URI (Satori liest
-   *  kein WebP). Sie steht rechts neben dem Namen: die Mail soll zeigen,
-   *  dass zu jedem Spot eine Karte gehört (Betreiber, 22.09.2026). */
+  /**
+   * Die offene Must-Eat-Karte des Spots als PNG-Data-URI (Satori liest kein
+   * WebP). Sie steht rechts neben dem Namen: Die Mail soll zeigen, dass zu
+   * jedem Spot eine Karte gehört.
+   */
   card: string;
 }
 
-/** Die Must-Eat-Karte oben rechts, wie `.mustPeek` auf der Restaurantliste
- *  (dort 54–68 px auf rund 360 px Kartenbreite, 5° gekippt) — hier etwas
- *  grösser, 120 px auf 536 px Anzeigebreite. Grösser deckte sie das Foto zu
- *  (Betreiber, 22.09.2026). Breite im 2x-Bitmap; die Höhe folgt dem Format
- *  der Karte (720×989). */
+/**
+ * Die Must-Eat-Karte oben rechts, wie `.mustPeek` auf der Restaurantliste (dort
+ * 54–68 px auf rund 360 px Kartenbreite, 5° gekippt), hier etwas größer, 120 px
+ * auf 536 px Anzeigebreite. Größer deckte sie das Foto zu. Breite im 2x-Bitmap;
+ * die Höhe folgt dem Format der Karte (720×989).
+ */
 const CARD_WIDTH = 240;
 const CARD_HEIGHT = Math.round((CARD_WIDTH * 989) / 720);
 
 // Satori subset: flexbox only, every multi-child element needs display:flex.
 export function SpotCardImage({ spot }: { spot: SpotCardData }) {
-  /* Nur der Bezirk: „Mitte · Bakery" sagte, was die Karte ohnehin zeigt
-     (Betreiber, 22.09.2026). */
+  /* Nur der Bezirk: „Mitte · Bakery" sagte, was die Karte ohnehin zeigt. */
   const meta = spot.area;
 
   return (

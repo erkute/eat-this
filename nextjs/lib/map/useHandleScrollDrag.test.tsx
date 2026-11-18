@@ -12,12 +12,12 @@ import { LOWERED_GAP_PX, MAP_STRIP_PX } from './sheetSlide';
 /**
  * The phone list's grabber — pull the list off the map and back.
  *
- * Geometry: an 800px viewport, the sheet's top edge at document offset 600.
- * All the way up, the sheet leaves the 72px map strip showing, so the page
- * runs from 0 (map stop) to 528 (bar on the strip line); anything past that
- * is "deep in the list". The grip leaves the sheet wherever it lets go
- * (user, 28.09.2026). jsdom has no Web Animations, so every slide lands
- * instantly — these cases are about where things END.
+ * Geometry: an 800px viewport, the sheet's top edge at document offset 600. All
+ * the way up, the sheet leaves the 72px map strip showing, so the page runs
+ * from 0 (map stop) to 528 (bar on the strip line); anything past that is "deep
+ * in the list". The grip leaves the sheet wherever it lets go. jsdom has no Web
+ * Animations, so every slide lands instantly — these cases are about where
+ * things END.
  */
 
 const SHEET_DOC_TOP = 600;
@@ -169,7 +169,7 @@ describe('in the list', () => {
       handle.dispatchEvent(pointer('pointerdown', 100));
       expect(content.style.clipPath).toBe('inset(663px 0 0)');
       /* The clipped sheet stacks its bars inside it: the frame steps back at
-         once, or it covers the grip's line (user, 28.09.2026). */
+         once, or it covers the grip's line. */
       const frame = document.querySelector('[data-map-frame]')!;
       expect(frame.hasAttribute('data-following')).toBe(true);
       handle.dispatchEvent(pointer('pointerup', 100));

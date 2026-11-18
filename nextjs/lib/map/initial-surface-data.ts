@@ -71,13 +71,11 @@ export function selectMustEatsCatalog(data: InitialMapData): InitialMustEatsData
 /**
  * Eine verdeckte Karte nennt ihren Spot, mehr nicht.
  *
- * Vom 06.09. bis 15.10.2026 trug sie hier gar keinen Namen (Betreiber: „das
- * ist doch Teil der Überraschung"). Seit dem Neubau der Seite steht unter
- * jeder verdeckten Karte „Verdeckt" und der Spot (Betreiber, 15.10.2026) —
- * welcher Spot eine Karte hält, zeigt die Map ohnehin. Mitgegeben werden
- * deshalb nur Name, Bezirk (der Bezirk, damit er aus dem Namen fällt) und
- * Slug: jede Karte der Seite führt seit dem 27.10.2026 auf ihren Spot in der
- * Map (`/map?r=`). Koordinaten, Adresse und Foto bleiben auf dem Server.
+ * Unter jeder verdeckten Karte steht „Verdeckt" und der Spot; welcher Spot eine
+ * Karte hält, zeigt die Map ohnehin. Mitgegeben werden deshalb nur Name, Bezirk
+ * (der Bezirk, damit er aus dem Namen fällt) und Slug: Jede Karte der Seite
+ * führt auf ihren Spot in der Map (`/map?r=`). Koordinaten, Adresse und Foto
+ * bleiben auf dem Server.
  */
 function trimCoveredSpot(mustEat: MapMustEat): MapMustEat {
   const { _id, name, slug, district } = mustEat.restaurant;

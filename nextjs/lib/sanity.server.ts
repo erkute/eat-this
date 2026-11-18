@@ -151,11 +151,11 @@ export async function getRestaurantPageData(slug: string): Promise<RestaurantPag
     {
       next: {
         revalidate: SANITY_REVALIDATE_SECONDS,
-        // `news`, weil ein neuer oder umgeschriebener Artikel den
-        // „Im Magazin"-Block auf JEDER darin verlinkten Restaurant-Seite
-        // ändert — ohne den Tag bliebe er bis zum Revalidate-Intervall leer.
-        // Es ist der Tag, den der Webhook bei `newsArticle` feuert; hier stand
-        // bis 25.09.2026 `newsArticle`, den niemand feuert.
+        // `news`, weil ein neuer oder umgeschriebener Artikel den „Im
+        // Magazin"-Block auf jeder darin verlinkten Restaurant-Seite ändert;
+        // ohne den Tag bliebe er bis zum Revalidate-Intervall leer. Es ist der
+        // Tag, den der Webhook bei `newsArticle` feuert (nicht `newsArticle`
+        // selbst, den feuert niemand).
         tags: [`restaurant:${slug}`, 'restaurant', 'mustEat', 'news', 'restaurant-siblings'],
       },
     }
@@ -316,23 +316,20 @@ export async function getPackContents(): Promise<PackContentsIndex> {
  *
  * Die Seiten lesen über das CDN (lib/sanity.ts). Baut eine Seite nach der
  * Invalidierung neu, solange das CDN noch den alten Stand hat, hält sie den
- * alten bis zur 24-Stunden-Frist fest. Am 10.10.2026 passierte genau das bei
- * zwei von 29 gleichzeitig veröffentlichten Artikeln, obwohl der Webhook fünf
- * Sekunden gewartet hatte. Deshalb fragt der Webhook dieselbe URL wie die
+ * alten bis zur 24-Stunden-Frist fest; eine feste Pause von fünf Sekunden
+ * reicht dafür nicht immer. Deshalb fragt der Webhook dieselbe URL wie die
  * Seite (gleicher Client, gleiche Abfrage, gleiche Parameter) und vergleicht
  * mit der Antwort ohne CDN, bis beide übereinstimmen.
  *
- * Nur für Artikel, Restaurants und Must-Eat-Karten, deren Detailabfrage
- * bekannt ist; alles andere wartet `fallbackMs`. Gibt nach `maxMs` auf, damit
- * der Webhook nicht in Sanitys Zeitlimit läuft.
+ * Nur für Artikel, Restaurants und Must-Eat-Karten, deren Detailabfrage bekannt
+ * ist; alles andere wartet `fallbackMs`. Gibt nach `maxMs` auf, damit der
+ * Webhook nicht in Sanitys Zeitlimit läuft.
  *
- * Eine Must-Eat-Karte hat keine eigene Seite, sie erscheint auf der Seite
- * ihres Spots. Deshalb wartet der Webhook bei ihr auf die Abfrage DIESER Seite.
- * Vorher wartete er nur pauschal: am 14.10.2026 baute /restaurant/boii-boii
- * gut acht Sekunden nach dem Publish neu, das CDN lieferte die Abfrage noch
- * ohne die neue Karte, und die Seite blieb so stehen, bis ein zweiter Webhook
- * kam. Ist die Karte gelöscht, findet die Abfrage keinen Spot mehr; dann
- * bleibt es beim pauschalen Warten.
+ * Eine Must-Eat-Karte hat keine eigene Seite, sie erscheint auf der Seite ihres
+ * Spots. Deshalb wartet der Webhook bei ihr auf die Abfrage dieser Seite: Sonst
+ * baute die Spot-Seite kurz nach dem Publish gegen ein CDN ohne die neue Karte
+ * neu und bliebe so stehen. Ist die Karte gelöscht, findet die Abfrage keinen
+ * Spot; dann bleibt es beim pauschalen Warten.
  */
 export async function waitForFreshCdn(
   doc: { type?: string; slug?: string; id?: string },

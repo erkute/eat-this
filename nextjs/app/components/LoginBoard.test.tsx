@@ -69,8 +69,7 @@ beforeEach(() => {
 afterEach(() => cleanup());
 
 describe('LoginBoard — Aufbau', () => {
-  /* „Anmelden" stand im alten Modal dreimal da. Der Titel sagt, was man
-     bekommt — das Wort bleibt dem Knopf. */
+  /* „Anmelden" steht nur auf dem Knopf. Der Titel sagt, was man bekommt. */
   it('traegt eine Ueberschrift, und die heisst nie „Anmelden"', () => {
     const { container } = board();
     const headings = [...container.querySelectorAll('h1, h2, h3')].map((h) => h.textContent);

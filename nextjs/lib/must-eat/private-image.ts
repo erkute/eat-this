@@ -5,37 +5,35 @@ import sharp from 'sharp';
 import { getAdminStorage } from '@/lib/firebase/admin';
 import { getPrivateMustEatContent, type PrivateMustEatContent } from './private-store';
 
-/* Die Bild-Route holte bis zum 16.09.2026 fuer JEDE Anfrage das Original aus
-   dem Bucket, las das Firestore-Dokument neu und rechnete die Variante mit
-   sharp neu — pro Karte, pro Blaettern, ohne Gedaechtnis. Im Produktions-Log
-   (13.–16.09.2026): Median 858 ms, jedes zehnte Bild ueber 2,6 s, das
-   langsamste 6,5 s. Die Bytes waren es nicht: die Originale sind 47–159 kB.
+/* Ohne Gedächtnis holte die Bild-Route für jede Anfrage das Original aus dem
+   Bucket, läse das Firestore-Dokument neu und rechnete die Variante mit sharp
+   neu: im Median fast eine Sekunde, einzelne Bilder mehrere Sekunden. Die Bytes
+   sind es nicht, die Originale sind 47–159 kB.
 
-   Deshalb behaelt der Prozess, was sich nicht aendert:
+   Deshalb behält der Prozess, was sich nicht ändert:
 
-   - Das Original, adressiert ueber seinen Objektpfad. Der traegt den
+   - Das Original, adressiert über seinen Objektpfad. Der trägt den
      Inhalts-Hash (`premium/must-eats/<id>/<sha256>.webp`, siehe
-     scripts/replace-must-eat-cards.ts) — dieselbe Adresse heisst dieselben
+     scripts/replace-must-eat-cards.ts): Dieselbe Adresse heißt dieselben
      Bytes, also ohne Verfallszeit.
-   - Jede gerechnete Variante (Breite, Qualitaet, Format), unter demselben
-     Pfad — auch inhaltsadressiert.
-   - Das Firestore-Dokument fuenf Minuten. Es zeigt auf den Pfad; eine
-     ersetzte Karte kommt also bis zu fuenf Minuten alt heraus — dieselbe
-     Frist, die der oeffentliche Zweig der Route ohnehin als max-age nennt.
+   - Jede gerechnete Variante (Breite, Qualität, Format), unter demselben
+     Pfad, auch inhaltsadressiert.
+   - Das Firestore-Dokument fünf Minuten. Es zeigt auf den Pfad; eine
+     ersetzte Karte kommt also bis zu fünf Minuten alt heraus, dieselbe
+     Frist, die der öffentliche Zweig der Route ohnehin als max-age nennt.
 
-   Der Prozess-Cache endet mit der Instanz, und die startet mehrmals am Tag
-   neu (76 Mal in den sieben Tagen bis 11.11.2026). Die ersten 20 Bilder
-   einer frischen Instanz brauchten im Median 826 ms, jedes zehnte 4,7 s; ein
-   Profil mit zwoelf Karten in 720 px wartete 20 s auf sharp. Darum liegt jede
-   gerechnete Variante zusaetzlich im Bucket, unter einem Pfad aus Original
-   und Variante: eine frische Instanz laedt dann 30 kB, statt 300 kB zu holen
-   und neu zu rechnen.
+   Der Prozess-Cache endet mit der Instanz, und die startet mehrmals am Tag neu.
+   Auf einer frischen Instanz brauchen die ersten Bilder im Median fast eine
+   Sekunde, jedes zehnte mehrere; ein Profil mit zwölf Karten in 720 px wartete
+   20 s auf sharp. Darum liegt jede gerechnete Variante zusätzlich im Bucket,
+   unter einem Pfad aus Original und Variante: Eine frische Instanz lädt dann 30
+   kB, statt 300 kB zu holen und neu zu rechnen.
 
    Gleichzeitige Anfragen nach demselben Ding teilen sich einen Ladevorgang:
-   sechs Karten auf einem Startbild-Teaser heissen einen Download, nicht
-   sechs. Der Speicher pro Instanz bleibt klein — 54 Originale sind rund
-   5 MB, die Varianten dazu ein Vielfaches davon in Kilobyte, nicht Megabyte;
-   die Deckel unten sind Sicherheitsnetz, kein Arbeitsmass. */
+   Sechs Karten auf einem Startbild-Teaser heißen einen Download, nicht sechs.
+   Der Speicher pro Instanz bleibt klein: Die Originale sind zusammen rund 5 MB,
+   die Varianten dazu ein Vielfaches davon in Kilobyte, nicht Megabyte; die
+   Deckel unten sind Sicherheitsnetz, kein Arbeitsmaß. */
 
 const CONTENT_TTL_MS = 5 * 60_000;
 const CONTENT_MAX_ENTRIES = 512;
@@ -291,8 +289,8 @@ async function resizeWithSharp(original: StoredImage, variant: ImageVariant): Pr
     .resize({ width: variant.width, withoutEnlargement: true });
   const body = variant.webp
     ? // `effort: 2` statt 4: 32–40 % weniger CPU je Bild bei 4 % mehr Bytes
-      // (gemessen 26.09.2026, 1026×1410 → 360/720). Auf einer frischen
-      // Instanz ist die vCPU der Engpass, nicht die Leitung.
+      // (bei 1026×1410 → 360/720). Auf einer frischen Instanz ist die vCPU der
+      // Engpass, nicht die Leitung.
       await pipeline.webp({ quality: variant.quality, effort: 2 }).toBuffer()
     : await pipeline.toBuffer();
   return {

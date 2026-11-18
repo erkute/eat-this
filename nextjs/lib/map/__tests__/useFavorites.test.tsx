@@ -176,8 +176,8 @@ describe('useFavorites uid isolation', () => {
   });
 });
 
-/* Das Herz fuellt sich beim Tippen, nicht erst nach /api/heart; gemeldet
-   wird nur der allererste Spot, einmal je Geraet (Betreiber, 27.10.2026). */
+/* Das Herz füllt sich beim Tippen, nicht erst nach /api/heart; gemeldet wird
+   nur der allererste Spot, einmal je Gerät. */
 describe('useFavorites — Speichern', () => {
   const showNotice = vi.fn();
   const fetchMock = vi.fn(() => Promise.resolve({ ok: true }));

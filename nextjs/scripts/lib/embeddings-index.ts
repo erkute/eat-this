@@ -1,21 +1,19 @@
 /**
  * Remys Vektor-Indizes sind die einzigen Dateien im Repo, die stumm veralten
- * koennen.
+ * können.
  *
- * `lib/buddy/restaurant-embeddings.json` und `lib/buddy/article-embeddings.json`
- * werden von Hand gebaut (`npm run embed:restaurants`, `npm run embed:articles`)
- * und zur Laufzeit von `lib/buddy/semanticSearch.ts` gelesen. Nichts haelt sie
- * mit Sanity synchron. Was nach dem letzten Bau dazukam, fehlt darin — und
- * `applySemanticOrder` gibt allem Unbekannten Rang `Infinity`. Es wird also
- * nicht herausgefiltert, landet aber hinter jedem indizierten Kandidaten.
+ * `lib/buddy/restaurant-embeddings.json` und
+ * `lib/buddy/article-embeddings.json` werden von Hand gebaut (`npm run
+ * embed:restaurants`, `npm run embed:articles`) und zur Laufzeit von
+ * `lib/buddy/semanticSearch.ts` gelesen. Nichts hält sie mit Sanity synchron.
+ * Was nach dem letzten Bau dazukam, fehlt darin, und `applySemanticOrder` gibt
+ * allem Unbekannten Rang `Infinity`. Es wird also nicht herausgefiltert, landet
+ * aber hinter jedem indizierten Kandidaten. Von außen sieht das aus wie eine
+ * Kuratierungslücke, nicht wie ein Defekt.
  *
- * Genau so ist es passiert: am 06.09.2026 kannte der Spot-Index 340 von 465
- * Spots. Drei Monate lang, ohne dass etwas rot wurde — das Verhalten sieht von
- * aussen aus wie eine Kuratierungsluecke, nicht wie ein Defekt.
- *
- * Dieses Modul traegt beides, worauf sich der Waechter stuetzt: den Schnitt,
- * den jeder Index abbilden SOLL, und die Pruefungen darauf. Die Pruefungen sind
- * rein — der Netzzugriff liegt in `scripts/check-embeddings.ts`.
+ * Dieses Modul trägt beides, worauf sich der Wächter stützt: den Schnitt, den
+ * jeder Index abbilden soll, und die Prüfungen darauf. Die Prüfungen sind rein;
+ * der Netzzugriff liegt in `scripts/check-embeddings.ts`.
  */
 import { SPOT_SLUG_RE } from '../../lib/buddy/stream';
 

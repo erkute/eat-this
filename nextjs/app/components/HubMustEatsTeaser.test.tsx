@@ -115,11 +115,10 @@ describe('HubMustEatsTeaser', () => {
 
   it('offers the onboarding explainer without opening it on the home page', () => {
     const html = render(dataRevealed([me()]));
-    // The three-slide explainer used to be reachable only from the Must-Eats
-    // page, i.e. only past the CTA — so a visitor who bounced off this section
-    // for not understanding it never got the explanation. The trigger renders
-    // here; the dialog itself must not, or the home page opens with a modal.
-    // Substring, not the whole string: React escapes the apostrophe in
+    // The trigger for the three-slide explainer renders here, so a visitor who
+    // does not understand this section gets the explanation without going past
+    // the CTA. The dialog itself must not render, or the home page opens with a
+    // modal. Substring, not the whole string: React escapes the apostrophe in
     // "Wie funktioniert's?".
     expect(html).toContain('Wie funktioniert');
     expect(html).not.toContain('role="dialog"');

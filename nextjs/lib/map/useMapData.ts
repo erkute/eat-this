@@ -214,18 +214,16 @@ export function useMapData({ uid, authLoading, firebaseUid, initialMapData }: Us
     settledUidRef.current = uid;
   }, [authLoading, uid, refetch]);
 
-  /* Nachladen, sobald dem Konto Karten zufallen — Kauf, Starter Pack,
-     Einladungsbonus. Alle drei schreiben in eine der beiden Collections
-     unten, und der Server rechnet die Oberflaeche daraus.
+  /* Nachladen, sobald dem Konto Karten zufallen: Kauf, Starter Pack,
+     Einladungsbonus. Alle drei schreiben in eine der beiden Collections unten,
+     und der Server rechnet die Oberfläche daraus.
 
-     Hier im Hook und nicht im Aufrufer: bis zum 06.09.2026 hingen die beiden
-     Listener in MapSection, also nur auf der Map. Das Profil holte dieselbe
-     Nutzlast ueber denselben Hook, bekam aber nichts mit — und genau dort
-     landet, wer sich ueber den Profil-Guard anmeldet. Das Starter Pack wird
-     nach der Anmeldung im Hintergrund eingeloest (ReferralToastListener),
-     waehrend der erste Fetch hier schon laeuft: ohne Listener zeigte das Deck
-     dann fuenf Karten statt fuenfundzwanzig, bis jemand neu lud, und der
-     Cache unten hielt die fuenf fest.
+     Hier im Hook und nicht im Aufrufer: Auch das Profil holt diese Nutzlast
+     über diesen Hook, und genau dort landet, wer sich über den Profil-Guard
+     anmeldet. Das Starter Pack wird nach der Anmeldung im Hintergrund eingelöst
+     (ReferralToastListener), während der erste Fetch hier schon läuft: Ohne
+     Listener zeigte das Deck dann zu wenige Karten, bis jemand neu lädt, und
+     der Cache unten hielte den Stand fest.
 
      Firestore ist code-gesplittet (siehe getDb) und wird erst hier geladen,
      damit es aus dem ersten Bundle der Startseite herausbleibt. */

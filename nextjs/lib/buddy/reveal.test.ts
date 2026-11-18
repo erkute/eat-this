@@ -151,7 +151,8 @@ describe('skipMarker', () => {
   });
 
   it('springt kostenlos hinter einen vollständigen Marker', () => {
-    // Vorher fraß jeder Marker 15–50 Zeichen Tippzeit: der Text stand still.
+    // Ohne den Sprung fräße jeder Marker 15–50 Zeichen Tippzeit: Der Text
+    // stünde still.
     expect(skipMarker(raw, open + 1)).toBe(end);
     expect(skipMarker(raw, end - 1)).toBe(end);
   });

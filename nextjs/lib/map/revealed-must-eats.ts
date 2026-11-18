@@ -8,11 +8,12 @@
 
 import type { MapMustEat } from '@/lib/types';
 
-/** Ten public cards: two for the catalog cover, eight for its gallery (28.10.2026).
- * One public example per available pack (operator, 13.10.2026).
- * Category selections take precedence over general shop-window flags.
- * Explicit selections are always public. Fallback curation fills remaining
- * slots up to the target, with one fallback card per restaurant.
+/**
+ * Ten public cards: two for the catalog cover, eight for its gallery. One
+ * public example per available pack. Category selections take precedence over
+ * general shop-window flags. Explicit selections are always public. Fallback
+ * curation fills remaining slots up to the target, with one fallback card per
+ * restaurant.
  */
 export const REVEALED_TARGET = 10;
 

@@ -169,13 +169,12 @@ export function useUserLocation(): UseUserLocationResult {
       });
     };
 
-    /* iOS Safari laesst einen laufenden Beobachter auch bei offener Karte
-       verstummen, ohne Fehler. In der Bahn bewegte sich der Avatar deshalb
-       erst, wenn der Standort-Knopf den Beobachter neu startete (Betreiber,
-       15.10.2026) — ein frischer watchPosition liefert in WebKit sofort die
-       aktuelle Position. Das macht der Beobachter jetzt selbst, sobald
-       WATCH_STALL_MS lang kein Fix kam. Im Hintergrund nicht: dort liefert
-       iOS ohnehin nichts, und MapSection startet ihn bei der Rueckkehr neu. */
+    /* iOS Safari lässt einen laufenden Beobachter auch bei offener Karte
+       verstummen, ohne Fehler; unterwegs bewegte sich der Avatar dann nicht
+       mehr. Ein frischer watchPosition liefert in WebKit sofort die aktuelle
+       Position, also startet der Beobachter sich selbst neu, sobald
+       WATCH_STALL_MS lang kein Fix kam. Im Hintergrund nicht: Dort liefert iOS
+       ohnehin nichts, und MapSection startet ihn bei der Rückkehr neu. */
     function armStallTimer() {
       window.clearTimeout(stallTimer);
       stallTimer = window.setTimeout(() => {

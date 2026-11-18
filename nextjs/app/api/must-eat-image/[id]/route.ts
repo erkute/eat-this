@@ -52,12 +52,11 @@ function pickWidth(raw: string | null): number | null {
   return ALLOWED_WIDTHS.find((w) => w >= n) ?? null;
 }
 
-// Dieselbe Begruendung wie bei der Breitenleiter, und sie fehlte hier: `q`
-// ging als `Math.min(90, Math.max(40, …))` durch — 51 Stufen, jede ein eigener
-// sharp-Lauf und, weil `q` in Cache-Variante und ETag steht, eine eigene
-// Cache-Zeile. 51 Stufen mal sechs Breiten sind ueber 600 Fehlschlaege je Bild,
-// jeder mit Bucket-Download davor. Also zwei Sprossen: die Vorgabe und eine
-// sparsame darunter. Neue nur mit demselben Vorsatz wie eine neue Breite.
+// Dieselbe Begründung wie bei der Breitenleiter: Ein freies `q` zwischen 40 und
+// 90 wären 51 Stufen, jede ein eigener sharp-Lauf und, weil `q` in
+// Cache-Variante und ETag steht, eine eigene Cache-Zeile, jede mit
+// Bucket-Download davor. Also zwei Sprossen: die Vorgabe und eine sparsame
+// darunter. Neue nur mit demselben Vorsatz wie eine neue Breite.
 const ALLOWED_QUALITIES = [60, 80] as const;
 const DEFAULT_QUALITY = 80;
 

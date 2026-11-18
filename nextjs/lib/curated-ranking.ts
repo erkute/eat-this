@@ -44,11 +44,10 @@ const directoryCollator = new Intl.Collator('de', { sensitivity: 'base', numeric
 /**
  * Alphabetisch, Ziffern-Namen ans Ende.
  *
- * Bis 25.09.2026 blieb hier die GROQ-Reihenfolge stehen (`order(name asc)`).
- * Die sortiert aber nach Codepunkten: jeder kleingeschriebene Name („barlevain",
- * „jaja", „otto") und jeder Umlaut („Österelli") landete HINTER Z — im
- * Dinner-Verzeichnis elf Spots, die dort niemand sucht. Seit das Verzeichnis
- * Buchstaben-Marken trägt, wäre das ein zweites „B" nach dem „Z" gewesen.
+ * Nicht die GROQ-Reihenfolge (`order(name asc)`): Die sortiert nach
+ * Codepunkten, jeder kleingeschriebene Name („barlevain", „jaja", „otto") und
+ * jeder Umlaut („Österelli") landete hinter Z. Mit den Buchstaben-Marken des
+ * Verzeichnisses wäre das ein zweites „B" nach dem „Z".
  */
 function directoryOrder(restaurants: RestaurantCard[]): RestaurantCard[] {
   return [...restaurants].sort(

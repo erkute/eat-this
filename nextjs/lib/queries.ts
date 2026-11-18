@@ -185,8 +185,7 @@ export const restaurantsByBezirkQuery = `
   }
 `;
 
-// Restaurants filtered by category slug (reference match — the legacy
-// string dual-shape was removed after the 2026-06 migration completed).
+// Restaurants filtered by category slug (reference match).
 export const restaurantsByCategoryQuery = `
   *[_type == "restaurant" && ${liveRestaurant()}
     && $categorySlug in categories[]->slug.current
@@ -265,13 +264,12 @@ const siblingWindow = (cmp: '>' | '<') => `*[
 // Geht als GROQ-Variable `$articleLimit` in die Query.
 export const RESTAURANT_ARTICLE_LIMIT = 3;
 
-// Jeder Artikel ist ein Heft, gezählt ab dem ältesten (Issue 1) — auf der
+// Jeder Artikel ist ein Heft, gezählt ab dem ältesten (Issue 1): auf der
 // Startseite, im Magazin-Index und im Artikelkopf. Dafür brauchen alle drei
-// dieselbe Menge und eine feste Reihenfolge: viele Artikel teilen sich ein
-// Datum (am 26.08.2026 sechzehn), und ohne zweiten Schlüssel ist die
-// Reihenfolge innerhalb eines Tages nicht zugesagt — dasselbe Heft trüge sonst
-// je nach Seite eine andere Nummer. `_id` hält die Reihenfolge, die Sanity
-// bisher von sich aus lieferte.
+// dieselbe Menge und eine feste Reihenfolge: Viele Artikel teilen sich ein
+// Datum, und ohne zweiten Schlüssel ist die Reihenfolge innerhalb eines Tages
+// nicht zugesagt; dasselbe Heft trüge sonst je nach Seite eine andere Nummer.
+// `_id` ist der zweite Schlüssel.
 const publishedNews = `_type == "newsArticle" && defined(slug.current)`;
 const newsOrder = `date desc, _id asc`;
 
@@ -294,21 +292,20 @@ const newsCoverProjection = `"cover": {
   }`;
 
 /**
- * Die Artikel, in denen dieser Spot vorkommt — für den „Im Magazin"-Block
- * auf der Restaurant-Seite und im Map-Sheet.
+ * Die Artikel, in denen dieser Spot vorkommt, für den „Im Magazin"-Block auf
+ * der Restaurant-Seite und im Map-Sheet.
  *
- * Die Verbindung liegt schon in den Daten und braucht kein neues Feld: ein
+ * Die Verbindung liegt schon in den Daten und braucht kein neues Feld: Ein
  * `spotCard`-Block im Artikel trägt eine `restaurantRef`. Deshalb wird sie
- * rückwärts gelesen statt am Restaurant gepflegt — ein gepflegtes Feld müsste
+ * rückwärts gelesen statt am Restaurant gepflegt; ein gepflegtes Feld müsste
  * bei jedem neuen Artikel nachgezogen werden und wäre sofort veraltet.
  *
- * `mustEatCard` bleibt außen vor: kein einziges Restaurant wird ausschließlich
- * darüber erwähnt (geprüft am 27.08.2026, 0 von 466), der Fall existiert also
- * nur in der Theorie.
+ * `mustEatCard` bleibt außen vor: Kein Restaurant wird ausschließlich darüber
+ * erwähnt, der Fall existiert nur in der Theorie.
  *
- * Sortiert nach SPEZIFITÄT, nicht nach Datum: je weniger Spots ein Artikel
+ * Sortiert nach Spezifität, nicht nach Datum: Je weniger Spots ein Artikel
  * nennt, desto mehr handelt er von diesem hier. Für Kolo heißt das Porträt (1
- * Spot) vor Mitte-Guide (10) vor Café-Guide (17) — nach Datum stünde der Guide
+ * Spot) vor Mitte-Guide (10) vor Café-Guide (17); nach Datum stünde der Guide
  * oben, der den Laden in einer Liste von siebzehn abhandelt.
  *
  * Zwei Leser: die Restaurant-Seite und das Detail-Sheet der Map
@@ -538,13 +535,12 @@ export const staticPageBySlugQuery = `
 /**
  * How much a Booster Pack actually contains, for every pack at once.
  *
- * Der Katalogfilter kommt aus `liveRestaurant()` — dieselbe Quelle wie
+ * Der Katalogfilter kommt aus `liveRestaurant()`, dieselbe Quelle wie
  * `mapRestaurantsQuery`, damit die Zahl auf der Pack-Karte keine Spots
- * verspricht, die die Karte nie zeigt. (Bis zum 05.09.2026 stand hier die
- * Bitte, beide Filter von Hand gleich zu halten; genau das war schiefgegangen.)
- * Dazu `ownsCategoryOf`: ein Kategorie-Pack nimmt jedes Restaurant mit dieser
- * Kategorie mit — ein gemeinsames Tag reicht. Must Eats hängen an ihrem
- * Restaurant, also folgen sie derselben Zuordnung.
+ * verspricht, die die Karte nie zeigt. Dazu `ownsCategoryOf`: Ein
+ * Kategorie-Pack nimmt jedes Restaurant mit dieser Kategorie mit, ein
+ * gemeinsames Tag reicht. Must Eats hängen an ihrem Restaurant, also folgen sie
+ * derselben Zuordnung.
  */
 export const packContentsQuery = `
   {

@@ -1,29 +1,29 @@
 import { notify, type Notice } from '@/lib/notice';
 
 /**
- * Ein blockierter Standort — und der Weg zurück.
+ * Ein blockierter Standort, und der Weg zurück.
  *
- * Hat jemand „Nicht erlauben" getippt, darf die Seite nie wieder selbst
- * fragen; kein Knopf öffnet den Dialog erneut. Also zweierlei:
+ * Hat jemand „Nicht erlauben" getippt, darf die Seite nie wieder selbst fragen;
+ * kein Knopf öffnet den Dialog erneut. Also zweierlei:
  *
  *   1. Die Meldung „Blockiert" trägt „So geht's": die zwei, drei Schritte
  *      für genau dieses Gerät, statt eines „im Browser erlauben", bei dem
  *      niemand weiß, wo das steckt.
- *   2. `watchLocationUnblock` merkt, wenn die Freigabe zurückkommt — der
+ *   2. `watchLocationUnblock` merkt, wenn die Freigabe zurückkommt (der
  *      Browser meldet die Änderung, und beim Zurückkehren aus den
- *      Einstellungen fragen wir nach —, damit es ohne erneuten Tipp
+ *      Einstellungen fragen wir nach), damit es ohne erneuten Tipp
  *      weitergeht.
  *
- * Die iPhone-Wege sind am 24.09.2026 im Simulator (iOS 27, Safari) auf
- * localhost UND eatthisdot.com abgelaufen, mit drei Befunden:
+ * Die iPhone-Wege sind im Simulator (iOS 27, Safari) auf localhost und
+ * eatthisdot.com abgelaufen, mit diesen Befunden:
  *
- *   - Ein „Nicht erlauben" der WEBSITE merkt sich Safari nur bis zum
+ *   - Ein „Nicht erlauben" der Website merkt sich Safari nur bis zum
  *     Neuladen; danach fragt es wieder. Neu laden + nochmal tippen reicht.
- *   - Hat iOS Safari SELBST den Standort verweigert (die allererste Frage
+ *   - Hat iOS Safari selbst den Standort verweigert (die allererste Frage
  *     kommt von iOS, nicht von der Seite), hilft nur Einstellungen →
- *     Datenschutz & Sicherheit → Ortungsdienste → Safari — und selbst nach
+ *     Datenschutz & Sicherheit → Ortungsdienste → Safari, und selbst nach
  *     der Freigabe bleibt die offene Seite blockiert, bis sie neu lädt.
- *   - Nach der ZWEITEN Ablehnung fragt Safari nicht mehr — auch nicht nach
+ *   - Nach der zweiten Ablehnung fragt Safari nicht mehr, auch nicht nach
  *     Neuladen, Löschen der Website-Daten oder Beenden der App. Dann hilft
  *     nur Einstellungen → Apps → Safari → Standort → „Erlauben" (gilt für
  *     alle Websites; zurück auf „Fragen", und die Sperre ist wieder da).
@@ -31,13 +31,13 @@ import { notify, type Notice } from '@/lib/notice';
  *   - Im Seitenmenü (≡ → Website-Einstellungen) gibt es in keinem dieser
  *     Fälle einen Punkt „Standort".
  *
- * Chrome und andere Browser auf dem iPhone sind NICHT abgelaufen (im
- * Simulator nicht installiert); ihre Schritte folgen dem Systemweg.
+ * Chrome und andere Browser auf dem iPhone sind nicht abgelaufen (im Simulator
+ * nicht installiert); ihre Schritte folgen dem Systemweg.
  *
- * Darum trägt die Anleitung „Neu laden". Nach dem Laden fragt die Seite
- * nicht von selbst — sie fragt nie beim Laden, auch hier nicht —, der
- * nächste Tipp tut es. `watchLocationUnblock` hilft dort, wo der Browser
- * eine Freigabe sofort wirken lässt (Chrome).
+ * Darum trägt die Anleitung „Neu laden". Nach dem Laden fragt die Seite nicht
+ * von selbst (sie fragt nie beim Laden, auch hier nicht), der nächste Tipp tut
+ * es. `watchLocationUnblock` hilft dort, wo der Browser eine Freigabe sofort
+ * wirken lässt (Chrome).
  */
 
 type LocationPlatform =

@@ -45,12 +45,11 @@ const LABEL_GAP = 60;
 const PAD = { top: 12, right: 12, bottom: 26, left: 44 };
 
 /**
- * Die tatsächliche Pixelbreite des Diagramms. Vorher stand jedes Diagramm auf
- * einer festen 720er-viewBox und wurde auf seine Karte skaliert — in der
- * schmalen Spalte („Impressionen und Position", rund 240px) schrumpfte die
- * 10,5px-Achsenschrift damit auf etwa 3,5px und war nicht mehr lesbar. Mit
- * der echten Breite bleibt Schrift Schrift, und die Zahl der Datumsmarken
- * richtet sich nach dem Platz.
+ * Die tatsächliche Pixelbreite des Diagramms. Auf einer festen 720er-viewBox,
+ * skaliert auf die Karte, schrumpfte die 10,5px-Achsenschrift in der schmalen
+ * Spalte („Impressionen und Position", rund 240px) auf etwa 3,5px und wäre
+ * nicht lesbar. Mit der echten Breite bleibt Schrift Schrift, und die Zahl der
+ * Datumsmarken richtet sich nach dem Platz.
  */
 function useWidth() {
   const ref = useRef<HTMLDivElement>(null);
@@ -69,11 +68,10 @@ function useWidth() {
 }
 
 /**
- * Die Striche der y-Achse. Der oberste liegt immer AUF oder ÜBER dem
- * Maximum: vorher brach die Schleife beim letzten Strich unter dem Maximum
- * ab, und bei 61 Besuchern auf einer 0–60-Achse lief die Linie oben aus dem
- * Diagramm. `minStep` hält Zählwerte ganzzahlig — ohne ihn teilte eine
- * Reihe mit Maximum 1 in Viertel, und die gerundete Achse las „0, 0, 1, 1, 1".
+ * Die Striche der y-Achse. Der oberste liegt immer auf oder über dem Maximum:
+ * Sonst liefe bei 61 Besuchern auf einer 0–60-Achse die Linie oben aus dem
+ * Diagramm. `minStep` hält Zählwerte ganzzahlig; ohne ihn teilte eine Reihe mit
+ * Maximum 1 in Viertel, und die gerundete Achse läse „0, 0, 1, 1, 1".
  */
 export function ticks(max: number, minStep = 0): number[] {
   if (max <= 0) return [0];

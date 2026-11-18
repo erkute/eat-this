@@ -68,8 +68,8 @@
   }
 }
 
-/* Die Seite trägt keinen eigenen Namen mehr (Ansage: „nimm Stats weg"),
-   die Wortmarke ist der Kopf. Die Überschrift bleibt für Vorleser. */
+/* Die Seite trägt keinen eigenen Namen, die Wortmarke ist der Kopf. Die
+   Überschrift bleibt für Vorleser. */
 .brand {
   position: absolute;
   width: 1px;

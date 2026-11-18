@@ -228,13 +228,12 @@ function Viewer({
         </svg>
       </button>
 
-      {/* Ein echter Scroll-Container statt framer-`drag`: das Foto folgt dem
+      {/* Ein echter Scroll-Container statt framer-`drag`: Das Foto folgt dem
           Finger 1:1, das Nachbarfoto zieht sichtbar mit herein, und
-          `scroll-snap-stop: always` rastet pro Wisch genau ein Foto weiter —
-          wie bei Instagram. Die alte Fassung hielt das Bild mit
-          `dragElastic: 0.18` fest, es ging nur ein Fünftel des Fingerwegs
-          mit und klebte. Der horizontale Wisch erzeugt keinen Klick;
-          nur ein eigener Wisch nach unten schließt die Galerie. */}
+          `scroll-snap-stop: always` rastet pro Wisch genau ein Foto weiter, wie
+          bei Instagram. Mit `dragElastic` ginge nur ein Bruchteil des
+          Fingerwegs mit, das Bild klebte. Der horizontale Wisch erzeugt keinen
+          Klick; nur ein eigener Wisch nach unten schließt die Galerie. */}
       <div
         ref={trackRef}
         className={styles.galleryLbStage}

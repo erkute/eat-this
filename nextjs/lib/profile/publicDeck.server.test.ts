@@ -19,7 +19,7 @@ const state = vi.hoisted(() => ({
     categorySlugs: new Set<string>(),
   },
   visibleRestaurants: [] as MapRestaurant[],
-  /** Der Stapel aus Sanity — seit 27.09.2026 fuer jedes Konto derselbe. */
+  /** Der Stapel aus Sanity, für jedes Konto derselbe. */
   mustEats: [] as MapMustEat[],
   revealed: new Set<string>(),
   /* Der kuratierte Anon-Satz — genau die Karten, die
@@ -51,12 +51,9 @@ vi.mock('@/lib/map/free-surface', () => ({
 vi.mock('@/lib/map/server-initial-map-data', () => ({
   getPublicMustEatIds: async () => state.publicMustEatIds,
 }));
-/* Gemockt wird die GRENZE, nicht mehr die Formel: `composeAccountSurface` ist
-   seit dem 31.08.2026 die eine Stelle, an der „was sieht dieses Konto"
-   definiert ist — /api/map-data benutzt dieselbe. Vorher stand die Formel hier
-   ein zweites Mal, und der Admin-Zweig fehlte darin; dieser Test konnte das
-   nicht merken, weil er die Mengen selbst baute.
-   Die Ableitung selbst hat jetzt ihren eigenen Test:
+/* Gemockt wird die Grenze, nicht die Formel: `composeAccountSurface` ist die
+   eine Stelle, an der „was sieht dieses Konto" definiert ist; /api/map-data
+   benutzt dieselbe. Die Ableitung selbst hat ihren eigenen Test:
    lib/map/__tests__/account-surface.test.ts. */
 vi.mock('@/lib/map/visible-restaurants.server', () => ({
   composeAccountSurface: async () => ({
@@ -181,10 +178,9 @@ describe('getPublicDeck', () => {
     expect(serialized).not.toContain('Spot r1');
   });
 
-  /* Die Karten sind seit dem 04.09.2026 zu sehen — aber nur die, die ohnehin
-     jeder Anonyme sehen darf. Ein Bild fuer eine aufgedeckte Karte AUSSERHALB
-     dieses Satzes waere der bezahlte Teil des Produkts, verschenkt an jeden
-     mit einem geteilten Link. */
+  /* Die Karten sind zu sehen, aber nur die, die ohnehin jeder Anonyme sehen
+     darf. Ein Bild für eine aufgedeckte Karte außerhalb dieses Satzes wäre der
+     bezahlte Teil des Produkts, verschenkt an jeden mit einem geteilten Link. */
   it('zeigt ein Bild nur fuer Karten, die auch ohne Anmeldung offen liegen', async () => {
     state.visibleRestaurants = ALL_RESTAURANTS;
     state.mustEats = ALL_MUST_EATS;

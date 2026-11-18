@@ -79,18 +79,17 @@ export function groqImageUrl(path: string, preset: ImagePresetName): string {
 }
 
 /**
- * Eigene Fotos. Sie tragen keine `creditUrl`, weil es nichts zu verlinken gibt
- * — die Bedingung unten verlangt Credit und URL aber nur *gemeinsam*, und ohne
+ * Eigene Fotos. Sie tragen keine `creditUrl`, weil es nichts zu verlinken gibt;
+ * die Bedingung unten verlangt Credit und URL aber nur *gemeinsam*, und ohne
  * diese Liste fiele ein selbst fotografierter Spot durchs Raster.
  *
- * `sardinen-bar` stand bis 25.08.2026 nicht drin: `image.credit` sagt dort
- * „Foto: Eat This", `creditUrl` und `instagramHandle` sind leer — die Karte
- * rutschte auf /kategorie/dinner und /bezirk/mitte ohne Bild aus der Zeile.
- * Einziger solcher Fall von 338 offenen Restaurants.
+ * `sardinen-bar`: `image.credit` sagt dort „Foto: Eat This", `creditUrl` und
+ * `instagramHandle` sind leer; ohne den Eintrag rutschte die Karte auf
+ * /kategorie/dinner und /bezirk/mitte ohne Bild aus der Zeile.
  *
- * `bar-basta` ist inzwischen redundant (es hat `instagramHandle: basta.berlin`
- * und käme schon über den Instagram-Zweig durch), bleibt aber drin: das Foto
- * ist unabhängig vom Handle unseres, und das Handle kann im Studio verschwinden.
+ * `bar-basta` käme mit `instagramHandle: basta.berlin` auch über den
+ * Instagram-Zweig durch, bleibt aber drin: Das Foto ist unabhängig vom Handle
+ * unseres, und das Handle kann im Studio verschwinden.
  */
 export const FIRST_PARTY_RESTAURANT_PHOTO_SLUGS = ['bar-basta', 'sardinen-bar'] as const;
 
@@ -131,19 +130,21 @@ export function restaurantPhotoCreditUrl(
   return `select(defined(${path}.creditUrl) => ${path}.creditUrl, ${slugPath} in ${groqStringList(FIRST_PARTY_RESTAURANT_PHOTO_SLUGS)} => "https://eat-this.de", defined(${instagramPath}) => "https://www.instagram.com/" + ${instagramPath})`;
 }
 
-/** Re-points a Sanity CDN URL at the `schemaImage` preset for structured data.
+/**
+ * Re-points a Sanity CDN URL at the `schemaImage` preset for structured data.
  *
- *  Google only serves a large preview (`max-image-preview:large`) for images
- *  from 1200 px wide, and the list projections bake `card` — 800 px. That is
- *  the right size for the card the visitor downloads and too small for the
- *  thumbnail, so the JSON-LD hands Google its own wider URL instead of making
- *  every card on the page heavier. Sanity does upscale to the requested width
- *  (measured 23.08.2026: a 1072 px source came back 1200×994), so every entry
- *  clears the threshold — for the few sources under 1200 px at the cost of a
- *  mild stretch, which a thumbnail survives.
+ * Google only serves a large preview (`max-image-preview:large`) for images
+ * from 1200 px wide, and the list projections bake `card` — 800 px. That is the
+ * right size for the card the visitor downloads and too small for the
+ * thumbnail, so the JSON-LD hands Google its own wider URL instead of making
+ * every card on the page heavier. Sanity does upscale to the requested width (a
+ * 1072 px source comes back 1200×994), so every entry clears the threshold —
+ * for the few sources under 1200 px at the cost of a mild stretch, which a
+ * thumbnail survives.
  *
- *  Returns undefined for null/non-Sanity URLs so callers can pass an optional
- *  field straight through. */
+ * Returns undefined for null/non-Sanity URLs so callers can pass an optional
+ * field straight through.
+ */
 export function schemaImageUrl(url: string | null | undefined): string | undefined {
   if (!url || !url.includes('cdn.sanity.io')) return undefined;
   const result = new URL(resizeSanityImage(url, 1200, 80));

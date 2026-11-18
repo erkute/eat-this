@@ -3,17 +3,16 @@
  *
  * Both phone views are window-scrolled in-flow documents (see
  * useHandleScrollDrag for why), so a "stop" is nothing but a scroll offset.
- * Each stop is defined by how much MAP is left uncovered there, which keeps
- * the two views comparable even though their map layers differ:
+ * Each stop is defined by how much MAP is left uncovered there, which keeps the
+ * two views comparable even though their map layers differ:
  *
  * - list:   the map is a fixed 100lvh layer and the list slides over it.
  * - detail: the same map; the detail sheet rests lower over it
  *           (--frame-edge, MapLayout.module.css), so its stops differ.
  *
- * The grip no longer snaps to them: it leaves the sheet wherever it is let
- * go (user, 28.09.2026, useHandleScrollDrag). The first and last stop are
- * its bounds and the targets of a tap on it; the middle one is where
- * filters and the camera put the list.
+ * The grip does not snap to them: it leaves the sheet wherever it is let go
+ * (useHandleScrollDrag). The first and last stop are its bounds and the targets
+ * of a tap on it; the middle one is where filters and the camera put the list.
  */
 
 /* Map left uncovered at each stop, in dvh. Index order: map, split, sheet. */
@@ -89,12 +88,12 @@ export type DetailOrigin = 'list' | 'map';
  *   Put the user back on the row they left; that is the only place they expect.
  * - `toMap`: the detail was opened from a marker on the map. The map is where
  *   the user was, so the map is where closing puts them back — list peeking at
- *   the bottom, camera where they left it (user decision 03.09.2026).
+ *   the bottom, camera where they left it.
  * - `toList`: no remembered position and not a marker tap means a deep link.
- *   Leaving the scroll alone dropped the user on the bare map — from a button
- *   that says "Liste". Scroll to the TOP of the list — not to the spot's row,
- *   which was never on screen and, aimed at, left the visitor deep in the list
- *   with everything else above them (user, 04.09.2026).
+ *   Leaving the scroll alone would drop the user on the bare map — from a
+ *   button that says "Liste". Scroll to the TOP of the list — not to the
+ *   spot's row, which was never on screen and, aimed at, would leave the
+ *   visitor deep in the list with everything else above them.
  * - `stay`: not a return from a detail at all (first paint of the map, a filter
  *   change). Nothing here may move the list.
  *
@@ -137,7 +136,7 @@ export function rowRevealOffset(
 /* Upper bound for where a returning row may sit: its top at 62% of the height
    leaves the whole card on screen. A row tapped at the very bottom edge would
    otherwise come back at the very bottom edge — technically "where you left
-   it", but it reads as the list having lost your place (user, 03.09.2026). */
+   it", but it reads as the list having lost your place. */
 export const ROW_RETURN_MAX_TOP_RATIO = 0.62;
 /* Where a row lands when nothing is remembered: a little above the middle. */
 const ROW_REVEAL_TOP_RATIO = 0.38;

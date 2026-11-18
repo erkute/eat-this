@@ -26,8 +26,8 @@ describe('isOwnerPhoto', () => {
   });
 
   it('accepts an uploading profile that carries only part of the Places name', () => {
-    // Real attributions from the Mit-Vergnügen import, 26.08.2026 — all three
-    // were rejected while "every distinctive token" was required.
+    // Real attributions from the Mit-Vergnügen import; requiring "every
+    // distinctive token" would reject all three.
     expect(isOwnerPhoto('Zeus Pizzeria – Friedrichshain', 'Zeus Pizza & Pide')).toBe(true);
     expect(isOwnerPhoto("Allan's ABC", 'ABC - Allans Breakfast Club')).toBe(true);
     expect(isOwnerPhoto('Ushido', 'Ushido - Japanese bbq')).toBe(true);

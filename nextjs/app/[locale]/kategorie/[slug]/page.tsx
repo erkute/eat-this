@@ -165,7 +165,7 @@ export default async function KategorieDetailPage({ params }: PageProps) {
   const label = localizedCategoryName(c, loc);
   const blurb = localizedCategoryBlurb(c, loc);
   // Kuratierte Bestenliste oben, vollständiges A–Z darunter. Ohne gepflegte
-  // `topSpots` ist `top` leer und die Seite rendert wie bisher eine Liste.
+  // `topSpots` ist `top` leer und die Seite rendert eine Liste.
   const { top, rest } = rankCurated(restaurants, c.topSpots);
   // Anzeigereihenfolge = JSON-LD-Reihenfolge: `position` ist eine
   // Rangbehauptung, Schema und Seite dürfen sich nicht widersprechen.

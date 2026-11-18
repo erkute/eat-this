@@ -33,15 +33,14 @@ interface MapSurface {
  * Reine Ableitung, damit sie ohne Firestore und ohne React testbar ist.
  *
  * Zwei Quellen, und keine reicht allein. Der Firestore-Listener kennt nur
- * users/<uid>/entitlements — nicht den Admin-Zugang, der an ADMIN_EMAILS plus
+ * users/<uid>/entitlements, nicht den Admin-Zugang, der an ADMIN_EMAILS plus
  * verifizierter Adresse hängt und server-only ist. Das Konto, das ihn nutzt,
- * hat null Entitlement-Dokumente; der Listener meldete darum brav „besitzt
- * nichts", und die Live-Karte zeigte am 02.09.2026 dem eigenen Admin-Konto
- * das All-Berlin-Banner, während dieselbe Payload `fullCatalog: true` und
- * 467 offene Spots trug. Der Server dagegen antwortet erst nach dem Fetch —
- * ein bezahltes Konto wartet auf ihn länger als auf den Listener. Also: jede
- * positive Antwort zählt sofort, und solange eine der beiden noch aussteht,
- * bleibt es 'pending'. Werbung lässt sich später einblenden, nicht zurücknehmen.
+ * hat null Entitlement-Dokumente; der Listener meldet darum „besitzt nichts",
+ * während die Payload `fullCatalog: true` trägt. Der Server dagegen antwortet
+ * erst nach dem Fetch; ein bezahltes Konto wartet auf ihn länger als auf den
+ * Listener. Also: Jede positive Antwort zählt sofort, und solange eine der
+ * beiden noch aussteht, bleibt es 'pending'. Werbung lässt sich später
+ * einblenden, nicht zurücknehmen.
  */
 export function resolveUserTier({
   uid,

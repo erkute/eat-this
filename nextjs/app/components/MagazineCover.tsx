@@ -618,7 +618,7 @@ export default function MagazineCover({
     }
     case 'plate': {
       // Teller: farbiges Papier mit rundem Loch, die Schlagzeile gerade
-      // darunter (Ansage: „der Text im Kreis ist schwer zu lesen").
+      // darunter (Text im Kreis ist schwer zu lesen).
       tone = plateTone(issue);
       const rubric = locale === 'de' ? 'Auf dem Teller' : 'On the plate';
       body = (

@@ -75,10 +75,9 @@ describe('useMagicLink', () => {
     expect(localStorage.getItem('emailForSignIn')).toBeNull();
   });
 
-  /* Die Route sperrt nach drei Mails pro Adresse und Stunde. Ohne eigenen
-     Schluessel stand hier die generische Zeile „Bitte versuch es nochmal." —
-     also genau die Aufforderung, sofort wieder in dieselbe Sperre zu laufen.
-     Die Meldung muss stattdessen sagen, wie lange. */
+  /* Die Route sperrt nach drei Mails pro Adresse und Stunde. Die generische
+     Zeile „Bitte versuch es nochmal." wäre die Aufforderung, sofort wieder in
+     dieselbe Sperre zu laufen. Die Meldung muss stattdessen sagen, wie lange. */
   it('nennt bei 429 die Wartezeit statt „nochmal versuchen"', async () => {
     fetchMock.mockReturnValueOnce(apiResponse(false, { error: 'rate-limited' }));
     const { result } = renderHook(() => useMagicLink());

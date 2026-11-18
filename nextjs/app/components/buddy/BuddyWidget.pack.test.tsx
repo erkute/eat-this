@@ -90,9 +90,8 @@ describe('BuddyWidget pack teaser', () => {
     const card = packCards()[0] as HTMLAnchorElement;
     expect(card).toBeTruthy();
     expect(card.getAttribute('href')).toBe('/pack/pizza');
-    // Hierarchie wie eine Kachel auf /packs: Kicker, dann der NAME als
-    // Überschrift, dann die Spectrum-Zeile. Vorher stand das Spectrum groß
-    // als Name da und der echte Name nur klein im Kicker.
+    // Hierarchie wie eine Kachel auf /packs: Kicker, dann der Name als
+    // Überschrift, dann die Spectrum-Zeile.
     expect(card.textContent).toContain('Booster Pack');
     expect(card.textContent).toContain('Pizza');
     expect(card.textContent).toContain('Holzofen. Pinsa. NY-Slice.');

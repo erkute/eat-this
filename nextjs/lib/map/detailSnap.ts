@@ -1,18 +1,17 @@
-/* Height math for the mobile detail sheet's bottom anchor (the "middle
-   stage"): everything from the sheet's top edge down to the bottom of the
-   hero photo (a restaurant has no pager since 22.10.2026; the must-eat
-   detail's measured kicker row stands in for it there), plus a small
-   buffer and the iOS safe area.
+/* Height math for the mobile detail sheet's bottom anchor (the "middle stage"):
+   everything from the sheet's top edge down to the bottom of the hero photo (a
+   restaurant has no pager; the must-eat detail's measured kicker row stands in
+   for it there), plus a small buffer and the iOS safe area.
 
-   The measured path (useMapSheet) feeds the live bottom-edge offset of the
-   last visible element into `detailMidVisiblePx` — measuring the offset
-   instead of summing element heights keeps margins and gaps between the
-   handle, hero and pager included automatically.
+   The measured path (useMapSheet) feeds the live bottom-edge offset of the last
+   visible element into `detailMidVisiblePx` — measuring the offset instead of
+   summing element heights keeps margins and gaps between the handle, hero and
+   pager included automatically.
 
-   `estimateDetailMidVisiblePx` approximates the same value BEFORE the
-   detail has mounted — used as the pre-measurement fallback peek and for
-   flyTo padding on pin-tap, where the hero of the newly selected
-   restaurant doesn't exist in the DOM yet. */
+   `estimateDetailMidVisiblePx` approximates the same value BEFORE the detail
+   has mounted — used as the pre-measurement fallback peek and for flyTo padding
+   on pin-tap, where the hero of the newly selected restaurant doesn't exist in
+   the DOM yet. */
 
 /** Sheet top edge → hero top: handle pip zone + the hero's 14px top margin
  *  (map.module.css .rdHero). Calibrated against the rendered layout. */

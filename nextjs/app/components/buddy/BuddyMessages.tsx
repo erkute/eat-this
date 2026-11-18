@@ -14,8 +14,8 @@ import styles from './BuddyWidget.module.css';
 // BuddyWidget.tsx; both share one stylesheet.
 
 /* Inline-Markdown, wie Claude es tatsächlich setzt: `**fett**` und `*kursiv*`.
-   Kursiv fehlte — er betont damit gern ein einzelnes Wort („eigentlich *die*
-   Pizza-Referenz"), und die Sternchen standen roh im Text. */
+   Kursiv gehört dazu: Er betont damit gern ein einzelnes Wort („eigentlich
+   *die* Pizza-Referenz"), und die Sternchen stünden sonst roh im Text. */
 function inlineMarkup(text: string, animate = false): React.ReactNode[] {
   return text.split(/(\*\*[^*]+\*\*|\*[^*\n]+\*)/g).map((part, i) => {
     if (/^\*\*[^*]+\*\*$/.test(part))
@@ -266,11 +266,9 @@ const PACK_INTRO: Record<Locale, (name: string) => string> = {
 // server picks at most one per request, see lib/buddy/packTeaser.ts). Remy's
 // streamed text never sells; this card does, with canonical catalog copy.
 //
-// Aufgebaut wie eine Kachel auf /packs: die Karte steht frei mit dem
-// Sheet-Schatten, der Pack-NAME ist die Überschrift, die Spectrum-Zeile die
-// Unterzeile. Vorher stand das Spectrum groß als Name da und der echte Name
-// nur klein im Kicker — die Hierarchie war vertauscht, und ein „Ansehen"
-// darunter war der zweite Ausgang einer Kachel, die als Ganzes der Weg ist.
+// Aufgebaut wie eine Kachel auf /packs: Die Karte steht frei mit dem
+// Sheet-Schatten, der Pack-Name ist die Überschrift, die Spectrum-Zeile die
+// Unterzeile. Kein „Ansehen" darunter: Die Kachel ist als Ganzes der Weg.
 function PackCard({ pack, onSelect }: { pack: PackTeaser; onSelect: () => void }) {
   return (
     <Link

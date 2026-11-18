@@ -33,12 +33,12 @@ export interface InitialMapData {
 async function composeInitialAnonMapMetadata(): Promise<InitialMapData> {
   const { restaurants: all, mustEats: allMustEats, categories } = await getCachedMapData();
 
-  // Jeder Spot — die Spots sind frei. Vom KARTENSTAPEL sieht ein Besucher
-  // ohne Konto seit dem 07.09.2026 jede Karte, aber offen nur das
-  // Schaufenster. Dieselbe Regel wie composeAccountSurface für ein Konto ohne
-  // alles — die SSR-Nutzlast und der spätere Fetch müssen dasselbe meinen, sonst springt
-  // die Karte beim Hydrieren. Die Rücken sind der Anlass zur Anmeldung; was
-  // darunter liegt, bleibt auf dem Server (getInitialAnonMapData strippt).
+  // Jeder Spot, die Spots sind frei. Vom Kartenstapel sieht ein Besucher ohne
+  // Konto jede Karte, aber offen nur das Schaufenster. Dieselbe Regel wie
+  // composeAccountSurface für ein Konto ohne alles: Die SSR-Nutzlast und der
+  // spätere Fetch müssen dasselbe meinen, sonst springt die Karte beim
+  // Hydrieren. Die Rücken sind der Anlass zur Anmeldung; was darunter liegt,
+  // bleibt auf dem Server (getInitialAnonMapData strippt).
   const revealedMustEatIds = composeRevealedMustEats(allMustEats);
 
   return {
@@ -79,10 +79,10 @@ let publicMustEatIdsInFlight: Promise<Set<string>> | null = null;
  *
  * Liest nur die Karten (45 kB) statt des ganzen Spot-Katalogs (680 kB), und
  * gleichzeitige Aufrufe teilen sich eine Anfrage: Nexts Data Cache fasst nichts
- * über Anfragen hinweg zusammen, solange sein Eintrag noch leer ist. Schlugen
- * ~80 Bilder auf einer frischen Instanz auf, holte jedes selbst den Katalog; am
- * 03.11.2026 lief das 10-s-Limit des Clients dabei reihenweise ab, und 146 von
- * 876 Bildern des Tages endeten als 500 (Sentry JAVASCRIPT-AH).
+ * über Anfragen hinweg zusammen, solange sein Eintrag noch leer ist. Schlagen
+ * ~80 Bilder auf einer frischen Instanz auf, holte sonst jedes selbst den
+ * Katalog, das 10-s-Limit des Clients liefe reihenweise ab, und die Bilder
+ * endeten als 500.
  */
 export function getPublicMustEatIds(): Promise<Set<string>> {
   publicMustEatIdsInFlight ??= getCachedMustEats()

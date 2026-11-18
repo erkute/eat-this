@@ -98,14 +98,14 @@ function firstNameOf(displayName: string | null | undefined): string | null {
 export const getPublicDeck = cache(async (uid: string): Promise<PublicDeck | null> => {
   if (!UID_SHAPE.test(uid)) return null;
 
-  /* Achtung beim Lesen des ausgelieferten HTML im Dev-Server: React serialisiert
-     dort JEDEN awaiteten Wert in den Flight-Payload (Async-Debug, `env:"Server"`),
-     also auch diesen kompletten UserRecord — mit E-Mail, Google-Foto-URL und
-     Anmeldezeiten. Das ist eine Dev-Einrichtung, kein Leck: im Produktionsbau
-     ist die Seite 67 statt 244 kB gross und enthaelt von alldem nichts (geprueft
-     am 31.08.2026 gegen `build:isolated`). Wer das hier im Dev-HTML findet,
-     soll es gegen den Produktionsbau nachmessen, bevor er es fuer einen Fund
-     haelt. */
+  /* Achtung beim Lesen des ausgelieferten HTML im Dev-Server: React
+     serialisiert dort jeden awaiteten Wert in den Flight-Payload (Async-Debug,
+     `env:"Server"`), also auch diesen kompletten UserRecord, mit E-Mail,
+     Google-Foto-URL und Anmeldezeiten. Das ist eine Dev-Einrichtung, kein Leck:
+     Im Produktionsbau ist die Seite deutlich kleiner und enthält von alldem
+     nichts (geprüft gegen `build:isolated`). Wer das hier im Dev-HTML findet,
+     soll es gegen den Produktionsbau nachmessen, bevor er es für einen Fund
+     hält. */
   let account;
   try {
     account = await getAdminAuth().getUser(uid);

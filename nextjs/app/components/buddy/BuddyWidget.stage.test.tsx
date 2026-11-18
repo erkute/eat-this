@@ -109,11 +109,10 @@ describe('BuddyWidget home ask protocol', () => {
     expect(send).not.toHaveBeenCalled();
   });
 
-  /* Frueher stand hier „closes the panel on pointerdown outside". Genau das
-     war der Fehler: auf dem Telefon kommt der Klick erst NACH dem Finger, und
-     bis dahin war das Panel weg — der Klick traf dann, was darunter lag.
-     Geschlossen wird jetzt vom Vorhang, per Klick. Die Faelle im Detail
-     stehen in BuddyWidget.dismiss.test.tsx. */
+  /* Geschlossen wird vom Vorhang, per Klick, nicht auf pointerdown: Auf dem
+     Telefon kommt der Klick erst nach dem Finger, und wäre das Panel bis dahin
+     weg, träfe der Klick, was darunter liegt. Die Fälle im Detail stehen in
+     BuddyWidget.dismiss.test.tsx. */
   it('bleibt offen, solange der Finger nur aufliegt', () => {
     renderWidget();
     fireEvent(window, new CustomEvent(BUDDY_ASK_EVENT, { detail: {} }));

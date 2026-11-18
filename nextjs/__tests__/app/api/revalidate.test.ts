@@ -225,9 +225,9 @@ describe('/api/revalidate', () => {
   })
 
   it('frischt die Slug-Tabelle ueber ALLE Restaurants mit auf', async () => {
-    // `restaurants-lite` (Slug-Tabelle des Legacy-Redirects) hing an einem
-    // eigenen Tag, den niemand invalidierte: ein umgezogener Slug lief bis zu
-    // 24 Stunden ins 404 statt in seinen Redirect.
+    // `restaurants-lite` (Slug-Tabelle des Legacy-Redirects) hängt an einem
+    // eigenen Tag: Ohne Invalidierung liefe ein umgezogener Slug bis zu 24
+    // Stunden ins 404 statt in seinen Redirect.
     const raw = JSON.stringify({ _type: 'restaurant', slug: 'umbenannt' })
     const ts = Date.now()
 

@@ -29,8 +29,8 @@ describe('resolveUserTier', () => {
   it('opens everything for an admin the entitlement listener has never heard of', () => {
     // Das eigene Admin-Konto: null Dokumente unter users/<uid>/entitlements,
     // der Zugang hängt server-only an ADMIN_EMAILS. Der Listener meldet
-    // „besitzt nichts", und die Live-Karte zeigte am 02.09.2026 das
-    // All-Berlin-Banner über 467 offenen Spots. Der Server hat das letzte Wort.
+    // „besitzt nichts", und die Karte zeigte sonst das All-Berlin-Banner über
+    // lauter offenen Spots. Der Server hat das letzte Wort.
     expect(resolveUserTier({ uid: UID, owned: new Set(), ...fullSurface })).toBe('allBerlin');
   });
 

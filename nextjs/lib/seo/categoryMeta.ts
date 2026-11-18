@@ -15,11 +15,9 @@ type Loc = 'de' | 'en';
  */
 const CATEGORY_TITLES: Record<string, { de: string; en: string }> = {
   pizza: { de: 'Die beste Pizza in Berlin', en: 'The Best Pizza in Berlin' },
-  // Beide Titles nannten nur „Cafés" — das Wort, mit dem die Leute suchen,
-  // fehlte auf beiden Seiten. GSC 28 Tage bis 24.08.2026: DE „kaffee berlin"
-  // 42 Impr. auf Pos. 54,3 und „coffee berlin" 29 auf 63,1; EN „kaffee berlin"
-  // 10 auf 29,3, „coffee in berlin" 6 auf 24. „Kaffee"/„Coffee" stand nur in
-  // der H1 (Sanity-`name`), nie im Title.
+  // Der Title nennt „Kaffee" bzw. „Coffee": Das ist das Wort, mit dem gesucht
+  // wird („kaffee berlin", „coffee berlin", „coffee in berlin"). In der H1
+  // (Sanity-`name`) allein reicht es nicht.
   coffee: {
     de: 'Kaffee in Berlin: Die besten Cafés',
     en: 'The Best Coffee & Cafés in Berlin',
@@ -32,10 +30,9 @@ const CATEGORY_TITLES: Record<string, { de: string; en: string }> = {
     de: 'Abendessen in Berlin: Die besten Restaurants',
     en: 'Dinner in Berlin: The Best Restaurants',
   },
-  // EN wird so gesucht, wie der Title jetzt lautet: „best restaurants for
-  // lunch" 2.713 Impr. auf Pos. 11,5, „where to go for lunch" 742 (GSC, 90
-  // Tage bis 08.10.2026) — „lunch spots" in allen Varianten zusammen keine
-  // 600. Die H2 darunter trägt „lunch spots" weiter.
+  // EN wird so gesucht, wie der Title lautet: „best restaurants for lunch" und
+  // „where to go for lunch" haben ein Vielfaches der Impressionen von „lunch
+  // spots" in allen Varianten. Die H2 darunter trägt „lunch spots".
   lunch: {
     de: 'Mittagessen in Berlin: Die besten Lunch-Spots',
     en: 'The Best Restaurants for Lunch in Berlin',

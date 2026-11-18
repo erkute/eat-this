@@ -304,8 +304,8 @@ describe('/api/must-eat-image/[id]', () => {
     expect(await etagFor('abc')).toBe('"etag-1-w180-q80-webp"')
   })
 
-  /* Der Riegel steht vor der bezahlten Arbeit — GCS-Download plus sharp-Lauf —
-     und nur davor: was aus dem Prozess-Cache kommt, fragt ihn nicht mehr. */
+  /* Der Riegel steht vor der bezahlten Arbeit (GCS-Download plus sharp-Lauf)
+     und nur davor: Was aus dem Prozess-Cache kommt, fragt ihn nicht. */
   describe('Ratenlimit', () => {
     it('sperrt, bevor irgendetwas aus dem Bucket geholt wird', async () => {
       getPublicMustEatIds.mockResolvedValue(new Set(['m1']))

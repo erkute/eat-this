@@ -23,8 +23,8 @@ interface PageProps {
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-// Nur die Kategorie-Packs haben eine Seite. All Berlin ist die Tafel auf
-// /packs plus die „Was drin ist"-Sheet — /pack/all-berlin gibt es nicht mehr.
+// Nur die Kategorie-Packs haben eine Seite. All Berlin ist die Tafel auf /packs
+// plus die „Was drin ist"-Sheet; /pack/all-berlin gibt es nicht.
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale, slug } = await params;

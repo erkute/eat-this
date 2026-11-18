@@ -50,33 +50,26 @@ function isValidSanitySignature(
   const v1 = parts.v1;
   if (!t || !v1) return false;
 
-  // `t` steht in MILLISEKUNDEN, nicht in Sekunden — sanity-io/webhook-toolkit
-  // setzt MINIMUM_TIMESTAMP auf 1609459200000, also 2021-01-01 in ms. Vorher
-  // verglich diese Prüfung `t` gegen `Date.now() / 1000`; die Differenz lag
-  // damit dauerhaft im Bereich von 1,7 Billionen und riss jede Toleranz. Auch
-  // das allein hätte den Hook für immer auf 401 gehalten, unabhängig von der
-  // Signaturkodierung darunter.
+  // `t` steht in Millisekunden, nicht in Sekunden: sanity-io/webhook-toolkit
+  // setzt MINIMUM_TIMESTAMP auf 1609459200000, also 2021-01-01 in ms. Gegen
+  // `Date.now() / 1000` verglichen, risse die Differenz jede Toleranz.
   //
-  // Für den HMAC wird bewusst der ROHE String `t` verwendet, nicht die
-  // umgerechnete Zahl: signiert wird `${t}.${rawBody}` genau so, wie es über
+  // Für den HMAC wird bewusst der rohe String `t` verwendet, nicht die
+  // umgerechnete Zahl: Signiert wird `${t}.${rawBody}` genau so, wie es über
   // die Leitung kam.
   const timestampMs = Number(t);
   if (!Number.isInteger(timestampMs)) return false;
   const toleranceSeconds = envNumber(process.env.SANITY_WEBHOOK_TOLERANCE_SECONDS, 300);
   if (Math.abs(Date.now() - timestampMs) > toleranceSeconds * 1000) return false;
 
-  // base64url, NICHT hex. Sanity signiert nach Stripes Schema, kodiert die
-  // Signatur aber base64url — sanity-io/webhook-toolkit, signature.ts:
+  // base64url, nicht hex. Sanity signiert nach Stripes Schema, kodiert die
+  // Signatur aber base64url (sanity-io/webhook-toolkit, signature.ts):
   //   btoa(...).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
   //
-  // Vorher stand hier `digest('hex')` und ein Vergleich über
-  // `Buffer.from(v1, 'hex')`. Auf einem base64url-String bricht die
-  // Hex-Auswertung beim ersten ungültigen Zeichen ab; die Längen stimmten nie
-  // überein und die Prüfung schlug IMMER fehl. Der Hook lieferte dadurch seit
-  // seiner Einrichtung ausnahmslos 401, und jede Content-Änderung hing bis zum
-  // Ablauf der ISR-Frist. Der zugehörige Test signierte ebenfalls hex und hat
-  // den Fehler mitgetragen — deshalb prüft er jetzt gegen die Kodierung, die
-  // wirklich über die Leitung geht.
+  // Mit `digest('hex')` stimmten die Längen nie überein, die Prüfung schlüge
+  // immer fehl, und jede Content-Änderung hinge bis zum Ablauf der ISR-Frist.
+  // Der zugehörige Test prüft deshalb gegen die Kodierung, die wirklich über
+  // die Leitung geht.
   const expected = crypto.createHmac('sha256', secret).update(`${t}.${rawBody}`).digest('base64url');
 
   const a = Buffer.from(v1, 'utf8');
@@ -174,16 +167,13 @@ export async function POST(req: NextRequest) {
       revalidateTag('bezirk');
       revalidateTag('category-list');
       revalidateTag('restaurant-siblings');
-      // Und was über ALLE Restaurants liest: jede Spot-Seite trägt den
-      // blanken Tag `restaurant` (lib/sanity.server.ts). Das fehlte hier, und
-      // niemandem fiel es auf, solange die ISR-Frist bei einer Stunde lag —
-      // seit sie 24 Stunden beträgt, stünde eine Änderung sonst bis zu einen
-      // Tag lang nicht auf den übrigen Spot-Seiten.
+      // Und was über alle Restaurants liest: Jede Spot-Seite trägt den blanken
+      // Tag `restaurant` (lib/sanity.server.ts). Ohne ihn stünde eine Änderung
+      // bis zu einen Tag lang nicht auf den übrigen Spot-Seiten.
       revalidateTag('restaurant');
-      // Die Slug-Tabelle des Legacy-Redirects (getAllRestaurantsLite) hängt
-      // an einem eigenen Tag, den bisher niemand invalidierte: sie stand bis
-      // zu 24 Stunden auf altem Stand — ein umbenannter Slug lief so lange
-      // ins 404 statt in seinen Redirect.
+      // Die Slug-Tabelle des Legacy-Redirects (getAllRestaurantsLite) hängt an
+      // einem eigenen Tag: Ohne ihn liefe ein umbenannter Slug bis zu 24
+      // Stunden ins 404 statt in seinen Redirect.
       revalidateTag('restaurants-lite');
       revalidated.push(
         'tag:bezirk',
@@ -226,10 +216,10 @@ export async function POST(req: NextRequest) {
       revalidatePath('/en');
       revalidatePath('/kategorie');
       revalidatePath('/en/kategorie');
-      // Die Sitemap listet jede Kategorie mit eigener URL. `category-list`
-      // oben frischt zwar die Daten auf, aber die gerenderte Route bleibt
-      // stehen, bis sie selbst revalidiert wird — bei 'newsArticle', 'bezirk'
-      // und 'restaurant' steht diese Zeile deshalb schon, hier fehlte sie.
+      // Die Sitemap listet jede Kategorie mit eigener URL. `category-list` oben
+      // frischt zwar die Daten auf, aber die gerenderte Route bleibt stehen,
+      // bis sie selbst revalidiert wird, wie bei 'newsArticle', 'bezirk' und
+      // 'restaurant'.
       revalidatePath('/sitemap.xml');
       revalidated.push(
         'tag:category',

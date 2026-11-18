@@ -272,9 +272,10 @@ describe('searchArticles', () => {
   });
 
   it('faellt auf EINZELNE Wortstaemme zurueck, wenn semantisch nichts verfuegbar ist', async () => {
-    // Der alte Rueckfall suchte nach der ganzen Frage („*Was macht Berliner
-    // Kaffee besonders*") und traf damit nie. Voyage bremst im Free-Tier ab
-    // drei Anfragen pro Minute — dieser Weg ist dann der einzige.
+    // Der Rückfall sucht nach einzelnen Wortstämmen, nicht nach der ganzen
+    // Frage („*Was macht Berliner Kaffee besonders*" trifft nie). Voyage bremst
+    // im Free-Tier ab drei Anfragen pro Minute; dieser Weg ist dann der
+    // einzige.
     vi.mocked(semanticRank).mockResolvedValue(null);
     const calls: Array<{ query: string; params: unknown }> = [];
     const fakeArticle: ArticleResult = {

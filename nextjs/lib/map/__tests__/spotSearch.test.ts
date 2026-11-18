@@ -130,7 +130,7 @@ describe('Bezirke und Kieze', () => {
   const spots = [
     { _id: 'k1', name: 'Zola', bezirk: { name: 'Kreuzberg' }, district: 'Kreuzberg' },
     { _id: 'k2', name: 'Kreuzberger Himmel', bezirk: { name: 'Kreuzberg' } },
-    /* Der Bezirk steht nur in der Beschreibung (Katalog 27.10.2026). */
+    /* Der Bezirk steht nur in der Beschreibung. */
     {
       _id: 'm1',
       name: 'Bonanza Coffee Mitte',
@@ -236,7 +236,7 @@ describe('Alltagswörter, die so an keinem Spot stehen', () => {
     expect(suggestSpots(spots, index, 'eis').map((r) => r.name)).toEqual(['Duo', 'Pizzeria']);
   });
 
-  /* Betreiber, 30.10.2026: „Döner" und „Nudeln" holten Spots ohne beides. */
+  /* „Döner" und „Nudeln" dürfen keine Spots holen, die beides nicht haben. */
   it('holt keine Spots, die das Wort nur zufällig enthalten', () => {
     expect(finds('döner', { cuisineType: 'Turkish', searchText: 'meze und lahmacun' })).toBe(false);
     expect(finds('döner', { cuisineType: 'Café', searchText: 'turkish eggs' })).toBe(false);

@@ -23,16 +23,14 @@ export function formatPackPrice(amountCents: number): string {
 /**
  * Spot- und Kartenzahl einer Kategorie.
  *
- * Sie steht NIRGENDS in der Oberflaeche (Betreiber, 06.09.2026: „keine Anzahl
- * bitte erwaehnen"). Das Produkt nennt seine Zahlen nicht — dieselbe Regel,
- * unter der die Berlin-Zahl am 04.09.2026 vom Profil verschwand und unter der
- * der Einladungsbonus seine Groesse verschweigt.
+ * Sie steht nirgends in der Oberfläche: Das Produkt nennt seine Zahlen nicht,
+ * auch der Einladungsbonus verschweigt seine Größe.
  *
- * Gebraucht wird sie trotzdem, und zwar an genau einer Stelle: um zu wissen,
- * ob ein Pack ueberhaupt eine Karte traegt. Ein Pack mit null Karten ist eine
- * leere Schachtel und darf nicht verkauft werden — siehe /packs und
- * /api/stripe/checkout. Ohne sichtbare Zahl ist dieser Riegel das Einzige,
- * was einen Fehlkauf noch verhindert.
+ * Gebraucht wird sie trotzdem, und zwar an genau einer Stelle: um zu wissen, ob
+ * ein Pack überhaupt eine Karte trägt. Ein Pack mit null Karten ist eine leere
+ * Schachtel und darf nicht verkauft werden, siehe /packs und
+ * /api/stripe/checkout. Ohne sichtbare Zahl ist dieser Riegel das Einzige, was
+ * einen Fehlkauf verhindert.
  */
 export interface PackContents {
   spots: number;

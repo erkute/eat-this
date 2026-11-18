@@ -116,37 +116,67 @@ describe('projectToScreen', () => {
      Quellen. Ein statischer Import zöge `tsc` durch ganz `maplibre-gl/src`,
      der Pfad als Variable lässt ihn nur Vitest zur Laufzeit auflösen. */
   type Point = { x: number; y: number };
-  type Transform = {
-    resize(w: number, h: number): void;
-    setPitch(p: number): void;
-    setBearing(b: number): void;
-    setPadding(p: FitView['padding']): void;
-    setZoom(z: number): void;
-    setCenter(c: unknown): void;
-    locationToScreenPoint(ll: unknown): Point;
+  /* MapLibre 6.19 rechnet die Kamera als unveränderlichen Zustand: jede
+     Änderung liefert einen neuen `view`, projiziert wird über die Kamera-Mathe. */
+  type View = { readonly __view: unique symbol };
+  type Context = { worldCoordinateHelper: unknown };
+  type Projected = { readonly __projected: unique symbol };
+  type Camera = {
+    createCameraContext(): Context;
+    createCameraViewState(options: Record<string, unknown>): View;
+    resize(view: View, context: Context, width: number, height: number): View;
+    setPitch(view: View, pitch: number): View;
+    setBearing(view: View, bearing: number): View;
+    setPadding(view: View, context: Context, padding: FitView['padding']): View;
+    setZoom(view: View, context: Context, zoom: number): View;
+    setCenter(view: View, context: Context, center: unknown): View;
+    projectCamera(view: View, context: Context): Projected;
+    getCameraMath(projected: Projected): {
+      locationToScreenPoint(projected: Projected, helper: unknown, lngLat: unknown): Point;
+    };
   };
-  let MercatorTransform: new () => Transform;
+  let maplibre: Camera;
   let LngLat: new (lng: number, lat: number) => unknown;
   beforeAll(async () => {
     // MapLibre 6 does not export its source subpaths. Resolve the package first.
     const root = dirname(createRequire(import.meta.url).resolve('maplibre-gl/package.json'));
-    const transformPath = join(root, 'src/geo/projection/mercator_transform.ts');
-    const lngLatPath = join(root, 'src/geo/lng_lat.ts');
-    ({ MercatorTransform } = await import(/* @vite-ignore */ transformPath));
-    ({ LngLat } = await import(/* @vite-ignore */ lngLatPath));
+    const load = (file: string) => import(/* @vite-ignore */ join(root, 'src', file));
+    const [context, viewState, updates, project, math, lngLat] = await Promise.all([
+      load('camera/camera_context.ts'),
+      load('camera/camera_view_state.ts'),
+      load('camera/camera_updates.ts'),
+      load('camera/project_camera.ts'),
+      load('camera/camera_math_factory.ts'),
+      load('geo/lng_lat.ts'),
+    ]);
+    maplibre = { ...context, ...viewState, ...updates, ...project, ...math };
+    ({ LngLat } = lngLat);
   });
 
   it('landet auf demselben Pixel wie MapLibre', () => {
     const camera = pitchedCameraForPoints(SPOTS, desktop)!;
-    const tr = new MercatorTransform();
-    tr.resize(desktop.width, desktop.height);
-    tr.setPitch(desktop.pitch);
-    tr.setBearing(desktop.bearing);
-    tr.setPadding(desktop.padding);
-    tr.setZoom(camera.zoom);
-    tr.setCenter(new LngLat(camera.center.lng, camera.center.lat));
+    const context = maplibre.createCameraContext();
+    let view = maplibre.createCameraViewState({
+      minZoom: 0,
+      maxZoom: 22,
+      minPitch: 0,
+      maxPitch: 85,
+      renderWorldCopies: true,
+    });
+    view = maplibre.resize(view, context, desktop.width, desktop.height);
+    view = maplibre.setPitch(view, desktop.pitch);
+    view = maplibre.setBearing(view, desktop.bearing);
+    view = maplibre.setPadding(view, context, desktop.padding);
+    view = maplibre.setZoom(view, context, camera.zoom);
+    view = maplibre.setCenter(view, context, new LngLat(camera.center.lng, camera.center.lat));
+    const projected = maplibre.projectCamera(view, context);
+    const cameraMath = maplibre.getCameraMath(projected);
     for (const p of SPOTS) {
-      const expected = tr.locationToScreenPoint(new LngLat(p.lng, p.lat));
+      const expected = cameraMath.locationToScreenPoint(
+        projected,
+        context.worldCoordinateHelper,
+        new LngLat(p.lng, p.lat)
+      );
       const actual = projectToScreen(p, camera, desktop);
       expect(actual.x).toBeCloseTo(expected.x, 1);
       expect(actual.y).toBeCloseTo(expected.y, 1);

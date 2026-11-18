@@ -24,7 +24,7 @@ async function main() {
     process.exit(1);
   }
 
-  const stripe = new Stripe(key, { apiVersion: '2025-02-24.acacia', typescript: true });
+  const stripe = new Stripe(key, { apiVersion: '2026-10-28.endive', typescript: true });
 
   for (const pack of Object.values(CATALOG)) {
     const existing = await stripe.prices.list({

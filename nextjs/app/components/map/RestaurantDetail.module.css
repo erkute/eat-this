@@ -562,8 +562,7 @@
 }
 
 /* Pfeil zurück links, Herz rechts, wie bei Airbnb, aber ohne Fläche: weiße
-   Symbole mit einem schmalen dunklen Schatten für helle Fotos (Ersan,
-   28.10.2026). Das Foto bleibt hell. */
+   Symbole mit einem schmalen dunklen Schatten für helle Fotos. Das Foto bleibt hell. */
 .rdHeartToggle,
 .rdBack {
   position: absolute;

@@ -38,7 +38,7 @@ type Props = Omit<ComponentPropsWithoutRef<'section'>, 'title'> & {
  * break out above it, then title, pitch and the buttons. As it scrolls in the
  * packs fan open from a closed stack (scroll timeline, no JS). The Starter
  * Pack comes with covered cards behind it on red paper, the Booster Packs on
- * ink the way /packs lays them out (Ersan, 31.10.2026). Used at the end of
+ * ink the way /packs lays them out. Used at the end of
  * the spot detail and of /must-eats.
  */
 export default function PackPoster({

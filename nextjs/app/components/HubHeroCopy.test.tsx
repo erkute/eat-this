@@ -66,7 +66,7 @@ describe('HubHeroCopy', () => {
     authState.loading = true;
     expect(render()).toBe(guest);
     authState.loading = false;
-    authState.user = { displayName: 'Ersan Tester', email: 'ersan@example.com' };
+    authState.user = { displayName: 'Alex Tester', email: 'alex@example.com' };
     expect(render()).toBe(guest);
     expect(guest).not.toContain('data-auth-only');
     expect(guest).not.toContain('data-guest-only');

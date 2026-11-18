@@ -3,7 +3,7 @@ import { maskEmail } from '@/lib/maskEmail'
 
 describe('maskEmail', () => {
   it('keeps two chars of a normal local part and the full domain', () => {
-    expect(maskEmail('dirtyersan@gmail.com')).toBe('di•••@gmail.com')
+    expect(maskEmail('sample@example.com')).toBe('sa•••@example.com')
   })
 
   it('keeps a single char for one/two-char local parts', () => {

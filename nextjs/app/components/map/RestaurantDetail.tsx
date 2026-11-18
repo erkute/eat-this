@@ -162,7 +162,7 @@ export default function RestaurantDetail({
 
   /* Das Foto scrollt mit seinen Knöpfen weg. Sobald der Pfeil darin verdeckt
      ist (am Telefon unter Kartenstreifen und Griff), übernimmt die feste
-     Leiste Zurück, Name und Herz, wie bei Airbnb (Ersan, 28.10.2026). */
+     Leiste Zurück, Name und Herz, wie bei Airbnb. */
   const backRef = useRef<HTMLButtonElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
   const [barShown, setBarShown] = useState(false);

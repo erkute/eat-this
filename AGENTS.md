@@ -72,4 +72,4 @@ Bestehende Komponenten und die `--et-*`-Tokens in `globals.css` sind die Referen
 
 ## Inhalte
 
-Sanity ist die Inhaltsquelle. Entwürfe anlegen ja, veröffentlichen nur auf Ersans „setz das live“; danach DE und EN abrufen, bevor „live“ gemeldet wird. Fakten müssen belegt sein. Eine Stilanleitung für Texte gibt es derzeit bewusst nicht. Must-Eat-Karten: `docs/must-eat-karten.md`.
+Sanity ist die Inhaltsquelle. Entwürfe anlegen ja, veröffentlichen nur, wenn die Projektleitung „setz das live“ sagt; danach DE und EN abrufen, bevor „live“ gemeldet wird. Fakten müssen belegt sein. Eine Stilanleitung für Texte gibt es derzeit bewusst nicht. Must-Eat-Karten: `docs/must-eat-karten.md`.

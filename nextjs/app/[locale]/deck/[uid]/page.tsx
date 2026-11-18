@@ -190,7 +190,7 @@ export default async function DeckPage({ params }: PageProps) {
           </ul>
         </div>
         <section className={deck.text} aria-labelledby="deck-title">
-          {/* Um die grosse Zahl herum gelesen ein Satz: „Ersan hat / 14 / von
+          {/* Um die grosse Zahl herum gelesen ein Satz: „Alex hat / 14 / von
               100 Must Eats aufgedeckt." Screenreader bekommen ihn in der
               Ueberschrift. */}
           <p className={deck.score} aria-hidden="true">

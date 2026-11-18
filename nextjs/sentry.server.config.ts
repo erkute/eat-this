@@ -2,7 +2,12 @@
 // Node). Loaded by instrumentation.ts at server boot.
 import * as Sentry from '@sentry/nextjs';
 
-import { sentryEnabled, sentryEnvironment } from '@/lib/sentry/environment';
+import {
+  SENTRY_TUNNEL_PATH,
+  sentryDataCollection,
+  sentryEnabled,
+  sentryEnvironment,
+} from '@/lib/sentry/environment';
 
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
@@ -12,6 +17,8 @@ Sentry.init({
   // the server and edge bundles too (Next runs the webpack config for all
   // three runtimes), so this would be inert.
   environment: sentryEnvironment(),
-  // Keine IP, keine Cookies (siehe instrumentation-client.ts).
-  sendDefaultPii: false,
+  dataCollection: sentryDataCollection,
+  // Nimmt die Meldungen des Browsers an (lib/sentry/client-sdk.ts) und reicht
+  // sie an Sentry weiter.
+  integrations: [Sentry.serveTunnelIntegration({ path: SENTRY_TUNNEL_PATH })],
 });

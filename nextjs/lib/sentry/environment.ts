@@ -25,3 +25,23 @@ export function sentryEnvironment(): string | undefined {
 export function sentryEnabled(): boolean {
   return Boolean(process.env.NEXT_PUBLIC_ENV);
 }
+
+/**
+ * Was Sentry über Personen und Anfragen mitschickt, in Browser, Server und
+ * Edge gleich: keine IP (im Browser folgt `infer_ip: "never"` aus `userInfo`),
+ * keine Cookies, keine Anfrage- und Antwortinhalte, etwa die E-Mail-Adresse
+ * aus dem Login, und keine Werte lokaler Variablen.
+ */
+export const sentryDataCollection = {
+  userInfo: false,
+  cookies: false,
+  httpBodies: [],
+  stackFrameVariables: false,
+};
+
+/**
+ * Der Weg der Browser-Meldungen: über die eigene Domain an den Server, der sie
+ * an Sentry weiterreicht, vorbei an Werbeblockern. Browser und Server brauchen
+ * denselben Pfad.
+ */
+export const SENTRY_TUNNEL_PATH = '/monitoring';

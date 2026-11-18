@@ -214,15 +214,12 @@ export default withSentryConfig(withNextIntl(nextConfig), {
   project: process.env.SENTRY_PROJECT,
   authToken: process.env.SENTRY_AUTH_TOKEN,
   silent: !process.env.CI,
-  // Through our own /monitoring endpoint, past ad blockers.
-  tunnelRoute: '/monitoring',
   // Der Hook misst Seitenwechsel, und das Messen fliegt mit `removeTracing`
   // ohnehin aus dem Bundle.
   suppressOnRouterTransitionStartWarning: true,
-  // These are the `webpack.treeshake` keys, not `bundleSizeOptimizations`; only
-  // this shape reaches the DefinePlugin that drops the code. `removeTracing`
-  // takes ~52 kB gzip off every page (error reporting is untouched) and applies
-  // to server and edge bundles too, so no config sets tracesSampleRate.
+  // `removeTracing` takes ~52 kB gzip off every page (error reporting is
+  // untouched) and applies to server and edge bundles too, so no config sets
+  // tracesSampleRate. Webpack builds only, hence `--webpack` in package.json.
   webpack: {
     treeshake: {
       removeTracing: true,

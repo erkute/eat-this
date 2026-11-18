@@ -1,14 +1,14 @@
 /* Eine frische Instanz zahlt ihre erste Firestore-Abfrage, ihren ersten
-   Bucket-Download und ihre erste Riegel-Transaktion mit je 0,7–1,2 s, und im
-   Kaltpfad der Bild-Route laufen die hintereinander. Alle Karten, die auf einer
-   per Autoscaling gestarteten Instanz landen, kämen deshalb gemeinsam erst nach
-   3,5–4,8 s; die warme Instanz daneben liefert in 0,1–1 s. Das Profil feuert
-   alle Karten auf einmal und trifft fast immer beide.
+   Bucket-Download und ihre erste Riegel-Transaktion je mit spürbarer
+   Verzögerung, und im Kaltpfad der Bild-Route laufen die hintereinander. Alle
+   Karten, die auf einer per Autoscaling gestarteten Instanz landen, kämen
+   deshalb gemeinsam spät; das Profil feuert alle Karten auf einmal und trifft
+   fast immer auch sie.
 
    Deshalb ruft sich jede Instanz beim Start einmal selbst auf, und die Route
    `/api/warmup` öffnet diese Verbindungen und legt die Kartendokumente in den
    Prozess-Cache (lib/must-eat/warmup). Über HTTP und nicht direkt aus
-   register(): Die Route läuft in der Server-Schicht, in der `server-only` und
+   register(): die Route läuft in der Server-Schicht, in der `server-only` und
    der Renderer mit seinem Gedächtnis leben; instrumentation.ts wird ohne sie
    gebaut.
 

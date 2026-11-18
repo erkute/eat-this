@@ -94,8 +94,8 @@ describe('HubSection home', () => {
 
   it('carries exactly one signup after the FAQ', () => {
     const html = renderHome();
-    // A second copy lower down was tried and dropped: it looked identical
-    // once it gained the pack and panel, so it read as repetition.
+    // Only one: a second copy lower down would read as repetition once it
+    // carries the pack and panel.
     expect(html.match(/data-hub-starter/g)).toHaveLength(1);
     expect(html.indexOf('data-hub-starter')).toBeGreaterThan(html.indexOf('data-testid="faq"'));
   });

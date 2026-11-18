@@ -117,10 +117,9 @@ describe('ProfilePacks zeigt Besitz, nicht das Sortiment', () => {
     expect(b).toBe(a);
   });
 
-  /* Der Widerspruch, wegen dem fullCatalog ueberhaupt existiert: oben stand
-     „466 von 466 Spots", darunter zehn verschlossene Packs. Ein Admin-Konto
-     hat weder Claim noch Entitlement-Dokument — useOwnedEntitlements kann das
-     also nicht wissen. */
+  /* Der Widerspruch, wegen dem fullCatalog existiert: alles offen, darunter
+     verschlossene Packs. Ein Admin-Konto hat weder Claim noch
+     Entitlement-Dokument; useOwnedEntitlements kann das also nicht wissen. */
   it('zeigt alles offen, wenn der Server den ganzen Katalog meldet', () => {
     state.owned = new Set<string>();
     const { container } = render(<ProfilePacks uid="user-1" fullCatalog />);

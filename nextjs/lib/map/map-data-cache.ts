@@ -15,11 +15,10 @@ export interface CachedMapData {
   fullCatalog?: boolean;
 }
 
-/* Die Versionsnummer gehört zur Bedeutung der Nutzlast: In v4 ist `restaurants`
-   der ganze Katalog, in v3 war es das Tier des Kontos. Ein v3-Cache besteht die
-   Formprüfung mühelos und malte vor dem ersten Fetch einen halben Stadtplan,
-   der wie das Endergebnis aussieht. Fremde Versionen werden beim nächsten
-   Abgleich gelöscht. */
+/* Die Versionsnummer gehört zur Bedeutung der Nutzlast: in v4 ist `restaurants`
+   der ganze Katalog. Ein älterer Cache bestünde die Formprüfung und malte vor
+   dem ersten Fetch einen halben Stadtplan, der wie das Endergebnis aussieht.
+   Fremde Versionen werden beim nächsten Abgleich gelöscht. */
 const CURRENT_CACHE_PREFIX = 'eatthis_mapdata_v4_';
 const CURRENT_LAST_UID_KEY = 'eatthis_last_uid_v4';
 /** Trifft jede Cache-Version, auch die aktuelle: der Logout braucht das. */

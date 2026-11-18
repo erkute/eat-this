@@ -1,13 +1,12 @@
 /**
  * Shared token/cost accounting for the content-generation scripts.
  *
- * Three scripts call a model per document over long unattended runs, and twice
- * a run stopped mid-way on an exhausted balance while the only cost figure
- * available was an estimate. Every script now reports what it actually spent,
- * so the next top-up is sized from a measurement.
+ * Three scripts call a model per document over long unattended runs; each
+ * reports what it actually spent, so the next top-up is sized from a
+ * measurement, not an estimate.
  *
- * Prices are Anthropic list prices per million tokens. Cache reads bill at
- * 0.1x input, 5-minute cache writes at 1.25x, and web search is a flat fee per
+ * Prices are Anthropic list prices per million tokens. Cache reads bill at 0.1x
+ * input, 5-minute cache writes at 1.25x, and web search is a flat fee per
  * search on top of tokens.
  */
 

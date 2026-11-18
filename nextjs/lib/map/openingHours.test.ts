@@ -119,8 +119,8 @@ describe('getOpenStatus', () => {
     expect(label.toLowerCase()).toContain('closed');
   });
 
-  // Split shifts arrive as one string. Reading only the first range reported
-  // "closed" through the entire evening service.
+  // Split shifts arrive as one string. Reading only the first range would
+  // report "closed" through the entire evening service.
   it('is open during the evening half of a split shift', () => {
     const slots: OpeningHourSlot[] = [{ days: 'Mo–Fr', hours: '12:00-15:00,18:00-23:00' }];
     expect(getOpenStatus(slots, new Date('2026-04-13T20:00:00'))).toMatchObject({

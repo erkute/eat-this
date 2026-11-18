@@ -12,7 +12,7 @@ export function resolvePackByUrlSlug(slug: string): PackDef | null {
   return Object.values(CATALOG).find((p) => packUrlSlug(p) === slug) ?? null;
 }
 
-/** Mockup price style: "2,99 €" for fractional, "20 €" for whole euros. */
+/** Price style: "2,99 €" for fractional, "20 €" for whole euros. */
 export function formatPackPrice(amountCents: number): string {
   const euros = Math.floor(amountCents / 100);
   const cents = amountCents % 100;

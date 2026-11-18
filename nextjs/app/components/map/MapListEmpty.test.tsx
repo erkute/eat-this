@@ -106,9 +106,8 @@ describe('MapListEmpty', () => {
   });
 
   it('sells nothing from an empty screen', () => {
-    /* The locked variant is gone: the list carries the paywalled spots itself
-       now, so an empty list means the catalogue has nothing — there is no
-       count to name and no offer to make. */
+    /* An empty list means the catalogue has nothing: there is no count to name
+       and no offer to make. */
     render(<MapListEmpty filtersActive onResetFilters={vi.fn()} />);
     expect(screen.queryByRole('link')).toBeNull();
   });

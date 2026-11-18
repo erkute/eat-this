@@ -1,9 +1,9 @@
 /* Kartenbilder kommen aus /api/must-eat-image, nicht von der Sanity-CDN;
    `sanitySrcSet` greift dort nicht, und ohne `?w=` liefert die Route das
-   Original (1026×1410, Median 96 kB). Ein Raster aus Daumennägeln zöge so rund
-   2,5 MB. Die Breiten sind Sprossen der Leiter in
-   app/api/must-eat-image/[id]/route.ts; eine Zahl dazwischen rastet dort
-   ohnehin auf die nächste ein und wäre nur ein zweiter Cache-Eintrag. */
+   Original, ein Raster aus Daumennägeln zöge so Megabytes. Die Breiten sind
+   Sprossen der Leiter in app/api/must-eat-image/[id]/route.ts; eine Zahl
+   dazwischen rastet dort ohnehin auf die nächste ein und wäre nur ein zweiter
+   Cache-Eintrag. */
 
 const ROUTE_PREFIX = '/api/must-eat-image/';
 const CARD_WIDTHS = [180, 360, 440, 540, 720] as const;

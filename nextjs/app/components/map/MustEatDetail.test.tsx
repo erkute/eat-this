@@ -89,8 +89,8 @@ describe('MustEatDetail login gate', () => {
   });
 });
 
-/* ?revealdemo spielt nur Karten vor, die schon offen sind. Eine verdeckte kommt
-   ohne Bild vom Server; umgedreht zeigte sie wieder den Rücken. */
+/* ?revealdemo spielt nur Karten vor, die schon offen sind: eine verdeckte kommt
+   ohne Bild vom Server. */
 describe('MustEatDetail reveal demo', () => {
   beforeEach(() => {
     openLoginModal.mockClear();

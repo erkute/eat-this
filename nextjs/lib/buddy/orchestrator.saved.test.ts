@@ -1,4 +1,3 @@
-// nextjs/lib/buddy/orchestrator.saved.test.ts
 // `list_saved_spots` — Remys Zugriff auf die eigene Merkliste des Nutzers.
 // Nur für angemeldete Konten: ohne Konto gibt es keine Merkliste, und ein
 // Werkzeug, das immer leer antwortet, lädt nur zu Fragen ein, die niemand

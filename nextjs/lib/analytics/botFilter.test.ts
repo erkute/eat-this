@@ -55,9 +55,11 @@ describe('isAutomated', () => {
     expect(isAutomated(null)).toBe(true);
   });
 
-  /* Lighthouse runs JavaScript, so it reaches /api/count exactly like a
-   * browser. Our own CI alone is 36 loads per URL on a busy day; unfiltered
-   * they stood in the dashboard as the five most-read pages. */
+  /*
+   * Lighthouse runs JavaScript, so it reaches /api/count exactly like a
+   * browser. Our own CI runs it many times a day; unfiltered it would top the
+   * dashboard.
+   */
   describe('Lighthouse', () => {
     it('drops the emulated phone regardless of the address it comes from', () => {
       expect(isAutomated(LIGHTHOUSE)).toBe(true);

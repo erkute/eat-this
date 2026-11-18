@@ -41,10 +41,9 @@ export function useGoogleSignIn(): {
     try {
       await signInWithGoogle();
     } catch (error) {
-      /* Auch der Abbruch bekommt eine Zeile — nur eine ruhige. Firebase
-         meldet ein zugeklicktes Fenster und eine gescheiterte Übergabe mit
-         demselben Code; wer danach stumm wieder vor dem Knopf stand, wusste
-         nicht, ob er selbst schuld war. */
+      /* Auch der Abbruch bekommt eine Zeile, nur eine ruhige: Firebase meldet
+         ein zugeklicktes Fenster und eine gescheiterte Übergabe mit demselben
+         Code. */
       const { benign, blocked } = describeGoogleSignInError(error);
       setNote(benign ? 'cancelled' : blocked ? 'blocked' : 'failed');
     } finally {

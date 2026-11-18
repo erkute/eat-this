@@ -1,4 +1,3 @@
-// nextjs/lib/cuisineLabels.test.ts
 import { describe, it, expect } from 'vitest';
 import { CUISINE_LABELS_DE, localizedCuisine } from './cuisineLabels';
 

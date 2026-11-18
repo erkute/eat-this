@@ -28,9 +28,7 @@ afterEach(() => {
 });
 
 describe('ProfileInvite', () => {
-  // Der Kasten sah nach zwanzig Anmeldungen genauso aus wie nach keiner. Die
-  // einzige Rueckmeldung war ein Toast, der nur feuerte, wenn man in genau
-  // dieser Sekunde die Seite offen hatte.
+  // Ohne Zahl saehe der Kasten nach zwanzig Anmeldungen aus wie nach keiner.
   it('stays quiet until the first friend has actually joined', () => {
     const { container } = render(<ProfileInvite uid={UID} cards={[]} />);
     expect(container.textContent).not.toContain('inviteJoined');
@@ -63,10 +61,9 @@ describe('ProfileInvite', () => {
     );
   });
 
-  /* Geteilt wird das eigene Deck, nicht die Startseite: ein nackter Link auf
-     `/` war eine Bitte, das Deck zeigt erst etwas her. Das `?ref` muss dabei
-     dranbleiben — es ist der einzige Grund, dass aus dem Angeben eine
-     Werbung wird, und die Middleware nimmt es auf jeder Route entgegen. */
+  /* Geteilt wird das eigene Deck, nicht die Startseite: das Deck zeigt etwas
+     her. Das `?ref` muss dranbleiben, es macht aus dem Angeben eine Werbung,
+     und die Middleware nimmt es auf jeder Route entgegen. */
   it('zeigt auf das eigene Deck und behaelt den Referral-Parameter', () => {
     const { container } = render(<ProfileInvite uid={UID} cards={[]} />);
     const url = container.querySelector('button')?.getAttribute('data-url') ?? '';

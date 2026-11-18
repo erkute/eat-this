@@ -165,9 +165,9 @@ describe('RestaurantList card photos', () => {
   it('starts fetching a photo well before its card reaches the screen', async () => {
     const { container } = render(list({ restaurants: photoSpots() }));
 
-    /* Native lazy-loading waited until a card was almost in view — in Safari
-       especially close — and every photo popped in a beat late. The card's
-       own observer reaches much further ahead and flips it to eager. */
+    /* Native lazy-loading waits until a card is almost in view, in Safari
+       especially close, so photos would pop in late. The card's own observer
+       reaches much further ahead and flips it to eager. */
     const lead = ioOptions.filter((o) => o?.rootMargin?.startsWith('3200px'));
     expect(lead.length).toBeGreaterThanOrEqual(2);
 

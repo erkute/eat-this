@@ -143,10 +143,9 @@ describe('/api/map-data — welche Karten offen liegen', () => {
     }
   })
 
-  /* Eine verdeckte Karte gibt es seit der Deck-Staffelung nur fuer ein Konto,
-     das sie besitzt — das Starter Pack vergibt zehn davon. Die bezahlten
-     Felder duerfen den Server trotzdem nicht verlassen: sichtbar heisst
-     „Ruecken im Album", nicht „offen". */
+  /* Verdeckte Karten liegen fuer jeden im Stapel. Die bezahlten Felder duerfen
+     den Server trotzdem nicht verlassen: sichtbar heisst „Ruecken", nicht
+     „offen". */
   it('covered cards carry no dish/image/price/description, revealed ones stay full', async () => {
     const restaurants = [mkRestaurant('a1'), mkRestaurant('a2')]
     const mustEats = [

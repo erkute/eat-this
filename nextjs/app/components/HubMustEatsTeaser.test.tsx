@@ -153,9 +153,9 @@ describe('HubMustEatsTeaser', () => {
 
   it('asks the image route for a card-sized variant, not the original', () => {
     const html = render(dataRevealed([me()]));
-    // Without a srcset every tile downloaded the 1200px original into a slot at
-    // most 208px wide — `sanitySrcSet` returns undefined for the
-    // /api/must-eat-image URLs these carry, so there was never one.
+    // Each tile needs a srcset: `sanitySrcSet` returns undefined for the
+    // /api/must-eat-image URLs these carry, and without one every tile would
+    // download the large original into a small slot.
     expect(html).toContain('180w');
     expect(html).toContain('360w');
     expect(html).toContain('440w');

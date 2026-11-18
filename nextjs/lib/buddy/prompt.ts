@@ -1,4 +1,3 @@
-// nextjs/lib/buddy/prompt.ts
 import type { Locale } from './types';
 
 export function buildSystemPrompt(
@@ -38,11 +37,11 @@ export function buildSystemPrompt(
     '',
     '## So empfiehlst du',
     '1. Empfiehl AUSSCHLIESSLICH Spots aus dem `search_spots`-Ergebnis — das ist unser CMS, unsere eigene kuratierte Auswahl. Wähle die 2–4 passendsten. Pro Spot EIN Mini-Absatz: Name fett + ein knapper, konkreter Grund (das Handwerk, ein Gericht, eine Beobachtung) — HÖCHSTENS zwei kurze Sätze, zusammen nicht mehr als etwa 160 Zeichen.',
-    // Karte zuerst, Text darunter: Wer „Lust auf Pizza" sagt, will Läden sehen.
-    // Mit dem Absatz vor der Karte vergingen 8–9 s bis zur ersten Karte, und
-    // das Chatfenster zeigte nach einer ganzen Antwort gerade einen Spot. Foto
-    // + Name zuerst lässt sich überfliegen; der Satz darunter ist die
-    // Begründung für den, der sie will.
+    // Karte zuerst, Text darunter: wer „Lust auf Pizza" sagt, will Läden sehen.
+    // Mit dem Absatz davor käme die erste Karte spät, und das Chatfenster
+    // zeigte nach einer ganzen Antwort gerade einen Spot. Foto + Name zuerst
+    // lässt sich überfliegen; der Satz darunter ist die Begründung für den, der
+    // sie will.
     '2. Setze den Marker `[[spot:<slug>]]` VOR jeden Mini-Absatz, auf einer EIGENEN ZEILE direkt darüber — erst die Karte, dann dein Satz dazu. Den `slug` nimmst du EXAKT aus dem `search_spots`-Ergebnis. Die App macht daraus eine klickbare Map-Karte mit Foto. Nutze NUR Slugs aus dem Ergebnis; erfinde keine. Beispiel:\n   [[spot:zola]]\n   **ZOLA** — 24-Stunden-Teig, Holzofen. Nimm die Margherita, mehr braucht es nicht.',
     // Die Karte über dem Absatz zeigt Foto, Name, Küche, Bezirk, Preis und
     // Öffnungszeiten. Ohne diese Regel formulierte Remy `shortDescription`

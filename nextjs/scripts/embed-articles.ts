@@ -45,8 +45,7 @@ const QUERY = `*[${ARTICLE_INDEX.filter}] | order(slug.current asc) {
 /**
  * Wie viel Fliesstext mitgeht. Titel und Teaser tragen das Thema schon; der
  * Anfang des Textes ergaenzt den Einstieg. Mehr waere nicht besser, sondern
- * teurer: der Voyage-Free-Tier begrenzt 10k TOKEN pro Minute, und die 24
- * Artikel haben zusammen rund 40k Token Fliesstext.
+ * teurer, und der Voyage-Tarif begrenzt die Token pro Minute.
  */
 const BODY_CHARS = 1200;
 

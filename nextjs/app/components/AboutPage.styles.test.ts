@@ -22,8 +22,7 @@ function effective(className: string, prop: string): string | undefined {
 describe('AboutPage styles', () => {
   /**
    * A width together with a max-height does not scale a picture, it squashes
-   * one — that is how the phone ended up 290 wide inside a 460 cap instead of
-   * its own 225x457. The figures carry a width and nothing else.
+   * it. The figures carry a width and nothing else.
    */
   it('never constrains a figure in both axes at once', () => {
     const width = effective('figureImg', 'width');

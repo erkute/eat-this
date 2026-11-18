@@ -1,5 +1,3 @@
-// nextjs/lib/map/revealed-must-eats.ts
-//
 // Welche Must-Eat-Karten ohne Konto offen liegen.
 //
 // Consumers: nextjs/app/api/map-data/route.ts,

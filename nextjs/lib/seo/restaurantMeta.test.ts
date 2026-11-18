@@ -161,9 +161,9 @@ describe('city in curated titles', () => {
 });
 
 describe('title budget without the brand suffix', () => {
-  // Genau die Titel, die vorher mitten im Satz gekappt wurden: 51 bzw. 55
-  // Zeichen lagen über den 49, die das Suffix übrig ließ — und weg war der
-  // Bezirk, also das Standort-Keyword, für das die Seite ranken soll.
+  // Genau die Titel, die mit Suffix mitten im Satz gekappt würden: über 49
+  // Zeichen, und weg wäre der Bezirk, also das Standort-Keyword, für das die
+  // Seite ranken soll.
   it('keeps a curated title that the brand suffix used to cut', () => {
     const t = buildCuratedRestaurantTitle(
       'Long March Canteen — Chinesische Tapas in Kreuzberg',

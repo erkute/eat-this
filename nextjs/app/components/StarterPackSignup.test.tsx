@@ -66,8 +66,8 @@ describe('StarterPackSignup', () => {
     expect(html).toContain('Already 100 Must Eats across Berlin. Your Starter Pack shows you the first ones. Discover the rest at the spots themselves.');
   });
 
-  /* Die Tafel steht auf jeder Startseite; der Cookie-Hinweis verspricht,
-     Google Sign-In lade „nur wenn du es nutzt". */
+  /* Die Tafel steht auf jeder Startseite; Google Sign-In laedt erst, wenn die
+     Hand zum Knopf geht. */
   it('waermt Google nicht an, nur weil die Seite steht', () => {
     render(tafel());
     expect(google.prepare).not.toHaveBeenCalled();

@@ -26,11 +26,10 @@ beforeEach(() => {
 
 describe('GET /api/restaurant-detail/[slug]', () => {
   /**
-   * The browser answers from its own cache for max-age + SWR and revalidates
-   * in the background, so the Sanity webhook only clears the SERVER cache.
-   * A long SWR therefore keeps a stale body on screen for returning visitors
-   * long after a deploy — that is how the EN map texts still read German
-   * after a green rollout. Keep the stale window at most as long as max-age.
+   * The browser answers from its own cache for max-age + SWR and revalidates in
+   * the background, so the Sanity webhook only clears the SERVER cache. A long
+   * SWR therefore keeps a stale body on screen for returning visitors long
+   * after a deploy. Keep the stale window at most as long as max-age.
    */
   it('does not let the stale window outlive max-age', async () => {
     fetchMock.mockResolvedValue({ description: 'x' });

@@ -1,6 +1,4 @@
-// Firebase Admin SDK — server-side only.
-// Used to generate sign-in-with-email links so we can send the email
-// ourselves via Resend with a fully branded HTML template.
+// Firebase Admin SDK, server-side only.
 
 import { initializeApp, getApps, cert, applicationDefault, App } from 'firebase-admin/app';
 import { getAuth, Auth } from 'firebase-admin/auth';

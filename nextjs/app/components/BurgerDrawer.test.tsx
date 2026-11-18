@@ -107,10 +107,9 @@ describe('BurgerDrawer scroll handover', () => {
     expect(window.scrollTo).not.toHaveBeenCalled();
   });
 
-  /* Der Fehler, den das verhindert: Unter 768px sperrt der Drawer den Body per
-     `position: fixed`, und beim Schließen fährt er `window.scrollTo(0,
-     storedY)` nach. Bei einem Menü-Link landete damit die Position der alten
-     Seite auf der neuen (/kategorie bei y=1500 → /packs käme bei 1500 heraus). */
+  /* Unter 768px sperrt der Drawer den Body per `position: fixed` und fährt beim
+     Schließen `window.scrollTo(0, storedY)` nach. Bei einem Menü-Link landete
+     so die Position der alten Seite auf der neuen. */
   it('gibt einem Menü-Link keine Scrollposition mit — die Zielseite beginnt oben', () => {
     render(<BurgerDrawer />);
     openBurgerDrawer();

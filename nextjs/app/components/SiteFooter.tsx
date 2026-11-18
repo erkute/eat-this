@@ -86,9 +86,8 @@ export default function SiteFooter() {
         </a>
       </div>
 
-      {/* About and Contact live here too — both pages existed but were only
-          reachable through the burger, so the footer sent everyone who wanted
-          to know who we are into a legal filing instead. */}
+      {/* About and Contact live here too, so the footer does not send everyone
+          who wants to know who we are into a legal filing. */}
       <nav className={styles.legal} aria-label="Footer legal">
         <Link href="/about" className={styles.legalLink}>
           {t('footer.about')}

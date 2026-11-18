@@ -53,10 +53,9 @@ export const CUISINE_LABELS_DE: Record<string, string> = {
 
 /**
  * Sichtbares DE/EN-Label für einen `cuisineType`. Die Sanity-Werte sind
- * durchweg englisch ("Mexican", "Wine Bar"), was auf `/en/...` genau richtig
- * ist und auf den deutschen Seiten falsch aussah. Unbekannte Werte — neue
- * Küchen, die noch nicht in der Tabelle stehen — bleiben roh stehen, statt zu
- * verschwinden.
+ * durchweg englisch ("Mexican", "Wine Bar"), was auf `/en/...` richtig ist; die
+ * deutschen Seiten bekommen das Label. Unbekannte Werte (neue Küchen, die noch
+ * nicht in der Tabelle stehen) bleiben roh stehen, statt zu verschwinden.
  */
 export function localizedCuisine(cuisineType: string, locale: 'de' | 'en'): string {
   if (locale === 'en') return cuisineType;

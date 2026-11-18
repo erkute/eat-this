@@ -1,5 +1,4 @@
 // @vitest-environment jsdom
-// nextjs/app/components/buddy/BuddyWidget.stage.test.tsx
 // Remy opens from the home hub via buddy:ask. There is no floating launcher.
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import { render, fireEvent, cleanup } from '@testing-library/react';

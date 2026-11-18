@@ -1,4 +1,3 @@
-// nextjs/app/api/buddy/route.test.ts
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 const mocks = vi.hoisted(() => ({

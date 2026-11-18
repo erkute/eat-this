@@ -17,17 +17,16 @@ interface BuildWebPageNodesArgs {
  * The `WebPage` + `ImageObject` pair that names one representative picture per
  * page.
  *
- * Without it Google free-picks from whatever the page renders — on a hub that
- * is fifty lazy-loaded cards, most of them portrait crops, and the result is
+ * Without it Google free-picks from whatever the page renders; on a hub that is
+ * many lazy-loaded cards, most of them portrait crops, and the result is
  * usually no thumbnail at all. `primaryImageOfPage` is the documented way to
- * say which one it should be; the home page has carried one since June, the
- * rest of the catalogue did not.
+ * say which one it should be.
  *
  * No `name`: the page title lives in `generateMetadata`, not in the component
  * that renders this, and a second hand-built copy would drift from the real
- * `<title>` the first time either changes. `width`/`height` are left off for
- * the same reason — Sanity delivers the source width when the original is
- * narrower than the preset, so a declared 1200 would be a guess.
+ * `<title>`. `width`/`height` are left off for the same reason: Sanity delivers
+ * the source width when the original is narrower than the preset, so a declared
+ * 1200 would be a guess.
  */
 export function buildWebPageNodes({
   pageUrl,

@@ -195,8 +195,8 @@ describe('LoginBoard — nach dem Absenden', () => {
 });
 
 describe('LoginBoard — Google', () => {
-  /* Auf den Seiten verspricht der Cookie-Hinweis, Google Sign-In lade „nur wenn
-     du es nutzt" — also erst, wenn die Hand zum Knopf geht. */
+  /* Auf den Seiten laedt Google Sign-In nur, wenn es genutzt wird, also erst,
+     wenn die Hand zum Knopf geht. */
   it('waermt auf den Seiten erst an, wenn die Hand zum Knopf geht', () => {
     board({ googleWarmup: 'intent' });
     expect(google.prepare).not.toHaveBeenCalled();

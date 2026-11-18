@@ -17,18 +17,17 @@ interface DetailHistoryState {
 /**
  * The map keeps the open detail in the URL (?r=<slug> / ?me=<id>) so a reload
  * reopens it and an open spot is shareable. Which history operation that takes
- * is not obvious, and getting it wrong is what sent people out of the map:
+ * is not obvious, and getting it wrong sends people out of the map:
  *
- * - Opening a detail FROM THE LIST pushes, so the phone's back gesture closes
+ * - Opening a detail from the list pushes, so the phone's back gesture closes
  *   the detail instead of leaving the map.
- * - Every change while a detail is ALREADY open replaces — pager swipes, marker
- *   taps, and a must-eat handing over to its restaurant. This used to key on
- *   "did we push?" instead of "was one open?", and the difference is exactly
- *   the deep-linked case: arriving on ?me=… and closing to the restaurant
- *   pushed a second entry, so the X on that restaurant popped back into the
- *   must-eat it had just left. The X is not a back button: it goes to the list.
+ * - Every change while a detail is already open replaces: pager swipes, marker
+ *   taps, and a must-eat handing over to its restaurant. Keyed on "was one
+ *   open?", not "did we push?": a deep-linked ?me=… closing to its restaurant
+ *   would otherwise push a second entry, and the X would pop back into the
+ *   must-eat. The X is not a back button: it goes to the list.
  * - Closing unwinds only what we pushed ourselves. A deep-linked or reloaded
- *   URL is somebody else's entry and is only ever replaced — going back there
+ *   URL is somebody else's entry and is only ever replaced; going back there
  *   leaves the map entirely.
  */
 export function resolveDetailHistory({

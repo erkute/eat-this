@@ -1,4 +1,3 @@
-// nextjs/lib/buddy/stream.ts
 import type { BuddyStreamEvent } from './types';
 
 export function encodeBuddyEvent(event: BuddyStreamEvent): string {

@@ -29,10 +29,9 @@ const collFn  = vi.fn(() => ({ doc: docFn }))
 const userDocFn = vi.fn(() => ({ collection: collFn }))
 const adminFirestore = {
   collection: vi.fn(() => ({ doc: userDocFn })),
-  // assembleAndWriteEntitlement now does the exists-check + write inside a
-  // transaction (race-safe first-writer-wins). The fake tx forwards to the
-  // same docRef.get/.set the assertions already track (set still receives the
-  // doc as its first arg, so `setFn.mock.calls[0][0]` stays valid).
+  // assembleAndWriteEntitlement does the exists-check + write inside a
+  // transaction (first writer wins). The fake tx forwards to the same
+  // docRef.get/.set the assertions track.
   runTransaction: vi.fn(async (cb: (tx: {
     get: (ref: typeof docRef) => unknown
     set: (ref: typeof docRef, doc: Record<string, unknown>) => unknown

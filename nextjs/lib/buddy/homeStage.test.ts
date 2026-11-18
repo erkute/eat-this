@@ -1,5 +1,4 @@
 // @vitest-environment jsdom
-// nextjs/lib/buddy/homeStage.test.ts
 import { afterEach, describe, it, expect } from 'vitest';
 import {
   BUDDY_ASK_EVENT,

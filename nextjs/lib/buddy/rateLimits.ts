@@ -1,10 +1,9 @@
 import { envNumber } from '@/lib/env';
 import type { RateLimits } from '@/lib/rateLimit';
 
-// Remy's limits are a question of money: every answer costs roughly 1.4 cents
-// of Anthropic credit. 10 answers a day per person and 50 for everyone together
-// cap the spend at about 0.70 € a day. The environment variables change the
-// numbers without a code deploy.
+// Remy's limits are a question of money: every answer costs Anthropic credit. A
+// daily limit per person and one for everyone together cap the spend. The
+// environment variables change the numbers without a code deploy.
 
 /** Per chat session: catches one visitor's UI spamming. */
 export function sessionLimitsFromEnv(): RateLimits {

@@ -77,9 +77,8 @@ describe('bezirkCategoryLinks', () => {
 });
 
 describe('categoryGuideSlugs', () => {
-  // Der Grund für die ganze Zuordnung: /kategorie/coffee und der Artikel
-  // trugen praktisch denselben Titel und verwiesen mit keinem Wort
-  // aufeinander. Fällt die Zeile weg, ist der Doppel-Intent zurück.
+  // Der Grund für die Zuordnung: /kategorie/coffee und der Artikel tragen fast
+  // denselben Titel. Fällt die Zeile weg, ist der Doppel-Intent zurück.
   it('pairs the coffee hub with the cafés guide', () => {
     expect(categoryGuideSlugs('coffee')).toEqual(['beste-cafes-berlin']);
   });
@@ -112,8 +111,8 @@ describe('categoryGuideSlugs', () => {
 });
 
 describe('bezirkGuideSlugs', () => {
-  // Dieselbe Doppel-Antwort wie bei coffee, nur ungelöst: die sechs
-  // Bezirks-Guides hingen allein an der /news-Liste, ihr Hub nannte sie nicht.
+  // Dieselbe Doppel-Antwort wie bei coffee: Bezirks-Guide und Hub verweisen
+  // aufeinander.
   it('pairs each district hub with its guide', () => {
     expect(bezirkGuideSlugs('kreuzberg')).toEqual(['restaurants-kreuzberg']);
     expect(bezirkGuideSlugs('mitte')).toEqual(['restaurants-mitte']);

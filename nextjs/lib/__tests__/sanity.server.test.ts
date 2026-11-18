@@ -113,8 +113,8 @@ describe('getRestaurantPageData', () => {
     expect(result?.siblings.map((r) => r.slug)).toEqual(['b1', 'b2', 'b3', 'b4']);
   });
 
-  // Der eigentliche Zweck der Zusammenlegung. Bricht dieser Test, kostet jede
-  // der 932 vorgerenderten Restaurant-Seiten wieder drei Anfragen statt einer.
+  // Der eigentliche Zweck der Zusammenlegung: bricht dieser Test, kostet jede
+  // vorgerenderte Restaurant-Seite wieder drei Anfragen statt einer.
   it('makes exactly one request, carrying the union of the three old tag sets', async () => {
     mockFetch.mockResolvedValue(row as never);
 
@@ -130,18 +130,18 @@ describe('getRestaurantPageData', () => {
     expect(options).toMatchObject({
       next: {
         revalidate: SANITY_REVALIDATE_SECONDS,
-        // `news` gehört dazu, seit die Seite den „Im Magazin"-Block trägt: ein
-        // neuer Artikel ändert ihn auf jeder darin verlinkten Restaurant-Seite,
-        // ohne dass das Restaurant selbst angefasst wird. Es muss der Tag sein,
-        // den der Webhook für `newsArticle` feuert (api/revalidate/route.ts).
+        // `news` gehört dazu: ein neuer Artikel ändert den „Im Magazin"-Block
+        // auf jeder darin verlinkten Restaurant-Seite, ohne dass das Restaurant
+        // selbst angefasst wird. Es muss der Tag sein, den der Webhook für
+        // `newsArticle` feuert (api/revalidate/route.ts).
         tags: ['restaurant:ramen-place', 'restaurant', 'mustEat', 'news', 'restaurant-siblings'],
       },
     });
   });
 
-  // Die Artikel kommen aus derselben Anfrage — ein zweiter Roundtrip pro Seite
-  // wäre bei 932 vorgerenderten Seiten genau das, was die Zusammenlegung
-  // vermeiden sollte.
+  // Die Artikel kommen aus derselben Anfrage: ein zweiter Roundtrip pro Seite
+  // wäre über alle vorgerenderten Seiten genau das, was die Zusammenlegung
+  // vermeidet.
   it('reads the articles from the same request and sorts them by specificity', async () => {
     mockFetch.mockResolvedValue({
       ...row,

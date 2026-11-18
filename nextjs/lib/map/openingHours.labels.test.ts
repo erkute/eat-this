@@ -8,10 +8,8 @@ import { translations } from '@/lib/i18n/translations';
  * und der Zustands-Chip der Spot-Seite haben dort keinen Kontext und nehmen
  * `OPEN_STATUS_LABELS`.
  *
- * Zwei Quellen für dieselben vier Wörter laufen auseinander, sobald jemand nur
- * eine anfasst — genau das war passiert: die Retrieval sagte „Offen", während
- * Map und Spot-Seite „Geöffnet" zeigten, und kein Test hat es bemerkt. Dieser
- * hier bemerkt es.
+ * Zwei Quellen für dieselben Wörter laufen auseinander, sobald jemand nur eine
+ * anfasst. Dieser Test bemerkt es.
  */
 describe('OPEN_STATUS_LABELS', () => {
   for (const locale of ['de', 'en'] as const) {

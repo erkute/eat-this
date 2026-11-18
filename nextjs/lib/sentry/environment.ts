@@ -19,9 +19,8 @@ export function sentryEnvironment(): string | undefined {
  * Ob überhaupt etwas an Sentry geht: nur auf App Hosting, wo `NEXT_PUBLIC_ENV`
  * gesetzt ist. Lokal liegt die Prod-DSN in `.env.local`, und ohne diese Sperre
  * meldeten Dev-Server, E2E-Läufe und Standalone-Builds aus Arbeitskopien als
- * „production“ ins Prod-Projekt. Das braucht das Fehlerkontingent des
- * kostenlosen Plans (5.000/Monat) in Stunden auf, und echte Fehler aus
- * Produktion gehen verloren.
+ * „production“ ins Prod-Projekt; das braucht das Fehlerkontingent in Stunden
+ * auf, und echte Fehler gehen verloren.
  */
 export function sentryEnabled(): boolean {
   return Boolean(process.env.NEXT_PUBLIC_ENV);

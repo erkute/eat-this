@@ -3,10 +3,9 @@ import { describeGoogleSignInError } from './googleSignInError';
 
 describe('describeGoogleSignInError', () => {
   it('behandelt das Zumachen des Popups als Entscheidung, nicht als Fehler', () => {
-    /* `benign` steuert nur die MELDUNG auf dem Schirm. Gemeldet wird trotzdem
-       alles (siehe AuthContext) — auth/popup-closed-by-user ist auch das, was
-       eine gescheiterte Übergabe liefert, und die erste Fassung war dadurch
-       blind an genau der Stelle, an der ich hinsehen wollte. */
+    /* `benign` steuert nur die Meldung auf dem Schirm. Gemeldet wird trotzdem
+       alles (siehe AuthContext): auth/popup-closed-by-user ist auch das, was
+       eine gescheiterte Übergabe liefert. */
     for (const code of [
       'auth/popup-closed-by-user',
       'auth/cancelled-popup-request',

@@ -1,4 +1,3 @@
-// nextjs/app/api/buddy/route.ts
 import { createHash } from 'node:crypto';
 import * as Sentry from '@sentry/nextjs';
 import { NextResponse } from 'next/server';

@@ -3,14 +3,13 @@ import type { RateLimitDecision } from './rateLimit';
 /* Der Fenster-Begrenzer ist eine Firestore-Transaktion auf ein Dokument je
    Schlüssel. Sechs Karten, die eine Seite auf einmal lädt, kommen von derselben
    IP: sechs Transaktionen auf dasselbe Dokument, und Firestore lässt sie
-   nacheinander durch, jede mit Retry und Backoff. Die ersten zwei Bilder eines
-   Schwungs kämen nach rund einer halben Sekunde, die vier danach nach 1,5 bis
-   2,2 s.
+   nacheinander durch, jede mit Retry und Backoff; die letzten Bilder eines
+   Schwungs kämen spät.
 
-   Deshalb: Läuft für einen Schlüssel gerade eine Prüfung, warten neue Anfragen
+   Deshalb: läuft für einen Schlüssel gerade eine Prüfung, warten neue Anfragen
    und gehen danach alle zusammen in eine Transaktion (`count`). Höchstens zwei
    Transaktionen je Schwung statt einer je Anfrage, und die Zählung bleibt
-   exakt. Die Entscheidung gilt für den ganzen Stapel: Ist das Budget für alle
+   exakt. Die Entscheidung gilt für den ganzen Stapel: ist das Budget für alle
    zusammen überschritten, wird keiner bedient. */
 
 type Check = (key: string, count: number) => Promise<RateLimitDecision>;

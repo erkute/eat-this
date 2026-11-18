@@ -147,8 +147,8 @@ describe('ProfileAlbum', () => {
     const { container } = render(<ProfileAlbum mustEats={mustEats} faceUpIds={new Set(['m1'])} />);
 
     // Die Karte im Raster (ein Knopf), nicht die Kopie im Fächer des Kopfes.
-    // Ein Daumennagel aus der Routen-Leiter, nicht das Original (~100 kB): Das
-    // Raster zöge sonst rund 2,5 MB.
+    // Ein Daumennagel aus der Routen-Leiter, nicht das Original: das Raster
+    // zöge sonst Megabytes.
     const image = container.querySelector<HTMLImageElement>(
       'button img[src="/api/must-eat-image/m1?w=360&auto=format&q=80"]'
     );

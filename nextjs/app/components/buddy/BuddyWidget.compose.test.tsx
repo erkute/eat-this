@@ -89,9 +89,9 @@ describe('BuddyWidget compose row', () => {
     expect(stop).toHaveBeenCalledTimes(1);
   });
 
-  /* Der Faden überlebt jetzt den Seitenwechsel (lib/buddy/thread.ts) — also
-     braucht es einen Weg, ihn beiseitezulegen. Auf dem leeren Chat wäre der
-     Knopf nur Möblierung. */
+  /* Der Faden überlebt den Seitenwechsel (lib/buddy/thread.ts), also braucht es
+     einen Weg, ihn beiseitezulegen. Auf dem leeren Chat wäre der Knopf nur
+     Möblierung. */
   it('offers a reset only once something has been said', () => {
     renderOpenWidget();
     expect(

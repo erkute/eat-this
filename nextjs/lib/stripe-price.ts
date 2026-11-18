@@ -1,10 +1,10 @@
 // Resolves the Stripe Price ID for a pack in the current key mode.
 //
 // The catalog hardcodes LIVE price IDs. Staging and local dev run Stripe in
-// test mode (sk_test_…) where those IDs don't exist — checkout died there
-// with "No such price". Test-mode prices carry lookup_key = packId (seeded
-// by scripts/seed-stripe-test-prices.ts) and are resolved here at runtime,
-// cached per server instance.
+// test mode (sk_test_…) where those IDs don't exist, so checkout would fail
+// with "No such price". Test-mode prices carry lookup_key = packId (seeded by
+// scripts/seed-stripe-test-prices.ts) and are resolved here at runtime, cached
+// per server instance.
 import { getStripe } from './stripe';
 import type { PackDef } from './stripe-catalog';
 

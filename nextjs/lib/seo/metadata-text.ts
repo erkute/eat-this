@@ -22,10 +22,10 @@ function truncateAtWord(text: string, max: number): string {
  * Brand suffix only when the title fits beside it. A longer title keeps all of
  * its words and goes out plain, like `buildPlainTitle`.
  *
- * Cutting the title to make room for the suffix would ellipsise about half of
- * the article titles, and the word that gets cut is often the one people search
- * for ("donut" in the EN donut guide). Google shows the site name beside the
- * title anyway; the words are the part that can only come from the title.
+ * Cutting the title to make room for the suffix would ellipsise many article
+ * titles, and the word that gets cut is often the one people search for. Google
+ * shows the site name beside the title anyway; the words are the part that can
+ * only come from the title.
  */
 export function buildBrandedTitle(title: string): string {
   const clean = title.trim().replace(/\s+/g, ' ').replace(TRAILING_BRAND, '').trim();
@@ -34,15 +34,13 @@ export function buildBrandedTitle(title: string): string {
 }
 
 /**
- * Same cleanup, no brand suffix — the whole 60 characters go to the title.
+ * Same cleanup, no brand suffix: the whole 60 characters go to the title.
  *
- * The suffix costs 11 of 60, and on the district pages that was the binding
- * constraint: six of seventeen curated titles were already being cut with an
- * ellipsis, and Lichtenberg's lost the only "Berlin" in the whole set
- * ("Vietnamesisches Berlin" → "Vietnamesisches…"). The brand is in the domain
- * and Google renders the site name beside the title anyway, so on a page whose
- * ranking depends on naming its district AND its city, those characters buy
- * more as content than as branding.
+ * The suffix costs 11 of 60, and on the district pages that is the binding
+ * constraint: curated titles would be cut with an ellipsis, some losing their
+ * only "Berlin". The brand is in the domain and Google renders the site name
+ * beside the title anyway, so on a page whose ranking depends on naming its
+ * district and its city, those characters buy more as content than as branding.
  */
 export function buildPlainTitle(title: string): string {
   const clean = title.trim().replace(/\s+/g, ' ').replace(TRAILING_BRAND, '').trim();

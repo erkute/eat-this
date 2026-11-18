@@ -1,4 +1,3 @@
-// nextjs/lib/buddy/geo.ts
 export interface LatLng {
   lat: number;
   lng: number;

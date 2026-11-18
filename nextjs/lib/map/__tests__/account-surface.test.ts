@@ -57,9 +57,7 @@ function compose(over: Record<string, unknown> = {}) {
 }
 
 /* Diese Ableitung gibt es genau einmal, für /api/map-data und für
-   publicDeck.server.ts. Zwei Kopien laufen auseinander: Fehlt der Admin-Zweig
-   in einer, meldet das geteilte Deck „0 von 24", während das Profil desselben
-   Kontos „24 von 24" zeigt. Hier steht die eine Definition fest. */
+   publicDeck.server.ts; hier steht die eine Definition fest. */
 describe('composeAccountSurface', () => {
   /* Es gibt keine gesperrten Spots, für niemanden. Gestaffelt ist nur der
      Kartenstapel. */
@@ -88,8 +86,8 @@ describe('composeAccountSurface', () => {
     expect(s.faceUpIds.size).toBe(ALL_MUST_EATS.length);
   });
 
-  /* All-Berlin ist gekauft, nicht vergeben — muss aber dasselbe ergeben.
-     Genau diese zweite Bedingung ist beim Kopieren verloren gegangen. */
+  /* All-Berlin ist gekauft, nicht vergeben, muss aber dasselbe ergeben wie der
+     Admin. */
   it('behandelt all-berlin wie den Admin', async () => {
     const admin = await compose({ ent: { ...EMPTY_ENT, isAdmin: true } });
     const allBerlin = await compose({ ent: { ...EMPTY_ENT, hasAllBerlin: true } });

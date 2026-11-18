@@ -43,11 +43,10 @@ export type FulfillmentResult =
       guestMagicLinkSent: boolean;
     };
 
-// Der Kauf-Schnappschuss: welche Karten die Kategorie IN DIESEM MOMENT hielt.
-// Gelesen wird er nicht mehr fuer die Sichtbarkeit — composeAccountSurface
-// loest `categorySlugs` live gegen den Katalog auf, damit spaeter erscheinende
-// Karten im gekauften Pack mitkommen. Er bleibt als Beleg dessen, was verkauft
-// wurde, und er steht im Beleg auf der Erfolgsseite.
+// Der Kauf-Schnappschuss: welche Karten die Kategorie in diesem Moment hielt.
+// Fuer die Sichtbarkeit wird er nicht gelesen (composeAccountSurface loest
+// `categorySlugs` live gegen den Katalog auf); er bleibt als Beleg dessen, was
+// verkauft wurde, und steht im Beleg auf der Erfolgsseite.
 async function categoryMustEatIds(slug: string): Promise<string[]> {
   const rows = await sanity.fetch<{ _id: string }[]>(
     `*[_type == "mustEat" && defined(restaurantRef._ref) && ${liveRestaurant('restaurantRef->')} && $slug in restaurantRef->categories[defined(@->_id)]->slug.current]{ _id }`,

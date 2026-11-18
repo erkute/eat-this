@@ -52,7 +52,7 @@ describe('map page H1 wiring', () => {
 
   it('keeps exactly one h1 across the whole map subsystem', () => {
     // Die Detail-Panels tragen h2: die Seite ist /map, das Detail ein Panel
-    // darin. Standen sie auf h1, hatte die Karte im Detail-Zustand zwei.
+    // darin. Auf h1 hätte die Karte im Detail-Zustand zwei.
     const withH1 = [
       'MapSectionBody.tsx',
       'RestaurantDetail.tsx',

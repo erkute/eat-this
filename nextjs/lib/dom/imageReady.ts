@@ -1,11 +1,10 @@
 /* Ein <img>, dessen `src` wechselt, zeigt das alte Bild weiter, bis das neue
    dekodiert ist; der Browser räumt den alten Rahmen nicht ab. Beim Blättern
    durch die Must Eats flöge dadurch die nächste Karte mit dem Bild der vorigen
-   herein, während Name und Restaurant darunter schon die neue Karte nennen
-   (880ms mit dem falschen Bild bei einem Bild, das 900ms braucht).
+   herein, während Name und Restaurant darunter schon die neue Karte nennen.
 
    Deshalb wartet der Kartentausch, bis das neue Bild wirklich zeichenbar ist.
-   Der Deckel hält die Geste am Leben, wenn das Bild klemmt: Dann blättert es
+   Der Deckel hält die Geste am Leben, wenn das Bild klemmt: dann blättert es
    trotzdem weiter, die Karte kommt leer herein und füllt sich, statt eine
    falsche zu zeigen. Wer dieses Versprechen einlöst, muss sein <img> pro Bild
    neu mounten (`key={src}`), sonst hängt der alte Rahmen wieder drin. */

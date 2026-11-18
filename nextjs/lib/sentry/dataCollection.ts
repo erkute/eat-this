@@ -4,8 +4,7 @@ import type { BrowserOptions } from '@sentry/nextjs';
  *
  * Ohne diese Angabe sammelt das SDK seit Version 11 Nutzerdaten, Cookies,
  * Header, Request- und Response-Bodies und Datenbankwerte. Das hier ist die
- * zurückhaltende Grundeinstellung aus Sentrys Migrationsleitfaden (gleich dem
- * früheren `sendDefaultPii: false`):
+ * zurückhaltende Grundeinstellung aus Sentrys Migrationsleitfaden:
  *
  * - `userInfo: false` heißt keine IP (Betreiber, 02.10.2026): Der Browser
  *   schickt `infer_ip: "never"`, Sentry leitet dann keine IP mehr ab. Browser

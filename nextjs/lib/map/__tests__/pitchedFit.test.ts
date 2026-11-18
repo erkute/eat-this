@@ -112,8 +112,8 @@ describe('projectToScreen', () => {
      Update nicht mehr (anderes Sichtfeld, anderer Umgang mit dem Rand),
      passt jede Einpassung daneben — deshalb gegen MapLibres eigene
      Transform geprüft, nicht gegen eine zweite Kopie derselben Formel. */
-  /* Wie in cameraFit.test: MapLibres Transform steht nur in den mitgelieferten
-     Quellen. Ein statischer Import zöge `tsc` durch ganz `maplibre-gl/src`,
+  /* MapLibres Kamera-Rechnung steht nur in den mitgelieferten Quellen. Ein
+     statischer Import zöge `tsc` durch ganz `maplibre-gl/src`,
      der Pfad als Variable lässt ihn nur Vitest zur Laufzeit auflösen. */
   type Point = { x: number; y: number };
   /* MapLibre 6.19 rechnet die Kamera als unveränderlichen Zustand: jede

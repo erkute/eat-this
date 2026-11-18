@@ -1,6 +1,4 @@
-// nextjs/lib/analytics/homeHeat.ts
-//
-// Scrolltiefe und Klicks der Startseite — die Definitionen, die Browser,
+// Scrolltiefe und Klicks der Startseite: die Definitionen, die Browser,
 // Zähl-Route und /admin/stats teilen.
 //
 // Läuft über denselben einwilligungsfreien Zähler wie die Seitenaufrufe
@@ -10,9 +8,9 @@
 // dieses Element". Gespeichert werden Summen je Tag in `analytics_home/<tag>`.
 //
 // Positionen sind relativ zum Abschnitt, nicht zur Seite: dieselbe Startseite
-// ist am Telefon dreimal so lang wie am Desktop, und Bilder laden nach. Im
-// Abschnitt gemessen, legt sich der Punkt in der Vorschau wieder auf dieselbe
-// Stelle, egal wie hoch der Abschnitt dort gerade ist.
+// ist am Telefon ein Mehrfaches so lang wie am Desktop, und Bilder laden nach.
+// Im Abschnitt gemessen, legt sich der Punkt in der Vorschau wieder auf
+// dieselbe Stelle.
 
 /** Die Abschnitte in Seitenreihenfolge, mit ihrem Selektor auf der Startseite. */
 export const HOME_SECTIONS = [

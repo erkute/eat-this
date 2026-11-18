@@ -23,10 +23,8 @@ import { usePhotoRail } from './usePhotoRail';
 import styles from './RestaurantList.module.css';
 
 /* How far ahead of the screen a card starts fetching its photo, and the list
-   appends its next rows. About four phone screens: the Sanity CDN answers a
-   photo it has not served lately in 200–650 ms, and a quick flick covers
-   3000+ px a second. Measured on the production build (390px viewport, Fast
-   4G, 23.09.2026): at 3500 px/s 1600 left 10–15 of 75 cards empty, 3200 none. */
+   appends its next rows: about four phone screens, because a quick flick
+   outruns the Sanity CDN's cold responses. */
 const PHOTO_LEAD_PX = 3200;
 // Native lazy-loading still fetches several phone screens ahead. Desktop's
 // visible rows get their real source in the server HTML; smaller screens start with
@@ -192,10 +190,6 @@ const Item = memo(
                       )}
                       <img
                         src={photoNear === null && !initialPhoto ? EMPTY_PHOTO : sanityImageLoader({ src: img.full, width: 600 })}
-                        /* One fixed 600px variant for every device was soft on a 3x
-                         phone (the card is ~362 CSS px wide). The desktop panel is
-                         clamp(380px, 25vw, 420px) wide (MapLayout.module.css);
-                         below 1024px the sheet spans the screen, the iPad too. */
                         /* Dieselben Stufen wie die Fotos im Restaurant-Detail
                          (lib/map/spotPhoto.ts) — so kommt dort das erste Foto aus
                          dem Cache. */
@@ -316,11 +310,10 @@ interface RestaurantListProps {
   searchQuery?: string;
   /** Hält ein Chip einen Wert? Nur fuer den Leerzustand. */
   filtersActive?: boolean;
-  /** Obergrenze der gerenderten Zeilen.
-   *  Der Stand liegt bewusst im Elternteil: ein Sprung ins Detail hängt diese
-   *  Liste aus, und der View-Toggle stellt beim Zurück die alte Scroll-Position
-   *  wieder her — eine hier gehaltene Zahl würde auf 12 zurückfallen und die
-   *  Liste unter dieser Position wegziehen. */
+  /**
+   * Obergrenze der gerenderten Zeilen. Der Stand liegt im Elternteil
+   * (MapSectionBody), weil ein Sprung ins Detail diese Liste aushängt.
+   */
   visibleRows: number;
   /** Die letzte gerenderte Zeile kommt in Sichtweite. */
   onNeedMoreRows: () => void;
@@ -396,10 +389,8 @@ export default function RestaurantList({
         <div key={r._id} className={styles.rcardSlot} data-list-row={r._id}>
           <Item
             restaurant={r}
-            /* The first row already peeks above the fold at the sheet's
-                 resting stop, so it is the map page's LCP candidate —
-                 lazy-loading it made the browser discover it a round-trip
-                 late. */
+            /* The first row peeks above the fold at the sheet's resting stop,
+               so it is the map page's LCP candidate and must not be lazy. */
             priority={index === 0}
             initialPhoto={index < 3}
             now={now}

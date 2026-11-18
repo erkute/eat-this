@@ -1,8 +1,6 @@
 // @vitest-environment jsdom
-// nextjs/app/components/buddy/BuddyWidget.markdown.test.tsx
-// Inline-Markdown im Antworttext. Kursiv fehlte: Claude betont damit gern ein
-// einzelnes Wort („eigentlich *die* Pizza-Referenz"), und die Sternchen
-// standen roh in Remys Antwort.
+// Inline-Markdown im Antworttext, auch kursiv: Claude betont damit gern ein
+// einzelnes Wort („eigentlich *die* Pizza-Referenz").
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import { render, fireEvent, cleanup } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';

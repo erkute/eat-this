@@ -38,9 +38,9 @@ describe('NotificationToast — die eine Infoflaeche', () => {
     expect(screen.getByText('Deine Spots findest du im Profil.')).toBeTruthy();
   });
 
-  /* Bis 24.09.2026 las die Karte freie Saetze nach Stichworten: „Konnte
-     nicht gespeichert werden." enthielt „gespeichert" und kam als
-     Erfolgsmeldung an. Ein Fehler ist jetzt eine eigene Meldung. */
+  /* Ein Fehler ist eine eigene Meldung. Die Karte liest keine freien Sätze nach
+     Stichworten: „Konnte nicht gespeichert werden." enthält „gespeichert" und
+     käme sonst als Erfolgsmeldung an. */
   it('zeigt einen Fehler als Fehler, nie als Bestaetigung', () => {
     render(<NotificationToast />);
 

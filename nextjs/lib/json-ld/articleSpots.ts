@@ -17,15 +17,14 @@ function isSpotCard(block: PortableTextBlock): block is PortableTextBlock & Spot
 /**
  * `ItemList<Restaurant>` für einen Guide, gebaut aus seinen spotCard-Blöcken.
  *
- * Die Guides sind listenförmig — dreizehn Restaurants mit Namen, Bezirk und
- * Foto — und sagten das strukturiert bisher nirgends: der Artikel trug nur
- * `NewsArticle` + `BreadcrumbList`, während die Kategorie- und Bezirksseiten
- * längst eine ItemList ausliefern. Damit stand dieselbe Liste für Google einmal
- * als Entität da und einmal als Fließtext.
+ * Die Guides sind listenförmig (Restaurants mit Namen, Bezirk und Foto), und
+ * die ItemList sagt das strukturiert, wie auf den Kategorie- und Bezirksseiten.
+ * Mit `Article` + `BreadcrumbList` allein stünde dieselbe Liste für Google
+ * einmal als Entität da und einmal als Fließtext.
  *
  * Die Reihenfolge ist die des Artikels, nicht alphabetisch: `position` ist eine
  * Rangbehauptung, und der Text stellt die Spots in einer gewollten Reihenfolge
- * vor (bei den Bezirks-Guides der kuratierten `topSpots`).
+ * vor.
  *
  * Gibt `null` zurück, wenn der Artikel keine spotCards hat. Ein Meinungsstück
  * ohne Spots ist keine Liste, und eine leere ItemList wäre eine Behauptung über

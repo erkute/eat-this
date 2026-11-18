@@ -219,12 +219,12 @@ export default {
       options: {hotspot: true},
       components: {input: SpotPhotoInput},
       description: 'Erscheint nur mit Copyright und Link zur Quelle. Den Bildausschnitt setzt der Kreis in der Vorschau.',
-      // Die Website spielt ein Foto NUR aus, wenn Credit UND Credit-URL gesetzt
-      // sind, ODER der Spot einen `instagramHandle` hat, ODER der Slug in der
+      // Die Website spielt ein Foto nur aus, wenn Credit und Credit-URL gesetzt
+      // sind, oder der Spot einen `instagramHandle` hat, oder der Slug in der
       // First-Party-Liste steht. Quelle der Wahrheit ist
-      // `publishableRestaurantImageCondition` in nextjs/lib/sanity-image-presets.ts;
-      // hier die Kopie, damit das Studio es vor dem Speichern merkt. Ohne die
-      // Prüfung ist der Fehler unsichtbar (Son Kitchen, 25.08.2026).
+      // `publishableRestaurantImageCondition` in
+      // nextjs/lib/sanity-image-presets.ts; hier die Kopie, damit das Studio es
+      // vor dem Speichern merkt. Ohne die Prüfung ist der Fehler unsichtbar.
       validation: (Rule) =>
         Rule.custom((value, context) => {
           if (!value || !value.asset) return true

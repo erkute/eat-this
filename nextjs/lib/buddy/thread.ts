@@ -1,10 +1,6 @@
-// nextjs/lib/buddy/thread.ts
-// Der Gesprächsfaden über einen Seitenwechsel hinweg.
-//
-// Das Widget hängt am Layout und wird beim Navigieren neu gebaut — die
-// Unterhaltung lag nur im React-State und war damit weg. Genau dann, wenn man
-// einem seiner Tipps folgt: Tap auf eine Spot-Karte → /map → Faden gerissen,
-// und die nächste Frage beginnt wieder bei „Hey, ich bin Remy".
+// Der Gesprächsfaden über einen Seitenwechsel hinweg: das Widget hängt am
+// Layout und wird beim Navigieren neu gebaut, und gerade wer einem Tipp folgt
+// (Spot-Karte → /map), soll nicht wieder bei „Hey, ich bin Remy" anfangen.
 //
 // sessionStorage, nicht localStorage: der Faden gehört zu diesem Besuch, nicht
 // zu diesem Gerät. Ein neuer Tab fängt neu an, das Schließen räumt auf.

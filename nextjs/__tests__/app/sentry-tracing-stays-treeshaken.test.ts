@@ -3,18 +3,17 @@ import { join } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
-/* Performance tracing is tree-shaken out of the Sentry SDK. Measured: it takes
- * "First Load JS shared by all" from 188 kB to 137 kB — roughly 50 kB gzip off
- * every one of the 43 routes, including the map (341 → 291 kB).
+/*
+ * Performance tracing is tree-shaken out of the Sentry SDK, roughly 50 kB gzip
+ * off every route, the map included.
  *
- * Error reporting is deliberately NOT affected: captureException, breadcrumbs,
- * stack traces and source-map resolution all still work. Only spans,
- * transactions, Web Vitals and trace headers are gone. Lighthouse CI measures
- * Web Vitals against production on every main push, which at this traffic is a
- * better sample than tracesSampleRate 0.1 ever was.
+ * Error reporting is not affected: captureException, breadcrumbs, stack traces
+ * and source-map resolution all still work. Only spans, transactions, Web
+ * Vitals and trace headers are gone; Lighthouse CI measures Web Vitals against
+ * production.
  *
  * Three things have to stay in sync, and none of them fails loudly if they
- * drift — the bundle just quietly grows by 50 kB again:
+ * drift; the bundle just quietly grows again:
  *
  *   1. `webpack.treeshake.removeTracing` in next.config.ts does the actual
  *      removal through setupTreeshakingFromConfig in @sentry/nextjs (webpack
@@ -25,7 +24,8 @@ import { describe, expect, it } from 'vitest';
  *   3. `onRouterTransitionStart` must not be exported from
  *      instrumentation-client.ts: it is `Sentry.captureRouterTransitionStart`,
  *      which is tree-shaken away, so the export would hand Next an undefined
- *      hook. */
+ *      hook.
+ */
 
 const read = (rel: string) => readFileSync(join(process.cwd(), rel), 'utf8');
 

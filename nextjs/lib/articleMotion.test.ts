@@ -135,9 +135,9 @@ describe('armArticleMotion', () => {
     vi.useRealTimers();
   });
 
-  // Am Telefon ist „Weitere Ausgaben" ein Querscroller mit Einrasten: er
-  // rastete auf das noch versetzte Heft ein und lief beim Austeilen mit
-  // (03.10.2026). Solange die Hefte unterwegs sind, rastet nichts ein.
+  // Am Telefon ist „Weitere Ausgaben" ein Querscroller mit Einrasten: Er
+  // rastete sonst auf das noch versetzte Heft ein und liefe beim Austeilen mit.
+  // Solange die Hefte unterwegs sind, rastet nichts ein.
   it('keeps the dealt rail from snapping until the issues have landed', async () => {
     document.body.innerHTML = `
       <div data-page="news-article">

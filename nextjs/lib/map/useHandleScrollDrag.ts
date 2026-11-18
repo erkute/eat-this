@@ -26,8 +26,8 @@ const AT_STOP_PX = 24;
 /* Below this much movement a release is a tap. */
 const TAP_PX = 6;
 /* Below this much, the grip was pressed, not pulled: the finger wobbles on a
-   press, and a sheet that stayed a few px off where it was — deep in the
-   list, back at its top — read as the grip slipping (user, 28.09.2026). */
+   press, and a sheet that stays a few px off where it was — deep in the list,
+   back at its top — reads as the grip slipping. */
 const STILL_PX = 16;
 /* After a gesture of the grip, the click the browser may still send is the
    gesture's, not a tap's. */
@@ -83,22 +83,21 @@ type Drag =
 
 /**
  * The phone sheet's grip. It moves the sheet with the finger and leaves it
- * where the finger lets go — nothing snaps (user, 28.09.2026). Two bounds:
- * the bar never goes above the strip line, so the map strip stays, and never
- * below clearBottom(), so it stays clear of Safari's URL bar. Above the map
- * stop the sheet is the scrolled page; below it the page rests at the map
- * stop and the sheet is held down by a transform. A tap on the grip still
- * toggles: from the map the sheet comes up to the strip line, from there it
- * goes back to the map. Past the strip line the list reads natively.
+ * where the finger lets go — nothing snaps. Two bounds: the bar never goes
+ * above the strip line, so the map strip stays, and never below clearBottom(),
+ * so it stays clear of Safari's URL bar. Above the map stop the sheet is the
+ * scrolled page; below it the page rests at the map stop and the sheet is held
+ * down by a transform. A tap on the grip toggles: from the map the sheet comes
+ * up to the strip line, from there it goes back to the map. Past the strip line
+ * the list reads natively.
  *
  * Content and filter touches keep native document scrolling. The grip alone
- * owns its drag: from deep in a list/detail it lowers the visible sheet
- * instead of scrolling through every row, and the sheet comes back at its
- * top. Lowered, the whole sheet is the grip. Touch moves only the sheet,
- * with fractional positions; document scroll catches up on release. Applying
- * touch input directly avoids Safari deferring animation callbacks during a
- * live drag. Mouse movement is batched once per frame. Tablets use
- * useBottomSheet instead.
+ * owns its drag: from deep in a list/detail it lowers the visible sheet instead
+ * of scrolling through every row, and the sheet comes back at its top. Lowered,
+ * the whole sheet is the grip. Touch moves only the sheet, with fractional
+ * positions; document scroll catches up on release. Applying touch input
+ * directly avoids Safari deferring animation callbacks during a live drag.
+ * Mouse movement is batched once per frame. Tablets use useBottomSheet instead.
  */
 export function useHandleScrollDrag(
   handleRef: RefObject<HTMLDivElement | null>,
@@ -216,9 +215,9 @@ export function useHandleScrollDrag(
       // Tablets/desktop still use the real transform sheet in useBottomSheet.
       if (!isPhone() || busy) return;
       /* A new first finger while a gesture is still open: that gesture's
-         release never arrived (iOS Safari can drop it). Left open, it held
-         the sheet and swallowed every swipe until the view changed (user,
-         30.10.2026). Finish it where it was left, then take this one. */
+         release never arrived (iOS Safari can drop it). Left open, it would
+         hold the sheet and swallow every swipe until the view changes. Finish
+         it where it was left, then take this one. */
       if (e.isPrimary && drag && e.pointerId !== drag.pointerId) finishLost();
       if (e.isPrimary && pending && e.pointerId !== pending.pointerId) pending = null;
       if (busy || drag || pending) return;
@@ -243,7 +242,6 @@ export function useHandleScrollDrag(
       begin(e.pointerId, e.clientY, e.pointerType === 'touch');
     };
 
-    /* Put the sheet at the latest input position. */
     const apply = () => {
       frame = 0;
       const sheet = sheetEl();
@@ -327,9 +325,9 @@ export function useHandleScrollDrag(
     const onTouchMove = (e: TouchEvent) => {
       /* While the grip owns a gesture nothing scrolls natively — not the page
          under a lowered sheet, not a photo rail in it. Done here and not with
-         `touch-action: none` on the lowered sheet: iOS Safari kept that block
-         after the sheet came back up, and the article no longer scrolled
-         until the view changed (user, 30.10.2026). Other swipes stay native. */
+         `touch-action: none` on the lowered sheet: iOS Safari keeps that block
+         after the sheet comes back up, and the article no longer scrolls until
+         the view changes. Other swipes stay native. */
       if (drag && e.cancelable) e.preventDefault();
     };
 

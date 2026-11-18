@@ -160,12 +160,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           admin = result;
         })
         .catch((error: unknown) => {
-          /* Die Bild-Sitzung ist ein Nebenaufruf. Faellt sie aus, fehlen
-             signierte Bilder — die Anmeldung selbst haelt Firebase, und genau
-             die hat der Code hier bisher weggeworfen: ein einziger
-             Fehlschlag zeigte „nicht angemeldet", bis eine Stunde spaeter das
-             Token rotierte. Also: melden statt schlucken, und den angemeldeten
-             Zustand behalten. */
+          /* Die Bild-Sitzung ist ein Nebenaufruf. Fällt sie aus, fehlen
+             signierte Bilder; die Anmeldung selbst hält Firebase, und die darf
+             ein Fehlschlag hier nicht wegwerfen: Sonst zeigte die App „nicht
+             angemeldet", bis eine Stunde später das Token rotiert. Also: melden
+             statt schlucken, und den angemeldeten Zustand behalten. */
           Sentry.captureException(error, {
             level: 'error',
             tags: {
@@ -188,14 +187,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  /* Holt das Ergebnis des Redirect-Wegs ab. Unsere Auth-Instanz kann das nicht
-     von selbst: sie ist ohne Popup-/Redirect-Resolver initialisiert (siehe
-     lib/firebase/config.ts), also muss er hier mitgegeben werden.
-
-     Fuer alle anderen Besucher kostet der Aufruf nichts: getRedirectResult
+  /* Holt das Ergebnis des Redirect-Wegs ab. Die Auth-Instanz ist ohne
+     Popup-/Redirect-Resolver initialisiert (lib/firebase/config.ts), also wird
+     er hier mitgegeben. Fuer alle anderen kostet das nichts: getRedirectResult
      liest zuerst den sessionStorage-Marker und laedt Googles Iframe nur, wenn
-     wirklich eine Anmeldung unterwegs ist. Die Zusage des Cookie-Banners —
-     Google Sign-In laedt nur, wenn man es nutzt — bleibt damit unberuehrt. */
+     eine Anmeldung unterwegs ist. */
   useEffect(() => {
     /* Wer ueber den Redirect zurueckkommt, ist angemeldet — weiter ins Profil
        wie nach dem Popup (afterSignIn.ts). */
@@ -235,27 +231,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       announceSignedIn();
       return;
     } catch (error) {
-      /* Reported HERE rather than in the two call sites, both of which used to
-           swallow it whole. A Google sign-in that fails silently is invisible
-           three times over: no message on screen, nothing in the console, nothing
-           in Sentry — which is how a broken popup on staging survived three
-           rounds of guessing (user, 2026-08-26). The code IS the diagnosis, so it
-           goes in as a tag rather than being buried in the message. */
+      /* Reported here rather than at the two call sites: a Google sign-in that
+         fails silently leaves no trace otherwise. The code goes in as a tag. */
       const { code, benign, blocked } = describeGoogleSignInError(error);
 
       if (blocked) {
-        /* Der Browser hat das Fenster nicht aufgehen lassen. Auf iOS Safari
-             ist das der Normalfall, solange Googles Iframe-Helfer beim Tippen
-             noch laedt: Safari erlaubt `window.open` nur im Klick-Task, und
-             `signInWithPopup` wartet vorher auf diesen Helfer. Auf dem Handy
-             dauert das — einmal ist er dort sogar ganz im Netz gescheitert
-             (auth/network-request-failed, 28.08.2026). Das Vorwaermen
-             (googlePopupWarmup.ts) verkuerzt die Wartezeit, aber es garantiert
-             sie nicht weg.
-
-             Eine Navigation braucht keine Nutzer-Aktivierung und traegt
-             deshalb auch dann noch. Der Leser muss dafuer kein zweites Mal
-             tippen: wir schalten hier selbst um. */
+        /* Der Browser hat das Fenster nicht aufgehen lassen. Auf iOS Safari ist
+           das häufig: `window.open` geht nur im Klick-Task, und
+           `signInWithPopup` wartet vorher auf Googles Iframe-Helfer. Das
+           Vorwärmen (googlePopupWarmup.ts) verkürzt das nur. Eine Navigation
+           braucht keine Nutzer-Aktivierung, also schalten wir selbst auf den
+           Redirect um. */
         Sentry.captureMessage('Google-Popup geblockt — Wechsel auf Redirect', {
           level: 'info',
           tags: { auth_flow: 'google_popup', auth_error_code: code, auth_fallback: 'redirect' },
@@ -280,10 +266,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
-      /* IMMER melden, auch den Abbruch — nur leiser. `benign` entscheidet, ob
-           der Leser eine Meldung sieht, nicht ob wir eine bekommen: ein
-           zugegangenes Fenster sieht identisch aus, ob es der Leser war oder die
-           Übergabe. Genau diese Kopplung machte die vorige Fassung blind. */
+      /* Immer melden, auch den Abbruch, nur leiser: `benign` entscheidet, ob
+         der Leser eine Meldung sieht, nicht ob wir eine bekommen. Ein
+         zugegangenes Fenster sieht gleich aus, ob es der Leser war oder die
+         Übergabe. */
       Sentry.captureException(error, {
         level: benign ? 'warning' : 'error',
         tags: { auth_flow: 'google_popup', auth_error_code: code, auth_benign: String(benign) },
@@ -337,8 +323,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       endingSessions -= 1;
     }
   }, []);
-
-  // ─────────────────────────────────────────────────────────────────────────
 
   const value = useMemo<AuthContextValue>(
     () => ({

@@ -6,20 +6,18 @@ interface Props {
 }
 
 /**
- * Die einzige H1 der Kartenseite — im HTML, aber nicht im Bild.
+ * Die einzige H1 der Kartenseite: im HTML, aber nicht im Bild
+ * (MapIntro.module.css). Oben stehen nur Suche, Burger und Karte. Für Crawler
+ * und Screenreader ist sie die Überschrift der Seite, mit demselben Text wie
+ * der Seitentitel.
  *
- * Sie schwebte bis zum 23.09.2026 als „BERLIN FOOD MAP" über der Karte und ist
- * seitdem visuell ausgeblendet (MapIntro.module.css): oben stehen nur Suche,
- * Burger und Karte. Für Crawler und Screenreader bleibt sie die Überschrift der
- * Seite, mit demselben Text wie der Seitentitel.
- *
- * Bewusst ohne `'use client'` und ohne Hooks: der Text soll im ausgelieferten
+ * Bewusst ohne `'use client'` und ohne Hooks: Der Text soll im ausgelieferten
  * HTML stehen (Crawler lesen ihn ohne JavaScript). Weil ihn eine
- * Client-Komponente einbindet, landet er trotzdem im Client-Bundle — das ist
+ * Client-Komponente einbindet, landet er trotzdem im Client-Bundle; das ist
  * hier ein konstanter String, keine Logik.
  *
- * Rendert in JEDEM Zustand, auch im Detail. Deshalb tragen RestaurantDetail und
- * MustEatDetailMobile `h2` — die URL ist /map, das Detail ist ein Panel darin.
+ * Rendert in jedem Zustand, auch im Detail. Deshalb tragen RestaurantDetail und
+ * MustEatDetailMobile `h2`: Die URL ist /map, das Detail ist ein Panel darin.
  */
 export default function MapIntro({ locale }: Props) {
   const copy = getMapSeoCopy(locale);

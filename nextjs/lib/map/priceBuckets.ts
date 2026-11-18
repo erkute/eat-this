@@ -3,42 +3,31 @@ import type { MapRestaurant } from '@/lib/types';
 /**
  * Die fünf Preisstufen der Karte.
  *
- * Sie haben die Küche als dritten Filter abgelöst (User, 2026-08-27). Der Grund
- * ist nicht Geschmack, sondern Datenlage: `cuisineType` ist ein ungeprüftes
- * Freitextfeld — Sironi ist dort als „Café" gepflegt und ist eine Pizzeria —
- * und die Werte doppelten sich („Kaffee" 8 neben „Café" 69, „Italian / Pizza"
- * neben „Italienisch"). 38 Werte, sechs davon mit genau einem Treffer.
- * `priceRange` ist dagegen auf 435 von 466 Spots gepflegt und schneidet quer
- * zu den Kategorien: 12 der 49 Spots ab 100 € sind kein Fine Dining.
+ * Der dritte Filter ist der Preis, nicht die Küche. Der Grund ist die
+ * Datenlage: `cuisineType` ist ein ungeprüftes Freitextfeld mit doppelten und
+ * falschen Werten („Kaffee" neben „Café", „Italian / Pizza" neben
+ * „Italienisch"), viele davon mit genau einem Treffer. `priceRange` ist dagegen
+ * auf fast allen Spots gepflegt und schneidet quer zu den Kategorien.
  *
- * **Geschnitten wird am Einstiegspreis** (`min`), nie an `max`. Google gibt
- * pro Laden eine eigene Spanne, keine gemeinsamen Bänder — 28 verschiedene
- * Kombinationen im Katalog, von 1–10 über 20–80 bis 40–100 — und die teuerste
- * Gruppe ist nach oben offen (49 Spots tragen `{min: 100}` ohne Maximum).
- * „20–40 €" heißt also: der EINSTIEG liegt zwischen 20 und 40 €, und das
- * stimmt dann für jeden Spot der Stufe. Der Picker trug das eine Weile im
- * Titel („Einstiegspreis wählen"), seit dem 30.08.2026 heißt er auf Wunsch
- * nur noch „Preis wählen". Damit ist die Lesart wieder offen: dieselbe Zeile
- * kann als Spanne des Ladens gelesen werden, und das wäre für 67 von 149
- * Spots der alten Stufe „20–50 €" falsch — ein 40–100-€-Laden stand dort
- * neben einem mit 20–30 € (User, 2026-08-29). Die Zahlen hier bleiben davon
- * unberührt; wer die Verwechslung wieder ausschließen will, tut es über die
- * Beschriftung, nicht über den Schnitt.
+ * **Geschnitten wird am Einstiegspreis** (`min`), nie an `max`. Google gibt pro
+ * Laden eine eigene Spanne, keine gemeinsamen Bänder (von 1–10 über 20–80 bis
+ * 40–100), und die teuerste Gruppe ist nach oben offen (`{min: 100}` ohne
+ * Maximum). „20–40 €" heißt also: Der Einstieg liegt zwischen 20 und 40 €, und
+ * das stimmt dann für jeden Spot der Stufe. Der Picker heißt nur „Preis
+ * wählen"; dieselbe Zeile kann deshalb als Spanne des Ladens gelesen werden.
+ * Wer die Verwechslung ausschließen will, tut es über die Beschriftung, nicht
+ * über den Schnitt.
  *
- * Die Grenzen liegen auf echten Werten: Einstiegspreise gibt es nur als
- * 1, 10, 20, 30, 40, 50, 60 und 100, keine Grenze schneidet also mitten durch
- * eine Gruppe. Die oberste Stufe war bis zum 29.08.2026 „ab 50 €" und hielt
- * zwei sehr verschiedene Dinge zusammen: acht Läden mit 50/60 € Einstieg und
- * die 49 offenen Spannen ab 100 € — Rutz, Nobelhart, Coda. Geteilt wurde bei
- * 100, und die Grenze darunter wanderte von 50 auf 40: bei 50 wären in der
- * mittleren Stufe nur acht Spots übrig geblieben, bei 40 sind es 30, und von
- * denen liegt keiner über 100 €.
+ * Die Grenzen liegen auf echten Werten: Einstiegspreise gibt es nur als 1, 10,
+ * 20, 30, 40, 50, 60 und 100, keine Grenze schneidet also mitten durch eine
+ * Gruppe. Die oberste Stufe beginnt bei 100: So stehen die offenen Spannen
+ * (Rutz, Nobelhart, Coda) für sich, getrennt von den wenigen Läden mit 50/60 €
+ * Einstieg. Die Grenze darunter liegt bei 40, damit die mittlere Stufe nicht
+ * fast leer ist.
  *
- * Belegte Stufen im Katalog (prod, 29.08.2026): 96 · 133 · 127 · 30 · 49.
- *
- * Die Küche bleibt **suchbar** — `useMapFilters` durchsucht `cuisineType`
- * weiter. Wer „vietnamesisch" tippt, findet es; es steht nur nicht mehr als
- * Dropdown mit 38 Zeilen da.
+ * Die Küche bleibt **suchbar**: `useMapFilters` durchsucht `cuisineType`. Wer
+ * „vietnamesisch" tippt, findet es; es steht nur nicht als Dropdown mit
+ * Dutzenden Zeilen da.
  */
 export const PRICE_BUCKETS = [
   { id: 'u10', min: 0, max: 10, labelKey: 'map.priceUnder10' },

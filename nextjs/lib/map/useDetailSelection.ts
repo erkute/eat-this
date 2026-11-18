@@ -61,14 +61,13 @@ export function useDetailSelection({
   const listAnchorPendingRef = useRef(false);
 
   /* Keep the open detail in the URL (?r=<slug> / ?me=<id>) so pull-to-refresh
-     restores it via the existing deep-link path instead of dropping the user
-     back to the list — and open details become shareable for free. The
-     deep-link consumer (useMapDeepLinks) no longer strips the params; its
-     consumed-guards prevent same-session re-triggers.
+     restores it via the deep-link path, and open details are shareable.
+     useMapDeepLinks leaves the params; its consumed-guards prevent same-session
+     re-triggers.
 
      Which history operation each change takes lives in resolveDetailHistory;
-     detailEntryPushedRef is the one bit of state it needs — whether the entry
-     on top of the stack is ours to unwind. */
+     detailEntryPushedRef is the one bit of state it needs: whether the entry on
+     top of the stack is ours to unwind. */
   const detailEntryPushedRef = useRef(false);
   /* Gesetzt, wenn eine Sucheingabe das Detail schließt (siehe
      handleSearchChange in MapSection). Der normale Schließweg poppt unseren History-Eintrag,
@@ -86,9 +85,8 @@ export function useDetailSelection({
     const hasPendingDetailParam = params.has('r') || params.has('me');
     /* List view + a detail param + nothing selected is ambiguous: either a
        soft-navigated deep link useMapDeepLinks hasn't consumed yet (leave the
-       param alone) or a detail the user just closed (strip it). wasDetail is
-       what tells them apart — without it the close path bailed out here and
-       left a stale ?r= behind, pointing at a spot that is no longer open. */
+       param alone) or a detail the user just closed (strip it). wasDetail tells
+       them apart. */
     if (
       sheetView !== 'detail' &&
       !wasDetail &&
@@ -140,19 +138,17 @@ export function useDetailSelection({
     if (fresh && fresh !== selectedRestaurant) setSelectedRestaurant(fresh);
   }, [restaurants, selectedRestaurant]);
 
-  /* Das geöffnete Must Eat folgt der frischesten Payload. Der Deep-Link greift
-     den Datensatz, den die Seite beim ersten Effekt-Durchlauf hat — und der
-     führt verdeckte Karten gestrippt. Ohne diesen Abgleich blieb das Detail
-     bei „Verdeckt" mit Kartenrücken, während `isUnlocked` längst offen sagte
-     (siehe freshestMustEat). */
+  /* Das geöffnete Must Eat folgt der frischesten Payload: der Deep-Link greift
+     den Datensatz des ersten Effekt-Durchlaufs, und der führt verdeckte Karten
+     gestrippt (siehe freshestMustEat). */
   useEffect(() => {
     if (!selectedMustEat) return;
     const fresh = freshestMustEat(mustEats, selectedMustEat);
     if (fresh !== selectedMustEat) setSelectedMustEat(fresh);
   }, [mustEats, selectedMustEat]);
 
-  // Global must-eat pager: neighbours within the FULL must-eat list (no
-  // filtering — the layer/list is gone). Paging swaps the selection in place.
+  // Global must-eat pager: neighbours within the full, unfiltered must-eat
+  // list. Paging swaps the selection in place.
   const mustEatPagerAdjacent = useMemo(
     () =>
       selectedMustEat

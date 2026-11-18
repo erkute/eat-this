@@ -7,14 +7,13 @@
 /**
  * Breite, mit der Fotos bei der Places Photo API abgeholt werden.
  *
- * Stand 28.08.2026 lagen dadurch 138 von 466 Hero-Fotos unter 1200px und 323
- * von 685 Galeriebildern — zu wenig fuer die 900px breite Bildspalte der
- * Detailseite, die auf einem 2x-Schirm 1800 Geraetepixel will. Die API gibt
- * bis 4800px her und rechnet pro Anfrage ab, nicht pro Pixel: breiter zu
- * ziehen kostet beim Import nichts, nur Sanity-Speicher.
+ * Die 900px breite Bildspalte der Detailseite will auf einem 2x-Schirm 1800
+ * Gerätepixel; unter 1200px ist ein Foto dafür zu klein. Die API gibt bis
+ * 4800px her und rechnet pro Anfrage ab, nicht pro Pixel: Breiter zu ziehen
+ * kostet beim Import nichts, nur Sanity-Speicher.
  *
- * Aendert nur, was ab jetzt importiert wird — Bestandsfotos bleiben so klein,
- * wie sie geholt wurden, und brauchen einen Nachimport.
+ * Ändert nur, was neu importiert wird; Bestandsfotos bleiben so klein, wie sie
+ * geholt wurden, und brauchen einen Nachimport.
  */
 export const PLACES_PHOTO_MAX_WIDTH_PX = 2400;
 
@@ -91,21 +90,20 @@ function distinctiveTokens(name: string): string[] {
     .filter((t) => t.length >= 3 && !GENERIC_NAME_WORDS.has(t));
 }
 
-/** Owner-uploaded Places photos carry the business name as their author
- *  attribution (e.g. "Foto: 136 Berlin Restaurant"); guest photos carry a
- *  person's name. We match on the restaurant's DISTINCTIVE words so a business
- *  whose Google name varies the generic part still counts — "Albatross Bakery"
- *  matches "Albatross Bäckerei" on the shared token "albatross". A spot whose
- *  name is entirely generic/short falls back to a whole-name containment check.
+/**
+ * Owner-uploaded Places photos carry the business name as their author
+ * attribution (e.g. "Foto: 136 Berlin Restaurant"); guest photos carry a
+ * person's name. We match on the restaurant's distinctive words so a business
+ * whose Google name varies the generic part still counts: "Albatross Bakery"
+ * matches "Albatross Bäckerei" on the shared token "albatross". A spot whose
+ * name is entirely generic/short falls back to a whole-name containment check.
  *
- *  ONE strong token is enough, not all of them. The uploading Google profile
- *  frequently carries a different name than the Places entry — "Zeus Pizza &
- *  Pide" uploads as "Zeus Pizzeria – Friedrichshain", "ABC - Allans Breakfast
- *  Club" as "Allan's ABC", "Ushido - Japanese bbq" as plain "Ushido". Requiring
- *  every token rejected all three, and with them 13 genuine owner photos.
- *  The trade-off is a guest whose display name happens to contain the brand
- *  word ("Annabelle" for a spot called "Anna"); the 4-char floor keeps that
- *  rare, and a wrong hero is a Studio correction, not a broken page. */
+ * One strong token is enough, not all of them: the uploading Google profile
+ * often carries a different name than the Places entry ("Zeus Pizza & Pide"
+ * uploads as "Zeus Pizzeria – Friedrichshain"). The trade-off is a guest whose
+ * display name happens to contain the brand word; the 4-char floor keeps that
+ * rare, and a wrong hero is a Studio correction, not a broken page.
+ */
 export function isOwnerPhoto(
   displayName: string | null | undefined,
   restaurantName: string

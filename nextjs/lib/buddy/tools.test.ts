@@ -1,4 +1,3 @@
-// nextjs/lib/buddy/tools.test.ts
 import { describe, it, expect } from 'vitest';
 import { BUDDY_TOOLS } from './tools';
 

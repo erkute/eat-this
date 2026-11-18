@@ -1,4 +1,3 @@
-// nextjs/lib/buddy/retrieval.test.ts
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   buildSpotsQuery,
@@ -185,9 +184,7 @@ describe('searchSpots', () => {
     expect(out[0].priceRange).toBe('10–20 €');
     expect(out[0].openNow).toBe(true);
     // Wörtlich gegen die geteilte Konstante, nicht gegen ein abgetipptes
-    // Literal: dieser Test trug bis zuletzt „Offen", während Map und Spot-Seite
-    // längst „Geöffnet" zeigten, und hat die Abweichung dadurch mitgetragen
-    // statt sie zu melden.
+    // Literal, damit der Test eine Abweichung meldet, statt sie mitzutragen.
     expect(out[0].openLabel).toContain(OPEN_STATUS_LABELS.de.open);
     expect(calls).toHaveLength(1);
     expect(calls[0].query).toContain('_type == "restaurant"');
@@ -272,9 +269,9 @@ describe('searchArticles', () => {
   });
 
   it('faellt auf EINZELNE Wortstaemme zurueck, wenn semantisch nichts verfuegbar ist', async () => {
-    // Der alte Rueckfall suchte nach der ganzen Frage („*Was macht Berliner
-    // Kaffee besonders*") und traf damit nie. Voyage bremst im Free-Tier ab
-    // drei Anfragen pro Minute — dieser Weg ist dann der einzige.
+    // Der Rückfall sucht nach einzelnen Wortstämmen, nicht nach der ganzen
+    // Frage („*Was macht Berliner Kaffee besonders*" trifft nie). Bremst
+    // Voyage, ist dieser Weg der einzige.
     vi.mocked(semanticRank).mockResolvedValue(null);
     const calls: Array<{ query: string; params: unknown }> = [];
     const fakeArticle: ArticleResult = {

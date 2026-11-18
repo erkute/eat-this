@@ -164,11 +164,9 @@
    Eine echte Fußzeile kann auf keiner Breite mit der Figur kollidieren, und die
    Must-Eat-Karten daneben haben ihre Beschriftungszone ebenso unten. */
 .playerFrame {
-  /* Der Container fuer die Namensgroesse unten. Er muss am RAHMEN haengen,
-     nicht am Namen selbst: `cqw` misst immer den naechsten Vorfahren-
-     Container, ein Element ist nie sein eigener. Am Namen gesetzt fiel die
-     Einheit still auf den Viewport zurueck — gemessen 21 px Schrift auf
-     einer 117 px schmalen Karte. */
+  /* Der Container fuer die Namensgroesse unten haengt am Rahmen, nicht am
+     Namen: `cqw` misst den naechsten Vorfahren-Container, nie das Element
+     selbst. */
   container-type: inline-size;
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto auto;

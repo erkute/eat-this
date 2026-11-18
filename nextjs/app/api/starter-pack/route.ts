@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { FieldValue, type WithFieldValue } from 'firebase-admin/firestore';
 import * as Sentry from '@sentry/nextjs';
-import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/admin';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { verifyBearer } from '@/lib/firebase/bearerAuth';
 import { getCachedMapData } from '@/lib/map/cached-sanity';
 import { composeAccountSurface } from '@/lib/map/visible-restaurants.server';
 import { getUnlockedMustEatIds } from '@/lib/firebase/unlockedMustEats.server';
@@ -42,23 +43,14 @@ export const dynamic = 'force-dynamic';
  * still: das Pack wird dann eben zufällig gezogen.
  */
 export async function POST(req: Request) {
-  const authHeader = req.headers.get('authorization');
-  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
-  if (!token) return NextResponse.json({ error: 'auth_required' }, { status: 401 });
-
-  let uid: string;
-  let identity: Parameters<typeof resolveEntitlements>[1] = {};
-  try {
-    const decoded = await getAdminAuth().verifyIdToken(token, true);
-    uid = decoded.uid;
-    identity = {
-      email: decoded.email ?? null,
-      emailVerified: decoded.email_verified === true,
-      admin: decoded.admin === true,
-    };
-  } catch {
+  const auth = await verifyBearer(req);
+  if (auth.status === 'missing') {
+    return NextResponse.json({ error: 'auth_required' }, { status: 401 });
+  }
+  if (auth.status === 'invalid') {
     return NextResponse.json({ error: 'invalid_token' }, { status: 401 });
   }
+  const { uid, identity } = auth;
 
   const ref = getAdminFirestore()
     .collection('users')

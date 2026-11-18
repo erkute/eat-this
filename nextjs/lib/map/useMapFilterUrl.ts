@@ -30,18 +30,16 @@ interface Args extends MapFilterState {
 /**
  * Keeps the five map filters in the query string, both directions.
  *
- * Inbound is the older half: `?cat=` and `?bezirk=` already arrive from the
- * kategorie, bezirk and guide pages, so their names and slug values are fixed.
- * `?price=`, `?q=` and `?open=` are new, and every one of them is now also
- * WRITTEN when the user picks a filter in the UI — which is what makes a
- * filtered map shareable, bookmarkable and survivable across a reload.
+ * Inbound: `?cat=` and `?bezirk=` arrive from the kategorie, bezirk and guide
+ * pages, so their names and slug values are fixed. Every filter is also written
+ * when the user picks it, which makes a filtered map shareable, bookmarkable
+ * and survivable across a reload.
  *
  * The push rule: the first time a chip filter goes active we push one history
  * entry and then keep replacing it for the rest of the visit. Back therefore
  * returns to the unfiltered map instead of leaving it, and ten chip changes
  * still cost exactly one back press. Typing in the search box only ever
- * replaces — a query is a keystroke stream, not a decision, and each character
- * would otherwise be an entry to back out of.
+ * replaces: a query is a keystroke stream, not a decision.
  */
 export function useMapFilterUrl({
   isActive,

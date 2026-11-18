@@ -1,8 +1,7 @@
 /**
- * Der Text der Kartenseite: die H1 (MapIntro). Der Textblock mit Absätzen und
- * Fragen am Listenende ist seit 22.10.2026 weg (Betreiber).
+ * Der Text der Kartenseite: die H1 (MapIntro).
  *
- * Nicht in `lib/i18n/translations.ts`: das lesen nur Client-Komponenten über
+ * Nicht in `lib/i18n/translations.ts`: Das lesen nur Client-Komponenten über
  * `useTranslation`, und das JSON-LD wird auf dem Server gebaut.
  */
 

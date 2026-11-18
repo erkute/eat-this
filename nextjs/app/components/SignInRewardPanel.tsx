@@ -147,19 +147,18 @@ function pages(identity: Identity | null) {
 
 const CARD_BACK = '/pics/card-back.webp?v=20261028';
 
-/** Das Kartenbild eines Must Eats — die Bild-Route, die auch Deck und Map
- *  benutzen; 440 ist die Sprosse fuer eine Karte bis 220 px bei 2x. */
 /** So lange liegt die Karte auf dem Aufdeck-Schritt verdeckt, bevor sie sich
  *  von selbst umdreht — wie in der Must-Eats-Erklaerung. */
 const FLIP_DELAY_MS = 800;
 
+/* 440 ist die Sprosse fuer eine Karte bis 220 px bei 2x. */
 const mustEatCard = (id: string) =>
   `/api/must-eat-image/${encodeURIComponent(id)}?w=440&auto=format&q=80`;
 
-/* Die 20 Karten des Starter Packs, in der Reihenfolge, in der sie aus dem Pack
-   kommen: abwechselnd auf den linken und den rechten Stapel
-   (rechts), damit beide gleichzeitig wachsen. `level` ist die Hoehe im Stapel,
-   `tilt` ein kleiner Versatz, damit der Stapel nach Karten aussieht. */
+/* Die 20 Karten des Starter Packs in der Reihenfolge, in der sie aus dem Pack
+   kommen: abwechselnd auf den linken und den rechten Stapel, damit beide
+   gleichzeitig wachsen. `level` ist die Hoehe im Stapel, `tilt` ein kleiner
+   Versatz. */
 const TILTS = [-1.5, 0.8, -0.4, 1.2, -1, 0.3, 1.5, -0.7, 0.6, -1.2];
 /* Jede Karte schiesst oben aus dem Pack und aus dem Bild — jede etwas anders
    gekippt — und kommt kurz darauf von einer anderen Seite zurueck auf ihren
@@ -191,15 +190,14 @@ const DECK_CARDS = [
 ] as const;
 
 /**
- * Die Tour nach der ersten Pack-Vergabe — auf JEDEM Anmeldeweg, weil sie an
- * `/api/starter-pack` hängt und nicht an einer Seite (siehe signInArrival).
- * Wer gerade sein Pack bekommen hat, öffnet es zuerst und sieht, was drin
- * ist; dann die Map, zu der die Karten fuehren, und am Ende die zwei Orte,
- * an denen es weitergeht. Bis 22.09.2026 kamen danach noch „Must Eats" und
- * „Hingehen. Aufdecken. Sammeln." — beide sagten, was der Stapel-Schritt
- * schon gesagt hatte (Nutzer, 22.09.2026).
+ * Die Tour nach der ersten Pack-Vergabe, auf jedem Anmeldeweg, weil sie an
+ * `/api/starter-pack` hängt und nicht an einer Seite (siehe signInArrival). Wer
+ * gerade sein Pack bekommen hat, öffnet es zuerst und sieht, was drin ist; dann
+ * die Map, zu der die Karten führen, und am Ende die zwei Orte, an denen es
+ * weitergeht. Mehr Schritte gibt es nicht: Sie würden wiederholen, was der
+ * Stapel-Schritt schon sagt.
  *
- * Alles passt ohne Scrollen in den Viewport: die Bildfläche ist der einzige
+ * Alles passt ohne Scrollen in den Viewport: Die Bildfläche ist der einzige
  * Teil, der schrumpft, Texte und Knöpfe behalten ihre Größe.
  */
 export default function SignInRewardPanel({ cards }: { cards: string[] | null }) {
@@ -375,12 +373,10 @@ export default function SignInRewardPanel({ cards }: { cards: string[] | null })
     return () => window.clearTimeout(timer);
   }, [pack]);
 
-  /* Liegen die Stapel, kommt die Erklaerung von selbst — nach einer kurzen
-     Pause, damit man die zwei Stapel erst sieht. Nur direkt nach dem Oeffnen
-     (nicht beim Zurueckblaettern) und nur, wenn noch niemand selbst
-     weitergeklickt hat; sonst uebersprang das einen Schritt. Ein eigener
-     Effekt: im Oeffnen-Effekt raeumte der Wechsel auf 'open' den Timer
-     gleich wieder ab. */
+  /* Liegen die Stapel, kommt die Erklaerung nach einer kurzen Pause von selbst;
+     nur direkt nach dem Oeffnen und nur, wenn noch niemand weitergeklickt hat.
+     Ein eigener Effekt, weil der Oeffnen-Effekt den Timer beim Wechsel auf
+     'open' abraeumte. */
   useEffect(() => {
     if (pack !== 'open' || !justOpened.current) return;
     justOpened.current = false;
@@ -564,9 +560,9 @@ export default function SignInRewardPanel({ cards }: { cards: string[] | null })
         </div>
         <div className={styles.copy}>
           <p className={`et-label ${styles.kicker}`}>{t.pack.tag}</p>
-          {/* Beide Texte liegen uebereinander in derselben Zelle — die Spalte
-              ist auf beiden Schritten gleich hoch, und die Buehne darueber
-              wird beim Weiterklicken nicht kleiner (Nutzer, 22.09.2026). */}
+          {/* Beide Texte liegen übereinander in derselben Zelle: Die Spalte ist
+              auf beiden Schritten gleich hoch, und die Bühne darüber wird beim
+              Weiterklicken nicht kleiner. */}
           <div className={styles.copyStack}>
             <div className={explaining ? styles.copyHidden : undefined} aria-hidden={explaining}>
               <h2 ref={explaining ? undefined : titleRef} tabIndex={-1} className={styles.headline}>

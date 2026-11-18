@@ -1,8 +1,7 @@
 /**
- * Die Titelseiten des Hefts (Auswahl 03.10.2026 aus 24 Entwürfen nach
- * Mode-Magazinen). Hier steht, welcher Look ein Heft bekommt und wo darauf
- * was liegt — rein rechnerisch, damit MagazineCover nur noch setzt und die
- * Regeln ohne DOM testbar sind.
+ * Die Titelseiten des Hefts, nach Mode-Magazinen. Hier steht, welcher Look ein
+ * Heft bekommt und wo darauf was liegt, rein rechnerisch, damit MagazineCover
+ * nur noch setzt und die Regeln ohne DOM testbar sind.
  *
  * Alle Längen sind Prozent der Heftbreite (`cqw` in MagazineCover). Das Heft
  * ist 3:4, also 100 breit und 133,3 hoch.
@@ -84,12 +83,11 @@ const isPhotoLook = (look: string): look is PhotoLook =>
 /**
  * Welcher Look ein Heft bekommt.
  *
- * Von Hand gewählt gilt — ein Freisteller-Look aber nur, wenn ein Freisteller
- * da ist. Sonst reihum nach der Ausgabennummer, damit zwei benachbarte Hefte
- * nie gleich aussehen: jedes Gericht bekommt einen der fünf Freisteller-Looks,
- * alles andere einen der zehn Foto-Looks. Nicht nur jedes zweite Gericht —
- * bei den 27 Heften vom 03.10.2026 wären sonst nur vier der fünf
- * Freisteller-Looks vorgekommen.
+ * Von Hand gewählt gilt, ein Freisteller-Look aber nur, wenn ein Freisteller da
+ * ist. Sonst reihum nach der Ausgabennummer, damit zwei benachbarte Hefte nie
+ * gleich aussehen: Jedes Gericht bekommt einen der fünf Freisteller-Looks,
+ * alles andere einen der zehn Foto-Looks. Nicht nur jedes zweite Gericht: Sonst
+ * kämen nicht alle fünf Freisteller-Looks vor.
  */
 export function coverLook(issue: number | null | undefined, cover?: CoverData | null): CoverLook {
   const n = Math.abs(issue ?? 0);
@@ -286,17 +284,15 @@ export function usableCutout(report: CutoutReport): boolean {
 }
 
 /**
- * Ein Gericht: die Bilderkennung sagt „food“ (ab 0,3), das Motiv berührt
- * höchstens zwei Bildränder, und es steckt keine Person darin. An der Regel
- * gemessen am 02.10.2026 auf allen 27 Titelfotos: zehn Gerichte, kein Tisch,
- * keine Fassade, kein Regal. Blumen und Wein ohne „food“ fallen durch — die
- * stellt man in Studio von Hand um.
+ * Ein Gericht: Die Bilderkennung sagt „food“ (ab 0,3), das Motiv berührt
+ * höchstens zwei Bildränder, und es steckt keine Person darin. Die Regel trennt
+ * Gerichte von Tischen, Fassaden und Regalen. Blumen und Wein ohne „food“
+ * fallen durch; die stellt man in Studio von Hand um.
  *
- * Personen schneidet das Heft nie aus, nur Essen (Ansage 03.10.2026). Beim
- * Döner-Heft hielt ein Mann den Döner, und der Freisteller nahm ihn halb mit:
- * 44 % seines Rahmens lagen darin, bei den neun übrigen Gerichten 0 % — auch
- * bei Charlottenburg, wo Gäste im Hintergrund sitzen. Mit Person bleibt das
- * ganze Foto, also ein Foto-Look.
+ * Personen schneidet das Heft nie aus, nur Essen. Hält ein Mann den Döner,
+ * nähme der Freisteller ihn halb mit (44 % seines Rahmens liegen darin, bei
+ * Gästen im Hintergrund 0 %). Mit Person bleibt das ganze Foto, also ein
+ * Foto-Look.
  */
 export function isDish(report: CutoutReport): boolean {
   return (

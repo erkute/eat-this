@@ -1,13 +1,12 @@
 /**
- * Wohin eine Anmeldung fuehrt, wenn sie durch ist: immer ins Profil — egal,
- * ob sie im Burger-Menue, an einer verdeckten Karte, an einem Herz oder auf
- * der Startseiten-Tafel angefangen hat (Betreiber, 14.10.2026).
+ * Wohin eine Anmeldung führt, wenn sie durch ist: immer ins Profil, egal, ob
+ * sie im Burger-Menü, an einer verdeckten Karte, an einem Herz oder auf der
+ * Startseiten-Tafel angefangen hat.
  *
- * Was die Anmeldung mitbringt, geht mit: die Tour eines neuen Kontos haengt
- * im Locale-Layout (SignInReward) und laeuft ueber dem Profil weiter, die
- * angetippte Karte liegt im Pack, das gemerkte Herz loest useFavorites in der
- * Spot-Liste des Profils ein (beide ueber den sessionStorage, siehe
- * EmailLinkSignIn).
+ * Was die Anmeldung mitbringt, geht mit: Die Tour eines neuen Kontos hängt im
+ * Locale-Layout (SignInReward) und läuft über dem Profil weiter, die angetippte
+ * Karte liegt im Pack, das gemerkte Herz löst useFavorites in der Spot-Liste
+ * des Profils ein (beide über den sessionStorage, siehe EmailLinkSignIn).
  */
 export const PROFILE_PATH = '/profile';
 

@@ -67,8 +67,8 @@ describe('restaurantRobots', () => {
   });
 
   it('nimmt einen dauerhaft geschlossenen Spot aus dem Index, folgt aber weiter', () => {
-    // Kein `nofollow`: die Seite verlinkt Nachbarn und Bezirk, und die
-    // Sitemap laesst den Spot ohnehin weg — beide Signale sagen jetzt dasselbe.
+    // Kein `nofollow`: die Seite verlinkt Nachbarn und Bezirk, und die Sitemap
+    // laesst den Spot ohnehin weg; beide Signale sagen dasselbe.
     expect(restaurantRobots({ isClosed: true })).toBe('noindex,follow');
   });
 

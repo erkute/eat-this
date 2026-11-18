@@ -47,7 +47,7 @@ npm run build:brand-cards  # Google- und Teilen-Bilder (og-card, Rubrik-Packs), 
 - **Hell und Dunkel gelten appweit, einschließlich Map.** UI-Flächen und Schrift nutzen `--et-ground` / `--et-fg`; `--et-ink` / `--et-white` bleiben feste Markenfarben für Fotos und Artwork.
 - **Mails:** Gmail lädt keine Webfonts und entfernt `position:absolute` und `transform`, darum wird alles Gestaltete lokal zu Bildern gerendert (`build:email-art`, `build:email-spots`). Der CTA bleibt ein echter Link mit gelber Fläche; nur sein Wort ist ein Bild, mit Alt-Text. Die Markenschrift (`assets/fonts/`, per `sync:brand-font`) darf nicht ins Repo oder auf den Server, also nie eine Laufzeit-Route für Mail-Bilder bauen.
 - **Bilder unter `public/`:** vor dem Commit zu WebP (`cwebp -q 80`). PNG bleiben Favicon und App-Icons, OG-Bilder, Mail-Grafiken und Stripe-Shopbilder.
-- **CSP läuft als `Report-Only`**, nicht als „enforced“ beschreiben.
+- **CSP läuft als `Report-Only`**, nicht als „enforced“ beschreiben. Verstöße meldet der Browser an `/api/csp-report`, von dort gehen sie gebündelt an Sentry.
 - **i18n:** DE auf `/`, EN auf `/en/...`. Interne Links immer über den `Link` aus `i18n/navigation.ts`.
 - **Zwei tsconfigs:** `tsconfig.json` gehört zu `.next`, `tsconfig.verify.json` zu `.next-verify`. Nie beide Dist-Dirs in eine `include` schreiben.
 - **Parallele Arbeit:** Zwei Agents dürfen nicht gleichzeitig dieselbe Arbeitskopie verändern. Eigene Kopie per `./scripts/worktree.sh <branch>` (Repo-Wurzel), vorher `git worktree list` prüfen.

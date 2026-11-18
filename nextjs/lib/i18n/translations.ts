@@ -1,8 +1,5 @@
-/* ============================================
-   EAT THIS — Translation dictionary
-   EN is the source of truth. DE is a deep merge of EN with DE overrides.
-   All HTML values in modals come from this constant — not from user input.
-   ============================================ */
+/* EN is the source of truth; DE is a deep merge of EN with DE overrides. All
+   HTML values in modals come from this constant, not from user input. */
 
 const en = {
   a11y: {
@@ -120,12 +117,9 @@ const en = {
     // place that names the state.
     hiddenMustEatAria: 'Hidden Must Eat',
     mustEatAtAria: 'Must Eat at {name}',
-    // The covered card carries two lines: state on top, action below — and no
-    // number at all. First "8.2 km to go" and "get within 50 m" stood on top of
-    // each other and read as arithmetic; then the distance stood alone and made
-    // the spot look far and like hard work, while the rule below it ("on site")
-    // never said what there was to win. The map shows how far it is; these two
-    // lines explain the card and name the prize.
+    // The covered card carries two lines: state on top, action below, and no
+    // number. The map shows how far it is; these lines explain the card and
+    // name the prize.
     proximityHere: "You're here.",
     proximityAway: 'Still face-down',
     // The location states live in their own chip under the dish line, not in
@@ -471,23 +465,16 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     hiddenMustEatAria: 'Verdecktes Must Eat',
     mustEatAtAria: 'Must Eat bei {name}',
     // Die verdeckte Karte trägt zwei Zeilen: oben der Zustand, unten die
-    // Handlung — und gar keine Zahl mehr. Erst standen „Noch 8,2 km" und
-    // „komm auf 50 m heran" übereinander, was sich als Rechenaufgabe las;
-    // dann blieb die Entfernung allein stehen und ließ den Spot weit und
-    // mühsam wirken, während die Regel darunter („vor Ort") nicht sagte, was
-    // es überhaupt zu holen gibt. Wie weit es ist, zeigt die Map; diese zwei
-    // Zeilen erklären die Karte und nennen den Gewinn.
-    // Dieselbe Wendung, die die Restaurantseite schon benutzt
-    // (MustEatTeaserSection: „Noch nicht aufgedeckt."). „Nur vor Ort." las sich
-    // als Hausordnung statt als Einladung.
+    // Handlung, keine Zahl. Wie weit es ist, zeigt die Map; diese zwei Zeilen
+    // erklären die Karte und nennen den Gewinn.
     proximityHere: 'Du bist da.',
     proximityAway: 'Noch nicht aufgedeckt',
     // Die Standort-Zustände stehen nicht mehr in der Gerichtszeile, sondern als
     // eigener Chip darunter: die Zeile gehört dem Gericht, der Chip der
     // Browser-Berechtigung. Ohne Fix ist der Chip die Taste, die fragt.
     locationAllow: 'Standort freigeben',
-    // Nur noch der Name der verdeckten Karte fürs Screenreader-Ohr: sichtbar
-    // ist der verweigerte Standort eine Meldung der zentralen Info-Karte
+    // Nur der Name der verdeckten Karte für den Screenreader: sichtbar ist der
+    // verweigerte Standort eine Meldung der zentralen Info-Karte
     // (lib/notice.ts), wie auf Map und Startseite.
     locationBlocked: 'Standort blockiert',
     proximityTapReveal: 'Tipp drauf und sieh, was du hier bestellen musst.',
@@ -607,9 +594,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       'Schick es jemandem, mit dem du gern essen gehst. Ihr bekommt beide eine Karte dafür.',
     inviteJoinedOne: '1 Freund ist \u00fcber deinen Link gestartet',
     inviteJoinedMany: '{count} Freunde sind \u00fcber deinen Link gestartet',
-    /* Die Reihe unter dem Einladen-Kasten. Der Referral-Weg laeuft seit Tag
-       eins, sichtbar war davon nur eine Zahl — wen man geworben hat, stand
-       nirgends. */
+    /* Die Reihe unter dem Einladen-Kasten: wen man geworben hat. */
     friendsHeading: 'Deine Crew',
     friendsLine:
       'Sie sind \u00fcber deinen Link gestartet. Tipp auf eine Figur und sieh dir ihr Deck an.',

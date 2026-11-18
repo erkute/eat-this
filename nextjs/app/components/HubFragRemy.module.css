@@ -8,10 +8,10 @@
 .intro { max-width: 30ch; margin: 0 0 24px; font-size: clamp(20px, 1.8vw, 26px); font-weight: 700; line-height: 1.25; text-wrap: pretty; }
 .prompt { margin: 0 0 14px; font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 .questions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
-/* Die Fragen sind Pillen auf dem Rot, damit sie sich vom weissen, eckigen
-   Eingabefeld darunter abheben (Ansage 21.10.2026: Knöpfe „richtig
-   erkennbar als Buttons"). Die Fläche ist eine Spur dunkler als das Rot, nicht
-   heller: weisse Schrift auf aufgehelltem Rot lag unter 4,5:1. */
+/* Die Fragen sind Pillen auf dem Rot, damit sie sich vom weißen, eckigen
+   Eingabefeld darunter abheben und als Knöpfe erkennbar sind. Die Fläche ist
+   eine Spur dunkler als das Rot, nicht heller: Weiße Schrift auf aufgehelltem
+   Rot läge unter 4,5:1. */
 .question { min-height: var(--et-btn-h); padding: 0 var(--et-btn-pad); color: #fff; background: rgba(21, 18, 14, .22); border: 0; border-radius: var(--et-radius-pill); font: 700 var(--et-btn-font)/1.2 var(--et-font-body); cursor: pointer; transition: background-color var(--et-motion-fast), color var(--et-motion-fast); }
 .question:focus-visible { outline: 3px solid #111; outline-offset: 4px; }
 @media (hover: hover) { .question:hover { color: #111; background: #fff; } }
@@ -35,8 +35,8 @@
 .head { position: absolute; bottom: 0; left: 50%; width: min(125cqw, 100cqh); aspect-ratio: 1; translate: -50% 0; }
 .face { object-fit: cover; }
 @media(max-width:599.98px) {
-  /* Wie live: Fragen und Eingabefeld oben untereinander, Remy steht darunter
-     auf der Unterkante der Bühne (Ansage 21.10.2026). */
+  /* Fragen und Eingabefeld oben untereinander, Remy steht darunter auf der
+     Unterkante der Bühne. */
   .body { padding: 36px var(--home-gutter, 24px) 288px; min-height: 0; }
   .content { position: relative; z-index: 1; width: 100%; max-width: none; }
   .title { margin-bottom: 16px; }

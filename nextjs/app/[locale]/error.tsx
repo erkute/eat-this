@@ -1,10 +1,10 @@
 'use client';
 
-// Segment error boundary for everything below [locale]/layout.tsx. Before
-// this existed, any render/data error on a page (e.g. a Sanity CDN timeout
-// on a dynamic route) escalated straight to the bare global-error screen.
-// The [locale] layout stays mounted, so globals.css and the html/body shell
-// are still there — we only render the inner screen, mirroring not-found.
+// Segment error boundary for everything below [locale]/layout.tsx. Without it,
+// any render/data error on a page (e.g. a Sanity CDN timeout on a dynamic
+// route) would escalate to the bare global-error screen. The [locale] layout
+// stays mounted, so globals.css and the html/body shell are still there; we
+// only render the inner screen, mirroring not-found.
 //
 // Deliberately minimal dependencies: no providers, no nav, no i18n context.
 // Those can be part of the failure; the boundary must not crash itself.

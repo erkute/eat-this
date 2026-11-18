@@ -5,14 +5,10 @@ import { useGSAP } from '@gsap/react';
 import { appScroller } from '@/lib/dom/appScroller';
 import { onFirstView } from '@/lib/home/dealIn';
 
-/* Bewusst ohne ScrollTrigger: das Plugin hält ab dem Registrieren eine
-   leere requestAnimationFrame-Schleife am Laufen, für die ganze Sitzung und
-   auf jeder Seite. Damit rechnet der Hauptthread jedes Frame mit, und selbst
-   reine Compositor-Animationen (Laufband, schwebende Telefone) kosteten
-   Stil-Neuberechnungen — gemessen 60/s im Leerlauf, am gedrosselten Telefon
-   rund ein Viertel der Hauptthread-Zeit (Review 29.09.2026). Ausgelöst wird
-   hier per IntersectionObserver, was am Scrollweg hängt, über einen passiven
-   Scroll-Listener. */
+/* Bewusst ohne ScrollTrigger: das Plugin hält ab dem Registrieren eine leere
+   requestAnimationFrame-Schleife am Laufen, auf jeder Seite, und selbst reine
+   Compositor-Animationen kosten dann in jedem Frame Stil-Neuberechnungen.
+   Ausgelöst wird per IntersectionObserver. */
 gsap.registerPlugin(useGSAP);
 
 /**
@@ -23,16 +19,16 @@ gsap.registerPlugin(useGSAP);
  */
 
 /**
- * Starter Pack: sobald die Tafel ins Bild kommt, tippt sich eine Adresse ins
- * Feld, „Anmelden" wird gedrückt, das Feld leert sich wieder (Ansage
- * 28.09.2026). Getippt wird in den Platzhalter, nie in den Wert — es wird
- * nichts abgeschickt, nichts validiert, und wer selbst ins Feld tippt, bricht
- * die Vorführung sofort ab. Sie läuft in Schleife, solange die Tafel im Bild
- * ist: tippen, drücken, leeren, kurz Pause, von vorn (Ansage 29.09.2026).
- * Nach eigenem Tippen erst wieder, wenn die Tafel neu ins Bild kommt.
- * Feld und Knopf werden bei jedem Lauf neu gesucht, Fokus und Eingabe an der
- * Section abgefangen: nach einem Absenden baut LoginBoard das Formular über
- * die „Mail gesendet"-Ansicht neu, gemerkte Knoten wären dann tot.
+ * Starter Pack: Sobald die Tafel ins Bild kommt, tippt sich eine Adresse ins
+ * Feld, „Anmelden" wird gedrückt, das Feld leert sich wieder. Getippt wird in
+ * den Platzhalter, nie in den Wert: Es wird nichts abgeschickt, nichts
+ * validiert, und wer selbst ins Feld tippt, bricht die Vorführung sofort ab.
+ * Sie läuft in Schleife, solange die Tafel im Bild ist: tippen, drücken,
+ * leeren, kurz Pause, von vorn. Nach eigenem Tippen erst wieder, wenn die Tafel
+ * neu ins Bild kommt. Feld und Knopf werden bei jedem Lauf neu gesucht, Fokus
+ * und Eingabe an der Section abgefangen: Nach einem Absenden baut LoginBoard
+ * das Formular über die „Mail gesendet"-Ansicht neu, gemerkte Knoten wären dann
+ * tot.
  */
 const DEMO_ADDRESS = 'hunger@eatthisdot.com';
 

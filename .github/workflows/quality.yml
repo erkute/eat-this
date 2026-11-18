@@ -3,14 +3,12 @@ name: Quality
 on:
   pull_request:
     branches: [main, staging]
-  # `main` ist hier nicht als Gate drin — der Code hat den Gang über den PR
-  # schon hinter sich. Es geht um den Fetch-Cache weiter unten: Actions lässt
-  # einen Lauf nur die Caches seines EIGENEN Refs, seines Basis-Branches und
-  # des Default-Branches lesen. Ohne einen Lauf auf `main` gibt es dort keinen
-  # Cache, und jeder `staging → main`-PR baut kalt — am 29.08.2026 genau so
-  # beobachtet („Cache not found for input keys: sanity-fetch-cache-…").
-  # Ein Cache auf dem Default-Branch ist dagegen von jedem Branch aus lesbar
-  # und schließt die Lücke für alle Lauf-Arten auf einmal.
+  # `main` ist hier kein Gate: Der Code hat den Gang über den PR schon hinter
+  # sich. Es geht um den Fetch-Cache weiter unten. Actions lässt einen Lauf nur
+  # die Caches seines eigenen Refs, seines Basis-Branches und des
+  # Default-Branches lesen. Ohne einen Lauf auf `main` gäbe es dort keinen
+  # Cache, und jeder `staging → main`-PR baute kalt. Ein Cache auf dem
+  # Default-Branch ist von jedem Branch aus lesbar.
   push:
     branches: [main, staging]
 
@@ -54,18 +52,17 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      # Reine Doku-Änderungen brauchen keinen Build: ändert ein PR nur Markdown
+      # Reine Doku-Änderungen brauchen keinen Build: Ändert ein PR nur Markdown
       # oder Agent-Konfiguration, meldet der Check nach Sekunden grün statt nach
       # ~4 Minuten. `nextjs` bleibt dabei ein erfolgreicher Lauf, der
       # Pflicht-Check auf `main` wird also erfüllt (ein `paths-ignore` am
-      # Trigger würde ihn dagegen ewig „ausstehend“ lassen). Im Zweifel – Vergleich
-      # schlägt fehl, ≥ 300 Dateien – wird gebaut.
+      # Trigger würde ihn dagegen ewig „ausstehend“ lassen). Im Zweifel –
+      # Vergleich schlägt fehl, ≥ 300 Dateien – wird gebaut.
       #
       # Nur für PRs, die mit ihrem ganzen Diff verglichen werden. Ein Push sieht
-      # nur sich selbst: am 14.10.2026 brach ein Doku-Push auf `staging` den
-      # Lauf des Code-Merges davor ab (`cancel-in-progress`), meldete selbst
-      # ohne Build grün – und GitHub wertete genau dieses Grün am selben Commit
-      # als Pflicht-Check des Release-PRs, der sofort nach `main` ging. Pushes
+      # nur sich selbst: Ein Doku-Push auf `staging` bricht den Lauf des
+      # Code-Merges davor ab (`cancel-in-progress`), und sein Grün ohne Build
+      # würde am selben Commit als Pflicht-Check des Release-PRs zählen. Pushes
       # bauen deshalb immer.
       - name: Nur Doku geändert?
         id: scope
@@ -97,43 +94,31 @@ jobs:
       - run: npm test
         if: steps.scope.outputs.code == 'true'
 
-      # Remys Vektor-Indizes (Spots und Artikel) sind eingecheckte Moment-
-      # aufnahmen, die nichts automatisch nachziehen. Am 06.09.2026 kannte der
-      # Spot-Index 340 von 465 Spots — drei Monate lang, ohne dass etwas rot
-      # wurde: die fehlenden werden nicht gefiltert, sie ranken nur ans Ende
-      # und tauchen in Remys Antworten nicht mehr auf. Beim Artikel-Index
-      # waere es schlimmer, dort entscheidet das Ranking die Treffermenge —
-      # deshalb steht sein Budget auf 0 %.
+      # Remys Vektor-Indizes (Spots und Artikel) sind eingecheckte
+      # Momentaufnahmen, die nichts automatisch nachzieht. Fehlende Spots werden
+      # nicht gefiltert, sie ranken nur ans Ende und tauchen in Remys Antworten
+      # nicht auf, ohne dass etwas rot wird. Beim Artikel-Index entscheidet das
+      # Ranking die Treffermenge, deshalb steht sein Budget auf 0 %.
       #
-      # Kostet ZWEI Sanity-Anfragen, neben den 952 des Builds unten also
-      # nichts. Faellt Sanity aus, ueberspringt das Skript den Abgleich und
-      # bleibt gruen — dafuer ist der Uptime-Workflow zustaendig, nicht
-      # dieser PR.
+      # Kostet zwei Sanity-Anfragen, neben denen des Builds unten also nichts.
+      # Fällt Sanity aus, überspringt das Skript den Abgleich und bleibt grün:
+      # Dafür ist der Uptime-Workflow zuständig, nicht dieser PR.
       - run: npm run check:embeddings
         if: steps.scope.outputs.code == 'true'
 
-      # Der teuerste Schritt dieses Workflows ist nicht CPU, sondern Sanity.
+      # Der teuerste Schritt dieses Workflows ist Sanity, nicht CPU.
       #
-      # Ein kalter `next build` zieht 952 Anfragen aus dem PRODUKTIONS-Dataset
-      # (hier ist kein SANITY_PROJECT_ID gesetzt, `lib/sanity.ts` fällt also auf
-      # `ehwjnjr2`/`production` zurück) — 1.083 vorgerenderte Seiten aus 466
-      # Restaurants, 22 Artikeln, 20 Bezirken, 9 Kategorien und 5 statischen
-      # Seiten, plus die Doppelabrufe der parallelen Prerender-Worker. Am
-      # 29.08.2026 direkt gemessen, nicht geschätzt.
+      # Ein kalter `next build` zieht rund 950 Anfragen aus dem
+      # Produktions-Dataset (hier ist kein SANITY_PROJECT_ID gesetzt,
+      # `lib/sanity.ts` fällt auf `ehwjnjr2`/`production` zurück). Bei vielen
+      # Läufen am Tag sprengte das die Sanity-Kontingente.
       #
-      # Bei rund 50 grünen Läufen am Tag sind das ~1,5 Mio. Anfragen im Monat.
-      # Die Quote liegt bei 250.000 (API) bzw. 1.000.000 (CDN). Genau daran ist
-      # am 24.08.2026 das CDN- und am 27.08.2026 das API-Kontingent gerissen:
-      # nicht am Besucherverkehr, sondern an diesem Schritt.
+      # Next legt jede Antwort in `.next-verify/cache/fetch-cache` ab (24 h
+      # Frist, `SANITY_REVALIDATE_SECONDS`). Nimmt man dieses Verzeichnis
+      # zwischen den Läufen mit, baut CI durch, ohne Sanity anzufassen.
       #
-      # Next legt jede dieser Antworten in `.next-verify/cache/fetch-cache` ab (24 h
-      # Frist, `SANITY_REVALIDATE_SECONDS`). Nimmt man nur dieses Verzeichnis
-      # zwischen den Läufen mit, baut CI vollständig durch, ohne Sanity auch
-      # nur einmal anzufassen — gemessen: 952 Anfragen kalt, 0 mit
-      # restauriertem Cache, bei identischen 1.083 erzeugten Seiten.
-      #
-      # Der Cache darf hier veralten: dieser Build ist ein CODE-Gate. Der Build,
-      # der wirklich ausliefert, läuft bei App Hosting und immer kalt.
+      # Der Cache darf hier veralten: Dieser Build ist ein Code-Gate. Der Build,
+      # der ausliefert, läuft bei App Hosting und immer kalt.
       - name: Sanity-Fetch-Cache holen
         if: steps.scope.outputs.code == 'true'
         uses: actions/cache/restore@v4
@@ -152,23 +137,21 @@ jobs:
         if: steps.scope.outputs.code == 'true'
 
       # Browser, Barrierefreiheit und Lighthouse laufen nur im PR nach
-      # `staging` – dort kommt neuer Code herein. Der Release-PR `staging → main`
+      # `staging`, dort kommt neuer Code herein. Der Release-PR `staging → main`
       # und die Pushes danach tragen nur schon geprüften Code weiter; sie bauen,
-      # linten und testen in ~4 Minuten. Vorher wartete jedes Release zweimal
-      # auf die Browser-Prüfung, und ein Push auf `staging` brach den laufenden
-      # Check ab (07.10.2026). Die Live-Messung auf `main` macht lighthouse.yml.
+      # linten und testen in ~4 Minuten. Die Live-Messung auf `main` macht
+      # lighthouse.yml.
       - name: Browser-Prüfung nötig?
         id: browser
         if: steps.scope.outputs.code == 'true'
         working-directory: .
         run: echo "run=${{ github.event_name == 'pull_request' && github.base_ref == 'staging' }}" >> "$GITHUB_OUTPUT"
 
-      # Der Build für die Jobs `e2e` und `lighthouse` unten. Sie bauen nicht
-      # selbst: sechs weitere Builds kosteten je gut zwei Minuten, und jeder
-      # Fehlgriff beim Fetch-Cache zöge 952 Anfragen aus dem Sanity-Kontingent
+      # Der Build für die Jobs `e2e` und `lighthouse` unten; sie bauen nicht
+      # selbst, weil jeder weitere Build Zeit und Sanity-Kontingent kostet
       # (siehe oben). Mit kommt nur, was `next start` braucht, plus der
-      # Fetch-Cache für Seiten, die erst zur Laufzeit rendern; ohne den
-      # Webpack-Cache (1,5 GB) und das Standalone-Bundle.
+      # Fetch-Cache für Seiten, die erst zur Laufzeit rendern; ohne
+      # Webpack-Cache und Standalone-Bundle.
       - name: Build für die Browser-Prüfung packen
         if: steps.browser.outputs.run == 'true'
         run: tar --zstd -cf /tmp/next-verify.tar.zst --exclude=.next-verify/cache/webpack --exclude=.next-verify/standalone --exclude=.next-verify/trace --exclude=.next-verify/types .next-verify
@@ -197,15 +180,11 @@ jobs:
           path: nextjs/.next-verify/cache/fetch-cache
           key: sanity-verify-fetch-cache-${{ github.run_id }}
 
-  # Browser-Abläufe und Barrierefreiheit. Liefen bis 14.10.2026 mit einem
-  # Worker hinter dem Build und vor Lighthouse im selben Job – 14 von ~35
-  # Minuten je PR. Jedes Playwright-Projekt bekommt einen eigenen Rechner mit
-  # eigenem Server und eigenen Emulatoren. Nicht `--shard`: das teilt nach
-  # Testanzahl und schnitt das langsame `mobile-safari` komplett auf einen
-  # Rechner, zusammen mit Resten der beiden anderen (bis 25 min gegen 10 min,
-  # 03./04.11.2026). Je Projekt sind es 11–20 min. Innerhalb eines Rechners
-  # bleibt es bei einem Worker (playwright.config.ts): die Tests teilen Server
-  # und Emulator-Daten.
+  # Browser-Abläufe und Barrierefreiheit. Jedes Playwright-Projekt bekommt einen
+  # eigenen Rechner mit eigenem Server und eigenen Emulatoren. Nicht `--shard`:
+  # Das teilt nach Testanzahl und legt das langsame `mobile-safari` komplett auf
+  # einen Rechner. Innerhalb eines Rechners bleibt es bei einem Worker
+  # (playwright.config.ts): Die Tests teilen Server und Emulator-Daten.
   e2e:
     needs: nextjs
     if: needs.nextjs.outputs.browser == 'true'
@@ -233,11 +212,10 @@ jobs:
           path: /tmp
       - run: tar --zstd -xf /tmp/next-verify.tar.zst
 
-      # The runner's Azure mirror list crawled on 26.10.2026 (one package took
-      # 90s; the step hit its limit three runs in a row), while the main
-      # archive answered at once — so apt uses the main archive. A timed-out
-      # try leaves apt-get holding the dpkg lock (timeout only stops npx), so
-      # a retry first clears the stuck processes and locks.
+      # apt uses the main archive: the runner's Azure mirror list can crawl
+      # while the main archive answers at once. A timed-out try leaves apt-get
+      # holding the dpkg lock (timeout only stops npx), so a retry first clears
+      # the stuck processes and locks.
       - name: Install Chromium and WebKit
         timeout-minutes: 18
         run: |

@@ -11,9 +11,9 @@ export default function LoginModalBarLock() {
     const prevBodyPosition = b.style.position;
     const prevBodyTop = b.style.top;
     const prevBodyWidth = b.style.width;
-    // Scroll lock (all viewports) — single source of truth for the login
-    // modal; BridgeAuth's old snapshot-restore lock raced with the closing
-    // burger drawer and could re-apply its stale overflow:hidden.
+    // Scroll lock (all viewports), the single owner for the login modal: a
+    // second lock would race the closing burger drawer and could re-apply a
+    // stale overflow:hidden.
     de.style.overflow = 'hidden';
     b.style.overflow = 'hidden';
     b.style.touchAction = 'none';

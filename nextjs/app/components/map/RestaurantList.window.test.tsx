@@ -165,9 +165,9 @@ describe('RestaurantList card photos', () => {
   it('starts fetching a photo well before its card reaches the screen', async () => {
     const { container } = render(list({ restaurants: photoSpots() }));
 
-    /* Native lazy-loading waited until a card was almost in view — in Safari
-       especially close — and every photo popped in a beat late. The card's
-       own observer reaches much further ahead and flips it to eager. */
+    /* Native lazy-loading waits until a card is almost in view, in Safari
+       especially close, so photos would pop in late. The card's own observer
+       reaches much further ahead and flips it to eager. */
     const lead = ioOptions.filter((o) => o?.rootMargin?.startsWith('3200px'));
     expect(lead.length).toBeGreaterThanOrEqual(2);
 
@@ -176,8 +176,8 @@ describe('RestaurantList card photos', () => {
     expect(photos(container).map((img) => img.getAttribute('loading'))).toEqual(['eager', 'eager', 'eager']);
   });
 
-  /* Scrolled to the bottom of ~230 spots, every card kept its decoded photos
-     and Safari killed the page on the iPhone (30.09.2026). */
+  /* Scrolled to the bottom of ~230 spots, cards that all keep their decoded
+     photos make Safari kill the page on the iPhone. */
   it('lets go of the photos of a card far behind on the phone, and fetches them back', async () => {
     phone = true;
     const { container } = render(list({ restaurants: photoSpots() }));

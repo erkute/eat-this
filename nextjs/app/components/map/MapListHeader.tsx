@@ -83,11 +83,11 @@ export default function MapListHeader({
     return () => mq.removeEventListener('change', apply);
   }, []);
 
-  /* Every row carries what it would actually return — the whole catalogue,
-     paywalled spots included, because that is what the list renders. A zero is
-     therefore a real zero, and the row stops being pickable: it is listed
-     (hiding it reshuffles the picker between two openings, and "Peruanisch: 0"
-     is a real answer) but it cannot lead anywhere except an empty list. */
+  /* Every row carries what it would actually return over the whole catalogue,
+     which is what the list renders. A zero is therefore a real zero, and the
+     row stops being pickable: it stays listed (hiding it reshuffles the picker
+     between two openings, and "Peruanisch: 0" is a real answer) but cannot lead
+     anywhere except an empty list. */
   const withCount = useCallback(
     (value: string, label: string, dim: FilterDimension): PickerItem => {
       const hits = optionCounts.byValue[dim].get(value) ?? 0;

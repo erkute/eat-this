@@ -1,21 +1,21 @@
 import type { Insets } from './cameraFit';
 
 /**
- * Einpassen für die GENEIGTE Karte.
+ * Einpassen für die geneigte Karte.
  *
- * MapLibres `fitBounds`/`cameraForBounds` rechnen flach: `cameraForBoxAndBearing`
- * (geo/projection/camera_helper.ts) teilt die freie Fläche durch die
- * Mercator-Ausdehnung der Box, die Neigung kommt in der Rechnung nicht vor.
- * Bei unseren 50° schrumpft die obere Bildhälfte perspektivisch zur Mitte hin
- * — der Bestand lag nach einer Suche als Insel in der Mitte, darüber
- * Hennigsdorf (Audit 28.09.2026). Außerdem setzt `fitBounds` die Drehung auf
- * 0 zurück, wenn man sie nicht mitgibt.
+ * MapLibres `fitBounds`/`cameraForBounds` rechnen flach:
+ * `cameraForBoxAndBearing` (geo/projection/camera_helper.ts) teilt die freie
+ * Fläche durch die Mercator-Ausdehnung der Box, die Neigung kommt in der
+ * Rechnung nicht vor. Bei einer geneigten Karte schrumpft die obere Bildhälfte
+ * perspektivisch zur Mitte hin, der Bestand läge nach einer Suche als Insel in
+ * der Mitte. Außerdem setzt `fitBounds` die Drehung auf 0 zurück, wenn man sie
+ * nicht mitgibt.
  *
- * Diese Rechnung bildet MapLibres Perspektive nach und passt iterativ ein:
- * alle Punkte projizieren, die Bildschirm-Box der Punkte in die Mitte der
- * freien Fläche schieben, den Zoom um das Verhältnis korrigieren — bis beides
- * steht. Das Ergebnis geht als Mitte + Zoom + Rand an `flyTo`, das den Rand
- * genau einmal abzieht.
+ * Diese Rechnung bildet MapLibres Perspektive nach und passt iterativ ein: alle
+ * Punkte projizieren, die Bildschirm-Box der Punkte in die Mitte der freien
+ * Fläche schieben, den Zoom um das Verhältnis korrigieren, bis beides steht.
+ * Das Ergebnis geht als Mitte + Zoom + Rand an `flyTo`, das den Rand genau
+ * einmal abzieht.
  */
 
 export type LngLat = { lng: number; lat: number };
@@ -168,10 +168,9 @@ export function pitchedCameraForPoints(points: LngLat[], view: FitView): FitCame
 }
 
 /**
- * Der Median in Länge und Breite — die dichteste Stelle eines Bestands, der
- * sich um eine Mitte ballt. Für eine Kamera, die nicht alles zeigen kann:
- * die Mitte der Box legte ein einzelner Spot in Steglitz fest, und die
- * dichte Mitte hing dann am oberen Rand.
+ * Der Median in Länge und Breite, die dichteste Stelle eines Bestands. Für eine
+ * Kamera, die nicht alles zeigen kann: die Mitte der Box legte ein einzelner
+ * Ausreißer fest.
  */
 export function medianPoint(points: LngLat[]): LngLat | null {
   if (!points.length) return null;

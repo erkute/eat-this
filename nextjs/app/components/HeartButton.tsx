@@ -35,16 +35,14 @@ const SETTLE_MS = 4000;
 // Personal "heart this spot" toggle for the SEO restaurant page (a client
 // island on an otherwise-static page). A heart IS a saved spot — reuses
 // useFavorites, so the same toggle drives the map detail too, and hearting here
-// bumps the public count (live via useHeartCount, hidden below 1).
-// Seit 07.10.2026 ein Satz: „Ich ♥ <Name>" — das Herz ist das Verb, wie bei
-// I ♥ NY, und gilt damit eindeutig dem Spot (gewählt im Herz-Labor; am Foto,
-// am Bezirk und am Namen über den Angaben war es abgelehnt). Es steht nach
-// dem Steckbrief, über „Im Magazin". Beim eigenen Tipp zeichnet es sich
-// selbst (HeartDraw).
-// Optimistisch: Herz und Zahl springen beim Tippen um, nicht erst nach
-// /api/heart; schlägt der Aufruf fehl, springen sie zurück. Solange einer
-// läuft, zählt kein zweiter Tipp.
-// Anon tap opens the shared login modal (handled inside useFavorites).
+// bumps the public count (live via useHeartCount, hidden below 1). Ein Satz:
+// „Ich ♥ <Name>". Das Herz ist das Verb, wie bei I ♥ NY, und gilt damit
+// eindeutig dem Spot (nicht am Foto, am Bezirk oder am Namen über den Angaben).
+// Es steht nach dem Steckbrief, über „Im Magazin". Beim eigenen Tipp zeichnet
+// es sich selbst (HeartDraw). Optimistisch: Herz und Zahl springen beim Tippen
+// um, nicht erst nach /api/heart; schlägt der Aufruf fehl, springen sie zurück.
+// Solange einer läuft, zählt kein zweiter Tipp. Anon tap opens the shared login
+// modal (handled inside useFavorites).
 export default function HeartButton({
   restaurantId,
   name,

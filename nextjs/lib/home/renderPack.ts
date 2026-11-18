@@ -1,13 +1,11 @@
 /**
- * The Starter Pack as a 3D foil bag (01.10.2026, Ansage: „ein 3D-Modell, das
- * sich leicht bewegt"). A small WebGL renderer, no library: one grid per side,
- * bulged into a pillow — flat at the crimped seals top and bottom, rounded
- * between the side folds — printed with the pack art on the front and the
- * pack's back on the back (since 21.10.2026 the red Starter Pack: wordmark,
- * claim, the four lines of the old back, barcode). The colours stay those of
- * the pictures; light only
- * shades the bulge a little where the foil turns away. Earlier passes with
- * reflections, crinkles and highlights read as glow and glitter.
+ * The Starter Pack as a 3D foil bag that moves a little. A small WebGL
+ * renderer, no library: one grid per side, bulged into a pillow — flat at the
+ * crimped seals top and bottom, rounded between the side folds — printed with
+ * the pack art on the front and the pack's back on the back (the red Starter
+ * Pack: wordmark, claim, four lines, barcode). The colours stay those of the
+ * pictures; light only shades the bulge a little where the foil turns away. No
+ * reflections, crinkles or highlights: they read as glow and glitter.
  */
 
 export interface PackPose {

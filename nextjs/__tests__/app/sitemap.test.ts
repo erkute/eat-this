@@ -74,9 +74,8 @@ describe('sitemap entries', () => {
     const urls = result.map((entry) => entry.url);
     expect(urls.some((url) => url.endsWith('/restaurant/live-spot'))).toBe(true);
     expect(urls.some((url) => url.endsWith('/restaurant/phantom-bar'))).toBe(false);
-    // The three guides 308 to their category pages (next.config.ts) — a
-    // redirect in the sitemap is exactly the mixed signal that put them and
-    // /kategorie/* against each other in the first place.
+    // The three guides 308 to their category pages (next.config.ts); a redirect
+    // in the sitemap would be a mixed signal against /kategorie/*.
     expect(urls.filter((url) => url.includes('/guides/'))).toHaveLength(0);
 
     const germanOnly = result.find((entry) => entry.url.endsWith('/news/nur-deutsch'));

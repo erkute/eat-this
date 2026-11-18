@@ -120,10 +120,10 @@ describe('AuthContext — Sync der Bild-Sitzung', () => {
     expect(mocks.captureException).not.toHaveBeenCalled();
   });
 
-  /* Der Kern der Sache: die Bild-Sitzung ist ein Nebenaufruf. Vorher setzte
-     ein einziger Fehlschlag den Nutzer auf null — die App zeigte „nicht
-     angemeldet", während Firebase die Sitzung hielt, und der Zustand löste
-     sich erst beim Token-Refresh eine Stunde später. */
+  /* Der Kern der Sache: Die Bild-Sitzung ist ein Nebenaufruf. Ein Fehlschlag
+     dort darf den Nutzer nicht auf null setzen; sonst zeigte die App „nicht
+     angemeldet", während Firebase die Sitzung hält, bis zum Token-Refresh eine
+     Stunde später. */
   it('behält den angemeldeten Zustand, wenn auch der zweite Versuch scheitert', async () => {
     const { calls } = stubPremiumAccess(['fail', 'fail']);
     const { result } = mountAuth();

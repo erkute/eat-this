@@ -2,12 +2,12 @@
 import { useEffect, useRef, useState } from 'react';
 
 /**
- * Gate a transient status message on TWO thresholds so it can never flicker.
+ * Gate a transient status message on two thresholds so it can never flicker.
  *
  * `active` bound straight to a request's loading flag makes the message mount
- * and unmount for as long as the request runs — and a cached GPS fix resolves
- * in tens of ms, i.e. within a handful of frames. Long enough to see a flash,
- * far too short to read (measured: 25 ms / 5 frames on the locate button).
+ * and unmount for as long as the request runs, and a cached GPS fix resolves in
+ * tens of ms, within a handful of frames: long enough to see a flash, far too
+ * short to read.
  *
  * - `delayMs`: don't show at all unless the wait outlives it. A fast response
  *   therefore renders nothing, rather than a blink.

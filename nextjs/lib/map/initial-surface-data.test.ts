@@ -78,10 +78,10 @@ describe('initial surface data selectors', () => {
     ]);
   });
 
-  /* Unter einer verdeckten Karte steht ihr Spot (Betreiber, 15.10.2026) —
-     aber nur sein Name und Bezirk. Was im RSC-Payload steht, steht im
-     Quelltext: Slug, Adresse und Foto bleiben deshalb auf dem Server. Die
-     aufgedeckte Karte behält alles, sie zeigt ihren Spot ja ohnehin. */
+  /* Unter einer verdeckten Karte steht ihr Spot, aber nur sein Name und Bezirk.
+     Was im RSC-Payload steht, steht im Quelltext: Adresse und Foto bleiben
+     deshalb auf dem Server. Die aufgedeckte Karte behält alles, sie zeigt ihren
+     Spot ja ohnehin. */
   it('leaves a covered card only the name and district of its spot', () => {
     const data = mapData();
     data.revealedMustEatIds = ['must-eat-1'];

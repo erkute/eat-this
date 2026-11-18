@@ -21,7 +21,7 @@ import {
   OVERFLOW_HOST,
   OVERFLOW_PATH,
 } from '@/lib/analytics/dayKeyBudget';
-import { checkWindowedRateLimit } from '@/lib/rateLimitWindow';
+import { checkWindowedRateLimit } from '@/lib/rateLimit';
 import {
   homeTargetKeys,
   homeTargetWithinBudget,
@@ -46,20 +46,20 @@ import {
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-/** Events worth a counter. An unknown name is dropped, not stored: this endpoint
- *  is unauthenticated, and without an allowlist anyone could grow the day
- *  document one invented key at a time.
+/**
+ * Events worth a counter. An unknown name is dropped, not stored: this endpoint
+ * is unauthenticated, and without an allowlist anyone could grow the day
+ * document one invented key at a time.
  *
- *  Dieselbe Gefahr galt fuer `paths`, `entryPaths`, `continuations` und
- *  `referrers` — die nahmen bis 08.09.2026 jeden Schluessel an. Sie haben jetzt
- *  ihren eigenen Riegel: lib/analytics/pathKey.ts laesst nur echte Routen
- *  durch, lib/analytics/dayKeyBudget.ts deckelt, wie viele es werden. */
+ * Dieselbe Gefahr gilt für `paths`, `entryPaths`, `continuations` und
+ * `referrers`. Die haben ihren eigenen Riegel: lib/analytics/pathKey.ts lässt
+ * nur echte Routen durch, lib/analytics/dayKeyBudget.ts deckelt, wie viele es
+ * werden.
+ */
 const EVENTS = new Set([
   'begin_checkout',
   'checkout_already_owned',
   'checkout_error',
-  // `login` kommt aus EmailLinkSignIn (Magic-Link) und stand bis 28.08.2026
-  // nicht in dieser Liste.
   'login',
   'login_link_sent',
   'login_start',
@@ -84,9 +84,7 @@ const EVENTS = new Set([
   'must_eat_opened',
   'must_eat_reveal_attempt',
   // `must_eat_reveal_attempt`, aufgefaechert nach `result`
-  // (useMustEatDetailState.ts). Ohne diese Namen war der Tipp auf einen
-  // Kartenruecken eine einzige Zahl — dabei ist `login_required` der Weg ins
-  // Konto und `unlocked` die Karte, die vor Ort umgedreht wurde.
+  // (useMustEatDetailState.ts).
   'must_eat_reveal_login_required',
   'must_eat_reveal_location_requested',
   'must_eat_reveal_location_missing',
@@ -117,14 +115,11 @@ const SEEN_TTL_MS = 2 * DAY_MS;
 
 /** Je Besucher — Zweck ist Fairness zwischen Geraeten hinter einer Adresse. */
 const RATE_LIMITS = { perMinute: 90, perDay: 3000 };
-/** Je Adresse, ohne User-Agent. Der Riegel darueber haengt am Besucher-Hash,
- *  und in den geht `body.ua` ein: ein Angreifer musste nur bei jeder Anfrage
- *  einen neuen UA-String schicken und bekam einen frischen Schluessel. Damit
- *  war er wirkungslos — je Anfrage ein Dokument in `analytics_seen`, und
- *  `visitors` beliebig aufblasbar. Dieser hier kennt den UA nicht.
- *
- *  Grosszuegig, weil hinter einer Carrier-NAT viele echte Leute sitzen: 6000
- *  Aufrufe am Tag von EINER Adresse hat diese Seite nie gesehen. */
+/**
+ * Je Adresse, ohne User-Agent: der Riegel darueber haengt am Besucher-Hash, in
+ * den `body.ua` eingeht, und liesse sich mit wechselnden UA-Strings umgehen.
+ * Grosszuegig, weil hinter einer Carrier-NAT viele echte Leute sitzen.
+ */
 const IP_RATE_LIMITS = { perMinute: 240, perDay: 6000 };
 
 /**
@@ -194,12 +189,10 @@ async function homeUpdate(
 }
 
 /**
- * Der User-Agent aus dem Body, nicht aus dem Header — der Header ist hier
- * wertlos. Die App-Hosting-Edge ersetzt ihn, bevor die Anfrage den Origin
- * erreicht (siehe lib/analytics.ts, `userAgent()`): `isAutomated` sah in
- * Produktion nie einen Bot und liess Bingbot, Baidu-Render und den
- * Azure-Crawler als Besucher durch. Der Header bleibt als Rueckfall fuer
- * Umgebungen, die ihn durchreichen (Staging-Build lokal, Tests).
+ * Der User-Agent aus dem Body: die App-Hosting-Edge ersetzt den Header
+ * (lib/analytics.ts, `userAgent()`), sodass `isAutomated` daran keinen Bot
+ * erkennt. Der Header bleibt Rueckfall fuer Umgebungen, die ihn durchreichen
+ * (lokal, Tests).
  */
 function userAgentOf(body: Body, header: string | null): string | null {
   if (typeof body.ua === 'string' && body.ua.trim()) return body.ua.slice(0, UA_MAX);
@@ -278,12 +271,9 @@ export async function POST(request: Request) {
   // darf der Beacon den Besucher- und Seitenzähler erreichen.
   if ('event' in body && !event) return new NextResponse(null, { status: 204 });
 
-  // Local dev talks to the PRODUCTION Firestore (FIREBASE_ADMIN_PROJECT_ID in
-  // .env.local is eat-this-8a13b), so without this every `next dev` session
-  // would quietly file the developer's own clicks as real traffic — corrupting
-  // the exact numbers this endpoint exists to produce. Staging runs a
-  // production build and still counts, which is where the write path gets
-  // exercised for real.
+  // `next dev` schreibt in die Produktions-Firestore (.env.local); ohne diese
+  // Sperre zaehlten die eigenen Klicks als echter Traffic. Staging laeuft als
+  // Produktions-Build und zaehlt.
   if (process.env.NODE_ENV !== 'production') return new NextResponse(null, { status: 204 });
 
   const day = berlinDay();
@@ -429,10 +419,8 @@ export async function POST(request: Request) {
     return new NextResponse(null, { status: 204 });
   }
 
-  // Ein Beacon darf nicht 500 antworten. Ohne dieses Netz wurde aus jeder
-  // Firestore-Stoerung ein Fehler in `onRequestError` und damit ein Vorfall in
-  // Sentry — fuer einen Aufruf, den niemand wiederholen kann und dessen
-  // Ergebnis niemand liest.
+  // Ein Beacon darf nicht 500 antworten: jede Firestore-Stoerung wuerde sonst
+  // ein Sentry-Vorfall, fuer einen Aufruf, den niemand wiederholt.
   try {
     await dayRef.set(update, { merge: true });
   } catch (error) {

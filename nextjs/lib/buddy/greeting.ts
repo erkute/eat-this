@@ -1,4 +1,3 @@
-// nextjs/lib/buddy/greeting.ts
 import type { Locale } from './types';
 
 // Remy's opener + starter chips adapt to the time of day so the empty chat

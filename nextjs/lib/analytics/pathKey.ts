@@ -1,19 +1,15 @@
-// nextjs/lib/analytics/pathKey.ts
+// Welche Pfade als Schlüssel ins Tagesdokument dürfen.
 //
-// Welche Pfade als Schluessel ins Tagesdokument duerfen.
+// Ein Pfad muss eine Route sein, die diese Seite wirklich ausliefert; die bloße
+// Form (ein paar Segmente aus Kleinbuchstaben) reicht nicht, sie ließe jedes
+// erfundene Wort durch. `paths`, `entryPaths` und `continuations` sind freie
+// Map-Schlüssel in einem Dokument. Firestore deckelt ein Dokument bei 1 MB und
+// 20.000 Indexeinträgen; ist die Grenze gerissen, schlagen alle Schreibvorgänge
+// des Tages fehl.
 //
-// Bis 08.09.2026 stand hier ein Formregex: bis zu vier Segmente aus
-// Kleinbuchstaben, sonst nichts. Das liess `/a/b/c/d` und jedes erfundene
-// Wort durch — und `paths`, `entryPaths` und `continuations` sind freie
-// Map-Schluessel in EINEM Dokument. Firestore deckelt ein Dokument bei 1 MB
-// und 20.000 Indexeintraegen; ist die Grenze gerissen, schlagen ALLE
-// Schreibvorgaenge des Tages fehl. Der Kommentar an der Ereignis-Allowlist in
-// app/api/count/route.ts beschrieb genau diese Gefahr — sie galt fuer die
-// Pfade genauso, nur stand dort kein Riegel.
-//
-// Jetzt muss ein Pfad eine Route sein, die diese Seite wirklich ausliefert.
 // Die dynamischen Slugs bleiben unbegrenzt (es gibt keine Slug-Liste, die
-// dieser Endpunkt billig kennen koennte) — die deckelt lib/analytics/dayKeyBudget.ts.
+// dieser Endpunkt billig kennen könnte); die deckelt
+// lib/analytics/dayKeyBudget.ts.
 import { routing } from '@/i18n/routing';
 
 /** Routen ohne Slug, genau so wie sie ausgeliefert werden. `''` ist die

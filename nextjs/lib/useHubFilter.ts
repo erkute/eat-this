@@ -5,12 +5,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 /**
  * Der Zustand hinter der Rubrikenzeile der Hub-Seiten (HubFilter): Kategorien
  * auf einer Bezirksseite (`?cat=`), Bezirke auf einer Kategorieseite
- * (`?bezirk=`). Hält genau einen aktiven Slug, spiegelt ihn in die URL und
- * holt die Liste nach dem Umschalten zurück ins Blickfeld.
+ * (`?bezirk=`). Hält genau einen aktiven Slug, spiegelt ihn in die URL und holt
+ * die Liste nach dem Umschalten zurück ins Blickfeld.
  *
  * Die drei Feinheiten unten sind genau die, die man beim Nachbauen falsch
- * macht. (Bis 03.10.2026 nutzte sie auch ein zweiter Filter auf dem
- * `/bezirk`-Index; der ist mit dem Register dort weggefallen.)
+ * macht.
  */
 export interface HubFilter {
   active: string | null;
@@ -54,18 +53,17 @@ export function useHubFilter({
     [queryKey]
   );
 
-  // Beim Umschalten verschwinden Einträge oberhalb des Blickfelds — ohne
+  // Beim Umschalten verschwinden Einträge oberhalb des Blickfelds; ohne
   // Korrektur steht man anschließend im Weißraum unter der Liste. Gescrollt
-  // wird nur, wenn sich der Filter wirklich geändert hat: wer ankommt, ohne
-  // gefilterten Link, bleibt oben. Bis 02.10.2026 übersprang ein Merker nur
-  // den ersten Lauf — Reacts StrictMode lässt Effekte im Dev-Server zweimal
-  // laufen, und der zweite scrollte jede Kategorie- und Bezirksseite beim
-  // Ankommen ~310px nach unten (Ansage: „bei einem Klick drauf muss man in
-  // der Kategorie-Seite ganz oben beginnen").
+  // wird nur, wenn sich der Filter wirklich geändert hat: Wer ankommt, ohne
+  // gefilterten Link, bleibt oben. Ein Merker, der nur den ersten Lauf
+  // überspringt, reicht dafür nicht: Reacts StrictMode lässt Effekte im
+  // Dev-Server zweimal laufen, und der zweite scrollte die Seite beim Ankommen
+  // nach unten.
   //
-  // Bewusst ohne `behavior`: der Vorgabewert `auto` übernimmt das CSS
-  // `scroll-behavior` — global `smooth`, und unter `prefers-reduced-motion`
-  // per `!important` auf `auto` zurückgesetzt (globals.css). Ein hier fest
+  // Bewusst ohne `behavior`: Der Vorgabewert `auto` übernimmt das CSS
+  // `scroll-behavior`, global `smooth` und unter `prefers-reduced-motion` per
+  // `!important` auf `auto` zurückgesetzt (globals.css). Ein hier fest
   // verdrahtetes `smooth` würde genau diese Regel aushebeln.
   useEffect(() => {
     if (active === shown.current) return;

@@ -24,12 +24,10 @@ async function viewerIsAdmin(): Promise<boolean> {
 }
 
 /**
- * Der Titel nur für Admins. Next streamt die Metadaten eines Segments auch
- * dann nach, wenn sein Layout `notFound()` wirft — eine statische
- * `metadata` hier oder in der Seite überschrieb den Tab-Titel der 404 kurz
- * darauf mit dem Admin-Titel und verriet damit genau das, was die 404 verbergen
- * soll. Ein leeres Objekt verriet es auch, nur leiser: dann stand der
- * Standardtitel der Seite im Tab statt „404".
+ * Der Titel nur für Admins: Next streamt die Metadaten eines Segments auch dann
+ * nach, wenn sein Layout `notFound()` wirft. Eine statische `metadata`
+ * überschriebe den Tab-Titel der 404 mit dem Admin-Titel und verriete, was die
+ * 404 verbergen soll; ein leeres Objekt zeigte den Standardtitel statt „404".
  */
 export async function generateMetadata(): Promise<Metadata> {
   // Fremde bekommen exakt die Metadaten der gewöhnlichen 404.

@@ -1,12 +1,10 @@
 /**
  * The list follows the map.
  *
- * Until the user touches the map, the list is a curated ranking (listOrder)
- * or, with a position fix, the spots around the visitor. From the first drag,
- * pinch or marker tap on, it is the spots around the CENTRE OF THE MAP — the
- * same claim a map app makes: what you see up there is what stands down here
- * (user decision 04.09.2026). Before that, the tapped marker's neighbourhood
- * came back as a list that started in Mitte, whatever the map showed.
+ * Until the user touches the map, the list is a curated ranking (listOrder) or,
+ * with a position fix, the spots around the visitor. From the first drag, pinch
+ * or marker tap on, it is the spots around the CENTRE OF THE MAP — the same
+ * claim a map app makes: what you see up there is what stands down here.
  *
  * `moveend` fires for every camera change, so this decides which of them may
  * re-anchor the list:
@@ -19,9 +17,9 @@
  *   counts. Before following is on, the auto-locate flight and the filter
  *   fits leave the curated order alone.
  * - Never the flight that closes a detail opened from a list row. It centres
- *   the map on that spot, and sorting around the spot put it first: the row
- *   the user had scrolled to jumped to the top of the list (user, 14.10.2026).
- *   The list comes back as it was, at that row.
+ *   the map on that spot, and sorting around the spot would put it first: the
+ *   row the user had scrolled to would jump to the top of the list. The list
+ *   comes back as it was, at that row.
  */
 export interface ListCenter {
   lat: number;

@@ -28,11 +28,11 @@ interface HeartDrawProps {
 }
 
 /**
- * Das Herz, das sich beim Tippen selbst zeichnet (Wahl 07.10.2026, Herz-Labor):
- * ein Stift in der Herz-Farbe fährt die Kontur nach, malt sie aus, dann setzt
- * es kurz auf. Zurücknehmen radiert schneller, als es gezeichnet hat. Ohne
- * Bewegung (reduced motion) wechselt nur der Zustand. Geherzt ist das Herz
- * gefüllt, sonst nur Kontur — die Fläche sagt es, nicht die Farbe allein.
+ * Das Herz, das sich beim Tippen selbst zeichnet: Ein Stift in der Herz-Farbe
+ * fährt die Kontur nach, malt sie aus, dann setzt es kurz auf. Zurücknehmen
+ * radiert schneller, als es gezeichnet hat. Ohne Bewegung (reduced motion)
+ * wechselt nur der Zustand. Geherzt ist das Herz gefüllt, sonst nur Kontur: Die
+ * Fläche sagt es, nicht die Farbe allein.
  */
 export default function HeartDraw({ hearted, play, className }: HeartDrawProps) {
   const root = useRef<HTMLSpanElement>(null);

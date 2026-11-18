@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { compressedJson } from '@/lib/http/compressedJson';
-import { getAdminAuth } from '@/lib/firebase/admin';
+import { verifyBearer } from '@/lib/firebase/bearerAuth';
 import { resolveEntitlements } from '@/lib/firebase/entitlements';
 import { getCachedMapData } from '@/lib/map/cached-sanity';
 import { composeAccountSurface } from '@/lib/map/visible-restaurants.server';
@@ -15,24 +15,10 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export async function GET(req: Request) {
-  const authHeader = req.headers.get('authorization');
-  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
-
-  let uid: string | null = null;
-  let identity: Parameters<typeof resolveEntitlements>[1] = {};
-  if (token) {
-    try {
-      const decoded = await getAdminAuth().verifyIdToken(token, true);
-      uid = decoded.uid;
-      identity = {
-        email: decoded.email ?? null,
-        emailVerified: decoded.email_verified === true,
-        admin: decoded.admin === true,
-      };
-    } catch {
-      // Expired/invalid token → treat as anonymous.
-    }
-  }
+  // A missing, expired or invalid token means an anonymous caller.
+  const auth = await verifyBearer(req);
+  const uid = auth.status === 'ok' ? auth.uid : null;
+  const identity = auth.status === 'ok' ? auth.identity : {};
 
   const [ent, unlockedIds, { restaurants: all, mustEats: allMustEats, categories }] =
     await Promise.all([
@@ -61,14 +47,14 @@ export async function GET(req: Request) {
       categories,
       totalCount: all.length,
       revealedMustEatIds: Array.from(surface.faceUpIds),
-      // Der Client kann das nicht selbst entscheiden. Der Admin-Zugang haengt
-      // an ADMIN_EMAILS plus verifizierter Adresse (isAdminToken) — beides
-      // server-only —, und das Konto, das ihn nutzt, hat weder einen
-      // admin-Claim noch ein Entitlement-Dokument. Das Profil las bisher nur
-      // users/<uid>/entitlements und zeigte deshalb „466 von 466 Spots" ueber
-      // zehn verschlossenen Packs: zwei Wahrheiten auf einem Bildschirm.
-      // WARUM nicht, sondern nur DASS alles offen ist — mehr braucht die
-      // Oberflaeche nicht, und der Grund geht sie nichts an.
+      // Der Client kann das nicht selbst entscheiden. Der Admin-Zugang hängt an
+      // ADMIN_EMAILS plus verifizierter Adresse (isAdminToken), beides
+      // server-only, und das Konto, das ihn nutzt, hat weder einen admin-Claim
+      // noch ein Entitlement-Dokument. Ohne dieses Feld läse das Profil nur
+      // users/<uid>/entitlements und zeigte alle Spots offen über lauter
+      // verschlossenen Packs: zwei Wahrheiten auf einem Bildschirm. Nur dass
+      // alles offen ist, nicht warum: Mehr braucht die Oberfläche nicht, und
+      // der Grund geht sie nichts an.
       fullCatalog: true,
     });
     res.headers.set('Cache-Control', 'private, no-store');

@@ -77,10 +77,9 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
     () => new Set<string>([...storedUnlockedIds, ...publicFaceUpIds, ...revealedMustEatIds]),
     [storedUnlockedIds, publicFaceUpIds, revealedMustEatIds]
   );
-  /* Der Zwischenspeicher malt zuerst, und dort sind nur die zehn öffentlichen
-     Karten offen: die Zahl käme als „10 von 63" und spränge nach dem Abruf auf
-     den echten Stand. Sie zeigt sich erst, wenn der erste Abruf dieses Besuchs
-     durch ist — danach rechnet sie bei jedem neuen Abruf einfach weiter. */
+  /* Der Zwischenspeicher malt zuerst, und dort sind nur die öffentlichen Karten
+     offen; die Zahl spränge nach dem Abruf auf den echten Stand. Sie zeigt sich
+     erst, wenn der erste Abruf dieses Besuchs durch ist. */
   const sawFetch = useRef(false);
   const [freshData, setFreshData] = useState(false);
   useEffect(() => {

@@ -1,4 +1,3 @@
-// nextjs/lib/buddy/stream.test.ts
 import { describe, it, expect } from 'vitest';
 import {
   encodeBuddyEvent,
@@ -54,9 +53,9 @@ describe('splitAnswerSegments', () => {
   });
 
   it('setzt auch eine Karte fuer einen Slug mit Grossbuchstaben', () => {
-    // `Der-weinlobbyist` stand so in Sanity (inzwischen begradigt). Mit der
-    // frueheren Zeichenklasse [a-z0-9-] blieb der Marker als roher Text stehen
-    // und der Spot bekam nie eine Karte.
+    // Ein Slug mit Großbuchstaben (`Der-weinlobbyist`): Mit einer engen
+    // Zeichenklasse [a-z0-9-] bliebe der Marker als roher Text stehen und der
+    // Spot bekäme nie eine Karte.
     const { segments, placedSlugs } = splitAnswerSegments(
       'Guter Wein.\n[[spot:Der-weinlobbyist]]',
       new Set(['Der-weinlobbyist'])

@@ -1,16 +1,16 @@
-// nextjs/app/api/buddy/route.ts
 import { createHash } from 'node:crypto';
 import * as Sentry from '@sentry/nextjs';
 import { NextResponse } from 'next/server';
+import { checkWindowedRateLimit } from '@/lib/rateLimit';
 import {
-  checkWindowedRateLimit,
   sessionLimitsFromEnv,
   ipLimitsFromEnv,
   globalLimitsFromEnv,
-} from '@/lib/rateLimitWindow';
+} from '@/lib/buddy/rateLimits';
 import { createAnthropicLlmClient, runBuddyTurn, type OwnedPacks } from '@/lib/buddy/orchestrator';
 import { isOutOfCredit } from '@/lib/buddy/outOfCredit';
-import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/admin';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { verifyBearer } from '@/lib/firebase/bearerAuth';
 import { resolveEntitlements } from '@/lib/firebase/entitlements';
 import {
   searchSpots,
@@ -81,18 +81,13 @@ function parseBody(body: unknown):
 async function resolveViewer(
   request: Request
 ): Promise<{ uid: string; owned: OwnedPacks } | undefined> {
-  const header = request.headers.get('authorization');
-  const token = header?.startsWith('Bearer ') ? header.slice(7) : null;
-  if (!token) return undefined;
+  const auth = await verifyBearer(request);
+  if (auth.status === 'missing') return undefined;
   try {
-    const decoded = await getAdminAuth().verifyIdToken(token, true);
-    const ent = await resolveEntitlements(decoded.uid, {
-      email: decoded.email ?? null,
-      emailVerified: decoded.email_verified === true,
-      admin: decoded.admin === true,
-    });
+    if (auth.status === 'invalid') throw auth.error;
+    const ent = await resolveEntitlements(auth.uid, auth.identity);
     return {
-      uid: decoded.uid,
+      uid: auth.uid,
       owned: { fullCatalog: ent.isAdmin || ent.hasAllBerlin, categorySlugs: ent.categorySlugs },
     };
   } catch (error) {
@@ -103,12 +98,11 @@ async function resolveViewer(
 
 /**
  * Die geherzten Spots eines Kontos, als Slug-Liste. `users/{uid}/favorites` ist
- * die Quelle (dieselbe wie die Karte), gelesen mit dem Admin-SDK — die uid
+ * die Quelle (dieselbe wie die Karte), gelesen mit dem Admin-SDK; die uid
  * stammt aus dem verifizierten Token, nie aus dem Body.
  *
- * Ältere Einträge tragen keinen `slug` (das Feld kam später dazu): die fallen
- * still raus, statt die Liste zu kippen. Ein Fehler beim Lesen heißt „keine
- * Merkliste", nicht „Chat kaputt".
+ * Einträge ohne `slug` fallen still raus, statt die Liste zu kippen. Ein Fehler
+ * beim Lesen heißt „keine Merkliste", nicht „Chat kaputt".
  */
 async function savedSpotSlugs(uid: string): Promise<string[]> {
   try {
@@ -164,13 +158,13 @@ export async function POST(request: Request) {
   const ipHash = clientIpHash(request);
   if (ipHash) {
     // `deny`: jede durchgelassene Anfrage kostet Anthropic-Tokens.
-    const ipLimit = await checkWindowedRateLimit(`ip:${ipHash}`, ipLimitsFromEnv(), 'deny');
+    const ipLimit = await checkWindowedRateLimit(`buddy:ip:${ipHash}`, ipLimitsFromEnv(), 'deny');
     if (!ipLimit.allowed) {
       return NextResponse.json({ error: 'rate_limited', reason: ipLimit.reason }, { status: 429 });
     }
   }
   const limit = await checkWindowedRateLimit(
-    `s:${parsed.sessionId}`,
+    `buddy:s:${parsed.sessionId}`,
     sessionLimitsFromEnv(),
     'deny'
   );
@@ -180,7 +174,7 @@ export async function POST(request: Request) {
   // Der gemeinsame Tagestopf zuletzt: wer schon an seiner eigenen Grenze
   // scheitert, verbraucht nichts davon. Eigener Grund, damit der Chat „für
   // heute ausgebucht" sagen kann statt „frag gleich nochmal".
-  const shared = await checkWindowedRateLimit('global', globalLimitsFromEnv(), 'deny');
+  const shared = await checkWindowedRateLimit('buddy:global', globalLimitsFromEnv(), 'deny');
   if (!shared.allowed) {
     const reason = shared.reason === 'per_day' ? 'global' : shared.reason;
     return NextResponse.json({ error: 'rate_limited', reason }, { status: 429 });

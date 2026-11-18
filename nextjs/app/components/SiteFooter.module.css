@@ -16,8 +16,8 @@
 .meta { margin: 12px auto 0; font-size: 12px; line-height: 1.5; }
 .copy { color: var(--et-muted); }
 .prefs { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px 24px; margin: 12px auto 0; }
-/* Ein kurzer Strich trennt Sprache und Hell/Dunkel — ohne ihn lasen sich
-   „DE · EN ☀ ☾" als vier gleiche Zeichen (22.10.2026). */
+/* Ein kurzer Strich trennt Sprache und Hell/Dunkel; ohne ihn lesen sich „DE ·
+   EN ☀ ☾" als vier gleiche Zeichen. */
 .prefsSep { width: 1px; height: 18px; background: var(--et-muted); }
 .lang { display: flex; justify-content: center; align-items: center; gap: 4px; }
 .langBtn { min-width: 44px; min-height: 44px; color: var(--et-muted); font-size: 14px; }

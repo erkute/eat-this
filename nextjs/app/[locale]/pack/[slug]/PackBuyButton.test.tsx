@@ -27,9 +27,8 @@ const props = {
 };
 
 describe('PackBuyButton styling contract', () => {
-  // Der Kauf ist immer der grosse Hausknopf (et-btn, globals.css); eine
-  // einbettende Fläche gibt nur ihre Layout-Klasse dazu (22.10.2026: „alle
-  // Buttons gleich").
+  // Der Kauf ist immer der große Hausknopf (et-btn, globals.css); eine
+  // einbettende Fläche gibt nur ihre Layout-Klasse dazu.
   it('is always the large house button; an embedding surface only adds layout', () => {
     expect(renderToStaticMarkup(<PackBuyButton {...props} />)).toContain('class="et-btn et-btn-lg"');
     const html = renderToStaticMarkup(<PackBuyButton {...props} className="overview-buy" />);

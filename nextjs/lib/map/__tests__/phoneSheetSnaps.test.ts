@@ -65,8 +65,8 @@ describe('resolveListReturn', () => {
 
   it('brings up the list when the detail came from a pin on the map', () => {
     /* No remembered position = opened from a marker or a deep link. The detail
-       leaves the window at ~0, which in list geometry is the map stop: closing
-       used to drop the user on the bare map from a button that says "Liste". */
+       leaves the window at ~0, which in list geometry is the map stop; closing
+       goes to the list, not the bare map. */
     expect(resolveListReturn(0, true)).toBe('toList');
   });
 

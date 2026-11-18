@@ -3,13 +3,12 @@
 
 export const REFERRER_COOKIE = 'pending_referrer';
 
-// Karten pro erfolgreicher Einladung — für beide Seiten, eine.
+// Karten pro erfolgreicher Einladung, für beide Seiten: eine.
 //
-// Bis zum 06.09.2026 waren es zehn SPOTS. Die gibt es nicht mehr zu verschenken:
-// die Karte ist frei, gestaffelt sind nur noch die Must-Eat-Karten, und von
-// denen ist eine ein Geschenk und zehn ein halbes Album. Der Stapel wächst auf
-// die geplanten 100+, aber er wächst langsam — diese Zahl muss gegen die
-// KLEINSTE Stapelgröße stimmen, nicht gegen die größte.
+// Die Karte ist frei, gestaffelt sind nur die Must-Eat-Karten, und von denen
+// ist eine ein Geschenk und zehn ein halbes Album. Der Stapel wächst, aber er
+// wächst langsam; diese Zahl muss gegen die kleinste Stapelgröße stimmen, nicht
+// gegen die größte.
 export const REFERRAL_BONUS_CARDS = 1;
 
 // Cookie Max-Age: 30 days, in seconds.
@@ -21,23 +20,22 @@ export const UID_SHAPE = /^[a-zA-Z0-9]{20,40}$/;
 // New-account freshness window (ms). Only friend accounts created within this
 // window of the confirm call reward the inviter.
 //
-// Eine Stunde, nicht zehn Minuten: bis 22.09.2026 lag zwischen der
-// Kontoerstellung (signInWithEmailLink) und dem Confirm-Aufruf fuer JEDES neue
-// Konto ein Namens-Formular auf /welcome. Wer dabei das Telefon weglegte, war
-// nach zehn Minuten draussen, und die Route vergab still nichts. Das Fenster ist nicht der
+// Eine Stunde, nicht zehn Minuten: Zwischen der Kontoerstellung
+// (signInWithEmailLink) und dem Confirm-Aufruf liegt für ein neues Konto die
+// Namensabfrage der Tour. Wer dabei das Telefon weglegt, wäre nach zehn Minuten
+// draußen, und die Route vergäbe still nichts. Das Fenster ist nicht der
 // Farming-Schutz, das ist MAX_REFERRALS_PER_INVITER; es verhindert nur, dass
-// ein LANGE bestehendes Konto nachtraeglich noch jemanden belohnt. Dafuer ist
+// ein lange bestehendes Konto nachträglich noch jemanden belohnt. Dafür ist
 // eine Stunde genauso eindeutig wie zehn Minuten.
 export const ACCOUNT_FRESHNESS_MS = 60 * 60 * 1000;
 
-// Anti-farming cap: max successful referrals an inviter is REWARDED for. Past
-// the cap the friend still gets their own welcome card — only the
-// inviter-side reward stops.
+// Anti-farming cap: max successful referrals an inviter is rewarded for. Past
+// the cap the friend still gets their own welcome card; only the inviter-side
+// reward stops.
 //
-// Die Obergrenze ist gegen den STAPEL zu lesen, nicht für sich: 15 Karten sind
-// bei 26 im Stapel über die Hälfte, bei den geplanten 100+ ein Siebtel. Sie
-// bleibt bewusst so hoch: fünfzehn echte Einladungen sind mehr wert als
-// fünfzehn Karten, und wer sie fälscht, muss dafür fünfzehn frische Konten mit
-// verschiedenen Adressen anlegen. Wenn der Stapel wider Erwarten klein bleibt,
-// ist DIESE Zahl die Stellschraube — nicht die Belohnung selbst.
+// Die Obergrenze ist gegen den Stapel zu lesen, nicht für sich. Sie bleibt
+// bewusst hoch: fünfzehn echte Einladungen sind mehr wert als fünfzehn Karten,
+// und wer sie fälscht, braucht fünfzehn frische Konten mit verschiedenen
+// Adressen. Bleibt der Stapel klein, ist diese Zahl die Stellschraube, nicht
+// die Belohnung selbst.
 export const MAX_REFERRALS_PER_INVITER = 15;

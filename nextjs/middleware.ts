@@ -11,8 +11,8 @@ const INTERNAL_LOCALE_HEADER = 'x-eat-this-internal-locale';
 const STAGING_AUTH_COOKIE = '__Host-eatthis_staging_auth';
 const STAGING_AUTH_COOKIE_MAX_AGE = 60 * 60 * 12;
 
-// 410 body for permanently closed spots. Plain HTML without inline CSS —
-// plain semantic HTML; crawlers read the 410 status, humans get a link home.
+// 410 body for permanently closed spots: plain semantic HTML; crawlers read the
+// 410 status, humans get a link home.
 const GONE_HTML = `<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="robots" content="noindex"><title>Nicht mehr verfügbar – Eat This</title></head><body><h1>Dieser Spot ist dauerhaft geschlossen</h1><p>Die Seite gibt es nicht mehr. Entdecke andere Berliner Spots:</p><p><a href="https://www.eatthisdot.com/">Zur Startseite</a></p></body></html>`;
 
 function basicAuthChallenge(): NextResponse {
@@ -187,8 +187,8 @@ export default async function middleware(req: NextRequest) {
     return finalizeResponse(redirect);
   }
 
-  // Post-rebuild legacy URL cleanup (2026-06 re-slug). Static cases only —
-  // accent/split restaurant redirects need the DB and live in the route.
+  // Redirects for old slugs. Static cases only; accent/split restaurant
+  // redirects need the DB and live in the route.
   {
     const isEn = pathname === '/en' || pathname.startsWith('/en/');
     const rest = isEn ? pathname.slice(3) || '/' : pathname;
@@ -241,13 +241,11 @@ export default async function middleware(req: NextRequest) {
   // Router page tree lives below `[locale]`. Rewrite DE requests ourselves and
   // mark the internal pass so `as-needed` canonicalization doesn't loop.
   //
-  // Deliberately NO `NEXT_LOCALE` cookie here. This branch handles nearly every
-  // request the site serves, and a response carrying `Set-Cookie` is one the
-  // App Hosting CDN refuses to store — every page, including the ~690
-  // prerendered ones, was a `cdn-cache-status: miss`. The cookie also had no
-  // reader on this path: `localeDetection` is off, so next-intl never consults
-  // it. The `/de/…` branch above DOES set it: it records an explicit choice on
-  // a redirect, which was never cacheable anyway.
+  // Deliberately no `NEXT_LOCALE` cookie here: a response carrying `Set-Cookie`
+  // is one the App Hosting CDN refuses to store, and this branch serves nearly
+  // every request. `localeDetection` is off, so next-intl never reads it on
+  // this path. The `/de/…` branch above sets it on a redirect, which is not
+  // cacheable anyway.
   if (!pathname.startsWith('/en')) {
     const url = req.nextUrl.clone();
     url.pathname = `/${routing.defaultLocale}${pathname === '/' ? '' : pathname}`;
@@ -267,28 +265,15 @@ export const config = {
   // `__` exempts the Firebase Auth helper proxy (/__/auth/*, see rewrites() in
   // next.config.ts) from locale routing and redirects.
   //
-  // `api/og` und `api/must-eat-image` sind die bewussten Ausnahmen davon. App Hosting streicht auf
-  // JEDEM middleware-gematchten Pfad `public`/`s-maxage` und haengt `private`
-  // an (gemessen auf prod, 25.08.2026) — die OG-Routen hatten damit
-  // keinen CDN-Cache und rechneten jede Karte neu, gemessen 1–2,4 s pro
-  // Abruf. Das trifft ausgerechnet die Endpunkte, deren Publikum
-  // ausschliesslich aus fremden Maschinen besteht: Vorschau-Abrufer der
-  // Messenger. Fuer die ist ein Browser-Cache wertlos, jeder Abruf ist ein
-  // neuer Client.
+  // `api/og` und `api/must-eat-image` sind die bewussten Ausnahmen. App Hosting
+  // streicht auf jedem middleware-gematchten Pfad `public`/`s-maxage` und hängt
+  // `private` an; ohne CDN-Cache rechneten die OG-Routen jede Karte für jeden
+  // Vorschau-Abrufer neu, und jedes offene Kartenbild ginge bis zur Instanz.
   //
-  // Der Preis: auf Staging liegen diese Bilder damit ohne Basic Auth
-  // offen. Vertretbar, weil ihr Inhalt ohnehin oeffentlich ist
-  // (`restaurant` zeigt Name und Foto eines gelisteten Lokals).
-  // Was Staging wirklich schuetzt, sind die SEITEN, und die bleiben drin:
-  // ohne sie ist ein Bild ohne Zusammenhang.
-  //
-  // Die Kartenbilder kamen aus demselben Grund nie aus dem CDN, obwohl die
-  // Route offene Karten als `public` ausweist: jeder Abruf ging bis zur
-  // Instanz in us-central1 (Prod-Log 04.–11.11.2026: Median 413 ms, jedes
-  // zehnte Bild ueber 3,1 s). Verdeckte Karten bleiben geschuetzt, auch auf
-  // Staging: die Route selbst verlangt fuer sie Session und Capability und
-  // antwortet `private`. Offen liegen nur die Motive, die jeder anonyme
-  // Besucher ohnehin sieht.
+  // Der Preis: auf Staging liegen diese Bilder ohne Basic Auth offen.
+  // Vertretbar, weil ihr Inhalt ohnehin öffentlich ist. Verdeckte Karten
+  // bleiben geschützt: die Route verlangt für sie Session und Capability und
+  // antwortet `private`.
   matcher: [
     '/((?!_next|_vercel|__|api/og|api/must-eat-image|css|js|pics|fonts|favicon.ico|manifest.json|robots.txt|sitemap.xml|.*\\..*).*)',
   ],

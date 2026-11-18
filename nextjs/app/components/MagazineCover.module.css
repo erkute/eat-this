@@ -52,8 +52,8 @@
 }
 
 /* ── Schrift ─────────────────────────────────────────────────────────── */
-/* Die Schlagzeile: ganz, nie gekürzt (Ansage 01.10.2026: „alles vom Titel
-   zu lesen"); die Grösse (`--size`) setzt die Komponente nach der Länge. Zeilenhöhe statt Polster für die Unterlänge. */
+/* Die Schlagzeile: ganz, nie gekürzt; die Größe (`--size`) setzt die Komponente
+   nach der Länge. Zeilenhöhe statt Polster für die Unterlänge. */
 .headline {
   display: block;
   font-family: var(--et-font-display);
@@ -80,10 +80,9 @@
     0 1px 6px rgba(0, 0, 0, 0.85),
     0 0 18px rgba(0, 0, 0, 0.35);
 }
-/* Fussband: höchstens zwei Zeilen (Ansage 03.10.2026). Das hält die Grösse
-   (fitSize in MagazineCover), nicht eine Zeilenklammer — gemessen am
-   03.10.2026 passen alle 27 Schlagzeilen ganz in zwei Zeilen, auch die mit
-   85 Zeichen. */
+/* Fußband: höchstens zwei Zeilen. Das hält die Größe (fitSize in
+   MagazineCover), nicht eine Zeilenklammer; auch Schlagzeilen mit 85 Zeichen
+   passen so ganz in zwei Zeilen. */
 .twoLines {
   line-height: 1.24;
 }
@@ -393,10 +392,10 @@
   white-space: nowrap;
 }
 
-/* Gebrauchsspuren wie auf einem echten Heft (Ansage 21.10.2026): Knick am
-   Rücken, abgestossene Kanten und Ecken, feine Kratzer im Glanz, ein
-   Eselsohr unten rechts. Zwei Fassungen, damit nebeneinander liegende Hefte
-   nicht gleich verkratzt sind; nur im Vintage-Look. */
+/* Gebrauchsspuren wie auf einem echten Heft: Knick am Rücken, abgestoßene
+   Kanten und Ecken, feine Kratzer im Glanz, ein Eselsohr unten rechts. Zwei
+   Fassungen, damit nebeneinander liegende Hefte nicht gleich verkratzt sind;
+   nur im Vintage-Look. */
 .wear {
   inset: 0;
   pointer-events: none;

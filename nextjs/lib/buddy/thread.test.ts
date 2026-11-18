@@ -1,5 +1,4 @@
 // @vitest-environment jsdom
-// nextjs/lib/buddy/thread.test.ts
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { loadThread, saveThread, clearThread, THREAD_KEY, MAX_STORED_MESSAGES } from './thread';
 import type { StoredMessage } from './thread';

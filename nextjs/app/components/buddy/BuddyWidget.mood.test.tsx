@@ -1,5 +1,4 @@
 // @vitest-environment jsdom
-// nextjs/app/components/buddy/BuddyWidget.mood.test.tsx
 // Expression policy: idle while streaming with no answer text yet; the mouth
 // flap starts only once text is actually appearing.
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';

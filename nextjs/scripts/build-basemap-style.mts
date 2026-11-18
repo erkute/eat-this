@@ -1,8 +1,8 @@
-/* Builds both Eat This map palettes from the pinned CARTO layer structure.
- * Sources, geometry, zoom hierarchy and transit overlays stay unchanged.
- * Seit 22.10.2026 die „Druckfassung" (Betreiber-Wahl gegen die bisherige
- * Karte): Papier und Ink wie die Seite — keine Strassenkonturen, Strassen als
- * Ink-Striche in wenigen Stärken, Wasser und Grün nur leise, Gebäude flach,
+/*
+ * Builds both Eat This map palettes from the pinned CARTO layer structure.
+ * Sources, geometry, zoom hierarchy and transit overlays stay unchanged. Die
+ * „Druckfassung": Papier und Ink wie die Seite, keine Straßenkonturen, Straßen
+ * als Ink-Striche in wenigen Stärken, Wasser und Grün nur leise, Gebäude flach,
  * Beschriftung in Ink auf Papier-Hof. Das Papierkorn darüber legt
  * MapLayout.module.css. Regenerate with npm run build:basemap and commit
  * public/basemap/style.json and style-dark.json.
@@ -58,18 +58,12 @@ const FONT_STACKS: Record<string, string> = {
   'Montserrat Regular Italic': 'Noto Sans Italic',
 };
 
-/* Die Vorlage kennt genau ein Icon: einen Punkt hinter Städtenamen, in fünf
-   Layern zwischen Zoom 4 und 8. Auf einer Berliner Karte ist das der Zoom, auf
-   dem halb Europa im Bild steht — der Punkt neben „Hamburg" ist dort Zierde.
-   Er fliegt deshalb ganz raus, statt ein eigenes Sprite dafür zu hosten.
-   Der eigentliche Auslöser war MapLibre: sein `parseUrl` verlangt für `sprite`
-   eine Adresse MIT Protokoll, eine wurzelrelative wie `/basemap/sprite` wirft
-   intern und wird still verschluckt — die Karte lädt, das Sprite nie. Eine
-   absolute Adresse kennen wir zur Bauzeit nicht (lokal, Staging und Produktion
-   sind drei), also müsste sie zur Laufzeit gesetzt werden. Für fünf Punkte auf
-   Kontinent-Zoom ist das zu viel Apparat.
-   Achtung, falls hier je ein Icon zurückkommt: dann gilt genau dieses Problem
-   wieder, und ein Test „lädt die Karte?" beantwortet es NICHT. */
+/* Die Vorlage kennt genau ein Icon: einen Punkt hinter Städtenamen zwischen
+   Zoom 4 und 8, auf einer Berliner Karte Zierde. Er fliegt raus, statt ein
+   eigenes Sprite zu hosten: MapLibres `parseUrl` verlangt für `sprite` eine
+   absolute Adresse (eine wurzelrelative scheitert still), und die kennen wir
+   zur Bauzeit nicht. Kommt je ein Icon zurück, gilt genau dieses Problem
+   wieder; ein Test „lädt die Karte?" findet es nicht. */
 const DROP_ICONS = true;
 
 // ---------------------------------------------------------------- Farbmathe
@@ -221,10 +215,10 @@ for (const layer of style.layers) {
   }
 }
 
-/* Gebäude flach: die Vorlage zeichnet sie als zwei Flächen (Grundriss und
-   ein um 2 px versetztes „Dach"); beide fliegen raus, an ihre Stelle tritt
-   unten ein leiser Ink-Ton ab Zoom 14 — Grundrisse wie auf einem gedruckten
-   Stadtplan statt grauer Klötze (bis 22.10.2026 standen sie in 3D). */
+/* Gebäude flach: Die Vorlage zeichnet sie als zwei Flächen (Grundriss und ein
+   um 2 px versetztes „Dach"); beide fliegen raus, an ihre Stelle tritt unten
+   ein leiser Ink-Ton ab Zoom 14: Grundrisse wie auf einem gedruckten Stadtplan
+   statt grauer Klötze in 3D. */
 const BUILDING_LAYERS = ['building', 'building-top'];
 const buildingAt = style.layers.findIndex(
   (layer: { id: string }) => layer.id === BUILDING_LAYERS[0]
@@ -292,10 +286,9 @@ style.layers = style.layers.filter((layer: { id: string }) => !BUILDING_LAYERS.i
     layer.paint = p;
   }
 
-  /* Schriftgrössen wie bei Google Maps (Ansage 22.10.2026; die Schrift
-     bleibt unsere): Strassen 10–12,5px ohne Sperrung, Ortsteile 10–12px,
-     Stadtnamen höchstens 16px statt bis 22, Parks und Gewässer 10–11px.
-     Zoom → Pixel, linear dazwischen. */
+  /* Schriftgrößen wie bei Google Maps (die Schrift bleibt unsere): Straßen
+     10–12,5px ohne Sperrung, Ortsteile 10–12px, Stadtnamen höchstens 16px,
+     Parks und Gewässer 10–11px. Zoom → Pixel, linear dazwischen. */
   const stops = (...pairs: [number, number][]) => ({ stops: pairs });
   const SIZES: Record<string, object> = {
     roadname_minor: stops([15, 10], [17, 11]),

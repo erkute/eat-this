@@ -8,9 +8,9 @@ import SiteChrome from '@/app/components/SiteChrome';
 
 const SITE_URL = 'https://www.eatthisdot.com';
 
-// "Berlin" gehört in den Titel, nicht nur in die Description: "eat this"
-// allein gehört einem 2013er Food-Blog gleichen Namens, und der Zusatz ist
-// das, was die Marke für Google und für den Leser unterscheidbar macht.
+// "Berlin" gehört in den Titel, nicht nur in die Description: "eat this" allein
+// gehört einem gleichnamigen Food-Blog, und der Zusatz macht die Marke für
+// Google und für den Leser unterscheidbar.
 const TITLE = 'eat this. – Restaurants & Geheimtipps in Berlin';
 const DESCRIPTION =
   'Die kuratierte Food-Map mit Berlins besten Restaurants, Cafés und Bars — plus exklusive Must Eats. Frag Remy, er kennt jeden Spot auf der Map.';

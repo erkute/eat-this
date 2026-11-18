@@ -87,8 +87,10 @@ describe('rateLimitKey', () => {
   });
 });
 
-/* Der Wachhund. Die Umstellung oben nuetzt nichts, wenn die naechste Route
- * wieder `\`x:${ip}\`` schreibt — das ist genau, wie die Deck-Seite dazu kam. */
+/*
+ * Der Wachhund: die Umstellung oben nuetzt nichts, wenn die naechste Route
+ * wieder einen rohen `${ip}` in den Schluessel schreibt.
+ */
 const SOURCE_ROOTS = ['app', 'lib'];
 
 /** Rohe Kennungen, die niemals in einen Ratenlimit-Schluessel gehoeren.

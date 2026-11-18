@@ -2,10 +2,9 @@ import { describe, expect, it } from 'vitest';
 
 import { filterBrowserErrors, isResourceLoadEvent } from './beforeSend';
 
-/* Der Fall, der JAVASCRIPT-3N gefüllt hat: ein <link> im <head> scheitert, das
-   DOM-Event landet über onunhandledrejection in Sentry — ohne Stacktrace, ohne
-   Titel. Nachgebaut wie es im echten Event stand (target war
-   "[HTMLElement: > html > head > link]"). */
+/* Ein <link> im <head> scheitert, und das DOM-Event landet über
+   onunhandledrejection in Sentry, ohne Stacktrace und Titel. Nachgebaut wie im
+   echten Event (target "[HTMLElement: > html > head > link]"). */
 const linkErrorEvent = { type: 'error', target: { tagName: 'LINK' } };
 
 describe('isResourceLoadEvent', () => {

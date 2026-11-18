@@ -4,12 +4,10 @@
  * Die Starter-Pack-Einblendung nach einer Anmeldung (SignInReward).
  *
  * Der verlässliche Auslöser ist die Vergabe selbst: `/api/starter-pack`
- * antwortet `granted: true` GENAU EINMAL pro Konto, egal über welchen Weg die
- * Anmeldung lief und auf welcher Seite sie herauskommt. Ein Zustandswechsel
+ * antwortet `granted: true` genau einmal pro Konto, egal über welchen Weg die
+ * Anmeldung lief und auf welcher Seite sie herauskommt. Einen Zustandswechsel
  * im selben Dokument (erst kein `uid`, dann einer) gibt es nur beim
- * Google-Popup — Magic-Link und Redirect laden hart neu und kamen früher
- * wortlos an.
- *
+ * Google-Popup; Magic-Link und Redirect laden hart neu.
  */
 
 /** Bekommt die offenen Karten des frisch vergebenen Packs (Must-Eat-IDs). */
@@ -41,16 +39,15 @@ export function subscribeStarterPackGranted(listener: GrantedListener): () => vo
 }
 
 /**
- * Ob nach einer Anmeldung die Tour kommt — je Konto.
+ * Ob nach einer Anmeldung die Tour kommt, je Konto.
  *
- * Der Weg ins Profil wartet darauf (EmailLinkSignIn). Bis 14.10.2026 ging er
- * sofort, und das Profil stand offen da, bis `/api/starter-pack` antwortete
- * und die Tour aufging (Betreiber: „man darf nicht im Vorfeld das Profil
- * sehen"). Jetzt liegt der Ink-Grund der Tour schon, wenn die Seite wechselt.
+ * Der Weg ins Profil wartet darauf (EmailLinkSignIn): Das Profil darf nicht
+ * offen dastehen, bis `/api/starter-pack` antwortet und die Tour aufgeht. So
+ * liegt der Ink-Grund der Tour schon, wenn die Seite wechselt.
  *
- * Die Antwort kann vor der Frage kommen — der Auth-Listener feuert, bevor
- * `signInWithEmailLink` zurückkehrt —, deshalb gemerkt statt nur gemeldet.
- * Gelesen wird sie nur einmal: eine zweite Anmeldung im selben Seitenleben
+ * Die Antwort kann vor der Frage kommen (der Auth-Listener feuert, bevor
+ * `signInWithEmailLink` zurückkehrt), deshalb gemerkt statt nur gemeldet.
+ * Gelesen wird sie nur einmal: Eine zweite Anmeldung im selben Seitenleben
  * wartet auf ihre eigene Antwort statt auf die alte.
  */
 const ARRIVAL_WAIT_MS = 8000;

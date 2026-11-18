@@ -10,6 +10,7 @@ const mocks = vi.hoisted(() => ({
   sendMagicLinkEmail: vi.fn(),
   captureMessage: vi.fn(),
   captureException: vi.fn(),
+  revokeEntitlement: vi.fn(),
 }))
 
 vi.mock('../../../lib/stripe', () => ({
@@ -31,6 +32,10 @@ vi.mock('../../../lib/stripe-fulfill', () => ({
   assembleAndWriteEntitlement: mocks.assembleAndWriteEntitlement,
   findOrCreateUserByEmail: mocks.findOrCreateUserByEmail,
   markGuestMagicLinkSent: mocks.markGuestMagicLinkSent,
+}))
+
+vi.mock('../../../lib/stripe-revoke', () => ({
+  revokeEntitlementForPayment: mocks.revokeEntitlement,
 }))
 
 vi.mock('../../../lib/auth/sendMagicLink', () => ({
@@ -91,6 +96,8 @@ beforeEach(() => {
   mocks.markGuestMagicLinkSent.mockResolvedValue(undefined)
   mocks.captureMessage.mockReset()
   mocks.captureException.mockReset()
+  mocks.revokeEntitlement.mockReset()
+  mocks.revokeEntitlement.mockResolvedValue('revoked')
   mocks.findOrCreateUserByEmail.mockReset()
   mocks.sendMagicLinkEmail.mockReset()
   mocks.sendMagicLinkEmail.mockResolvedValue({ ok: true })
@@ -126,6 +133,53 @@ describe('/api/stripe/webhook', () => {
     expect(res.status).toBe(200)
     expect(mocks.retrieveVerified).not.toHaveBeenCalled()
     expect(mocks.assembleAndWriteEntitlement).not.toHaveBeenCalled()
+  })
+
+  it('takes the pack back on a full refund', async () => {
+    mocks.constructEvent.mockReturnValueOnce({
+      id: 'evt_r', type: 'charge.refunded',
+      data: { object: { refunded: true, payment_intent: 'pi_1' } },
+    })
+    const res = await POST(makeReq('raw', 'sig'))
+    expect(res.status).toBe(200)
+    expect(await res.json()).toEqual({ received: true, result: 'revoked' })
+    expect(mocks.revokeEntitlement).toHaveBeenCalledWith('pi_1')
+    expect(mocks.assembleAndWriteEntitlement).not.toHaveBeenCalled()
+  })
+
+  it('takes the pack back when the buyer wins a dispute', async () => {
+    mocks.constructEvent.mockReturnValueOnce({
+      id: 'evt_d', type: 'charge.dispute.closed',
+      data: { object: { status: 'lost', payment_intent: { id: 'pi_2' } } },
+    })
+    const res = await POST(makeReq('raw', 'sig'))
+    expect(res.status).toBe(200)
+    expect(mocks.revokeEntitlement).toHaveBeenCalledWith('pi_2')
+  })
+
+  it('keeps the pack on a partial refund and on a dispute the shop won', async () => {
+    mocks.constructEvent.mockReturnValueOnce({
+      id: 'evt_p', type: 'charge.refunded',
+      data: { object: { refunded: false, payment_intent: 'pi_1' } },
+    })
+    expect((await POST(makeReq('raw', 'sig'))).status).toBe(200)
+    mocks.constructEvent.mockReturnValueOnce({
+      id: 'evt_w', type: 'charge.dispute.closed',
+      data: { object: { status: 'won', payment_intent: 'pi_1' } },
+    })
+    expect((await POST(makeReq('raw', 'sig'))).status).toBe(200)
+    expect(mocks.revokeEntitlement).not.toHaveBeenCalled()
+  })
+
+  it('returns 500 when taking the pack back fails, so Stripe retries', async () => {
+    mocks.constructEvent.mockReturnValueOnce({
+      id: 'evt_r', type: 'charge.refunded',
+      data: { object: { refunded: true, payment_intent: 'pi_1' } },
+    })
+    mocks.revokeEntitlement.mockRejectedValueOnce(new Error('firestore down'))
+    const res = await POST(makeReq('raw', 'sig'))
+    expect(res.status).toBe(500)
+    expect(mocks.captureException).toHaveBeenCalled()
   })
 
   it('does not fulfill an unpaid session', async () => {

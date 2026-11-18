@@ -33,12 +33,12 @@ export interface InitialMapData {
 async function composeInitialAnonMapMetadata(): Promise<InitialMapData> {
   const { restaurants: all, mustEats: allMustEats, categories } = await getCachedMapData();
 
-  // Jeder Spot — die Spots sind frei. Vom KARTENSTAPEL sieht ein Besucher
-  // ohne Konto seit dem 07.09.2026 jede Karte, aber offen nur das
-  // Schaufenster. Dieselbe Regel wie composeAccountSurface für ein Konto ohne
-  // alles — die SSR-Nutzlast und der spätere Fetch müssen dasselbe meinen, sonst springt
-  // die Karte beim Hydrieren. Die Rücken sind der Anlass zur Anmeldung; was
-  // darunter liegt, bleibt auf dem Server (getInitialAnonMapData strippt).
+  // Jeder Spot, die Spots sind frei. Vom Kartenstapel sieht ein Besucher ohne
+  // Konto jede Karte, aber offen nur das Schaufenster. Dieselbe Regel wie
+  // composeAccountSurface für ein Konto ohne alles: Die SSR-Nutzlast und der
+  // spätere Fetch müssen dasselbe meinen, sonst springt die Karte beim
+  // Hydrieren. Die Rücken sind der Anlass zur Anmeldung; was darunter liegt,
+  // bleibt auf dem Server (getInitialAnonMapData strippt).
   const revealedMustEatIds = composeRevealedMustEats(allMustEats);
 
   return {
@@ -51,16 +51,12 @@ async function composeInitialAnonMapMetadata(): Promise<InitialMapData> {
 }
 
 /**
- * The face-up set below is the curated shop window — the same cards for
- * every visitor, and the same cards whose premium fields ship
- * in the anonymous HTML. So this read has no per-viewer component and caching
- * it publishes nothing that isn't published already. The per-viewer path
- * (/api/map-data, entitlements + on-site unlocks + purchases) keeps the
- * uncached default reader.
- *
- * Uncached it was 192-583ms per request, measured against a production build —
- * roughly 95% of the server time on the four surfaces that call this, with
- * Sanity already served from the Data Cache in single-digit milliseconds.
+ * The face-up set below is the curated shop window: the same cards for every
+ * visitor, and the same cards whose premium fields ship in the anonymous HTML.
+ * So this read has no per-viewer component, and caching it publishes nothing
+ * that isn't published already. The per-viewer path (/api/map-data,
+ * entitlements + on-site unlocks + purchases) keeps the uncached default
+ * reader.
  *
  * Publishing a card selects an immutable content key in Sanity. That key is
  * part of the cache arguments; the `mustEat` webhook also invalidates the tag.
@@ -77,12 +73,10 @@ let publicMustEatIdsInFlight: Promise<Set<string>> | null = null;
 /**
  * Welche Karten offen liegen, für die Bild-Route vor jedem einzelnen Bild.
  *
- * Liest nur die Karten (45 kB) statt des ganzen Spot-Katalogs (680 kB), und
- * gleichzeitige Aufrufe teilen sich eine Anfrage: Nexts Data Cache fasst nichts
- * über Anfragen hinweg zusammen, solange sein Eintrag noch leer ist. Schlugen
- * ~80 Bilder auf einer frischen Instanz auf, holte jedes selbst den Katalog; am
- * 03.11.2026 lief das 10-s-Limit des Clients dabei reihenweise ab, und 146 von
- * 876 Bildern des Tages endeten als 500 (Sentry JAVASCRIPT-AH).
+ * Liest nur die Karten statt des ganzen Spot-Katalogs, und gleichzeitige
+ * Aufrufe teilen sich eine Anfrage: Nexts Data Cache legt nichts zusammen,
+ * solange sein Eintrag leer ist, und viele Bilder auf einer frischen Instanz
+ * liefen sonst ins Zeitlimit des Clients.
  */
 export function getPublicMustEatIds(): Promise<Set<string>> {
   publicMustEatIdsInFlight ??= getCachedMustEats()

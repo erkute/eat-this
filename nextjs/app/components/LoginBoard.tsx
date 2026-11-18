@@ -28,25 +28,25 @@ interface LoginBoardProps {
   intent?: LoginIntent | null;
   /**
    * Wann Firebases Popup-Helfer fuer Google vorlaedt (googlePopupWarmup.ts):
-   * 'mount' im Modal — wer es oeffnet, will sich anmelden, und ohne Vorlauf
+   * 'mount' im Modal, denn wer es oeffnet, will sich anmelden, und ohne Vorlauf
    * frisst der Popup-Blocker den ersten Klick. 'intent' auf den Tafeln der
-   * Seiten: der Cookie-Hinweis verspricht, Google Sign-In lade „nur wenn du
-   * es nutzt", also erst, wenn die Hand zum Knopf geht.
+   * Seiten: Google Sign-In laedt nur, wenn es genutzt wird, also erst, wenn die
+   * Hand zum Knopf geht.
    */
   googleWarmup: 'mount' | 'intent';
 }
 
 /**
- * Die Anmeldung — EIN Aufbau fuer alle Stellen, an denen sie steht: das
- * Modal (LoginPanel), die Starter-Pack-Tafel der Startseite und die
- * Beitritts-Tafel des geteilten Decks. Vorher waren das drei Formulare mit
- * eigenen Texten, eigener Knopfform und eigenem Verhalten nach dem Absenden.
+ * Die Anmeldung: ein Aufbau für alle Stellen, an denen sie steht: das Modal
+ * (LoginPanel), die Starter-Pack-Tafel der Startseite und die Beitritts-Tafel
+ * des geteilten Decks, mit denselben Texten, derselben Knopfform und demselben
+ * Verhalten nach dem Absenden.
  *
- * Links die Szene, rechts Ueberschrift und Formular. Die Szene bleibt stehen,
- * wenn die Mail raus ist: das, worauf man wartet, verschwindet nicht.
+ * Links die Szene, rechts Überschrift und Formular. Die Szene bleibt stehen,
+ * wenn die Mail raus ist: Das, worauf man wartet, verschwindet nicht.
  *
- * „Anmelden" steht nur auf dem Knopf — nie als Ueberschrift. Der Titel sagt,
- * was man bekommt; der Knopf, was man tut.
+ * „Anmelden" steht nur auf dem Knopf, nie als Überschrift. Der Titel sagt, was
+ * man bekommt; der Knopf, was man tut.
  */
 export default function LoginBoard({
   art,

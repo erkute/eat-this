@@ -119,7 +119,7 @@ export default function EmailLinkSignInPanel({ state, setState, claimingCard, si
         </div>
         <div className={styles.copy}>
           <p className={`et-label ${styles.kicker}`}>{t.kicker}</p>
-          {/* Zwei Sätze, zwei Zeilen — nie umgebrochen (Betreiber, 22.09.2026). */}
+          {/* Zwei Sätze, zwei Zeilen, nie umgebrochen. */}
           <h2 ref={titleRef} tabIndex={-1} className={`${styles.headline} ${styles.headlineLines}`}>
             <span>{t.title[0]}</span>
             <span>{t.title[1]}</span>

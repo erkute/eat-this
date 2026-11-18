@@ -1,17 +1,15 @@
 /**
- * Wohin der Magic-Link zurueckfuehrt: genau dorthin, wo der Login angefangen
- * hat.
+ * Wohin der Magic-Link zurückführt: genau dorthin, wo der Login angefangen hat.
  *
- * Vorher trug das Modal gar keine Continue-URL, also nahm der Server seinen
- * Fallback (die Startseite) — wer auf einem Spot stand und sich anmeldete, kam
- * auf der Startseite wieder heraus und musste den Spot noch einmal suchen. Die
- * Adresse der Seite, auf der das Modal steht, IST die Antwort: auf der Karte
- * traegt sie den offenen Spot als `?r=<slug>`, auf der SEO-Seite ist sie der
- * Spot selbst.
+ * Ohne Continue-URL nähme der Server seinen Fallback (die Startseite); wer auf
+ * einem Spot steht und sich anmeldet, käme auf der Startseite wieder heraus und
+ * müsste den Spot noch einmal suchen. Die Adresse der Seite, auf der das Modal
+ * steht, ist die Antwort: Auf der Karte trägt sie den offenen Spot als
+ * `?r=<slug>`, auf der SEO-Seite ist sie der Spot selbst.
  *
- * Zwei Parameter werden dabei abgeraeumt, bevor die Adresse in eine Mail geht:
- *   e      — der Adress-Traeger des vorigen Links; hat seine Arbeit getan.
- *   lang   — Firebases Sprach-Parameter; die Seite traegt ihre Sprache im Pfad.
+ * Drei Parameter werden dabei abgeräumt, bevor die Adresse in eine Mail geht:
+ *   e      — der Adress-Träger des vorigen Links; hat seine Arbeit getan.
+ *   lang   — Firebases Sprach-Parameter; die Seite trägt ihre Sprache im Pfad.
  *   heart  — wird hier neu gesetzt (oder eben nicht), nie geerbt.
  */
 

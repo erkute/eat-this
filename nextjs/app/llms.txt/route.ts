@@ -27,11 +27,10 @@ interface Category extends NamedSlug {
   nameEn: string;
 }
 
-// Deckel gegen unbegrenztes Wachstum. Bei 24 Artikeln (Stand 09/2026) greift er
-// nicht — er verhindert nur, dass die Datei irgendwann zur Volltext-Sitemap
-// wird. Vorher stand hier [0...15] „die 15 neuesten": damit fehlten neun
-// Artikel, darunter /news/restaurants-prenzlauer-berg, einer der meistbesuchten
-// Einstiege aus KI-Assistenten überhaupt.
+// Deckel gegen unbegrenztes Wachstum. Er liegt weit über der Zahl der Artikel
+// und verhindert nur, dass die Datei irgendwann zur Volltext-Sitemap wird. Ein
+// enger Deckel („die 15 neuesten") ließe Artikel fehlen, darunter meistbesuchte
+// Einstiege aus KI-Assistenten.
 const ARTICLE_LIMIT = 60;
 
 export async function GET(): Promise<Response> {

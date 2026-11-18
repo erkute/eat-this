@@ -1,37 +1,13 @@
-// Generated 28.09.2026 from the spot curation of 27.09.2026 (283 spots taken
-// off the map) plus earlier leftovers of the old embeddings index. Not a
-// hand-maintained list: re-derive it the same way if the catalog is culled again.
-// `sathutu` and `story-coffee-roesterei-p-berg` came on 07.10.2026: deleted
-// later, still 404ing in GSC.
-// `five-elephant-neue-nationalgalerie`, `hokey-pokey-pankow` and `juicery-berlin`
-// were taken off on 09.10.2026. Pankow has no spot left, so its entries go to
-// a category hub.
-//
-// middleware.ts answers these before any page renders, in both locales. A spot
-// that comes back therefore has to leave this map, or it keeps redirecting.
-// It used to be the page's job, after the slug 404ed, but a page that
-// redirects while Next renders it on demand sent `location` twice on EN
-// (Next 15.5, still in 15.5.27); App Hosting joined both to
-// `/en/bezirk/mitte,/en/bezirk/mitte`, a 404 — GSC listed the EN spots as
-// "Nicht gefunden (404)".
-//
-// 95 of these pages still had Google clicks in the 90 days before the cull
-// (GSC, 28.06.–26.09.2026: 167 clicks, 43k impressions), so they 301 to the
-// closest living hub instead of dying on a 404:
-//   its Bezirk hub if that still has spots, else its first category hub,
-//   else /map. Targets are locale-less paths.
-//
-// 30 more came on 13.11.2026: spot URLs the Search Console still listed as
-// "Nicht gefunden (404)" and that answered 404 on that day. Their documents
-// are gone from Sanity and no district survives anywhere, so they go to /map.
-//
-// Three more on 16.11.2026, still 404 with Google impressions: the districts of
-// `chay-village-schoeneberg` and `vegd-vegan-burgers-f-hain` are in their
-// slugs; `traumback` left no trace of one and goes to /map.
-//
-// Ten more on 16.11.2026, deleted from Sanity that day while still in the
-// sitemap. Their districts come from the staging dataset, which kept the
+// Spots taken off the map, each redirected to the closest living hub: its
+// Bezirk hub if that still has spots, else its first category hub, else /map.
+// Targets are locale-less paths. When a spot is deleted, it goes in here in the
+// same change; its district comes from the staging dataset, which keeps the
 // documents.
+//
+// middleware.ts answers these before any page renders, in both locales, so a
+// spot that comes back has to leave this map. Not in the page: a redirect while
+// Next renders on demand sends `location` twice on EN (Next 15.5), which App
+// Hosting joins into a 404.
 export const DELISTED_RESTAURANT_REDIRECTS: Readonly<Record<string, string>> = {
   '100-brote': '/bezirk/prenzlauer-berg',
   '136-berlin-restaurant': '/bezirk/mitte',

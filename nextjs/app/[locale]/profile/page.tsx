@@ -23,8 +23,8 @@ export default async function ProfileRoute({ params }: PageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
   // The deck itself comes from the (per-user, server-stripped) /api/map-data
-  // fetch inside ProfileShell — the page only precomputes the public face-up
-  // set. The old unauthenticated full-album fetch leaked every dish + image.
+  // fetch inside ProfileShell; the page only precomputes the public face-up
+  // set.
   const anon = await getInitialAnonMapData();
   // The publicly face-up set (the 10 curated cards) — "publicly
   // face-up means face-up everywhere", so the collected grid shows these open

@@ -1,18 +1,10 @@
-/* Seit 02.10.2026 im Aufbau von Kaleidoscope (manifesto.kaleidoscope.media,
-   Ansage „mach in dem Look"): alles mittig, Schlagzeile, Kapitel und Fazit
-   gross, das Foto über die ganze Breite, Fotos eckig. Schrift und Farben
-   bleiben die eigenen (Ansagen „Typo soll zu meinem Design passen" und „in
-   dem Rot-Gelb-Stil von mir, keine neuen Farben"): dieselbe Sprache wie die
-   Startseite (`.homeV2` in globals.css) — weisser Grund, Ink für Text,
-   Überschriften in Rot wie `.hv-title`, Gelb als Akzent;
-   Neue Haas Grotesk Text für Plakatives, Labels und Lesetext.
-   Davor stand der Artikel auf Ink.
+/* Aufbau nach Kaleidoscope: alles mittig, Schlagzeile, Kapitel und Fazit groß,
+   Fotos eckig. Schrift und Farben wie die Startseite, keine neuen.
 
    `--article-ground` ist der Grund, `--article-fg` die Schrift darauf,
    `--article-head` die Farbe der Überschriften. Gelbe Flächen
-   (`--article-accent`: Knöpfe, Etiketten, Schlusszeichen) tragen Ink
-   (`--article-on-accent`). Fokusrahmen sind Ink — Gelb auf Weiss sähe man
-   nicht. */
+   (`--article-accent`) tragen Ink (`--article-on-accent`). Fokusrahmen sind
+   Ink, Gelb auf Weiß sähe man nicht. */
 .page {
   --et-sheet: none;
   --article-ground: var(--et-ground);
@@ -41,11 +33,10 @@
 }
 
 /* `.app-page` (globals.css) pairs overflow-x:hidden with overflow-y:visible
-   from 768px up — a combination CSS computes to overflow-y:auto, i.e. a
-   scrollport that never scrolls. That silently kills `position: sticky` — once
-   in the chapter rail, now in the reading progress (`.progress`). `clip` contains the same horizontal overflow without creating a
-   scroll container. Qualified with the element (0,1,1) so it outranks
-   `.app-page` regardless of load order. */
+   from 768px up, which computes to overflow-y:auto: a scrollport that never
+   scrolls and breaks `position: sticky` (`.progress`). `clip` contains the
+   overflow without a scroll container. Qualified with the element (0,1,1) so it
+   outranks `.app-page` regardless of load order. */
 div.page {
   background: var(--et-ground);
   overflow-x: clip;
@@ -85,8 +76,7 @@ div.page {
   width: 100%;
   max-width: none;
   margin: 0;
-  /* Schwarz (Ansage 02.10.2026 „mach Headline schwarz"); die Kapitel
-     darunter bleiben rot. */
+  /* Die Schlagzeile ist schwarz; die Kapitel darunter bleiben rot. */
   color: var(--article-fg);
   /* The headline spans the page while the prose keeps its reading width. */
   font-size: clamp(40px, 5.2vw, 80px);
@@ -139,9 +129,8 @@ div.page {
   filter: saturate(1.04) contrast(1.03);
 }
 
-/* Der Vorspann wie der Lesetext.
-   Er steht mittig wie Titel und Zwischenüberschriften, erst der Lesetext ist
-   linksbündig (Ansage 21.10.2026). */
+/* Der Vorspann wie der Lesetext. Er steht mittig wie Titel und
+   Zwischenüberschriften, erst der Lesetext ist linksbündig. */
 .lede {
   max-width: var(--article-measure);
   margin: clamp(48px, 5.6vw, 88px) auto 0;
@@ -158,8 +147,8 @@ div.page {
 /* ------------------------------------------------------------ chapters --- */
 
 /* „Die Spots" als eine Zeile unter dem Kopf, mittig wie die Namenslisten bei
-   Kaleidoscope (Ansage 02.10.2026, statt der Kapitel-Leiste links). Jeder
-   Spot ist ein leises Feld wie „Teilen", unter der Maus gelb. */
+   Kaleidoscope. Jeder Spot ist ein leises Feld wie „Teilen", unter der Maus
+   gelb. */
 .chapters {
   display: grid;
   justify-items: center;
@@ -279,7 +268,6 @@ div.page {
 .content {
   color: var(--article-fg);
   font-family: var(--et-font-body);
-  /* 032c-Referenzen: 18px / 25.2px auf Telefon und Desktop. */
   font-size: 18px;
   font-weight: 400;
   line-height: 1.4;
@@ -301,11 +289,9 @@ div.page {
   text-wrap: pretty;
 }
 
-/* Schlusswort in Leseschrift, mit einer eigenen Überschrift. */
 .content [data-block='conclusion'] {
-  /* Mehr Luft als vor einer Kapitelueberschrift (clamp(38px, 5vw, 66px)): der
-     Block beendet den Text, er reiht sich nicht ein. Mit dem gleichen Abstand
-     las er sich wie ein dreizehntes Kapitel, das zufaellig anders aussieht. */
+  /* Mehr Luft als vor einem Kapitel: der Block beendet den Text, er reiht sich
+     nicht ein. */
   margin: clamp(58px, 7.5vw, 100px) 0 0;
   text-align: center;
   hyphens: auto;
@@ -400,13 +386,11 @@ div.page {
   font-weight: 700;
 }
 
-/* Links im Text sind fett, sonst nichts — keine Unterstreichung (der
-   Browser brach die dicke gelbe an jeder Unterlänge), kein Marker-Streifen
-   (las sich als Hervorhebung, nicht als Link). Ansagen 02.10.2026: „so
-   komisch unterstrichen", „kein Marker". Unter der Maus werden sie rot wie
-   die Kapitel.
-   Die Links in der Spot-Karte tragen ihr eigenes Aussehen (Name, Knopf,
-   Bezirk · Küche). */
+/* Links im Text sind fett, sonst nichts: keine Unterstreichung (der Browser
+   bricht eine dicke gelbe an jeder Unterlänge), kein Marker-Streifen (liest
+   sich als Hervorhebung, nicht als Link). Unter der Maus werden sie rot wie die
+   Kapitel. Die Links in der Spot-Karte tragen ihr eigenes Aussehen (Name,
+   Knopf, Bezirk · Küche). */
 .content a:not(.inlineSpotNameLink):not(.inlineSpotMetaLink):not(.mustEat):not(.inlineIssue) {
   color: inherit;
   font-weight: 700;
@@ -522,16 +506,13 @@ div.page {
 
 /* ------------------------------------------------------- inline spot ---- */
 
-/* Inline editorial photo — square corners like every photo in the article,
-   a small quiet caption. The img keeps its intrinsic ratio; next/image
-   ships width/height so the column doesn't jump while it loads. */
-/* Jedes Foto so breit wie die Spot-Karten — die Spalte —, der Aufmacher
-   eingeschlossen (Ansage 22.10.2026: „die Bilder immer in der gleichen
-   Breite"). Vorher war die Höhe gedeckelt, und Hochformate standen
-   schmal und mittig. Damit sie nicht über den Bildschirm wachsen, werden sie
-   höchstens 4:5 gezeigt (Höhe ≤ 125 % der Breite, mittig beschnitten);
-   Querformate bleiben ganz. `--img-frame`/`--img-offset` setzt nur das
-   Telefon (siehe unten). */
+/* next/image ships width/height, so the column doesn't jump while a photo
+   loads. */
+/* Jedes Foto so breit wie die Spot-Karten, also die Spalte, der Aufmacher
+   eingeschlossen. Damit Hochformate nicht über den Bildschirm wachsen, werden
+   sie höchstens 4:5 gezeigt (Höhe ≤ 125 % der Breite, mittig beschnitten);
+   Querformate bleiben ganz. `--img-frame`/`--img-offset` setzt nur das Telefon
+   (siehe unten). */
 .inlineImage {
   container-type: inline-size;
   width: var(--img-frame, 100%);
@@ -547,7 +528,6 @@ div.page {
   object-fit: cover;
 }
 
-/* Bildunterschriften stehen im gemeinsamen, kleineren Caption-Satz. */
 .inlineImage figcaption {
   margin-top: 6px;
   color: var(--article-muted);
@@ -558,11 +538,10 @@ div.page {
   text-align: left;
 }
 
-/* Die Spot-Karte (Ansage 21.10.2026: „ein cooles passendes Label, wo Text
-   im Bild ist"): das Foto füllt die Karte und bleibt klar, ohne Verlauf.
-   Darauf kleben Etiketten wie im Menü — der Name als Ink-Etikett mit gelber
-   Schrift und den Kratzern der Knöpfe, leicht schief, darunter Bezirk ·
-   Küche als weisses Papier-Etikett. Rechts unten der Weg auf die Map. */
+/* Die Spot-Karte: Das Foto füllt die Karte und bleibt klar, ohne Verlauf.
+   Darauf kleben Etiketten wie im Menü: der Name als Ink-Etikett mit gelber
+   Schrift und den Kratzern der Knöpfe, leicht schief, darunter Bezirk · Küche
+   als weißes Papier-Etikett. Rechts unten der Weg auf die Map. */
 .inlineSpot {
   position: relative;
   display: block;
@@ -891,10 +870,10 @@ div.page {
     padding-top: 30px;
   }
 
-  /* Randlos über die ganze Breite wie die Fotos im Text (13.11.2026). Ohne
-     `vh`: Chrome auf dem iPhone ändert es, während es beim Scrollen seine
-     Leisten ein- und ausblendet, und das Foto wurde dabei höher und niedriger
-     — es sah aus wie gezoomt (Betreiber, 26.09.2026). */
+  /* Randlos über die ganze Breite wie die Fotos im Text. Ohne `vh`: Chrome auf
+     dem iPhone ändert es, während es beim Scrollen seine Leisten ein- und
+     ausblendet, und das Foto würde dabei höher und niedriger, als werde es
+     gezoomt. */
   .heroMedia {
     justify-self: stretch;
     width: auto;
@@ -941,10 +920,9 @@ div.page {
     padding-inline: 6px;
   }
 
-  /* Lange Komposita („Mitternachtshunger") sind in Versalien breiter als
-     die Spalte. Statt zu trennen wird die Schlagzeile so weit kleiner, dass
-     ihr längstes Wort passt: Versalien liefen in der früheren Titelschrift
-     0,60–0,68em pro Zeichen, 0,7 lässt Luft. `anywhere` fängt den Rest ab (MMMM, WWWW). */
+  /* Lange Komposita („Mitternachtshunger") sind in Versalien breiter als die
+     Spalte. Statt zu trennen wird die Schlagzeile so klein, dass ihr längstes
+     Wort passt (0,7em je Zeichen); `anywhere` fängt den Rest ab. */
   .introCopy {
     container-type: inline-size;
   }
@@ -996,8 +974,8 @@ div.page {
   .relatedGrid {
     display: flex;
     grid-template-columns: none;
-    /* Nicht mittig wie am Desktop: WebKit schob das erste Heft sonst links
-       aus dem Bild, die Reihe begann am iPhone beim zweiten (03.10.2026). */
+    /* Nicht mittig wie am Desktop: WebKit schiebt das erste Heft sonst links
+       aus dem Bild, die Reihe begänne am iPhone beim zweiten. */
     justify-content: flex-start;
     gap: 18px;
     overflow-x: auto;
@@ -1037,9 +1015,8 @@ div.page {
 }
 @media (min-width: 1024px) {
   .page {
-    /* Text, Fotos, Aufmacher und Spot-Karten teilen eine Breite. Die
-       Spot-Karte war am Desktop schon „zu groß", breiter als die Spalte
-       (21.10.2026) — also gehen die Fotos auf ihr Mass. */
+    /* Text, Fotos, Aufmacher und Spot-Karten teilen eine Breite: Die Fotos
+       gehen auf das Maß der Spalte, die Spot-Karte ist nie breiter als sie. */
     --article-measure: 768px;
   }
   .imageSpread { width: calc(100vw - 36px); margin-inline: calc(50% - 50vw + 18px); }

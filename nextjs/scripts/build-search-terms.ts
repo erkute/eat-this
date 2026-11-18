@@ -1,15 +1,15 @@
 /**
  * Baut den Suchindex der Map: je Spot die Wörter, unter denen man ihn finden
- * soll — was es dort zu essen und zu trinken gibt und was für ein Laden er
- * ist, auf Deutsch und Englisch, in den Wörtern, die man tippt.
+ * soll: was es dort zu essen und zu trinken gibt und was für ein Laden er ist,
+ * auf Deutsch und Englisch, in den Wörtern, die man tippt.
  *
- * Bis 30.10.2026 durchsuchte die Map die ganzen Beschreibungen. Dann zählt
- * jede Erwähnung: der Burger-Pop-up „im Eisladen Kuréme" war ein Eis-Treffer,
+ * Die Map durchsucht nicht die ganzen Beschreibungen, denn dort zählt jede
+ * Erwähnung: Der Burger-Pop-up „im Eisladen Kuréme" wäre ein Eis-Treffer,
  * „Turkish Eggs" ein Döner-Treffer, der „Bürgersteig" ein Burger. Ein Modell
  * liest die Beschreibung einmal und schreibt nur auf, was der Spot anbietet.
  *
  * Schreibt lib/map/search-terms.json (eingecheckt, liest cached-sanity.ts).
- * Inkrementell: ein Spot wird nur neu gelesen, wenn sich sein Text geändert
+ * Inkrementell: Ein Spot wird nur neu gelesen, wenn sich sein Text geändert
  * hat. Nach neuen Spots oder geänderten Beschreibungen laufen lassen; ein Spot
  * ohne Eintrag bleibt über seine Beschreibung findbar.
  *
@@ -21,8 +21,8 @@
  *   npm run search:terms -- --from=terms.json    # Wörter übernehmen statt lesen
  *
  * `--dump` und `--from` sind der Weg ohne API: die Eingaben ausgeben, die
- * Wörter nach derselben Anleitung (SYSTEM) anderswo schreiben — etwa in einer
- * Claude-Code-Sitzung — und als { "<_id>": ["wort", …] } zurückgeben. Sie
+ * Wörter nach derselben Anleitung (SYSTEM) anderswo schreiben, etwa in einer
+ * Claude-Code-Sitzung, und als { "<_id>": ["wort", …] } zurückgeben. Sie
  * bekommen dieselbe Prüfsumme wie ein API-Lauf.
  *
  * Braucht ANTHROPIC_API_KEY in nextjs/.env.local.

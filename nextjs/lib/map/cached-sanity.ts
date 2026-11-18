@@ -27,11 +27,10 @@ interface CachedMapData {
   categories: CategoryDef[];
 }
 
-// Fünf Minuten statt einer. /map ist force-dynamic; diese Fetches sind das
-// Einzige, was die Fläche überhaupt cached hält, und bei einem Crawler, der die
-// Karte im Minutentakt abruft, war die alte Frist ein Dauerabo auf frische
-// Sanity-Anfragen. Der Webhook invalidiert `map-data` bei jeder Änderung
-// gezielt — die Frist ist nur das Netz darunter.
+// Fünf Minuten: /map ist force-dynamic, diese Fetches sind das Einzige, was die
+// Fläche cached hält, und eine kürzere Frist wäre bei einem Crawler im
+// Minutentakt ein Dauerabo auf frische Sanity-Anfragen. Der Webhook invalidiert
+// `map-data` bei jeder Änderung gezielt; die Frist ist das Netz darunter.
 const MAP_CACHE_OPTIONS = {
   next: { revalidate: SANITY_LIVE_SURFACE_SECONDS, tags: ['map-data'] },
 };
@@ -42,12 +41,13 @@ export function getCachedMustEats(): Promise<MapMustEat[]> {
   return readSanity<MapMustEat[]>(mapMustEatsQuery, {}, MAP_CACHE_OPTIONS);
 }
 
-/** Die Karten für vorgebaute Seiten (Spot, Artikel). Eine Seite erbt die
- *  kürzeste Frist ihrer Fetches: mit den fünf Minuten der Map lief sie alle
- *  fünf Minuten ab und wurde im Hintergrund neu gerechnet, wo Cloud Run die
- *  CPU drosselt (Sentry JAVASCRIPT-AH). Der Webhook verwirft `map-data` bei
- *  jeder Änderung, die Frist ist das Netz darunter. Ohne den Spot-Katalog
- *  (680 kB), den diese Seiten nicht brauchen. */
+/**
+ * Die Karten für vorgebaute Seiten (Spot, Artikel). Eine Seite erbt die
+ * kürzeste Frist ihrer Fetches: mit den fünf Minuten der Map liefe sie alle
+ * fünf Minuten ab und würde im Hintergrund neu gerechnet, wo Cloud Run die CPU
+ * drosselt. Der Webhook verwirft `map-data` bei jeder Änderung, die Frist ist
+ * das Netz darunter. Ohne den Spot-Katalog, den diese Seiten nicht brauchen.
+ */
 export function getCachedMustEatsForPage(): Promise<MapMustEat[]> {
   return readSanity<MapMustEat[]>(mapMustEatsQuery, {}, {
     next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['map-data'] },
@@ -55,13 +55,13 @@ export function getCachedMustEatsForPage(): Promise<MapMustEat[]> {
 }
 
 /* Nexts Data Cache fasst gleichzeitige Anfragen nicht zusammen, solange sein
-   Eintrag leer ist: 20 Aufrufe von /map auf einer frischen Instanz waren 20-mal
-   der ganze Katalog (680 kB). Ein geteiltes Promise ginge nicht, denn Next hängt
-   die Tags an den Render, der den `fetch` selbst aufruft; eine ISR-Seite ohne
-   `map-data` bliebe nach einer Änderung bis zu 24 Stunden alt. Deshalb warten
-   die übrigen Aufrufer nur, bis die laufende Runde durch ist, und lesen dann
-   selbst aus dem gefüllten Cache. Scheitert die Runde, versucht es jeder von
-   ihnen einmal selbst, statt dass sich Zeitlimits aneinanderreihen. */
+   Eintrag leer ist: viele Aufrufe von /map auf einer frischen Instanz holten
+   sonst jeder den ganzen Katalog. Ein geteiltes Promise ginge nicht, denn Next
+   hängt die Tags an den Render, der den `fetch` selbst aufruft; eine ISR-Seite
+   ohne `map-data` bliebe nach einer Änderung bis zu 24 Stunden alt. Deshalb
+   warten die übrigen Aufrufer nur, bis die laufende Runde durch ist, und lesen
+   dann selbst aus dem gefüllten Cache. Scheitert die Runde, versucht es jeder
+   von ihnen einmal selbst, statt dass sich Zeitlimits aneinanderreihen. */
 let catalogRead: Promise<void> | null = null;
 
 function readCatalog() {

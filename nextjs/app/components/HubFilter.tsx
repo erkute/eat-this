@@ -11,23 +11,19 @@ import styles from './HubIssue.module.css';
  * - Bezirksseite  → Kategorien  (`?cat=coffee`),  „Kaffee in Schöneberg"
  * - Kategorieseite → Bezirke     (`?bezirk=mitte`), „Frühstück in Mitte"
  *
- * Vorher waren beide Leisten Link-Reihen, die im Kreis zeigten: von Schöneberg
- * auf den Kaffee-Hub, von dort per Bezirksleiste wieder nach Schöneberg — und
- * „Kaffee in Schöneberg" bekam man nie zu sehen, obwohl genau das die Geste
- * versprach.
+ * Gefiltert wird an Ort und Stelle, nicht über Links auf den jeweils anderen
+ * Hub: So bekommt man „Kaffee in Schöneberg" auch wirklich zu sehen.
  *
  * Die Statuszeilen kommen **fertig gerendert** von der Seite (`status` je
- * Facette, `allStatus` für „Alle"). Grund: die beiden Seiten drehen den Satz
- * gegeneinander — hier ist die Facette die Kategorie, dort der Bezirk, der Satz
+ * Facette, `allStatus` für „Alle"). Grund: Die beiden Seiten drehen den Satz
+ * gegeneinander; hier ist die Facette die Kategorie, dort der Bezirk, der Satz
  * heißt aber immer „Kategorie in Bezirk". Eine Funktion als Prop ginge nicht,
  * die überlebt die Server/Client-Grenze nicht; fertige Strings tun es, und die
  * Sprachlogik bleibt da, wo der Rest der Seitentexte steht.
  *
  * Die Karten bleiben Server-Markup, der Client schaltet nur Sichtbarkeit. Ohne
- * JavaScript steht weiterhin die vollständige Liste da — es fehlt dann der
- * Filter, nicht der Inhalt. Die gemeinsame Zustandsmechanik liegt in
- * lib/useHubFilter.ts, das Schwestermodul für den /bezirk-Index (ganze Zeilen
- * statt einzelner Karten) in app/[locale]/bezirk/BezirkFilter.tsx.
+ * JavaScript steht die vollständige Liste da; es fehlt dann der Filter, nicht
+ * der Inhalt. Die gemeinsame Zustandsmechanik liegt in lib/useHubFilter.ts.
  */
 
 /** Ankerpunkt, auf den nach jedem Filterwechsel gescrollt wird. Beide Seiten

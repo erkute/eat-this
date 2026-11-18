@@ -1,6 +1,6 @@
-// Real client IP behind Firebase App Hosting. Verified empirically with a
-// staging probe (2026-06-09): App Hosting appends ingress + GFE after the real
-// client, while client-supplied spoofed values land further left.
+// Real client IP behind Firebase App Hosting, verified with a staging probe:
+// App Hosting appends ingress + GFE after the real client, while
+// client-supplied spoofed values land further left.
 export function clientIpFromXff(xff: string | null, xRealIp?: string | null): string | null {
   const hops = xff
     ? xff

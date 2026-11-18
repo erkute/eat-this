@@ -1,4 +1,3 @@
-// nextjs/lib/buddy/greeting.test.ts
 import { describe, it, expect } from 'vitest';
 import { daypartFor, greetingFor } from './greeting';
 

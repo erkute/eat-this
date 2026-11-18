@@ -11,7 +11,7 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock('@/lib/analytics/engagement.server', () => ({ writeInsight: mocks.writeInsight }));
-vi.mock('@/lib/rateLimitWindow', () => ({
+vi.mock('@/lib/rateLimit', () => ({
   checkWindowedRateLimit: mocks.checkRateLimit,
 }));
 
@@ -365,12 +365,13 @@ describe('POST /api/count', () => {
     expect(mocks.set).not.toHaveBeenCalled();
   });
 
-  /* Die App-Hosting-Edge ersetzt den User-Agent-Header, bevor die Anfrage den
-   * Origin erreicht — der Header ist in Produktion immer harmlos. Was der
-   * Browser wirklich ist, steht darum im Body (lib/analytics.ts). Live-Beweis
-   * vom 02.09.2026: `curl -A curl/8.0` mit uebergrossem Body bekam 413 statt
-   * 204, der Filter hatte den UA also nie gesehen — und Bingbot, Baidu-Render
-   * und der Azure-Crawler standen als Besucher in der Tafel. */
+  /*
+   * Die App-Hosting-Edge ersetzt den User-Agent-Header, bevor die Anfrage den
+   * Origin erreicht; der Header ist in Produktion immer harmlos. Was der
+   * Browser wirklich ist, steht darum im Body (lib/analytics.ts). Ohne das
+   * stünden Bingbot, Baidu-Render und der Azure-Crawler als Besucher in der
+   * Tafel.
+   */
   describe('User-Agent aus dem Body', () => {
     it('erkennt den Bot am Body-UA, auch wenn der Header harmlos ist', async () => {
       const res = await POST(
@@ -410,8 +411,9 @@ describe('POST /api/count', () => {
     });
   });
 
-  /* Das Zahlenbrett zaehlte seinen einzigen Leser: /admin/stats stand mit 67
-   * Aufrufen in der eigenen Ausstiegstabelle. */
+  /*
+   * Das Zahlenbrett zaehlt seinen einzigen Leser nicht.
+   */
   it.each(['/admin/stats', '/en/admin/stats', '/admin'])(
     'zählt interne Werkzeuge nicht: %s',
     async (path) => {
@@ -421,11 +423,13 @@ describe('POST /api/count', () => {
     }
   );
 
-  /* Das geteilte Deck traegt eine Firebase-UID im Pfad, und die ist gemischt
-   * gross und klein geschrieben. Sie fiel damit durch die Pfadpruefung — und
-   * ein verworfener Pfad verwarf bis zum 08.09.2026 die ganze Anfrage, VOR der
-   * Ereignis-Auswertung. Der Einladungsweg hatte deshalb null Aufrufe, null
-   * Einstiege, null Referrer und kein einziges `starter_pack_granted`. */
+  /*
+   * Das geteilte Deck trägt eine Firebase-UID im Pfad, und die ist gemischt
+   * groß und klein geschrieben. Ein Pfad, der durch die Pfadprüfung fällt,
+   * verwirft nur sich selbst, nicht die Ereignisse der Anfrage: Sonst hätte der
+   * Einladungsweg keine Aufrufe, keine Einstiege und kein
+   * `starter_pack_granted`.
+   */
   describe('Pfade mit einer Kennung darin', () => {
     const UID = 'Z2IJ8CJsAbCdEfGhIjKlMnOpQr01';
 
@@ -569,10 +573,10 @@ describe('POST /api/count', () => {
     expect(mocks.set).not.toHaveBeenCalled();
   });
 
-  /* Der Riegel am Besucher-Hash war umgehbar: in den Hash geht `body.ua` ein,
-   * und den bestimmt der Aufrufer. Ein neuer UA-String je Anfrage hiess ein
-   * frischer Schluessel — und damit je Anfrage ein Dokument in
-   * `analytics_seen` und ein beliebig aufblasbarer `visitors`-Stand. */
+  /*
+   * Der Riegel am Besucher-Hash allein waere umgehbar: in den Hash geht
+   * `body.ua` ein, und den bestimmt der Aufrufer.
+   */
   describe('Riegel an der Adresse', () => {
     it('haengt nicht am User-Agent, den der Aufrufer schickt', async () => {
       await POST(request({ path: '/', ua: 'Mozilla/5.0 (iPhone) Safari' }));
@@ -606,10 +610,12 @@ describe('POST /api/count', () => {
     });
   });
 
-  /* `paths`, `entryPaths`, `continuations` und `referrers` waren freie
-   * Map-Schluessel in EINEM Dokument. Firestore deckelt es bei 1 MB und 20.000
-   * Indexeintraegen — ist die Grenze gerissen, schlagen ALLE Schreibvorgaenge
-   * des Tages fehl, nicht nur der, der sie gerissen hat. */
+  /*
+   * `paths`, `entryPaths`, `continuations` und `referrers` sind freie
+   * Map-Schluessel in einem Dokument. Firestore deckelt es bei 1 MB und 20.000
+   * Indexeintraegen; ist die Grenze gerissen, schlagen alle Schreibvorgaenge
+   * des Tages fehl.
+   */
   describe('Schluesselbudget des Tagesdokuments', () => {
     function fullMap(prefix: string) {
       return Object.fromEntries(

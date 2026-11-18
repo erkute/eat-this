@@ -36,9 +36,9 @@
   border: 0;
   animation: arrive 260ms ease-out;
 }
-/* Die Tour nach der Anmeldung deckt ganz: hinter ihr wechselt die Seite ins
-   Profil, und das soll man erst nach der Tour sehen (Betreiber, 14.10.2026).
-   Die Must-Eats-Erklaerung laesst ihre Seite durchscheinen. */
+/* Die Tour nach der Anmeldung deckt ganz: Hinter ihr wechselt die Seite ins
+   Profil, und das soll man erst nach der Tour sehen. Die Must-Eats-Erklärung
+   lässt ihre Seite durchscheinen. */
 .layerSolid {
   background: var(--et-ground);
 }
@@ -281,18 +281,16 @@ a.quiet {
     transform: translate(120px, -70px) rotate(24deg);
     animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.6);
   }
-  /* Dann fliegt sie aus dem Bild, schraeg nach oben rechts — vorher blieb
-     sie neben dem Pack liegen und war weg, sobald das Pack abgeraeumt
-     wurde (Nutzer, 22.09.2026). */
+  /* Dann fliegt sie aus dem Bild, schräg nach oben rechts, statt neben dem Pack
+     liegen zu bleiben. */
   75%,
   100% {
     transform: translate(calc(50vw + 100%), calc(-50vh - 200%)) rotate(75deg);
   }
 }
-/* Die Huelle bleibt stehen, bis die letzte Karte oben heraus ist (≈ 2,1 s),
-   erst dann faellt sie nach unten aus dem Bildschirm — nicht nur bis zur
-   Buehnenkante: dort wurde sie abgeschnitten und verschwand am Ende aus dem
-   Nichts (Nutzer, 22.09.2026). */
+/* Die Hülle bleibt stehen, bis die letzte Karte oben heraus ist (≈ 2,1 s), erst
+   dann fällt sie nach unten aus dem Bildschirm, nicht nur bis zur Bühnenkante:
+   Dort würde sie abgeschnitten. */
 @keyframes wrapperDrop {
   0%,
   5% {
@@ -316,16 +314,14 @@ a.quiet {
     transform: translateY(calc(100vh + 100%)) rotate(3deg);
   }
 }
-/* Jede Karte: im Pack (hinter der Huelle), schiesst nach oben aus dem
-   Bildschirm, wartet draussen, springt unsichtbar an ihre Rueckkehr-Seite
-   und fliegt von dort auf ihren Stapel. Die Wege rechnen in vw/vh — sie
-   fuehren ueber den Rand des Fensters hinaus (Nutzer, 22.09.2026).
-   --in-x/--in-y sind cos/sin der Rueckkehr-Richtung. */
+/* Jede Karte: im Pack (hinter der Hülle), schießt nach oben aus dem Bildschirm,
+   wartet draußen, springt unsichtbar an ihre Rückkehr-Seite und fliegt von dort
+   auf ihren Stapel. Die Wege rechnen in vw/vh, sie führen über den Rand des
+   Fensters hinaus. --in-x/--in-y sind cos/sin der Rückkehr-Richtung. */
 @keyframes cardOut {
-  /* Hinter dem Pack durch die Oeffnung nach oben — erst wenn die Karte ganz
-     ueber der Huelle steht (Unterkante ueber dem Pack-Rand, ≈ -175 %), kommt
-     sie nach vorn und schiesst davon. Vorher lag sie schon nach 5 % vor dem
-     Pack (Nutzer, 22.09.2026). */
+  /* Hinter dem Pack durch die Öffnung nach oben: Erst wenn die Karte ganz über
+     der Hülle steht (Unterkante über dem Pack-Rand, ≈ -175 %), kommt sie nach
+     vorn und schießt davon. */
   0% {
     z-index: 1;
     transform: translate(-50%, -40%);
@@ -415,7 +411,7 @@ a.quiet {
   left: 50%;
   width: 48px;
   height: 56px;
-  /* Weiß, nicht Gelb — Hand und Ring (Betreiber, 28.09.2026). */
+  /* Weiß, nicht Gelb: Hand und Ring. */
   color: var(--et-white);
   pointer-events: none;
   animation: tapApproach 650ms ease-in-out both;
@@ -544,7 +540,6 @@ a.quiet {
     transform 180ms ease,
     background-color 140ms ease;
 }
-/* Die Auswahl hebt sich durch Fläche und Position ab. */
 .avatarActive {
   transform: translateY(-4px);
   background: var(--et-quiet);
@@ -580,7 +575,6 @@ a.quiet {
   font-size: 13px;
   color: var(--et-copy);
 }
-/* Die getönte Fläche kennzeichnet das Eingabefeld. */
 .nameInput {
   width: 100%;
   box-sizing: border-box;
@@ -590,7 +584,6 @@ a.quiet {
   border-radius: var(--et-radius-control);
   background: var(--et-quiet);
   color: var(--et-fg);
-  /* The input uses the same typeface as the login form. */
   font-family: var(--et-font-body);
   font-size: 17px;
   outline: none;
@@ -732,23 +725,20 @@ a.quiet {
 }
 
 /* ── Desktop: Bild als halbe Tafel, Text und Fuss rechts ──────────────── */
-/* Das Bild nimmt die ganze linke Haelfte ueber volle Hoehe; Text und Fuss
-   stehen zusammen rechts. Vorher lag der Fuss mittig unter beiden Spalten,
-   und das Bild blieb in einer schmalen Spalte klein. */
+/* Das Bild nimmt die ganze linke Hälfte über volle Höhe; Text und Fuß stehen
+   zusammen rechts. */
 @media (min-width: 601px) {
   .panel {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    /* Der Fuss sitzt fest unten rechts — der Hauptknopf steht auf jeder
-       Seite an derselben Stelle (Nutzer, 21.09.2026). Nur der Text
-       schwebt mittig darueber. */
+    /* Der Fuß sitzt fest unten rechts: Der Hauptknopf steht auf jeder Seite an
+       derselben Stelle. Nur der Text schwebt mittig darüber. */
     grid-template-rows: auto minmax(0, 1fr) auto;
     grid-template-areas:
       'header header'
       'art copy'
       'art footer';
     column-gap: 56px;
-    /* Kompakt: groesser liess rechts und unten viel Leerraum (Nutzer,
-       21.09.2026). */
+    /* Kompakt: Größer bliebe rechts und unten viel Leerraum. */
     width: min(1040px, 100%);
     height: min(660px, calc(100dvh - 48px));
     padding: 20px 40px 32px;
@@ -777,9 +767,9 @@ a.quiet {
     padding-top: 28px;
   }
   .packStage {
-    /* So gross, dass das versiegelte Pack (1,91 Kartenbreiten hoch) etwa so
-       hoch steht wie das Pack-Bild auf der Sammlungs-Seite — vorher sprang
-       dasselbe Pack zwischen Seite 1 und 5 um ein Drittel. */
+    /* So groß, dass das versiegelte Pack (1,91 Kartenbreiten hoch) etwa so hoch
+       steht wie das Pack-Bild auf der Sammlungs-Seite; sonst spränge dasselbe
+       Pack zwischen Seite 1 und 5 um ein Drittel. */
     --card-width: min(44cqw, 46cqh, 200px);
   }
   .panelGo {

@@ -1,8 +1,6 @@
 // @vitest-environment jsdom
-// nextjs/app/components/buddy/BuddyWidget.compose.test.tsx
 // Die Zeile unter dem Log: schreiben, während Remy antwortet, und ihn
-// abbrechen können. Vorher war das Feld gesperrt, solange er schrieb (der
-// Fokus sprang heraus) und es gab keinen Weg, eine lange Antwort zu stoppen.
+// abbrechen können.
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import { render, fireEvent, cleanup } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
@@ -91,9 +89,9 @@ describe('BuddyWidget compose row', () => {
     expect(stop).toHaveBeenCalledTimes(1);
   });
 
-  /* Der Faden überlebt jetzt den Seitenwechsel (lib/buddy/thread.ts) — also
-     braucht es einen Weg, ihn beiseitezulegen. Auf dem leeren Chat wäre der
-     Knopf nur Möblierung. */
+  /* Der Faden überlebt den Seitenwechsel (lib/buddy/thread.ts), also braucht es
+     einen Weg, ihn beiseitezulegen. Auf dem leeren Chat wäre der Knopf nur
+     Möblierung. */
   it('offers a reset only once something has been said', () => {
     renderOpenWidget();
     expect(

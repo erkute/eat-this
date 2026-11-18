@@ -73,11 +73,10 @@ describe('MustEatDetail login gate', () => {
         vi.advanceTimersByTime(GUEST_SHAKE_MS);
       });
 
-      /* Das Formular, keine Tafel dazwischen (Betreiber, 07.09.2026: „soll
-         sofort das Anmeldeformular oeffnen") — nur das kurze Zittern der
-         Karte davor. Die Karte reist als Absicht mit — das Starter Pack legt
-         sie garantiert offen hinein (/api/starter-pack). Gemerkt wird sie beim
-         Öffnen (LoginModalContext.test). */
+      /* Das Formular öffnet sofort, keine Tafel dazwischen, nur das kurze
+         Zittern der Karte davor. Die Karte reist als Absicht mit: Das Starter
+         Pack legt sie garantiert offen hinein (/api/starter-pack). Gemerkt wird
+         sie beim Öffnen (LoginModalContext.test). */
       expect(showNotice).not.toHaveBeenCalled();
       expect(openLoginModal).toHaveBeenCalledOnce();
       expect(openLoginModal).toHaveBeenCalledWith({ kind: 'card', mustEatId: 'must-eat-1' });
@@ -90,9 +89,8 @@ describe('MustEatDetail login gate', () => {
   });
 });
 
-/* ?revealdemo spielt nur Karten vor, die schon offen sind. Eine verdeckte
-   kommt ohne Bild vom Server — umgedreht zeigte sie wieder den Rücken
-   (Betreiber, 24.09.2026). */
+/* ?revealdemo spielt nur Karten vor, die schon offen sind: eine verdeckte kommt
+   ohne Bild vom Server. */
 describe('MustEatDetail reveal demo', () => {
   beforeEach(() => {
     openLoginModal.mockClear();
@@ -143,18 +141,16 @@ describe('MustEatDetail reveal demo', () => {
   });
 });
 
-/* Verweigert ist kein Zustand der Karte, sondern eine Meldung: der Tipp auf die
+/* Verweigert ist kein Zustand der Karte, sondern eine Meldung: Der Tipp auf die
    verdeckte Karte ruft dieselbe Info-Karte, die Map und Startseite für eine
-   verweigerte Berechtigung zeigen — mit denselben Worten aus
-   lib/notice.ts (Nutzer, 02.09.2026: „soll eine Meldung sein wie
-   auf der Startseite"). */
+   verweigerte Berechtigung zeigen, mit denselben Worten aus lib/notice.ts. */
 describe('MustEatDetail blocked location', () => {
   it('raises the shared location notice when the covered card is tapped', () => {
     const showNotice = vi.fn();
     window.showNotice = showNotice;
 
-    /* Mit Konto: ein Gast bekaeme hier die Anmeldung, nicht die
-       Standort-Meldung (useMustEatDetailState, 07.09.2026). */
+    /* Mit Konto: Ein Gast bekäme hier die Anmeldung, nicht die Standort-Meldung
+       (useMustEatDetailState). */
     render(
       <MustEatDetail
         mustEat={mustEat}
@@ -179,8 +175,8 @@ describe('MustEatDetail blocked location', () => {
     delete window.showNotice;
   });
 
-  /* Die Karte fragt selbst nach dem Standort — und sagt dann auch, wenn das
-     nichts wurde. Vorher blieb ein Fehlschlag im Detail stumm. */
+  /* Die Karte fragt selbst nach dem Standort und sagt dann auch, wenn das
+     nichts wurde. */
   it('answers its own failed location request', () => {
     const showNotice = vi.fn();
     window.showNotice = showNotice;
@@ -232,10 +228,9 @@ describe('MustEatDetail blocked location', () => {
   });
 });
 
-/* Der Zoom blättert durch denselben Stapel wie das Detail: Wisch und Pfeile
-   der Lightbox rufen den Pager des Sheets, der Zähler zeigt den Stand im
-   globalen Stapel. Vorher bekam die Lightbox keines dieser Felder und war im
-   Zoom eine Sackgasse (Nutzer, 02.09.2026). */
+/* Der Zoom blättert durch denselben Stapel wie das Detail: Wisch und Pfeile der
+   Lightbox rufen den Pager des Sheets, der Zähler zeigt den Stand im globalen
+   Stapel. Ohne diese Felder wäre die Lightbox im Zoom eine Sackgasse. */
 describe('MustEatDetail zoom paging', () => {
   beforeEach(() => {
     lightboxProps.mockClear();

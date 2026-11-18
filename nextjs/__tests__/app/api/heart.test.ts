@@ -27,7 +27,7 @@ vi.mock('@/lib/firebase/admin', () => ({
   }),
 }));
 
-vi.mock('@/lib/rateLimitWindow', () => ({
+vi.mock('@/lib/rateLimit', () => ({
   checkWindowedRateLimit: (...args: unknown[]) => mocks.checkRateLimit(...args),
 }));
 

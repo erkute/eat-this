@@ -161,10 +161,9 @@ describe('useMustEatDetailState — handleCardClick auth gate', () => {
     expect(onUnlock).not.toHaveBeenCalled();
   });
 
-  /* Ein Gast wird nicht nach seinem Standort gefragt: der Ruecken ist fuer
-     ihn die Frage „was liegt darunter?", und die Antwort ist die Anmeldung —
-     egal, wo er steht (Betreiber, 07.09.2026). Die Karte zittert erst kurz
-     und gibt dann das Formular frei („bevor Anmelden angeht"). */
+  /* Ein Gast wird nicht nach seinem Standort gefragt: Der Rücken ist für ihn
+     die Frage „was liegt darunter?", und die Antwort ist die Anmeldung, egal,
+     wo er steht. Die Karte zittert erst kurz und gibt dann das Formular frei. */
   it('shakes the card for a guest, then routes to login — wherever they stand', () => {
     vi.useFakeTimers();
     try {
@@ -284,11 +283,11 @@ describe('useMustEatDetailState — handleCardClick auth gate', () => {
 
 /**
  * A covered card with no position fix is the single place where the missing
- * permission actually costs the visitor something — and it used to answer a tap
- * with a shake and a "come within 50 m" line, which is a guess, not a fact.
- * Asking here is also the safest place to ask: the tap is deliberate and the
- * payoff is on screen, which is exactly what keeps the map from prompting on
- * first paint and collecting a permanent "Don't Allow".
+ * permission actually costs the visitor something. Answering a tap with a shake
+ * and a "come within 50 m" line would be a guess, not a fact. Asking here is
+ * also the safest place to ask: the tap is deliberate and the payoff is on
+ * screen, which is exactly what keeps the map from prompting on first paint and
+ * collecting a permanent "Don't Allow".
  */
 describe('useMustEatDetailState — no position fix', () => {
   beforeEach(() => {

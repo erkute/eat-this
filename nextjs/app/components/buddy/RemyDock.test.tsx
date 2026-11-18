@@ -45,8 +45,8 @@ describe('RemyDock', () => {
     expect(queryByTestId('buddy-widget')).not.toBeNull();
   });
 
-  /* Remy hat keinen Knopf in der Ecke mehr (Ansage 21.10.2026), auf keiner
-     Seite — gefragt wird über das Menü. */
+  /* Remy hat auf keiner Seite einen Knopf in der Ecke; gefragt wird über das
+     Menü. */
   it('shows no corner launcher', () => {
     renderDock();
     expect(document.querySelector('[data-buddy-launcher]')).toBeNull();

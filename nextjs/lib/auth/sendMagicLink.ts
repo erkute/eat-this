@@ -42,21 +42,20 @@ type SendMagicLinkError = 'link-generation-failed' | 'email-misconfigured' | 'se
 
 /**
  * Der Link aus der Mail landet direkt auf der Seite, auf der die Anmeldung
- * begann — mit dem Code im Gepäck. Dort geht die Bestätigungs-Tafel auf
+ * begann, mit dem Code im Gepäck. Dort geht die Bestätigungs-Tafel auf
  * (EmailLinkSignIn), ein Klick, und die Tour läuft wie nach Google.
  *
  * Firebase erzeugt `<Action-Handler>?mode=…&oobCode=…&apiKey=…&continueUrl=…`.
  * Übernommen werden nur die drei Parameter, die `signInWithEmailLink` liest;
  * `continueUrl` ist die Zielseite selbst, und Firebases `lang` braucht sie
- * nicht: ihre Sprache steht im Pfad. Die Adresse stammt beim Einlösen ausschließlich aus lokalem Speicher oder
- * einer Eingabe. Eine Adresse aus der URL ermöglicht Session-Injection.
+ * nicht: Ihre Sprache steht im Pfad. Die Adresse stammt beim Einlösen
+ * ausschließlich aus lokalem Speicher oder einer Eingabe. Eine Adresse aus der
+ * URL ermöglicht Session-Injection.
  *
- * Der Host kommt aus der Continue-URL, nie aus der Projekt-Einstellung:
- * Staging stand auf dem Firebase-Default-Handler, der stumm weiterleitet, ohne
- * je jemanden anzumelden (26.08.2026), und umstellen lässt sich die
- * Einstellung nicht (EMAIL_TEMPLATE_UPDATE_NOT_ALLOWED). Bis 22.09.2026 ging
- * der Link auf eine eigene Seite /welcome, die nach dem Klick hart auf die
- * Zielseite weiterleitete.
+ * Der Host kommt aus der Continue-URL, nie aus der Projekt-Einstellung: Der
+ * Firebase-Default-Handler leitet stumm weiter, ohne je jemanden anzumelden,
+ * und umstellen lässt sich die Einstellung nicht
+ * (EMAIL_TEMPLATE_UPDATE_NOT_ALLOWED).
  */
 export function landingLink(generated: string, continueUrl: string): string {
   try {

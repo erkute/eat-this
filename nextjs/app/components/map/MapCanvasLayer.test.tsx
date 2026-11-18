@@ -52,9 +52,8 @@ function spot(id: string, over: Partial<MapRestaurant> = {}): MapRestaurant {
   } as MapRestaurant;
 }
 
-/* Distinct coordinates. Nothing depends on the spacing any more — every spot
-   is its own marker regardless — but keeping them apart matches how the cases
-   read. */
+/* Distinct coordinates, to match how the cases read; every spot is its own
+   marker regardless. */
 function spread(...ids: string[]): MapRestaurant[] {
   return ids.map((id, i) => spot(id, { lat: 52.42 + i * 0.03, lng: 13.31 + i * 0.03 }));
 }
@@ -115,10 +114,8 @@ function layerWithRef(spots: MapRestaurant[], ref: never) {
 }
 
 describe('MapCanvasLayer viewport culling', () => {
-  /* Ungrouping the markers took the default camera from 169 DOM markers to
-     340 — und seit die Karte frei ist, sind es alle 465. Nur was nahe am
-     Viewport liegt, bekommt einen Knoten, sonst landet die DOM-Last eines
-     Icons pro Spot auf jedem Seitenaufruf. */
+  /* Every spot is its own marker; only what lies near the viewport gets a DOM
+     node, or one node per spot would land on every page view. */
   const nearby = () => spot('nearby', { lat: 52.52, lng: 13.405 });
   const faraway = () => spot('faraway', { lat: 52.9, lng: 14.9 });
 
@@ -165,11 +162,9 @@ describe('MapCanvasLayer viewport culling', () => {
 });
 
 describe('MapCanvasLayer draws every spot on its own', () => {
-  /* Markers used to be grouped by pixel radius. They are not any more (user
-     decision 2026-08-19): a grouped pin hides which spot is underneath, and
-     "hungry, standing here" wants to see and tap the actual spots. The
-     assertions below are the ones that guard against grouping coming back by
-     accident. */
+  /* Markers are not grouped by pixel radius: a grouped pin hides which spot is
+     underneath, and "hungry, standing here" wants to see and tap the actual
+     spots. The assertions below guard against grouping coming back by accident. */
 
   it('gives each pin its own marker even at one coordinate', async () => {
     render(layer([spot('spot-1'), spot('spot-2'), spot('spot-3')]));

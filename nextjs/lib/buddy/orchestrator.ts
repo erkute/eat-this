@@ -1,4 +1,3 @@
-// nextjs/lib/buddy/orchestrator.ts
 import Anthropic from '@anthropic-ai/sdk';
 import type { Locale, ChatMessage, BuddyStreamEvent, SpotCandidate, ArticleResult } from './types';
 import { buddyTools } from './tools';
@@ -16,13 +15,9 @@ export interface OwnedPacks {
 }
 
 /**
- * Zwei Empfänger, zwei Zuschnitte.
- *
- * Der Client braucht `_id` (Herzen), `image` (Kartenfoto) und `mapsUrl`. Das
- * Modell braucht nichts davon — und bekam es trotzdem: bei einer breiten Frage
- * (30 Treffer) waren das 5.555 von 10.564 Token der Trefferliste, also gut die
- * Hälfte, davon 4.721 reine URLs. Ausgerechnet URLs, die der Prompt ihm im
- * selben Atemzug verbietet auszugeben.
+ * Zwei Empfänger, zwei Zuschnitte. Der Client braucht `_id` (Herzen), `image`
+ * (Kartenfoto) und `mapsUrl`; das Modell nichts davon, und die URLs allein
+ * machten einen Großteil der Token der Trefferliste aus.
  *
  * `categorySlugs` fällt für beide weg: die Kategorie-Refs entscheiden
  * server-intern über den Pack-Teaser.
@@ -43,12 +38,10 @@ function forModel(spot: SpotCandidate): Omit<SpotCandidate, '_id' | 'image' | 'm
 }
 
 /**
- * Das Widget filterte bis zum 02.09.2026 selbst, über den Entitlement-Listener
- * — und der kennt den Admin-Zugang nicht (ADMIN_EMAILS plus verifizierte
- * Adresse, server-only, null Dokumente unter users/<uid>/entitlements). Remy
- * bot dem eigenen Admin-Konto darum Packs an, die ihm längst offenstanden.
- * Hier, wo das Token verifiziert ist, ist die Frage in einer Zeile beantwortet,
- * und eine Karte, die nie gesendet wird, muss der Client auch nicht verstecken.
+ * Hier entschieden, nicht im Widget: dessen Entitlement-Listener kennt den
+ * Admin-Zugang nicht (ADMIN_EMAILS, server-only). Hier ist das Token
+ * verifiziert, und eine Karte, die nie gesendet wird, muss der Client nicht
+ * verstecken.
  */
 function ownsPack(owned: OwnedPacks | undefined, pack: PackDef): boolean {
   if (!owned) return false;
@@ -86,27 +79,23 @@ interface OrchestratorDeps {
 
 const MAX_TOOL_ROUNDS = 4;
 /* Deckel für `search_spots` pro Runde. Ohne ihn entscheidet das Modell allein,
-   wie viele Suchen eine Antwort kostet — und am 08.09.2026 feuerte es in EINER
-   Runde 20 parallele Suchen ab (Sentry JAVASCRIPT-9V, belegt über 20
-   Sanity-Abfragen in 1,5 s zwischen zwei Modell-Aufrufen). Jede Trefferliste
-   ging damals mit ~10.500 Token ans Modell, zusammen 220.301 Token und damit
-   über Haikus 200k-Fenster. Voyage lehnte dabei 17 der 20 Embeddings mit 429
-   ab, die Suchen liefen also auch noch ohne semantische Sortierung.
+   wie viele Suchen eine Antwort kostet; es kann in einer Runde 20 parallele
+   Suchen abfeuern. Jede Trefferliste geht mit Tausenden Token ans Modell,
+   zusammen sprengt das das Kontextfenster, und Voyage lehnt die meisten der
+   Embeddings mit 429 ab, die Suchen laufen dann auch noch ohne semantische
+   Sortierung.
 
    Drei reichen für jede echte Frage: „Pizza oder Burger", „Kreuzberg gegen
    Neukölln", dazu ein Name. Mehr sind ein Modell, das sich eine Suche pro
    Bezirk zurechtlegt. Überzählige Aufrufe laufen nicht, bekommen aber ein
-   `is_error`-Ergebnis — die API verlangt auf JEDEN tool_use eine Antwort, und
+   `is_error`-Ergebnis: Die API verlangt auf jeden tool_use eine Antwort, und
    die Meldung sagt dem Modell, wie es weitermacht. Über alle Runden bleibt es
    bei höchstens MAX_TOOL_ROUNDS × 3 Suchen pro Antwort. */
 const MAX_SPOT_SEARCHES_PER_ROUND = 3;
 const MAX_TOKENS = 2048;
-/* Seit 09.09.2026 Sonnet statt Haiku. Grund ist die Sprache, nicht das
-   Denken: Haiku schrieb regelmäßig schiefes Deutsch („bestell du irgendetwas
-   Verrücktes", „zwischen Massenmark und Milchschaum-Theater"), und auf einer
-   Seite, deren Produkt die Stimme ist, ist das der teuerste Fehler. Gemessen
-   kostet der Wechsel ~0,7 → ~1,4 Cent pro Antwort (siehe die Token-Messung im
-   Commit zum Zuschnitt der Trefferliste). */
+/* Sonnet statt Haiku. Grund ist die Sprache, nicht das Denken: Haiku schreibt
+   regelmäßig schiefes Deutsch, und auf einer Seite, deren Produkt die Stimme
+   ist, ist das der teuerste Fehler. */
 const MODEL = process.env.BUDDY_MODEL ?? 'claude-sonnet-5';
 
 function throwIfAborted(signal?: AbortSignal): void {
@@ -261,12 +250,9 @@ export function createAnthropicLlmClient(client: Anthropic = new Anthropic()): L
         {
           model: MODEL,
           max_tokens: MAX_TOKENS,
-          /* Ausdrücklich AUS. Auf Sonnet 5 heißt ein fehlendes `thinking`
-             nicht „kein Denken" (wie auf Haiku 4.5), sondern adaptives Denken —
-             das hätte zwei Dinge gebrochen, die hier zählen: die Denk-Token
-             gehen von denselben 2048 ab und hätten lange Antworten abgeschnitten,
-             und vor dem ersten sichtbaren Zeichen stünde eine Pause. Remy
-             sucht und erzählt, er löst keine Rätsel. */
+          /* Ausdrücklich aus: auf Sonnet 5 heißt ein fehlendes `thinking`
+             adaptives Denken. Die Denk-Token gingen von denselben 2048 ab, und
+             vor dem ersten sichtbaren Zeichen stünde eine Pause. */
           thinking: { type: 'disabled' },
           system,
           tools,

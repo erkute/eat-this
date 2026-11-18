@@ -51,9 +51,8 @@ describe('AnalyticsPageViews', () => {
   });
 
   it('zählt einen Filterwechsel NICHT als Seitenaufruf', () => {
-    // Der Regressionstest zum Befund vom 31.08.2026: hing der Effekt an
-    // useSearchParams, erzeugte jeder Tipp auf einen Karten-Filter einen
-    // eigenen „Seitenaufruf" — auf derselben Seite.
+    // Hinge der Effekt an useSearchParams, erzeugte jeder Tipp auf einen
+    // Karten-Filter einen eigenen „Seitenaufruf", auf derselben Seite.
     const view = render(<AnalyticsPageViews />);
     expect(mocks.countView).toHaveBeenCalledTimes(1);
 

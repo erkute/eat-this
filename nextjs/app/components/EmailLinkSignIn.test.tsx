@@ -79,8 +79,8 @@ describe('Link aus der Anmelde-Mail', () => {
   });
 
   it('fragt nach, statt den Code beim Laden einzuloesen — Scanner fuehren JS aus', async () => {
-    /* Der einmalige Code ging auf Staging zweimal an einen Postfach-Scanner
-       verloren, der einen Auto-Sign-in selbst ausfuehrte (26.08.2026). */
+    /* Ein Postfach-Scanner, der den Link abruft, würde einen Auto-Sign-in
+       selbst ausführen und den einmaligen Code verbrauchen. */
     await mount();
     expect(screen.getByRole('dialog')).toBeTruthy();
     expect(screen.getByText('gast@example.com')).toBeTruthy();
@@ -127,9 +127,8 @@ describe('Link aus der Anmelde-Mail', () => {
     expect(analytics.trackEvent).toHaveBeenCalledWith('login', { method: 'email_link' });
   });
 
-  /* Nach jeder Anmeldung ins Profil — egal wo sie anfing (Betreiber,
-     14.10.2026). Die Tour eines neuen Kontos laeuft dort weiter, sie haengt
-     im Locale-Layout. */
+  /* Nach jeder Anmeldung ins Profil, egal wo sie anfing. Die Tour eines neuen
+     Kontos läuft dort weiter, sie hängt im Locale-Layout. */
   it('schickt nach dem Klick ins Profil, auch ein neues Konto', async () => {
     await mount();
     await act(async () => {
@@ -138,9 +137,7 @@ describe('Link aus der Anmelde-Mail', () => {
     expect(nav.push).toHaveBeenCalledWith('/profile');
   });
 
-  /* Bis 14.10.2026 ging es sofort ins Profil, und das stand offen da, bis
-     die Tour aufging (Betreiber: „man darf nicht im Vorfeld das Profil
-     sehen"). */
+  /* Das Profil darf nicht offen dastehen, bevor die Tour aufgeht. */
   it('bleibt stehen, bis feststeht, ob die Tour kommt — erst dann ins Profil', async () => {
     let decide: (granted: boolean) => void = () => {};
     arrival.arrivalDecided.mockReturnValue(new Promise((resolve) => (decide = resolve)));

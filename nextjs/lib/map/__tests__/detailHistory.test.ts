@@ -23,10 +23,10 @@ describe('resolveDetailHistory', () => {
     );
   });
 
-  /* The reported bug: from the home page onto a must-eat (?me=…), its X hands
-     over to the restaurant (?r=…). That second URL was PUSHED, because nothing
-     of ours was on the stack yet — so the X on the restaurant popped straight
-     back into the must-eat it had just left, instead of going to the list. */
+  /* From the home page onto a must-eat (?me=…), its X hands over to the
+     restaurant (?r=…). Pushed, because nothing of ours was on the stack yet,
+     the X on the restaurant would pop straight back into the must-eat instead
+     of going to the list. */
   it('replaces when a deep-linked must-eat hands over to its restaurant', () => {
     expect(state({ detailOpen: true, wasOpen: true, urlChanged: true, pushed: false })).toBe(
       'replace'

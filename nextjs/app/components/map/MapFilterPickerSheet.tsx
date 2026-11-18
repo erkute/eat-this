@@ -26,13 +26,15 @@ interface Props {
   onClose: () => void;
   /** The chip that opened the picker — a click on it is not an outside click. */
   anchorEl?: HTMLElement | null;
-  /** Desktop: die Liste klappt IN der Kopfzeile auf und schiebt die Ergebnisse
-   *  nach unten, statt als Popover darüber zu schweben (User, 2026-08-27).
-   *  Dann kein Portal, kein Backdrop, keine Ankerrechnung und keine
-   *  Fokusfalle — das ist kein Dialog mehr, sondern ein aufgeklappter Teil der
-   *  Leiste. Mobile bleibt das Bottom-Sheet: dort liegt die Leiste in einer
-   *  Sheet mit Schnappunkten, und ein Block, der sie von innen wachsen lässt,
-   *  verschiebt genau die Höhe, an der die Schnappunkte rechnen. */
+  /**
+   * Desktop: Die Liste klappt in der Kopfzeile auf und schiebt die Ergebnisse
+   * nach unten, statt als Popover darüber zu schweben. Dann kein Portal, kein
+   * Backdrop, keine Ankerrechnung und keine Fokusfalle: Das ist kein Dialog,
+   * sondern ein aufgeklappter Teil der Leiste. Mobile bleibt das Bottom-Sheet:
+   * Dort liegt die Leiste in einer Sheet mit Schnappunkten, und ein Block, der
+   * sie von innen wachsen lässt, verschiebt genau die Höhe, an der die
+   * Schnappunkte rechnen.
+   */
   inline?: boolean;
   /** Label for the "Alle …" reset row. Omit to skip the reset row. */
   allLabel?: string;
@@ -71,33 +73,22 @@ export default function MapFilterPickerSheet({
     return () => document.removeEventListener('keydown', onKey);
   }, [onClose]);
 
-  /* Außenklick — NUR für die eingeklappte Desktop-Variante.
+  /*
+   * Außenklick, nur für die eingeklappte Desktop-Variante. Als Bottom-Sheet
+   * schließt der Backdrop über seinen eigenen `onClick`; der Klick ist damit
+   * verbraucht und trifft nichts darunter. Nicht über `touchstart`/`mousedown`:
+   * dann wäre das Sheet weg, bevor der Klick kommt, und der schlüge auf die
+   * Karte durch.
    *
-   * Als Bottom-Sheet liegt ein Backdrop über allem, und der schließt über
-   * seinen eigenen `onClick` (siehe unten im Markup). Das ist der ganze Trick:
-   * der wegtippende Klick landet AUF dem Backdrop und ist damit verbraucht —
-   * er kann gar nichts darunter treffen.
+   * Die Desktop-Variante (ab 1024px) hat keinen Backdrop und braucht diesen
+   * Wächter, ebenfalls auf `click`: beim Zuklappen fließt die Leiste um, und
+   * `mousedown` schickte den Klick an das Element, das danach dort liegt.
    *
-   * Vorher hing das an `touchstart`/`mousedown`. Damit war das Sheet schon weg,
-   * bevor der Klick überhaupt kam, und der schlug auf die Karte durch und
-   * öffnete einen Spot. Dagegen stand ein Abfänger, der genau den nächsten
-   * Klick schluckte — mit einer Frist von 400 ms. Ein bedächtiger Tipp ist
-   * länger: mit 600 ms Finger auf demselben Punkt ging reproduzierbar
-   * `?r=bonanza-coffee-heroes` auf. Nicht die Frist verlängern — ein
-   * Down-Ereignis ist hier grundsätzlich das falsche Signal.
-   *
-   * Die eingeklappte Variante (ab 1024px) hat keinen Backdrop, sie braucht
-   * deshalb einen Wächter. `click` statt `mousedown` aus demselben Grund: beim
-   * Zuklappen fließt die Leiste um, und ein auf `mousedown` geschlossener
-   * Picker schickt den Klick an das Element, das NACH dem Umfließen dort liegt.
-   *
-   * Die ganze Chip-Zeile bleibt ausgenommen, nicht nur der eigene Chip: JEDER
-   * Chip entscheidet in seinem eigenen `onClick` selbst, was offen sein soll
-   * (nochmal derselbe = zu, ein anderer = umschalten). Käme hier zuerst ein
-   * `onClose`, zöge der Klick danach denselben Chip wieder auf — die Leiste
-   * ginge beim zweiten Tippen nicht zu. Das deckt zugleich den Klick ab, der
-   * den Picker gerade geöffnet hat: React hängt diesen Wächter noch während
-   * dessen Lauf ein, er sähe ihn also selbst. */
+   * Die ganze Chip-Zeile bleibt ausgenommen: jeder Chip entscheidet in seinem
+   * `onClick` selbst, was offen sein soll, und ein `onClose` vorher zöge
+   * denselben Chip wieder auf. Das deckt auch den Klick ab, der den Picker
+   * gerade geöffnet hat.
+   */
   useEffect(() => {
     if (!inline) return;
     const onClick = (e: MouseEvent) => {
@@ -121,11 +112,11 @@ export default function MapFilterPickerSheet({
     return () => sheetEl.removeEventListener('touchmove', stop);
   }, [sheetEl]);
 
-  /* Focus management. This is an aria-modal dialog, but focus used to stay on
-     <body>: keyboard and VoiceOver users were told a modal had opened and then
-     left outside it, tabbing through the map behind. Move focus to the current
-     selection (or the first row), trap Tab inside, and hand focus back to
-     whatever opened the picker on close. */
+  /* Focus management. This is an aria-modal dialog: without it, keyboard and
+     VoiceOver users are told a modal has opened and then left outside it,
+     tabbing through the map behind. Move focus to the current selection (or the
+     first row), trap Tab inside, and hand focus back to whatever opened the
+     picker on close. */
   useEffect(() => {
     if (!sheetEl) return;
     const opener = document.activeElement as HTMLElement | null;

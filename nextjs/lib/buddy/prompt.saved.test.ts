@@ -1,4 +1,3 @@
-// nextjs/lib/buddy/prompt.saved.test.ts
 import { describe, it, expect } from 'vitest';
 import { buildSystemPrompt } from './prompt';
 

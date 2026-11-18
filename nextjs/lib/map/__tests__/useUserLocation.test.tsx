@@ -205,8 +205,8 @@ describe('useUserLocation.watch', () => {
       Reflect.deleteProperty(document, 'visibilityState');
     });
 
-    /* In der Bahn: kein Fehler, nur kein Fix mehr — bis der Knopf den
-       Beobachter neu startete. Das macht er jetzt selbst. */
+    /* In der Bahn: kein Fehler, nur kein Fix mehr. Der Beobachter startet sich
+       dann selbst neu. */
     it('restarts itself after WATCH_STALL_MS without a fix', () => {
       let deliver: PositionCallback = () => {};
       let nextId = 10;

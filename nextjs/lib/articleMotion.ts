@@ -1,9 +1,9 @@
 /**
- * Nur die gestalteten Verweise bewegen sich: Must-Eat-Bänder, Magazine und
- * das Booster-Pack. Lesetext, Kapitel, Fotos und Map-Links bleiben wie in
- * den 032c-Referenzartikeln vom 13.10.2026 beim Scrollen ruhig.
- * IntersectionObserver löst jede Szene einmal aus, ohne Scroll-Schleife.
- * Reduced Motion und der bestehende CSS-Auftritt des Kopfs bleiben erhalten.
+ * Nur die gestalteten Verweise bewegen sich: Must-Eat-Bänder, Magazine und das
+ * Booster-Pack. Lesetext, Kapitel, Fotos und Map-Links bleiben wie in den
+ * 032c-Referenzartikeln beim Scrollen ruhig. IntersectionObserver löst jede
+ * Szene einmal aus, ohne Scroll-Schleife. Reduced Motion und der bestehende
+ * CSS-Auftritt des Kopfs bleiben erhalten.
  */
 
 import gsap from 'gsap';
@@ -71,9 +71,8 @@ function deal(list: HTMLElement): Scene | null {
   const items = Array.from(list.children) as HTMLElement[];
   if (!items.length) return null;
   // Am Telefon ist die Liste ein Querscroller mit Einrasten, und Einrastpunkte
-  // folgen verschobenen Elementen: der Streifen rastete auf das noch versetzte
-  // erste Heft ein (205 px statt 0) und lief beim Austeilen mit — „erst nach
-  // links, dann plötzlich nach rechts" (Ansage 03.10.2026); WebKit blieb mit
+  // folgen verschobenen Elementen: der Streifen rastete sonst auf das noch
+  // versetzte erste Heft ein und liefe beim Austeilen mit; WebKit bliebe mit
   // angeschnittenem Heft stehen. Solange ein Heft unterwegs ist, rastet nichts
   // ein, und der Streifen steht am Anfang.
   const settle = (dealt: boolean) => {

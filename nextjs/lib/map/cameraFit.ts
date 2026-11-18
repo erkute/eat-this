@@ -12,16 +12,9 @@ export interface Insets {
 export const SPOT_SET_MAX_ZOOM = 14;
 
 /**
- * Unter dieser Höhe (oder Breite) wird gar nicht erst eingepasst.
- *
- * Gemessen am 16.09.2026 mit MapLibres eigenem `cameraForBoxAndBearing`
- * (390 px breite Karte, Seitenrand 40 px): der ganze Katalog landet bei 30 px
- * Platz auf Zoom 5,4, bei 100 px auf 7,2, bei 150 px auf 7,7 — und ab ~300 px,
- * wo die Breite begrenzt, auf 8,4. Ab 150 px liegt die Kamera also gut einen
- * halben Zoomschritt am Ergebnis mit vollem Platz, darunter zoomt sie
- * zunehmend sinnlos raus. Bei genau 0 px warf MapLibre damals
- * `Invalid LngLat object: (NaN, -90)` (Sentry JAVASCRIPT-9B) und kippte /map
- * in die Fehlerseite.
+ * Unter dieser Höhe (oder Breite) wird gar nicht erst eingepasst: darunter
+ * zoomt die Kamera zunehmend sinnlos heraus, und bei genau 0 px wirft MapLibre
+ * `Invalid LngLat object` und kippt /map in die Fehlerseite.
  */
 export const MIN_FIT_SPACE_PX = 150;
 

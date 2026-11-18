@@ -36,22 +36,14 @@ export function selectHomeInitialMapData(data: InitialMapData): InitialMapData {
 }
 
 /**
- * The public Must-Eats catalog: EVERY must-eat in the deck, in a fixed order,
+ * The public Must-Eats catalog: every must-eat in the deck, in a fixed order,
  * with only the anon face-up set carrying its dish content.
  *
- * This used to merge two lists, because the map shipped a must-eat only when
- * its spot sat inside the free tier — the page whose whole job is the complete
- * deck saw an arbitrary subset of it. Since the map is free the payload
- * already carries every card, so all that is left here is the ordering.
- *
- * Order is the deck order, and within both bands that is the card number —
- * the figure printed bottom-right on every card, which is what a reader sorts
- * a deck by. Face-up first: those are the product shots, so they belong
- * together — interleaved with the backs they read as a broken checkerboard.
- * The covered band used to run alphabetically by spot, which put a new card
- * somewhere in the middle of the wall instead of at the end where its number
- * says it belongs. The alphabetical spot list under that band is sorted
- * where it is rendered (MustEatsGallery), not by this order.
+ * Order is the deck order, and within both bands the card number, the figure
+ * printed on every card. Face-up first: those are the product shots and belong
+ * together; interleaved with the backs they read as a broken checkerboard. The
+ * alphabetical spot list under the covered band is sorted where it is rendered
+ * (MustEatsGallery).
  */
 export function selectMustEatsCatalog(data: InitialMapData): InitialMustEatsData {
   const faceUp = new Set(data.revealedMustEatIds);
@@ -71,13 +63,11 @@ export function selectMustEatsCatalog(data: InitialMapData): InitialMustEatsData
 /**
  * Eine verdeckte Karte nennt ihren Spot, mehr nicht.
  *
- * Vom 06.09. bis 15.10.2026 trug sie hier gar keinen Namen (Betreiber: „das
- * ist doch Teil der Überraschung"). Seit dem Neubau der Seite steht unter
- * jeder verdeckten Karte „Verdeckt" und der Spot (Betreiber, 15.10.2026) —
- * welcher Spot eine Karte hält, zeigt die Map ohnehin. Mitgegeben werden
- * deshalb nur Name, Bezirk (der Bezirk, damit er aus dem Namen fällt) und
- * Slug: jede Karte der Seite führt seit dem 27.10.2026 auf ihren Spot in der
- * Map (`/map?r=`). Koordinaten, Adresse und Foto bleiben auf dem Server.
+ * Unter jeder verdeckten Karte steht „Verdeckt" und der Spot; welcher Spot eine
+ * Karte hält, zeigt die Map ohnehin. Mitgegeben werden deshalb nur Name, Bezirk
+ * (der Bezirk, damit er aus dem Namen fällt) und Slug: Jede Karte der Seite
+ * führt auf ihren Spot in der Map (`/map?r=`). Koordinaten, Adresse und Foto
+ * bleiben auf dem Server.
  */
 function trimCoveredSpot(mustEat: MapMustEat): MapMustEat {
   const { _id, name, slug, district } = mustEat.restaurant;

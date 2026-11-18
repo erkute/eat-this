@@ -20,31 +20,26 @@ describe('liveRestaurant', () => {
 });
 
 /**
- * Der Wächter gegen die Wiederholung.
- *
- * Der Fehler war nie eine falsche Abfrage, sondern vierzehn richtige, von denen
- * zwölf ein Feld vergaßen. Ein Kommentar („die Filter MÜSSEN identisch
- * bleiben") stand daneben und hat es nicht verhindert. Dieser Test schon: wer
- * `isOpen` von Hand abfragt, ohne `isClosed` daneben, bricht ihn.
+ * Der Wächter: wer `isOpen` von Hand abfragt, ohne `isClosed` daneben, bricht
+ * diesen Test.
  */
 describe('Katalogfilter in den Abfragen', () => {
   /** GROQ schreibt `!=` und `==`; JS-Vergleiche (`!==`) treffen das nicht. */
   const GROQ_IS_OPEN = /isOpen\s*(?:!=\s*false|==\s*true)/;
 
   /**
-   * Reine Kommentarzeilen. Ein Kommentar, der eine Abweichung *erklärt*
-   * (`scripts/lib/embeddings-index.ts`), zitiert die Bedingung — und wurde
-   * dafür selbst als Verstoß gemeldet.
+   * Reine Kommentarzeilen: ein Kommentar, der eine Abweichung erklärt, zitiert
+   * die Bedingung und ist kein Verstoß.
    */
   const COMMENT = /^\s*(?:\/\/|\/?\*)/;
 
   /**
    * Der Marker, mit dem eine Abfrage sich vom Katalogfilter ausnimmt. Muss
-   * einen Grund tragen — `// katalog-ausnahme: <warum>` — und im Kommentar
+   * einen Grund tragen (`// katalog-ausnahme: <warum>`) und im Kommentar
    * unmittelbar über der Abfrage stehen (oder in derselben Zeile).
    *
-   * Absichtlich unbequem: eine Ausnahme ohne Begründung ist genau der
-   * Zustand, aus dem der Fehler vom 05.09.2026 entstanden ist.
+   * Absichtlich unbequem: Eine Ausnahme ohne Begründung ist genau der Zustand,
+   * aus dem Katalogfehler entstehen.
    */
   const EXCEPTION = /katalog-ausnahme:\s*\S/;
 
@@ -95,15 +90,9 @@ describe('Katalogfilter in den Abfragen', () => {
   });
 
   /**
-   * Die Regel, die der erste Test NICHT abdeckt.
-   *
-   * Er meldet nur Zeilen, die `isOpen` überhaupt erwähnen — eine Abfrage ganz
-   * ohne Katalogfilter lief still durch. Genau so kamen `restaurantPageQuery`,
-   * `getAllRestaurantsLite`, `restaurantMapDetailQuery` und die Badge-Seite
-   * durch: sie versprachen Deckung, die der Wächter nie hatte.
-   *
-   * Deshalb hier die Umkehrung: JEDE Restaurant-Abfrage filtert den Katalog —
-   * oder sagt in einem Kommentar, warum nicht.
+   * Die Umkehrung des ersten Tests, der nur Zeilen meldet, die `isOpen`
+   * überhaupt erwähnen: jede Restaurant-Abfrage filtert den Katalog, oder sagt
+   * in einem Kommentar, warum nicht.
    */
   it('filtert in jeder Restaurant-Abfrage den Katalog — oder begründet die Ausnahme', () => {
     const offenders: string[] = [];

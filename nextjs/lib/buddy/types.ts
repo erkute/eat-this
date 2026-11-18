@@ -1,4 +1,3 @@
-// nextjs/lib/buddy/types.ts
 export type Locale = 'de' | 'en';
 
 export interface SpotCandidate {

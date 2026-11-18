@@ -1,8 +1,7 @@
-// nextjs/lib/buddy/orchestrator.payload.test.ts
-// Zwei Empfänger, zwei Zuschnitte. Bei einer breiten Frage (30 Treffer) waren
-// `_id`, `image` und `mapsUrl` zusammen 5.555 von 10.564 Token der
-// Trefferliste — gut die Hälfte, davon 4.721 reine URLs, die der Prompt im
-// selben Atemzug auszugeben verbietet. Der Client braucht sie, das Modell nie.
+// Zwei Empfänger, zwei Zuschnitte: `_id`, `image` und `mapsUrl` machen bei
+// breiten Fragen einen großen Teil der Token der Trefferliste aus, vor allem
+// URLs, die der Prompt auszugeben verbietet. Der Client braucht sie, das Modell
+// nie.
 import { describe, it, expect, vi } from 'vitest';
 import { runBuddyTurn } from './orchestrator';
 import type { LlmClient, LlmTurn } from './orchestrator';
@@ -93,7 +92,7 @@ describe('Zuschnitt der Trefferliste', () => {
       distanceLabel: '600 m',
       tip: 'Margherita.',
     });
-    // Keine einzige URL mehr im Kontext.
+    // Keine URL im Kontext.
     expect(sent[0]).not.toMatch(/https?:\/\//);
   });
 });

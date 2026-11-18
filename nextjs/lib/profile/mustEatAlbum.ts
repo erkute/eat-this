@@ -1,9 +1,6 @@
-// NOTE on the type source: the spec asked to import `MustEatPreview` from
-// `@/lib/sanity.server`, but that type is deliberately content-free
-// (`{ _id, order? }`) — its header forbids adding dish/photo fields because
-// they would leak through the public restaurant page's RSC payload. The album
-// needs the *face-up* content shape (dish/image), which is the same data the
-// map exposes as `MapMustEat`.
+// MapMustEat, not MustEatPreview: that type is deliberately content-free
+// (dish/photo fields would leak through the public restaurant page's RSC
+// payload), and the album needs the face-up content shape.
 import type { MapMustEat } from '@/lib/types';
 import { sortByCardNumber } from '@/lib/map/cardOrder';
 
@@ -61,11 +58,9 @@ export function buildAlbum(
   faceUpIds: Set<string>,
   groupOf: (m: MapMustEat) => string = defaultGroupOf
 ): Album {
-  /* Nach der Kartennummer, nicht nach Bezirk. Solange die Bezirke eigene
-     Abschnitte hatten, musste die Sortierung sie zusammenhalten; seit sie
-     Reiter sind, ist das Raster EIN Stapel — und ein Stapel liegt in seiner
-     eigenen Reihenfolge. `_id` bleibt der letzte Notnagel, damit ein
-     Must-Eat ohne `order` trotzdem fest liegt. */
+  /* Nach der Kartennummer, nicht nach Bezirk: das Raster ist ein Stapel, die
+     Bezirke sind Reiter. `_id` ist der letzte Notnagel, damit ein Must-Eat ohne
+     `order` trotzdem fest liegt. */
   const sorted = sortByCardNumber(all);
 
   const slots: AlbumSlot[] = sorted.map((m) => {

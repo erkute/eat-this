@@ -120,9 +120,8 @@ describe('useFavorites uid isolation', () => {
     );
   });
 
-  /* Der Tap eines Ausgeloggten ging vorher verloren: Modal auf, und danach
-     stand derselbe Mensch vor demselben leeren Herz. Jetzt wartet die Absicht
-     auf das Konto — im sessionStorage fuer den Google-Weg, am Modal fuer die
+  /* Der Tap eines Ausgeloggten geht nicht verloren: die Absicht wartet auf das
+     Konto, im sessionStorage fuer den Google-Weg, am Modal fuer die
      Continue-URL des Magic-Links. */
   it('merkt sich das Herz eines Ausgeloggten und gibt es dem Login mit', async () => {
     window.sessionStorage.clear();
@@ -176,8 +175,8 @@ describe('useFavorites uid isolation', () => {
   });
 });
 
-/* Das Herz fuellt sich beim Tippen, nicht erst nach /api/heart; gemeldet
-   wird nur der allererste Spot, einmal je Geraet (Betreiber, 27.10.2026). */
+/* Das Herz füllt sich beim Tippen, nicht erst nach /api/heart; gemeldet wird
+   nur der allererste Spot, einmal je Gerät. */
 describe('useFavorites — Speichern', () => {
   const showNotice = vi.fn();
   const fetchMock = vi.fn(() => Promise.resolve({ ok: true }));

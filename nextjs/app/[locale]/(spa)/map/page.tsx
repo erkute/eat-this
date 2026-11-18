@@ -47,10 +47,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title,
     description,
-    // Bis zum 01.09.2026 stand hier `noindex,follow` — die Karte war für Google
-    // nicht existent, obwohl sie das Produkt ist. Die Konstante statt eines
-    // handgeschriebenen 'index,follow': die trägt auch max-image-preview und
-    // max-snippet, siehe lib/seo/metadata.ts.
+    // Die Karte ist das Produkt und gehört in den Index. Die Konstante statt
+    // eines handgeschriebenen 'index,follow': Sie trägt auch max-image-preview
+    // und max-snippet, siehe lib/seo/metadata.ts.
     robots: INDEXABLE_ROBOTS,
     // Der Canonical zeigt immer auf `/map` ohne Query. Die Deep-Links der
     // Katalogseiten (`?r=`, `?bezirk=`, `?cat=`) öffnen dieselbe Seite in einem

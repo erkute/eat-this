@@ -1,16 +1,15 @@
 'use client';
 
 /**
- * Der Tipp auf einen Kartenrücken ohne Konto: erst zittert die Karte, dann
- * öffnet das Anmeldeformular (Betreiber, 07.09.2026 — „genauso vibriert und
- * zittert, und dann kommt das Anmeldefenster"). Map-Detail und
- * Startseiten-Teaser teilen sich Dauer und Reduced-Motion-Regel, damit
- * derselbe Griff sich überall gleich anfühlt.
+ * Der Tipp auf einen Kartenrücken ohne Konto: Erst zittert die Karte, dann
+ * öffnet das Anmeldeformular. Map-Detail und Startseiten-Teaser teilen sich
+ * Dauer und Reduced-Motion-Regel, damit derselbe Griff sich überall gleich
+ * anfühlt.
  *
  * Die Dauer steht zwangsläufig doppelt: hier und als `animation-duration` in
  * den beiden CSS-Modulen (`.mustEatCardTapping` in MustEatDetail,
  * `.photoTapping` im Teaser). CSS-Module vergeben eigene Keyframe-Namen, eine
- * gemeinsame Animation gibt es also nicht — die Zahl muss zusammen wandern.
+ * gemeinsame Animation gibt es also nicht; die Zahl muss zusammen wandern.
  */
 export const GUEST_SHAKE_MS = 520;
 

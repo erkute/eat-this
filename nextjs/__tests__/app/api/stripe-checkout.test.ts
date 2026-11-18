@@ -12,6 +12,7 @@ const mocks = vi.hoisted(() => ({
   reserveAttempt:   vi.fn(),
   saveAttempt:      vi.fn(),
   packContents:     vi.fn(),
+  checkRateLimit:   vi.fn(),
 }))
 
 vi.mock('../../../lib/firebase/admin', () => ({
@@ -42,6 +43,11 @@ vi.mock('../../../lib/sanity.server', () => ({
   getPackContents: mocks.packContents,
 }))
 
+vi.mock('../../../lib/rateLimit', () => ({
+  checkRateLimit: mocks.checkRateLimit,
+  clientIp: () => '203.0.113.7',
+}))
+
 import { POST } from '../../../app/api/stripe/checkout/route'
 import * as Sentry from '@sentry/nextjs'
 
@@ -70,6 +76,8 @@ beforeEach(() => {
     byCategory: { pizza: { spots: 33, mustEats: 3 } },
     allBerlin: { spots: 465, mustEats: 26 },
   })
+  mocks.checkRateLimit.mockReset()
+  mocks.checkRateLimit.mockResolvedValue(true)
   process.env.NEXT_PUBLIC_APP_URL = 'https://trusted.example'
 })
 
@@ -88,6 +96,26 @@ describe('/api/stripe/checkout', () => {
     expect(args.customer_email).toBeUndefined()
   })
 
+  it('limits guest checkouts per address, without storing the address', async () => {
+    mocks.checkRateLimit.mockResolvedValueOnce(false)
+    const res = await POST(makeReq({ packId: 'category-pizza' }, null))
+    expect(res.status).toBe(429)
+    expect(await res.json()).toEqual({ error: 'rate_limited' })
+    expect(mocks.sessionsCreate).not.toHaveBeenCalled()
+    const [key, max, windowMs] = mocks.checkRateLimit.mock.calls[0]
+    expect(key).toMatch(/^checkout:ip:[0-9a-f]{40}$/)
+    expect(key).not.toContain('203.0.113.7')
+    expect(max).toBe(20)
+    expect(windowMs).toBe(60 * 60 * 1000)
+  })
+
+  it('does not count signed-in checkouts against the guest limit', async () => {
+    mocks.verifyIdToken.mockResolvedValueOnce({ uid: 'u1', email: 'u@x.com' })
+    const res = await POST(makeReq({ packId: 'category-pizza' }, 'good'))
+    expect(res.status).toBe(200)
+    expect(mocks.checkRateLimit).not.toHaveBeenCalled()
+  })
+
   it('returns 401 when token is invalid', async () => {
     mocks.verifyIdToken.mockRejectedValueOnce(new Error('bad'))
     const res = await POST(makeReq({ packId: 'category-pizza' }, 'bad'))
@@ -100,10 +128,9 @@ describe('/api/stripe/checkout', () => {
     expect(res.status).toBe(400)
   })
 
-  /* Seit die Packs Karten verkaufen statt Spots, kann eine Kategorie leer
-     sein — Fine Dining stand am 06.09.2026 auf null. Die Oberflaeche blendet
-     den Knopf aus; diese Pruefung faengt die veraltete Seite und den direkten
-     POST ab, und sie ist die verbindliche. */
+  /* Die Packs verkaufen Karten, nicht Spots, also kann eine Kategorie leer
+     sein. Die Oberfläche blendet den Knopf aus; diese Prüfung fängt die
+     veraltete Seite und den direkten POST ab, und sie ist die verbindliche. */
   it('returns 409 for a category pack that holds no card yet', async () => {
     mocks.packContents.mockResolvedValue({
       byCategory: { pizza: { spots: 33, mustEats: 0 } },

@@ -1,4 +1,3 @@
-// nextjs/lib/buddy/reveal.test.ts
 import { describe, it, expect } from 'vitest';
 import {
   revealStep,
@@ -69,9 +68,9 @@ describe('revealStep', () => {
   });
 
   it('läuft dem Netz nicht hinterher, sondern im Lesetempo: höchstens ~100 Zeichen/s', () => {
-    // Das gemessene Profil vom 18.09.2026: 160 Zeichen/s = 25 Wörter/s, „zu
-    // schnell und blinkend". Fenster 1,5–6 s: der Rückstand liegt noch unter
-    // der Entlastungsschwelle, es gilt der nackte Deckel.
+    // Das gemessene Profil: 160 Zeichen/s = 25 Wörter/s, zu schnell und
+    // blinkend. Fenster 1,5–6 s: Der Rückstand liegt noch unter der
+    // Entlastungsschwelle, es gilt der nackte Deckel.
     const w = flowWindows(160, 45);
     expect(Math.max(...w)).toBeLessThanOrEqual(7);
     const mean = w.reduce((a, b) => a + b, 0) / w.length;
@@ -118,10 +117,10 @@ describe('revealStep', () => {
     expect(drainMs(60, FRAME_MS, 'flow')).toBeGreaterThan(drainMs(60, FRAME_MS));
   });
 
-  /* Der Fund vom 09.09.2026 auf prod: die Seite lief mit 2 fps, die Antwort
-     kroch 58 s, der Server war nach 12 s fertig. Die erste Fassung schrittete
-     pro Bild — hier steht, dass die verstrichene ZEIT zählt: 60 fps, 20 fps
-     und 2 fps müssen denselben Rückstand in etwa gleicher Zeit leeren. */
+  /* Die verstrichene Zeit zählt, nicht die Bildanzahl: 60 fps, 20 fps und 2 fps
+     müssen denselben Rückstand in etwa gleicher Zeit leeren. Mit einem Schritt
+     pro Bild kröche eine Antwort bei 2 fps fast eine Minute, während der Server
+     nach 12 s fertig ist. */
   it('leert denselben Rückstand bei 60, 20 und 2 fps in etwa gleicher Zeit', () => {
     const at60 = drainMs(4000, FRAME_MS);
     const at20 = drainMs(4000, 50);
@@ -151,7 +150,8 @@ describe('skipMarker', () => {
   });
 
   it('springt kostenlos hinter einen vollständigen Marker', () => {
-    // Vorher fraß jeder Marker 15–50 Zeichen Tippzeit: der Text stand still.
+    // Ohne den Sprung fräße jeder Marker 15–50 Zeichen Tippzeit: Der Text
+    // stünde still.
     expect(skipMarker(raw, open + 1)).toBe(end);
     expect(skipMarker(raw, end - 1)).toBe(end);
   });
@@ -235,7 +235,7 @@ describe('stickStep', () => {
 
   it('startet aus dem Stand sacht und nimmt Fahrt auf', () => {
     const { moves } = glide(250);
-    // Die Fassung davor fuhr im ersten Bild mit ~35 px los.
+    // Die Feder fährt sacht an, statt im ersten Bild zu springen.
     expect(moves[0]).toBeLessThanOrEqual(10);
     expect(moves[1]).toBeGreaterThan(moves[0]);
     expect(Math.max(...moves)).toBeLessThan(25);

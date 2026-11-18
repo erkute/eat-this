@@ -84,10 +84,10 @@ describe('MagazineLink', () => {
   });
 
   // Safari färbt Status- und URL-Leiste nach dem fixierten Element mit
-  // deckender Farbe, das es an der Kante findet. Ohne Kappen fand es dort das
-  // Heft oder den durchscheinenden Artikel, und unter der URL-Leiste stand
-  // beim Aufklappen Weiss oder Grau (Ansage 02.10.2026: „das muss schwarz
-  // sein"). Die Kappen liegen zuoberst, damit die Abtastung sie trifft.
+  // deckender Farbe, das es an der Kante findet. Ohne Kappen fände es dort das
+  // Heft oder den durchscheinenden Artikel, und unter der URL-Leiste stünde
+  // beim Aufklappen Weiß oder Grau statt Schwarz. Die Kappen liegen zuoberst,
+  // damit die Abtastung sie trifft.
   it('lays a cap on both edges, above the magazine, while it opens', async () => {
     const { getByRole } = render(<MagazineLink href="/news/doener">{cover}</MagazineLink>);
     fireEvent.click(getByRole('link'));

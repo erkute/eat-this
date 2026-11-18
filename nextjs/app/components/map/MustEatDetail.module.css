@@ -1,5 +1,5 @@
-/* Freigestellte card: white cream asset margin cropped via background-size > 100%.
-   Single subtle shadow — not a layered stack — so it reads as ONE card. */
+/* Freigestellte Karte: Der Rand des Assets wird über background-size > 100 %
+   abgeschnitten. Ein einzelner Schatten, damit sie als eine Karte liest. */
 .mustEatCardCanUnlock {
   animation-duration: var(--vibrate-duration);
 }
@@ -29,20 +29,9 @@
     transform: translate(0, 0) rotate(0);
   }
 }
-/* ==========================================================
-   Must-Eat-Detail im Map-Sheet (MustEatDetailMobile.tsx):
-   Kartenstapel / Gerichtsname und Zustands-Copy / Restaurant-Zeile /
-   Blättern.
-
-   Das Restaurant-Detail hat sein eigenes Modul
-   (RestaurantDetail.module.css), der Mount um beide steht in
-   MapSheetDetail.module.css. Bis zum 26.09.2026 teilten sich alle drei
-   MapDetails.module.css; dieses Detail trug dort `.detailV13MustEat`.
-
-   Wo ein Selektor noch `.detail` vor sich trägt, braucht er genau diese
-   Spezifität gegen eine andere Regel hier — nicht wegkürzen, ohne die
-   Kaskade nachzumessen.
-   ========================================================== */
+/* Must-Eat-Detail im Map-Sheet (MustEatDetailMobile.tsx). Selektoren mit
+   `.detail` davor brauchen diese Spezifität gegen eine spätere Regel hier;
+   nicht wegkürzen, ohne die Kaskade nachzumessen. */
 .detail {
   font-family: var(--et-font-body);
   display: flex;
@@ -50,16 +39,13 @@
   flex: 1;
   min-height: 0;
 }
-/* Must-eat detail: keep controls stable and remove heavy stripes. */
 .scroll {
   position: relative;
   flex: 1;
-  /* + overhang so the last block scrolls clear above the iOS URL bar
-     (the scroll-port extends behind it — see .detailMount). */
+  /* Plus Überhang, damit der letzte Block über der iOS-URL-Leiste endet. */
   padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px) + var(--map-bar-overhang, 0px));
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
-  /* Vertical content scrolling; the nested photo rail owns horizontal gestures. */
   touch-action: pan-y;
   grid-template-rows: auto minmax(0, 1fr) auto auto;
   overflow-y: auto;
@@ -68,15 +54,9 @@
 .scroll::-webkit-scrollbar {
   width: 0;
 }
-/* Must-eat detail uses the home palette, but reads like a modern card sheet:
-   stacked card stage, warm paper content, compact controls, and no internal
-   scrolling. Copy is clamped so the whole composition fits the viewport. */
 .detail .scroll {
-  /* Wie weit die unterste Stapelkarte unter der obersten heraushängt
-     (translate + Rotation, siehe .fdStackCardOne) — gemessene 38px. Jede
-     Luft-unter-der-Karte rechnet damit, weil die Paddings ab .fdCardStack
-     messen, also ab der OBERSTEN Karte. Hier definiert, damit sowohl der
-     Scrollport (--me-card-air) als auch .fdHeroWrap sie sehen. */
+  /* Wie weit die unterste Stapelkarte unter der obersten heraushängt (translate
+     + Rotation). Paddings messen ab der obersten Karte. */
   --me-fan-drop: 38px;
   align-content: stretch;
   padding: 0 18px calc(12px + env(safe-area-inset-bottom, 0px));
@@ -84,13 +64,11 @@
 .scroll::after {
   content: none;
 }
-/* HERO — freigestellte Karte auf einer flachen Posterflaeche. */
 .fdHeroWrap {
   z-index: 3;
   align-items: flex-start;
   padding: clamp(16px, 3svh, 28px) 8px clamp(10px, 1.6svh, 16px);
 }
-/* Tap when out of range → a firm "nope" shake (reuses the marker keyframes). */
 .fdHeroLocked.mustEatCardTapping {
   animation: mustEatTapShake 520ms cubic-bezier(0.3, 0.7, 0.4, 1) 1;
 }
@@ -103,7 +81,6 @@
 .fdName {
   overflow-wrap: anywhere;
 }
-/* Spot action — typografischer Abschluss statt Footer-Kachel. */
 .fdRest {
   box-sizing: border-box;
   width: 100%;
@@ -115,9 +92,8 @@
   }
 }
 @media (min-width: 1024px) {
-  /* Desktop rail: Must-Eat details must read like a normal scrollable detail
-     panel. The mobile composition clamps copy to keep the card/CTA/pager in
-     one viewport, but on desktop that clips real dish descriptions. */
+  /* Desktop-Rail: scrollbar statt geklemmt, sonst würden lange Beschreibungen
+     abgeschnitten. */
 
   .detail .scroll {
     padding-bottom: 20px;
@@ -212,9 +188,6 @@
 .fdNameText {
   line-height: 0.92;
 }
-/* Must-Eat detail redesign: one equal-size tactile deck at the top, with the
-   current card sitting above identical back cards. Kept late in the file to
-   own the many historic Must-Eat overrides above. */
 .detail .scroll {
   --me-accent: var(--et-accent);
   --me-card-w: min(64vw, 262px);
@@ -226,7 +199,6 @@
   overflow: hidden;
   padding: clamp(56px, 7.5dvh, 74px) 16px calc(12px + env(safe-area-inset-bottom, 0px));
 }
-/* X — nackter cremefarbener Glyph oben rechts. */
 .fdClose {
   position: absolute;
   z-index: 8;
@@ -260,11 +232,8 @@
   display: flex;
   justify-content: center;
   width: 100%;
-  /* Die Luft unter der Karte muss den Fächerüberhang mittragen: die unterste
-     Stapelkarte sitzt --me-fan-drop tiefer als die oberste (translate plus
-     Rotation, siehe .fdStackCardOne), das Padding misst aber ab .fdCardStack
-     — also ab der obersten. Ohne den Aufschlag blieben real 6–24px übrig, der
-     Text klebte am Fächer; auf schmalen Breiten überlappte er ihn sogar. */
+  /* Die Luft unter der Karte muss den Fächerüberhang (--me-fan-drop) mittragen,
+     sonst klebt der Text am Fächer. */
   padding: 0 0 calc(clamp(44px, 6dvh, 62px) + var(--me-fan-drop));
   perspective: 1200px;
 }
@@ -282,10 +251,8 @@
   margin: 0 auto;
   overflow: visible;
   isolation: isolate;
-  /* Der Fächer ragt rechts über die Top-Karte hinaus — translate(30px) plus
-     die Rotation der untersten Karte, gemessen 42px. `margin: 0 auto`
-     zentriert aber nur die Top-Karte; 21px nach links rückt die optische
-     Mitte des GESAMTEN Fächers in die Mitte des Rails. */
+  /* Der Fächer ragt rechts 42px über die oberste Karte hinaus; -21px rückt
+     seine optische Mitte in die Mitte des Rails. */
   left: -21px;
 }
 .fdStackCard,
@@ -330,13 +297,11 @@
   z-index: 4;
   width: 100%;
   height: 100%;
-  /* Die Karte wird beim Blättern/Wischen per translate bewegt (useSwipePager,
-     pageWithCard). Ohne Promotion baut der Browser den Layer erst beim ersten
-     Frame der Bewegung — das ist der sichtbare Ruckler am Animationsstart. */
+  /* Eigene Ebene vorab, sonst ruckelt der erste Frame der Wischbewegung. */
   will-change: transform;
 }
-/* Die abfahrende Karte beim Blättern (siehe MustEatDetailMobile, lib/cardDeal):
-   über dem Stapel, unter der einfahrenden Karte, nicht antippbar. */
+/* Die abfahrende Karte (lib/cardDeal): über dem Stapel, unter der einfahrenden,
+   nicht antippbar. */
 .fdTopCardLeaving {
   z-index: 3;
   pointer-events: none;
@@ -354,16 +319,9 @@
   cursor: zoom-in;
   transform: translateY(-8px) rotate(-2.2deg) rotateY(-4deg) rotateX(1deg);
 }
-/* Die verdeckte Karte liegt still — dieselbe Ruhelage wie die aufgedeckte
-   (siehe .fdHero). Sie hatte hier eine Dauerschleife
-   (fdCardWiggle): ein Kippeln um die 3D-Neigung, das die Karte unter der
-   `perspective` sichtbar unruhig machte — die Ecken wanderten bis 3,7px, und
-   beim Blättern von einer aufgedeckten auf eine verdeckte Karte las sich das
-   als Zoom. Das Antippen-Signal trägt die Copy darunter ("Tipp auf die Karte
-   …"); die zwei ereignisgetriebenen Shakes (in Reichweite / vergeblicher Tap)
-   bleiben. */
+/* Die verdeckte Karte liegt still: Eine Dauerschleife unter `perspective` lässt
+   die Ecken wandern und liest sich beim Blättern als Zoom. */
 .fdHeroLocked {
-  /* Steuert die Dauer des Reichweiten-Shakes weiter unten. */
   --vibrate-duration: calc(1.15s - 0.6s * var(--vibrate-intensity, 0.18));
   cursor: pointer;
 }
@@ -439,9 +397,6 @@
   line-height: 1;
   text-transform: uppercase;
 }
-/* Beide Tasten gleich hell: die dunkle "Weiter"-Taste sah aus wie ein
-   Primär-CTA und stand als zweite schwarze Pille direkt unter "Zum Spot".
-   Gleichrangige Navigation, gleiches Gewicht — schwarz bleibt dem CTA. */
 @media (max-width: 380px), (max-height: 740px) {
   .fdName {
     font-size: clamp(31px, 8.8vw, 44px);
@@ -478,10 +433,7 @@
     height: 100%;
     min-height: 0;
     max-height: 100%;
-    /* Das Schließen-X sitzt bei top: 12px und ist 38px hoch, endet also bei
-       50px. Mit 58px Polster begann die Karte 8px darunter — auf einer Höhe
-       mit dem X, und weil sie fast die Railbreite füllt, stieß ihre obere
-       Ecke optisch daran. 76px lassen sie sichtbar darunter beginnen. */
+    /* Die Karte beginnt sichtbar unter dem Schließen-X (endet bei 50px). */
     padding: clamp(76px, 9dvh, 94px) 24px 16px;
   }
   .fdNameLong {
@@ -494,42 +446,21 @@
     font-size: 16px;
   }
 }
-/* ══════════════════════════════════════════════════════════════════════
-   IN-FLOW MAP LIST (phones ≤767.98px) — the list is window-scrolled in-flow
-   content that OVERLAYS a sticky full-screen map, so its rows composite into
-   iOS Safari's translucent bottom URL bar ("frosting" — proven on device in
-   spike #127; the drag-sheet cannot do this, see revert #129). The map is a
-   position:sticky 100dvh background; the list is pulled up over its lower
-   part (peek) and rises over it as the window scrolls — the Google-Maps
-   sheet feel, driven by scroll instead of drag. useBottomSheet is inert for
-   the phone list view (SheetConfig.inflow) so no touchmove preventDefault
-   swallows the window scroll. The DETAIL view stays a fixed drag-sheet with
-   the full snap/dismiss behavior. Appended last + scoped ≤767.98px so it
-   wins over the ≤1023.98px sheet rules without touching tablet or desktop.
-   Snap→scroll anchors live in MapSection (scrollListToAnchor).
-   ══════════════════════════════════════════════════════════════════════ */
+/* Telefon (≤767.98px): Die Liste scrollt im Fenster über einer sticky Map,
+   damit iOS Safari ihre Zeilen durch die URL-Leiste zeigt. Das Detail bleibt
+   ein fixes Drag-Sheet. Zuletzt und ≤767.98px, damit es die ≤1023.98px-Regeln
+   schlägt, ohne Tablet und Desktop zu berühren. */
 @media (max-width: 767.98px) {
-  /* Open the inner detail ports — the WINDOW scrolls the content now (an
-     inner overflow:auto would re-break the frosting). This later phone-only
-     block resets the ≤1023.98px --sheet-y-keyed caps by source order.
-     overflow-x: clip (NOT visible) contains the pager's translateX preview:
-     the fixed drag-sheet's overflow:hidden used to clip it, but in-flow the
-     whole hero shifted sideways past the viewport edge and the document
-     went horizontally scrollable ("das Bild lässt sich nach links/rechts
-     bewegen", User 2026-07-04). clip + overflow-y:visible is a valid pair
-     that clips horizontally while the vertical content still flows into the
-     window scroll (frosting intact). The gallery keeps its own overflow-x
-     auto for internal scrolling. */
+  /* Das Fenster scrollt den Inhalt (ein inneres overflow:auto bräche den Effekt
+     hinter der URL-Leiste). overflow-x: clip statt visible hält die
+     translateX-Vorschau des Pagers im Rahmen, ohne einen Scroll-Container zu
+     öffnen. */
   .scroll {
     max-height: none;
-    /* Keep the scroll-port itself free of a blank apron; the last real block
-       below is extended instead so Safari's translucent URL bar samples
-       content, not the page background. */
+    /* Kein Leerraum im Scroll-Port: Der letzte echte Block wird verlängert,
+       damit Safaris URL-Leiste Inhalt zeigt, nicht den Seitengrund. */
     padding-bottom: 0;
   }
-  /* Must-Eat detail needs the same iOS URL-bar treatment. Its mobile layout
-     has its own fixed-ish card stack and pager, so extend whichever real
-     block ends the detail instead of reintroducing scroll-port padding. */
   .detail .scroll > :last-child {
     margin-bottom: 0;
     padding-bottom: calc(18px + var(--map-bar-overhang, 0px) + env(safe-area-inset-bottom, 0px));
@@ -555,7 +486,6 @@
     padding-bottom: calc(82px + env(safe-area-inset-bottom, 0px));
   }
 }
-/* Map filter picker: editorial popover instead of a plain system list. */
 @media (min-width: 1024px) {
   .detail {
     position: relative;
@@ -566,8 +496,6 @@
     --me-card-h: min(calc(100% - var(--me-card-air)), 316px);
     --me-flow-gap: 16px;
     --me-content-gap: var(--me-flow-gap);
-    /* Keine Pager-Zeile mehr: geblättert wird an der Karte selbst (Pfeile
-       auf den Kartenkanten), die Leiste unter dem Panel ist weg. */
     grid-template-rows:
       minmax(0, 1fr)
       var(--me-mid-slot)
@@ -778,15 +706,9 @@
     line-clamp: 3;
   }
 }
-/* Must Eat detail final stack: build upward from the fixed bottom controls.
-   Pager and restaurant rows keep their slots; the middle row reserves a real
-   headline slot plus a real copy slot so the blurred name and revealed name
-   share one position without ever sitting on top of the description. */
 .detail .fdMid {
   --me-name-copy-gap: 10px;
-  /* Hoch genug für zwei Zeilen in der größten Namensklasse (gemessen 100px bei
-     44px Schrift) — sonst steht der zweizeilige Fall über der festen
-     Track-Höhe und ragt in den Kartenfächer. svh statt dvh, damit die
+  /* Platz für zwei Zeilen in der größten Namensklasse. svh statt dvh, damit die
      Browserleiste nichts verschiebt. */
   --me-name-slot: clamp(100px, 13svh, 108px);
   grid-template-rows:
@@ -817,13 +739,8 @@
     --me-mid-slot: clamp(196px, 24dvh, 212px);
   }
 }
-/* Die Untergrenze muss den GRÖSSEREN der beiden Zustände tragen. Verdeckt
-   steht in der Copy-Zeile "Standort freigeben" plus zwei Zeilen Hinweis
-   (gemessen 433x813: 65,9px), aufgedeckt nur die geklemmte Beschreibung
-   (59px) — und weil .fdHeroWrap den Rest der Spalte schluckt, zahlte genau
-   diese Differenz der Kartenstapel: 317,1px verdeckt gegen 324,0px
-   aufgedeckt, bei jedem Blättern sichtbar. Mit einem Slot, der beide Zustände
-   fasst, steht die Zeile fest und die Karte bleibt gleich groß. */
+/* Der Slot fasst den größeren der beiden Zustände (verdeckt: Chip plus zwei
+   Zeilen), damit die Karte beim Aufdecken gleich groß bleibt. */
 @media (max-width: 1023.98px) {
   .detail .scroll {
     --me-mid-slot: clamp(168px, 19dvh, 178px);
@@ -835,8 +752,6 @@
 }
 @media (max-width: 380px), (max-height: 740px) {
   .detail .scroll {
-    /* Gemessen 375x667: verdeckt braucht die Zeile 148,8px (84 + 7 + 57,8) —
-       der alte 136px-Boden lag 12,8px darunter. */
     --me-mid-slot: clamp(152px, 20dvh, 158px);
   }
   .detail .fdMid {
@@ -849,13 +764,8 @@
     --me-mid-slot: 158px;
   }
 }
-/* Kein eigener Namens-Slot mehr für die verdeckte Karte: er gab der
-   Proximity-Copy zwar mehr Platz, verschob sie aber beim Aufdecken, weil in
-   diesem Slot dann der Gerichtsname steht. Verdeckt erbt jetzt in jedem
-   Breakpoint exakt den Wert des aufgedeckten Zustands — nur so sitzen Badge
-   und Gerichtsname, und damit auch die Copy darunter, an derselben Stelle.
-   Gegen das Clipping, das der kompakte Wert abfangen sollte, hilft der
-   elastische Kartenstapel: der Slot ist keine harte Obergrenze mehr. */
+/* Verdeckt erbt exakt den Slot des aufgedeckten Zustands, damit Name und Copy
+   beim Aufdecken nicht springen. */
 .fdHeroLocked.mustEatCardCanUnlock {
   animation: fdRevealReadyShake 0.42s linear infinite;
   transform-origin: 50% 58%;
@@ -941,9 +851,6 @@
   min-height: 0;
   aspect-ratio: 1 / 1;
 }
-/* Mobile: keep the sheet height tied to the visible full-snap slice. The hero
-   and text scale down on short phones so card, title, spot row, and pager all
-   stay in one non-scrollable composition. */
 @media (max-width: 1023.98px) {
   .scroll {
     flex: none;
@@ -964,12 +871,8 @@
   }
 }
 
-/* The desktop map rail can be narrower than the 1024px component breakpoint
-   (for example the 940px window in the clipping report). In that range the
-   compact tablet grid is used, but its locked-name and restaurant slots were
-   sized for shorter copy. Keep the covered badge compact and return that
-   space to the reveal guidance; give two-line restaurant names a complete
-   line box above the CTA. */
+/* Desktop-Rail unter 1024px Fensterbreite: Hier gilt das kompakte
+   Tablet-Raster, das für kürzere Texte bemessen ist. */
 
 @media (min-width: 768px) and (max-width: 1023.98px) {
   .scroll {
@@ -977,49 +880,19 @@
   }
 }
 
-/* On short desktop rails the detailed proximity state needs more vertical
-   room than revealed-card prose: distance headline + meter + two-line hint.
-   Keep the complete middle stack so its last line cannot disappear behind
-   the fixed restaurant row. */
-
 @media (min-width: 1024px) and (max-height: 760px) {
   .detail .scroll {
     --me-mid-slot: 196px;
   }
 }
 
-/* ── Must-Eat-Detail: elastisch statt fest verplant ─────────────────────────
+/*
+ * Die Slots (`--me-mid-slot`, `--me-rest-slot`, `--me-pager-slot`) sind
+ * Mindestmaße; der Kartenstapel nimmt den freien Platz und gibt ihn her, wenn
+ * Name oder Beschreibung mehr brauchen.
  *
- * Das Panel war ein festes Pixelbudget: `.scroll` stand auf
- * `overflow: hidden`, und jede Zeile — `--me-mid-slot`, `--me-rest-slot`,
- * `--me-pager-slot` — bekam height, min-height UND max-height auf denselben
- * Wert. Das trägt exakt so lange, wie jeder String einzeilig bleibt. Gemessen
- * auf www.eatthisdot.com/map?me=… bei 1512×900:
- *
- *   .fdV  ("Bubar Crepes und Galettes")  scrollHeight 45 / clientHeight 38
- *         → die zweite Zeile wurde mittig durchgeschnitten.
- *   .fdProximity  max-height 5.12em (81.9px) bei ~85px Inhalt
- *         → die Unterlängen von "Komm näher" wurden abrasiert; gerendert
- *           stand da "KOMM NAHER".
- *
- * Die Slots bleiben — aber als MINDESTmaß. Der Kartenstapel ist der
- * Stoßdämpfer: er nimmt den freien Platz und gibt ihn wieder her, wenn Name
- * oder Beschreibung mehr brauchen. Geschnitten wird nur noch dort, wo ein
- * ehrlicher line-clamp es ansagt.
- *
- * GRID WAR HIER DAS FALSCHE WERKZEUG, zweimal. Ein `auto`-Track wird über
- * max-content bemessen, und max-content ermittelt der Browser bei
- * UNBEGRENZTER Breite — eine umbrechende Headline meldet dort eine Zeile
- * statt drei. `minmax(slot, auto)` wuchs deshalb nie mit. Gemessen auf
- * 375×812: die Mittelzeile blieb bei 158px, während .fdMid 249px brauchte,
- * und `justify-content: flex-end` schob die Differenz nach oben — hinter den
- * Kartenstapel, der mit z-index: 3 darüber liegt. In einer Flex-Spalte
- * ergeben sich die Höhen aus dem echten Layout bei der tatsächlichen Breite.
- * Reihenfolge = DOM-Reihenfolge = die alte Zeilenreihenfolge; die Abstände,
- * die vorher eigene Gap-Tracks waren, sind jetzt margin-top.
- *
- * Steht so weit hinten, weil `.scroll` in vielen Blöcken vorkommt und
- * Quellreihenfolge hier trägt — siehe den Kopf von MapControls.module.css.
+ * Flex-Spalte statt Grid: Ein `auto`-Track misst max-content bei unbegrenzter
+ * Breite und wüchse mit umbrechendem Text nie mit.
  */
 
 .detail .scroll {
@@ -1030,11 +903,8 @@
   overflow-x: hidden;
 }
 
-/* Das Scroll-Ventil gibt es NUR auf dem Desktop-Rail. Phone und Tablet sind
-   ein 100dvh-Takeover, der bewusst nicht scrollt (siehe „viewport-füllendes
-   Layout ohne Scrollen" weiter oben) — dort federt allein der Kartenstapel,
-   und mehr als er hergibt kann der Inhalt nicht wachsen: Gerichtsname,
-   Beschreibung und Restaurantname sind alle geklemmt. */
+/* Scrollen nur auf dem Desktop-Rail. Phone und Tablet sind ein 100dvh-Takeover
+   ohne Scroll; dort federt allein der Kartenstapel. */
 
 @media (min-width: 1024px) {
   .detail .scroll {
@@ -1044,20 +914,15 @@
 
 @media (max-width: 1023.98px) {
   .detail .scroll {
-    /* 768–1023.98px: die Karte ist hier noch BREITEN-gesteuert
-       (--me-card-w) und schrumpft nicht mit ihrer Zeile — ihre Höhe ist
-       Breite × 2115/1539 (--me-card-ratio, ausgeschrieben weil calc() das
-       Verhältnis nicht als Wert nimmt). Die Untergrenze muss also Karte plus
-       Abstand tragen. Unter 768px wird sie höhengesteuert, siehe unten. */
+    /* 768–1023.98px: Die Karte ist breitengesteuert (Höhe = Breite ×
+       2115/1539), die Untergrenze trägt Karte plus Abstand. */
     --me-hero-min: calc(var(--me-card-w) * 2115 / 1539 + var(--me-card-gap));
     overflow-y: hidden;
   }
 }
 
-/* Der Stoßdämpfer. `flex-basis: 0` statt `auto`, damit die Höhe aus dem
-   Flex-Algorithmus kommt und die Prozenthöhe des Stapels (--me-card-h)
-   dagegen auflösbar bleibt. Das padding-bottom (die Luft unter der Karte)
-   bleibt unangetastet. */
+/* Der Stoßdämpfer. `flex-basis: 0`, damit die Prozenthöhe des Stapels
+   (--me-card-h) auflösbar bleibt. */
 
 .fdHeroWrap {
   flex: 1 1 0;
@@ -1077,33 +942,14 @@
   min-height: var(--me-mid-slot);
   max-height: none;
   margin: 0;
-  /* `overflow: hidden` wäre hier gefährlich: zusammen mit
-     `justify-content: flex-end` schiebt zu wenig Platz das ERSTE Kind über die
-     Oberkante — und das ist die Headline. Sie verschwände komplett, statt dass
-     unten etwas knapp wird. Passieren kann das jetzt nicht mehr (die Zeile
-     wächst), aber die Kante bleibt trotzdem offen: falls doch, will man den
-     Fehler sehen und nicht die Überschrift verlieren. Horizontal klemmt
-     weiterhin .scroll. */
+  /* Nicht `overflow: hidden`: Mit `justify-content: flex-end` schöbe zu wenig
+     Platz die Headline über die Oberkante. */
   overflow: visible;
 }
 
-/* Der Gerichtsname stand in einer Box fester Höhe mit `overflow: hidden`, und
-   seine Zeilenhöhe ist KLEINER als die Schriftgröße (0.98 auf dem Phone, 1.14
-   auf dem Rail). Alles, was über die Zeilenbox hinausragt — Umlautpunkte,
-   Oberlängen — lief damit gegen eine Kante: aus "Döner" wurde "Doner", nach
-   demselben Muster wie "Komm näher" → "Komm naher".
-
-   Der verdeckte Zustand hat keine Sonderrolle mehr: dort steht jetzt die
-   Zustands-Kopfzeile im selben Track wie sonst der Gerichtsname, also gilt
-   dieselbe Regel für beide.
-
-   `overflow: visible` löst das Abschneiden — die HÖHE bleibt trotzdem fest.
-   Vorher stand hier `height: auto; max-height: none`, und damit maß sich der
-   Track an seinem Text: je nach Namenslänge griff eine andere Größenklasse und
-   eine zweite Zeile kam dazu, gemessen 88px ("Morning Bun"), 92px ("Biang
-   Biang Lamb") und 100px ("Tomate Slice"). Weil der Track über der Copy sitzt,
-   wanderte damit beim Blättern die halbe Ansicht. Fest plus sichtbar
-   überstehend: Unterlängen ragen heraus, das Layout steht. */
+/* Feste Höhe, sichtbarer Überhang: Die Zeilenhöhe ist kleiner als die Schrift,
+   mit `overflow: hidden` verlören Umlaute ihre Punkte („Döner" → „Doner"), und
+   eine wachsende Höhe ließe beim Blättern die Ansicht wandern. */
 
 .fdName {
   overflow: visible;
@@ -1127,22 +973,13 @@
 .fdMidLocked .fdProximity {
   flex: 0 0 auto;
   height: auto;
-  /* Der Copy-Slot, den vorher die zweite Grid-Zeile reserviert hat. */
   min-height: calc(var(--me-mid-slot) - var(--me-name-slot) - var(--me-name-copy-gap));
   max-height: none;
   overflow: visible;
 }
 
-/* .fdText — die Beschreibung im aufgedeckten Zustand — hing an
-   `height: 100%`. Das war die implizite Klammer, solange .fdMid eine feste
-   Höhe hatte: der Text füllte den Slot und wurde am Rand abgeschnitten.
-   Gegen ein auto-hohes .fdMid wird daraus eine Zirkelreferenz, die Chrome auf
-   die volle Slot-Höhe auflöst — der Block war dann so hoch wie sein eigener
-   Container, der Inhalt brauchte 251 statt 158px, und die Headline wurde nach
-   oben hinter die Karte geschoben. Also echte Höhe plus echter line-clamp:
-   auf dem Phone gibt es keinen Scroll, der eine lange Beschreibung auffangen
-   könnte, geklemmt werden muss sie also — aber sichtbar und auf ganze
-   Zeilen, nicht mitten durch die Glyphen. */
+/* Echte Höhe plus line-clamp statt `height: 100%`: Gegen ein auto-hohes .fdMid
+   wird 100 % zur Zirkelreferenz, und die Headline rutscht hinter die Karte. */
 
 .fdText {
   display: -webkit-box;
@@ -1158,16 +995,10 @@
 
 @media (max-width: 1023.98px) {
   .fdText {
-    /* Drei Zeilen entsprechen dem, was der alte Höhen-Clip auf dem Phone
-       faktisch übrig ließ (Slot 158px minus Namensfeld ≈ 3,4 Zeilen). */
     -webkit-line-clamp: 3;
     line-clamp: 3;
   }
 }
-
-/* Restaurant-Zeile: gleiche Behandlung. Sie darf wachsen, statt den Namen
-   abzuschneiden — der Boden bleibt --me-rest-slot. Der Abstand darüber war
-   ein eigener Grid-Track und ist jetzt ein margin. */
 
 .scroll > .fdRestInline {
   display: grid;
@@ -1175,52 +1006,29 @@
   overflow: visible;
 }
 
-/* ── Desktop-Rail: größerer Kartenstapel ────────────────────────────────────
- * Der Stapel war kleiner, als der Platz hergab — nicht wegen der Deckel
- * (`--me-card-h` 316px, Breiten-Guard 68%), sondern wegen einer
- * Doppelsubtraktion: `min(calc(100% - var(--me-card-air)), …)`. Die 100%
- * beziehen sich auf die Content-Box von .fdHeroWrap, und die hat
- * `--me-card-air` als padding-bottom bei border-box bereits abgezogen. Bei
- * 1512×900 gemessen: Zeile 376px, davon Content 329px, daraus wurden nach dem
- * zweiten Abzug 283px Karte. Die Luft unter der Karte macht das Padding, der
- * Abzug war nur Verlust. */
+/*
+ * Desktop-Rail: kein zweiter Abzug von --me-card-air; die 100 % sind schon die
+ * Content-Box ohne dieses Padding.
+ */
 
 @media (min-width: 1024px) {
   .detail .scroll {
-    /* Wie am Phone kleiner als der Platz hergibt: die Karte hängt unten im
-       Hero-Bereich, das Polster liegt unter ihr, sie wuchs also nach oben —
-       gemessen bis 15px ÜBER die Unterkante des Schließen-X. Was hier an Höhe
-       fehlt, wird oben zu Luft. */
     --me-card-h: min(39svh, 390px);
   }
 }
 
-/* Der Textblock behält in beiden Zuständen dieselbe Slot-Höhe — sonst wandern
-   Karte und Streifen beim Aufdecken, weil die Geometrie zwingend ist:
-   Kartenunterkante + Luft + Textblock + Gap = Streifenoberkante.
-   Beide Zustände sind oben bündig: der aufgedeckte Block ist mit großem
-   Gerichtsnamen plus Beschreibung 153px hoch, der verdeckte nur 71px — an der
-   Oberkante ausgerichtet beginnt der Text in beiden Fällen an derselben
-   Stelle, und die Differenz sammelt sich unten, wo der Streifen sie abfängt.
-   `justify-content` ist die vertikale Achse, falls .fdMid als Flex-Spalte
-   rendert. */
+/* Gleiche Slot-Höhe in beiden Zuständen, oben bündig, sonst wandern Karte und
+   Streifen beim Aufdecken. */
 
 .detail .fdMid.fdMidLocked {
   justify-content: flex-start;
   align-content: start;
 }
 
-/* Phone/Tablet: Name oben, Copy unten — in BEIDEN Zuständen.
- *
- * Der Slot fasst seit dem Höhenfix den verdeckten Zustand (Chip plus zwei
- * Zeilen) und hat im aufgedeckten deshalb Luft. Bei flex-start sammelte die
- * sich unter der Copy: der aufgedeckte Text stand sichtbar weiter vom
- * Restaurantstreifen weg als der verdeckte. space-between legt die Differenz
- * zwischen Name und Copy — Oberkante Name und Unterkante Copy sitzen damit in
- * beiden Zuständen an derselben Stelle.
- *
- * Beide Selektoren, weil .fdMidLocked direkt darüber sein eigenes
- * justify-content setzt; der Desktop-Rail behält seine Aufteilung. */
+/*
+ * Phone/Tablet: Name oben, Copy unten, in beiden Zuständen an derselben Stelle
+ * (space-between).
+ */
 
 @media (max-width: 1023.98px) {
   .detail .fdMid,
@@ -1229,22 +1037,10 @@
   }
 }
 
-/* ── Phone: gewischt wird, nicht getippt ────────────────────────────────────
- *
- * Der Pager war auf dem Phone doppelt gemoppelt: useSwipePager hängt ohnehin
- * am Panel-Root (MustEatDetailMobile.tsx) und ist touch-only — ein Maus-Drag
- * steigt dort bewusst aus, der Desktop behält also seine Tasten. Auf dem
- * Phone kostete die Leiste 62px (--me-pager-slot + --me-footer-gap) für zwei
- * Buttons, die beide "Verdeckt" hießen und damit nichts aussagten.
- *
- * Die Höhe geht an den Kartenstapel — aber ELASTISCH. Der Phone-Stapel war
- * breitengesteuert (--me-card-w) und damit starr: seine Höhe stand fest, egal
- * wie viel Platz seine Zeile hatte. Ohne Scroll ist er der einzige
- * Stoßdämpfer, und ein starrer Stapel macht ihn wirkungslos — im aufgedeckten
- * Zustand (Name plus Beschreibung statt Badge plus zwei Zeilen) schob er die
- * Restaurant-Zeile unter die Safari-Leiste, wo sie abgeschnitten wurde.
- * Deshalb hier dasselbe Modell wie auf dem Desktop-Rail: Höhe aus dem
- * verfügbaren Platz, Breite aus dem Seitenverhältnis.
+/*
+ * Phone: gewischt wird (useSwipePager), es gibt keine Pager-Leiste. Der Stapel
+ * ist höhengesteuert, damit er als einziger Stoßdämpfer nachgeben kann und die
+ * Restaurant-Zeile nicht unter die Safari-Leiste schiebt.
  */
 
 @media (max-width: 767.98px) {
@@ -1257,25 +1053,15 @@
     height: 44px;
   }
   .detail .scroll {
-    /* Etwas kleiner als der Platz hergibt: die Karte ist im Hero-Bereich unten
-       verankert und das Polster liegt komplett unter ihr, sie wuchs also nach
-       oben bis unter das Schließen-X (gemessen 21px Abstand). Was hier an Höhe
-       fehlt, wird oben zu Luft. */
     --me-card-h: min(45svh, 380px);
-    /* Nicht mehr an --me-card-w gekoppelt: der Stapel schrumpft jetzt mit
-       seinem Platz, die Untergrenze muss also nur noch eine lesbare Karte
-       tragen. */
     --me-hero-min: clamp(190px, 26dvh, 260px);
-    /* Das Schließen-X ist hier `fixed` und rechnet Safe-Area plus
-       --map-visual-offset-top ein (siehe .fdClose unten) — das Polster über
-       der Karte tat das nicht. Auf einem Gerät mit Notch rutschte das X damit
-       auf die Karte statt über sie. Beide folgen jetzt demselben Offset. */
+    /* Dasselbe Offset wie das fixe Schließen-X (Safe-Area plus
+       --map-visual-offset-top), sonst rutscht das X bei einer Notch auf die
+       Karte. */
     padding-top: calc(
       clamp(68px, 8dvh, 84px) + env(safe-area-inset-top, 0px) + var(--map-visual-offset-top, 0px)
     );
-    /* Die Phone-Regel hatte die Safe-Area verloren (padding-bottom: 18px).
-       Ohne Dokument-Scroll gibt es keinen Puffer mehr darunter, also muss der
-       Home-Indicator hier wieder eingerechnet werden. */
+    /* Ohne Dokument-Scroll muss der Home-Indicator hier eingerechnet werden. */
     padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px));
   }
   .fdCardStack {
@@ -1285,19 +1071,13 @@
     max-height: var(--me-card-h);
   }
 
-  /* Die konstante Streifenhöhe gehört auf den STREIFEN, nicht auf den Namen —
-     eine reservierte zweite Namenszeile stünde bei kurzen Namen als leere
-     Fläche darunter. Das Maß selbst setzt der Block „Restaurant-Streifen auf
-     Ink". */
-
   .scroll > .fdRestInline {
     align-content: center;
   }
 }
 
-/* Bewegung in den ersten ~32 % des Takts, der Rest ist Ruhe. Dadurch wird aus
-   der Endlosschleife ein wiederkehrender Stups (alle ~3,4 s) statt eines
-   Dauerwackelns — das würde neben dem Aufdeck-Zittern zu Unruhe. */
+/* Bewegung in den ersten ~32 % des Takts: ein wiederkehrender Stups statt
+   Dauerwackeln. */
 @keyframes fdSwipeNudge {
   0%,
   6% {
@@ -1318,8 +1098,6 @@
   }
 }
 .fdSwipeHint {
-  /* Textfassung: standardmäßig aus, sichtbar nur bei reduzierter Bewegung
-     (siehe unten). Absolut, damit sie keine Layouthöhe kostet. */
   position: absolute;
   right: 0;
   bottom: 0;
@@ -1347,22 +1125,13 @@
   }
 }
 
-/* Die Copy im Must-Eat-Detail steht komplett in der Markenschrift: der
-   Zustands-Satz ("Komm auf 50 m …") ebenso wie die Gerichtsbeschreibung.
-   Ein zweiter Schriftblock mittendrin wirkte wie ein Fremdkörper im Panel.
-   Die Zeilenhöhe kommt aus den Blöcken oben (1.24). */
-
 .fdText {
   font-family: var(--et-font-display);
   letter-spacing: 0;
 }
 
-/* Der Namens-Block wird an seinem Inhalt gemessen, nicht am Platz: sein
-   zweiter Track stand auf `minmax(0, 1fr)`, in dem sich .fdV auf die volle
-   Zeilenhöhe streckte — bei "Slice Society" waren das 47px um eine 33px-Zeile,
-   also genau die leere Fläche unter dem Namen. Mit `auto` ist der Block so
-   hoch wie Kicker + echte Zeilen; die Reserve hält der Streifen (min-height
-   138px + align-content: center), der die Luft symmetrisch verteilt. */
+/* `auto` statt `minmax(0, 1fr)`: Sonst streckt sich .fdV und lässt unter dem
+   Namen eine leere Fläche. */
 
 .fdRestName {
   flex: 1 1 auto;
@@ -1374,13 +1143,6 @@
   align-self: center;
   align-content: center;
 }
-
-/* Das Restaurant-Feld ändert seine Höhe nicht mit dem Namen — aber ohne eine
-   reservierte Leerzeile: die konstante Streifenhöhe kommt vom Foto, das höher
-   ist als zwei Namenszeilen. Der Name wird über `align-items: center` des
-   Streifens mittig daneben gesetzt, einzeilig wie zweizeilig. Eine min-height
-   auf .fdV hätte bei "SOFI" eine sichtbar leere zweite Zeile hinterlassen,
-   ohne für die Höhe nötig zu sein. */
 
 .scroll > .fdRestInline .fdRestName {
   grid-column: 2;
@@ -1405,13 +1167,7 @@
   align-content: center;
 }
 
-/* Der Restaurant-Streifen war der höchste Block im Panel (gemessen 186px):
-   ein 86px-Foto mit Bildunterschrift daneben, die Pille darunter. Die Pille
-   bleibt unten — nur das Foto wird kleiner, damit der Streifen dem
-   Kartenstapel Platz zurückgibt. */
-
 @media (min-width: 1024px) {
-  /* Der Platz, den die Bezirks-Bildunterschrift belegt hat, geht ans Foto. */
   .scroll > .fdRestInline .fdRestPhoto {
     width: 96px;
     min-width: 96px;
@@ -1419,20 +1175,13 @@
     min-height: 96px;
   }
 
-  /* Die konstante Streifenhöhe gehört auf den STREIFEN, nicht auf den Namen:
-     eine reservierte zweite Namenszeile stand bei "Slice Society" als leere
-     Fläche unter dem Text. Der Streifen hält 138px (das Maß des zweizeiligen
-     Falls, gemessen) und zentriert seinen Inhalt — bei einem einzeiligen Namen
-     verteilt sich die Luft dadurch oben und unten statt sich unter ihm zu
-     sammeln. Wächst ein Name darüber hinaus, schiebt `height: auto` den
-     Streifen auf und der Kartentrack (1fr) gibt nach; geclippt wird nichts. */
+  /* Der Streifen hält die Höhe des zweizeiligen Falls und zentriert seinen
+     Inhalt; ein längerer Name schiebt ihn auf, geclippt wird nichts. */
 
   .scroll > .fdRestInline {
     align-content: center;
   }
 }
-
-/* Alles auf eine Zeile — die alten Regeln legten die Pille in eine zweite. */
 
 .scroll > .fdRestInline:has(.fdRestPhoto) > .fdRestPhoto {
   grid-column: 1;
@@ -1461,20 +1210,9 @@
   padding: 0;
 }
 
-/* ── Must-Eat-Sheet: Ink-Panel wie das Onboarding ────────────────────────────
-   Das Sheet war die einzige Must-Eat-Fläche auf Papier. Das Onboarding
-   (MustEatsOnboarding.module.css), das denselben Kartenstapel erklärt, steht
-   auf Ink: dunkler Grund, weiße Versalien, gelber Kicker, gelber
-   Knopf, Karte mit Schlagschatten, alles auf einer Mittelachse. Beide zeigen
-   dieselbe Karte, also bekommen sie dieselbe Bühne (Nutzer, 02.09.2026: „mach
-   mehr wie das Must-Eat-Onboarding").
-
-   Umgesetzt über die --me-*-Tokens: --me-ink ist die Schriftfarbe,
-   --me-paper der Grund, --me-muted der Fließtext, --me-soft die Fläche der
-   Restaurant-Zeile. Rund vierzig Regeln hängen daran und kippen mit — nur die
-   Stellen mit fest verdrahtetem Ink (Label und Knopf der Restaurant-Zeile)
-   stehen darunter einzeln. Steht hinter der Papier-Fassung — nur von dort
-   gewinnt sie ohne !important. */
+/* Ink-Panel wie das Onboarding (MustEatsOnboarding.module.css), über die
+   --me-*-Tokens. Steht hinter der Papier-Fassung, nur von dort gewinnt es ohne
+   !important. */
 
 .detail,
 .scroll {
@@ -1487,9 +1225,6 @@
   background: var(--me-paper);
   color: var(--me-ink);
 }
-/* Filter/card correction: no helper words, no picker chrome, stronger photo cards. */
-
-/* Das X wie im Onboarding (.x): weiß, gelb bei Hover. */
 
 .fdClose:focus-visible {
   outline: 0;
@@ -1511,12 +1246,9 @@
   }
 }
 
-/* Der Stapel hebt sich mit dem Schatten des Onboarding-Flippers vom Grund ab
-   (dort `.face`). Ein box-shadow auf dem Kasten, kein filter: drop-shadow —
-   der macht auf Touch-WebKit aus einer Alpha-WebP eine rechteckige
-   Schattenplatte (siehe MustEatImageLightbox.module.css). Der Schatten sitzt
-   auf dem Knopf, nicht auf seinem Bild: der Knopf klemmt (overflow: hidden)
-   und hätte den Schatten des Bildes abgeschnitten. */
+/* box-shadow statt filter: drop-shadow: Der macht auf Touch-WebKit aus einer
+   Alpha-WebP eine rechteckige Schattenplatte. Am Knopf, weil der (overflow:
+   hidden) den Schatten des Bildes abschnitte. */
 
 .fdHero,
 .fdStackCard {
@@ -1524,11 +1256,8 @@
   box-shadow: 0 10px 20px rgb(0 0 0 / .2);
 }
 
-/* Kicker + Gerichtsname bilden EIN Objekt im Namens-Slot: der Kicker hängt
-   direkt über der ersten Zeile und wandert mit ihr, statt oben im Slot zu
-   schweben, wenn der Name nur eine Zeile hat. Der Slot wird um die Höhe des
-   Kickers größer, der Kartenstapel darunter (--me-card-h) gibt sie ab — die
-   Copy-Zeile bleibt, wo sie war. */
+/* Kicker und Gerichtsname bilden ein Objekt: Der Kicker hängt direkt über der
+   ersten Zeile, statt oben im Slot zu schweben. */
 
 .fdHead {
   display: flex;
@@ -1544,10 +1273,6 @@
   overflow: visible;
 }
 
-/* Der Kicker ist ein gerades Etikett (et-label, globals.css) wie in der
-   Restaurant-Ansicht. Er nennt den Bezirk — die eine Angabe, die verdeckt
-   wie aufgedeckt gilt und nicht schon im Restaurant-Streifen steht. */
-
 .fdKicker {
   flex: 0 0 auto;
   margin: 0;
@@ -1562,8 +1287,6 @@
   max-height: none;
   text-align: center;
 }
-
-/* Titel und Fließtext in der Fassung des Onboardings (.title / .text). */
 
 .fdName,
 .fdNameText {
@@ -1589,53 +1312,27 @@
   text-align: center;
 }
 
-/* Mittig wie das Onboarding: Karte, Kicker, Titel, Text auf einer Achse. Die
-   Phone-Regel bei 4503 legt den Slack per space-between zwischen Kopf und
-   Copy — das bleibt, weil der Kopf (fdHead) jetzt den Kicker mitträgt. */
-
 .detail .fdMid,
 .detail .fdMid.fdMidLocked {
   align-items: center;
 }
 
-/* Die Karte gibt die 18px des Kickers ab (siehe .fdHead); sie ist auf dem
-   Phone und im Rail höhengesteuert, nur hier kleiner.
-
-   Der Phone-Slot der Mittelzeile wächst mit dem Kopf: die Zeile muss den
-   GRÖSSTEN Zustand tragen, und das ist
-   die dreizeilig geklemmte Beschreibung (15px × 1.4 × 3 = 63px) — der
-   verweigerte Standort ist seit dem Toast kein eigener Zustand mehr. */
-
 @media (max-width: 1023.98px) {
   .detail .scroll {
-    /* Kopf (Namens-Slot 88–96 + 18 Kicker) + 9 Gap + 63 Copy = 178–186. */
     --me-mid-slot: clamp(180px, 22dvh, 188px);
-    /* Der Rail hat 16px Luft über dem Streifen (3161), das Phone hatte KEINE:
-       --me-content-gap war unter 1024px nie definiert, der margin-top des
-       Streifens (4437) löste sich zu 0 auf, und die Luft kam nur aus dem
-       Slack der Copy-Zeile — je nach Textlänge 0 bis 35px. Jetzt fest. */
     --me-content-gap: var(--me-flow-gap);
   }
 }
 
 @media (max-width: 380px), (max-height: 740px) {
   .detail .scroll {
-    /* Namens-Slot 74–84 + 18 + 7 + 63. */
     --me-mid-slot: clamp(164px, 24dvh, 172px);
   }
 }
 
-/* 46svh statt 42: die Karte hing mit 43px Luft unter dem Schließen-X, der
-   Nutzer wollte sie auf dem Telefon größer (02.09.2026). Sie ist unten
-   verankert und wächst nach oben — bei 812px von 341 auf 373px, die Oberkante
-   bleibt 29px unter dem X. */
-/* Die Karte auf dem Telefon: so hoch wie die Spalte hergibt, aus dem Budget
-   gerechnet statt geraten. Safari legt das Sheet auf den KLEINEN Viewport
-   (URL-Leiste sichtbar; iPhone 16 Pro ≈ 774pt, nicht 874), und mit 46svh stand
-   die Karte dort schon am Schließen-X — „nicht größer geworden" (Nutzer,
-   02.09.2026). Alles Feste unter ihr ist im Endblock „Telefon: Budget" auf
-   382px gestrafft; der Rest ist Karte. Kein Breitendeckel mehr: auf dem Telefon
-   gibt es keine Pfeile neben der Karte. */
+/* Die Karte auf dem Telefon: so hoch, wie die Spalte hergibt. Safari legt das
+   Sheet auf den kleinen Viewport (URL-Leiste sichtbar), deshalb aus dem Budget
+   gerechnet (siehe „Telefon: Budget"). */
 @media (max-width: 767.98px) {
   .detail .scroll {
     --me-card-h: min(430px, calc(100svh - 396px));
@@ -1647,52 +1344,15 @@
   }
 }
 
-/* ── Restaurant-Layer, neu ───────────────────────────────────────────────────
- *
- * Vorher eine graue Panel-Kachel: Foto-Thumbnail links, Name daneben, darunter
- * eine schwarze Pille über die volle Breite. Sie war der schwerste Block im
- * Sheet und stand als zweite "Karte" gegen die Must-Eat-Karte, um die es geht.
- *
- * Jetzt Markensprache: keine Fläche, Struktur aus Weißraum und Typo. Foto
- * quadratisch, Name in der Markenschrift, die Aktion als kompakte Ink-Pille in
- * Inhaltsbreite — alles auf EINER Zeile. Der Block ist damit rund 30px
- * flacher; die gehen an die Karte darüber.
- *
- * Fläche, Rand, Rundung und Innenabstand kommen aus dem Block
- * „Restaurant-Streifen auf Ink" — eine Haarlinie hat dieser Block nie
- * gezeichnet.
- *
- * Die Selektoren tragen `:has(.fdRestPhoto)` mit, weil die früheren Regeln das
- * tun und den drei Kindern feste Grid-Plätze geben (die Pille lag in Zeile 2).
- * Ohne dieselbe Spezifität gewinnt die alte Platzierung.
- *
- * `display` kommt aus dem Block weiter oben, der den Streifen aufs Grid setzt —
- * hier steht nur, wie das Grid aussieht. */
+/*
+ * Restaurant-Zeile: Foto, Name, eine Zeile, keine eigene Kachel. Die Selektoren
+ * tragen `:has(.fdRestPhoto)`, weil die Grid-Regeln weiter oben es tun; ohne
+ * dieselbe Spezifität gewinnt deren Platzierung.
+ */
 
-/* ── Restaurant-Streifen auf Ink ─────────────────────────────────────────────
-   Eine Stufe heller als der Grund (--me-soft), gelbes Label in der
-   Kicker-Fassung, weißer Name, der Knopf gelb wie „Weiter" im Onboarding
-   (.next). Die Selektorliste mit :has() ist nötig, weil der Block
-   „Restaurant-Layer, neu" seine `background: transparent` mit genau dieser
-   Spezifität setzt.
-
-   Derselbe Block hat die Zeile als RANDLOSE Typo-Zeile gebaut — `padding:
-   14px 0 0`, Foto und Knopf bündig zur Textkante, nur eine Haarlinie darüber.
-   Auf einer Fläche mit Rundung klebten Foto und Knopf damit an der Kante
-   (Nutzer, 02.09.2026). Ein Panel braucht Innenabstand: 12px ringsum.
-
-   Die ganze Zeile ist der Knopf (button bzw. Link in MustEatDetailMobile),
-   rechts ein gelber Pfeil statt der „Zum Spot"-Pille: die Pille nahm der
-   Namensspalte 100px, lange Namen brachen („Knödelwirt-/schaft SÜD"), und ein
-   zweizeiliger Name machte die Zeile 9px höher — der Kartenstapel sprang beim
-   Blättern (Rail, 02.09.2026). Jetzt hat der Name auf 343px 191px, im Rail
-   179px, bleibt einzeilig und die Zeile in jeder Karte 80px. */
-/* Die Fläche, wie sie der Nutzer haben will (02.09.2026, vierte Runde): das
-   helle Panel (--me-soft) mit Foto, Label und Name — ohne Pfeil, ohne „Zum
-   Spot", ohne Ring. Ein Ring als Zweit-Tasten-Zeichen stand kurz und wurde
-   abgelehnt („das davor war besser"). Die Zeile ist trotzdem als Ganzes der
-   Knopf (button bzw. Link); Hover hellt die Fläche auf, mehr Zeichen braucht
-   sie nicht. */
+/* Die ganze Zeile ist der Knopf, ohne „Zum Spot"-Pille: Die nähme dem Namen
+   Platz, und ein zweizeiliger Name ließe den Kartenstapel beim Blättern
+   springen. */
 .detail .scroll > .fdRestInline:has(.fdRestPhoto),
 .detail .scroll > .fdRestInline {
   grid-template-rows: auto;
@@ -1705,9 +1365,7 @@
   grid-template-columns: 56px minmax(0, 1fr);
   width: 100%;
   min-height: 80px;
-  /* Luft über der Zeile — fest, nicht über --me-content-gap: der Block
-     „Restaurant-Layer, neu" setzt `margin: 0`, die Variable kam nie an
-     (gemessen 0px, 02.09.2026). */
+  /* Fest, nicht über --me-content-gap: Ein Block weiter oben setzt `margin: 0`. */
   margin-top: 14px;
   padding: 12px;
   appearance: none;
@@ -1744,12 +1402,9 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
-/* Einzeilig, mit Ellipse als letztem Mittel — die Stufen (fdVLong ab 15,
-   fdVCompact ab 21 Zeichen) sorgen dafür, dass sie praktisch nie greift. Feste
-   Pixel statt vw: der Rail ist 379px breit, aber `4.4vw` maß am 1440er-Fenster
-   und gab dort 20px, mehr als am Telefon (siehe „Desktop-Panel: Maße fürs
-   379px-Panel" in RestaurantDetail.module.css). Kein Zweizeilen-Deckel mehr, also auch kein Tintenraum-Padding
-   darunter; die Zeilenhöhe 1.3 trägt die Unterlänge. */
+/* Einzeilig, Ellipse als letztes Mittel (die Stufen fdVLong und fdVCompact
+   fangen fast alles ab). Feste Pixel statt vw: Der Rail ist schmal, vw wüchse
+   mit dem Fenster. */
 
 .scroll > .fdRestInline .fdV {
   width: 100%;
@@ -1785,11 +1440,8 @@
   font-size: 13px;
 }
 
-/* Gerichtsname im Rail: feste Pixel statt vw, aus demselben Grund. Die
-   vw-Stufen (3.4 / 3.1 / 2.4vw) gaben bei 1512px 44 / 42 / 34px — GRÖSSER als
-   am Telefon bei 343px Textbreite. „RINDERGULASCH" maß bei 42px 344px in einem
-   331px-Rail: die Zeile stand links an und ragte rechts heraus, nur die zweite
-   war mittig. Mit 33px sind es 270px. */
+/* Feste Pixel statt vw: vw wüchse mit dem Fenster, und lange Namen ragten aus
+   dem schmalen Rail. */
 
 @media (min-width: 1024px) {
   .fdName {
@@ -1806,14 +1458,9 @@
   }
 }
 
-/* ── Standort-Chip der verdeckten Karte ──────────────────────────────────────
-   „Wo bist du?" und „Standort blockiert" standen in der Gerichtszeile, in
-   Gerichtsgröße — eine Browser-Berechtigung, die sich wie der Name eines
-   Gerichts las (Nutzer, 02.09.2026). Die Zeile gehört jetzt dem Gericht
-   („Noch nicht aufgedeckt."), der Standort sitzt darunter als eigenes Objekt
-   in der Copy-Zeile: eine Taste mit Pin, solange man den Browser noch fragen
-   darf; gedimmt und ohne Taste, sobald er Nein gesagt hat — dann sagt der
-   Hinweis darunter, wo es noch geht. Aussehen: der Hausknopf (et-btn). */
+/* Die Gerichtszeile gehört dem Gericht; der Standort ist ein eigener Chip
+   darunter (Hausknopf et-btn), gedimmt ohne Taste, sobald der Browser Nein
+   gesagt hat. */
 
 .fdLocation {
   display: grid;
@@ -1822,8 +1469,6 @@
   width: 100%;
 }
 
-/* Der Standort-Knopf ist ein Hausknopf (et-btn et-btn-sm) — hier steht nur
-   das Symbol darin. */
 .fdLocationChip svg {
   flex: 0 0 auto;
   width: 16px;
@@ -1839,29 +1484,10 @@
   }
 }
 
-/* ── Blättern an der Karte ────────────────────────────────────────────────────
-   Die Winkel sitzen im Stapel (.fdCardStack) und stehen ab 768px absolut an den
-   Kanten der obersten Karte, auf halber Höhe. Sie standen kurz neben dem
-   Kicker („‹ MUST EAT · BEZIRK ›", 02.09.2026) — auf Ansage zurück an die
-   Karte (03.09.2026: „die Pfeile auf Desktop neben den Karten"). Auf dem
-   Telefon gibt es keine Winkel, dort wird gewischt (siehe unten); dort scheiterte
-   die Kanten-Fassung dreimal, weil jede Spur neben der Karte Kartenbreite
-   kostete. Im Tablet-Sheet ist neben der Karte Platz; im Rail (379px) kauft
-   ihn die Karte: Silhouette = Karte + 42px Fächerüberhang (unterste Karte,
-   translate + Rotation, gemessen), mittig über `left: -21px`. Bei 242px Karte
-   blieben je 47px Spur — ein 22px-Glyph stand darin 11px vor der Karte, „viel
-   zu nah" (03.09.2026). Jetzt hat die Spur 60px (--me-lane), die Karte im
-   Rail also 217px statt 242: 12px Rand, 22px Glyph, 26px Luft zur Silhouette,
-   beidseitig gleich. Wer die Karte im Rail größer will, muss die Spur opfern.
-
-   Die Winkel messen ab Kartenkante (--me-arrow-gap, Tastenrand zur Karte;
-   rechts plus den Fächerüberhang), damit sie im Tablet-Sheet und im Rail
-   gleich weit von der Silhouette stehen.
-
-   Die Taste ist die ganze Spur, nicht der Winkel: Kartenhöhe mal 59px, der
-   Glyph sitzt darin, wo er vorher stand. Als 44×36-Kasten traf nur, wer genau
-   auf den 22px-Winkel zielte — die 15px zur Karte und alles über und unter
-   ihm waren tot („lassen sich schwer drücken auf Desktop", 24.09.2026). */
+/* Blättern an der Karte: Ab 768px stehen Winkel an den Kanten der obersten
+   Karte, auf dem Telefon wird gewischt. Im Rail kauft die Karte den Platz für
+   die Spuren (--me-lane): Wer die Karte größer will, muss die Spur opfern. Die
+   ganze Spur ist die Taste, nicht nur der Winkel. */
 
 .fdKickerRow {
   display: flex;
@@ -1912,14 +1538,9 @@
 
 @media (min-width: 768px) {
   .fdCardStack {
-    /* Tastenrand → Kartenkante; der Glyph (22px in 44px) steht 11px weiter
-       innen, also 26px vor der Silhouette. */
     --me-arrow-gap: 15px;
     --me-fan-overhang: 42px;
   }
-
-  /* Spur = Luft zur Karte + die alte 44px-Taste; der Glyph steht 11px vom
-     äußeren Rand, also weiter 26px vor der Silhouette. */
 
   .fdPagerPrev,
   .fdPagerNext {
@@ -1928,8 +1549,7 @@
     bottom: 0;
     width: calc(var(--me-arrow-gap) + 44px);
     height: auto;
-    /* Über den Fächerkarten (absolut, ohne z-index) — die Taste darf nicht
-       unter einer schräg hängenden Karte liegen. */
+    /* Über den schräg hängenden Fächerkarten. */
     z-index: 2;
   }
 
@@ -1949,18 +1569,13 @@
 @media (min-width: 1024px) {
   .fdCardStack {
     --me-lane: 60px;
-    /* Der Stapel liegt in .fdHeroWrap (Rail minus 2 × 24px Polster). Karte =
-       Rail − 2 Spuren − Fächer = Wrap + 48 − 120 − 42. Die Höhe folgt der
-       Kartenproportion; die Rail-Regeln oben setzen sie sonst aus --me-card-h
-       und machen die Karte damit wieder 242px breit. */
+    /* Karte = Rail − 2 Spuren − Fächer; die Höhe folgt der Kartenproportion. */
     width: calc(100% + 48px - 2 * var(--me-lane) - var(--me-fan-overhang));
     max-width: calc(100% + 48px - 2 * var(--me-lane) - var(--me-fan-overhang));
     height: auto;
     max-height: none;
   }
 }
-
-/* Der Fokusring gehört an den Winkel, nicht an die kartenhohe Spur. */
 
 .fdPagerPrev:focus-visible,
 .fdPagerNext:focus-visible {
@@ -1973,8 +1588,6 @@
   outline: 2px solid var(--me-accent);
   outline-offset: 6px;
 }
-
-/* Der Hover-Schub bewegt nur den Winkel — die Spur bleibt unter dem Zeiger. */
 
 @media (hover: hover) {
   .fdPagerPrev:hover,
@@ -2004,24 +1617,18 @@
   }
 }
 
-/* ── Telefon: Budget ─────────────────────────────────────────────────────────
-   Was unter der Karte fest ist, gemessen am kleinen Safari-Viewport (URL-Leiste
-   sichtbar) — jede Zeile hier ist Kartenhöhe. Zusammen 396px, siehe
-   --me-card-h oben:
+/* Telefon: Budget. Was unter der Karte fest ist; jede Zeile hier ist
+   Kartenhöhe:
      62  Polster oben (das X endet bei 58)
      22  Luft unter der Karte + 38 Fächerüberhang
-    176  Mittelteil (Kopf 84 + 18 Kicker, 9 Gap, Copy 3 Zeilen 63, 2 Reserve)
-     14  Luft über der Restaurant-Zeile (margin-top der Zeile)
+     176  Mittelteil (Kopf 84 + 18 Kicker, 9 Gap, Copy 63, 2 Reserve)
+     14  Luft über der Restaurant-Zeile
      72  Restaurant-Zeile (Foto 48)
-     12  Polster unten (+ Safe-Area, die zahlt der Viewport)
-   Die Beschreibung klemmt auf zwei Zeilen — die dritte war die Ausnahme, die
-   allen Karten 20px Höhe kostete. */
+     12  Polster unten (+ Safe-Area) */
 
 @media (max-width: 767.98px) {
   .detail .scroll {
     --me-card-gap: 22px;
-    /* Der Mittelteil hält die Reserve selbst (min-height), die Copy darunter
-       misst sich nur noch an ihrem Text (siehe .fdText unten). */
     --me-mid-slot: 176px;
     --me-content-gap: 10px;
     padding-top: calc(62px + env(safe-area-inset-top, 0px) + var(--map-visual-offset-top, 0px));
@@ -2031,19 +1638,8 @@
     --me-name-slot: 84px;
   }
 
-  /* Zwei Zeilen — und der Block ist genau so hoch. Vorher hielt er als
-     Copy-Slot 55px bei 42px Text: der Clamp setzte die Ellipse in Zeile 2,
-     aber die dritte Zeile lugte in den 13px darunter hervor, und die
-     Restaurant-Zeile lag direkt auf ihr („kaum Platz unter der Beschreibung",
-     Biang Biang Lamb, 02.09.2026). Die Reserve hält jetzt der Mittelteil
-     (min-height 166 = Kopf 102 + 9 + 55); der Slack sammelt sich unter der
-     Copy, über der Restaurant-Zeile. */
-  /* Drei Zeilen, ganz — keine Ellipse („nicht mit … brechen", 02.09.2026).
-     Die längste Beschreibung im Stapel hat 104 Zeichen, das sind auf 343px drei
-     Zeilen; der Mittelteil reserviert sie (176 = Kopf 102 + 9 + 63 + 2). Eine
-     längere würde den Mittelteil wachsen lassen statt abzubrechen. Der Block
-     misst sich an seinem Text — eine 55px-Reserve am Block selbst ließ die
-     dritte Zeile unter der Ellipse hervorlugen (Biang Biang Lamb). */
+  /* Drei Zeilen, ganz: Die längste Beschreibung passt so; eine längere ließe
+     den Mittelteil wachsen, statt abzubrechen. */
   .fdText {
     display: block;
     -webkit-line-clamp: unset;
@@ -2073,22 +1669,12 @@
   }
 }
 
-/* Telefon: keine Pfeile — gewischt wird (Nutzer, 02.09.2026: „nimm die Pfeile
-   raus, aber man muss erkennen, dass man swipen kann"). Erkennbar machen es
-   der Wisch-Nudge der obersten Karte (fdTopCardHint, jetzt pro Sitzung statt
-   für immer) und der Zählstand im Kicker. Im Rail bleiben die Winkel. */
-
 @media (max-width: 767.98px) {
   .fdPagerPrev,
   .fdPagerNext {
     display: none;
   }
 }
-
-/* „1 / 23" in eigener Zeile über dem Kicker — zentriert, gedimmt, in der
-   Kicker-Fassung. Hinter dem Kicker las er sich als Anhängsel (Nutzer,
-   02.09.2026). Die Zeile kostet 12px + 6px im Kopf; ein zweizeiliger Name ragt
-   dann bis 20px in die Luft unter dem Fächer, die 60px trägt das. */
 
 .fdKickerCount {
   flex: 0 0 auto;
@@ -2103,10 +1689,8 @@
   white-space: nowrap;
 }
 
-/* Die Polster des Sheets setzt der Block bei „[data-map-sheet][data-view=
-   'detail'] .detailMountMustEat" über die Sheet-Attribute (Spezifität 0,5,0)
-   auf 70 und 18 — die Werte oben im Budget-Block kamen dagegen nicht an
-   (gemessen 70/18). Dieselbe Klammer, damit 62 und 12 wirklich gelten. */
+/* Dieselbe Spezifität wie `[data-map-sheet][data-view='detail']
+   .detailMountMustEat`, sonst kommen die Budget-Polster nicht an. */
 
 @media (max-width: 767.98px) {
   [data-map-sheet][data-view='detail'] [data-detail-kind='must-eat'] .scroll {
@@ -2115,7 +1699,6 @@
   }
 }
 
-/* The restaurant link uses the same silver paper as the home hero. */
 .detail .scroll > .fdRestInline:has(.fdRestPhoto),
 .detail .scroll > .fdRestInline {
   border: 0;
@@ -2127,7 +1710,6 @@
   background-position: center;
   background-blend-mode: multiply;
 }
-/* Match the dark hero paper without filtering the photo or text. */
 :global(html[data-theme='dark']) .detail .scroll > .fdRestInline:has(.fdRestPhoto),
 :global(html[data-theme='dark']) .detail .scroll > .fdRestInline {
   position: relative;
@@ -2167,14 +1749,11 @@
   color: var(--et-fg);
 }
 
-/* Das X frei, ohne Fläche (Ansage 22.10.2026: „beim X kein Rahmen"), als
-   gezeichnetes Zeichen (icons.tsx CloseIcon) in der Stärke der übrigen. */
 .fdClose svg {
   width: 24px;
   height: 24px;
 }
 
-/* Flache Telefone nutzen die Breite: Karte links, Gericht und Spot rechts. */
 @media (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
   .detail .scroll {
     display: grid;
@@ -2220,7 +1799,6 @@
   }
 }
 
-/* Alpha-Artwork braucht keine rechteckigen Schattenplatten. */
 .fdHero,
 .fdStackCard { box-shadow: none; }
 

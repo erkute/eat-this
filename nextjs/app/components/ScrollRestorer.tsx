@@ -5,19 +5,17 @@ import { useEffect } from 'react';
 /**
  * Back/forward scroll restoration for App Router soft navigations.
  *
- * Native restoration (history.scrollRestoration = 'auto') is broken for
- * soft navs: on popstate the browser restores immediately, while the
- * *previous* page's DOM is still mounted — the position gets clamped to the
- * old page's (often shorter) height and never corrected after React swaps in
- * the real content. Verified against a production build: /news → article →
- * back landed at 0 instead of ~1200.
+ * Native restoration (history.scrollRestoration = 'auto') is broken for soft
+ * navs: on popstate the browser restores immediately, while the previous page's
+ * DOM is still mounted, so the position gets clamped to the old page's height
+ * and never corrected after React swaps in the real content.
  *
- * Saving positions continuously doesn't work either: Next.js calls
- * pushState only *after* the DOM swap, so the clamp that happens during the
- * swap overwrites the departing entry's real position.
+ * Saving positions continuously doesn't work either: Next.js calls pushState
+ * only after the DOM swap, so the clamp during the swap overwrites the
+ * departing entry's real position.
  *
  * So: take over completely (scrollRestoration = 'manual', set here on the
- * client — the browser never moves scroll on traversal) and
+ * client) and
  *   – stamp every history entry with a key (pushState/replaceState patch),
  *   – save the current entry's position at the moments it is still intact:
  *     pointerdown/keydown capture (before any link nav swaps the DOM),
@@ -26,7 +24,7 @@ import { useEffect } from 'react';
  *   – on popstate, restore the target entry's saved position once the new
  *     page is tall enough (retry loop, cancelled by user input),
  *   – on full-load back/forward/reload arrivals (no bfcache), restore from
- *     the stamped key at install time — except a reload of the home page,
+ *     the stamped key at install time, except a reload of the home page,
  *     which starts at the top. bfcache hits keep scroll by snapshot.
  *
  * Forward navs are untouched: Next scrolls new pushes to top itself.
@@ -191,9 +189,8 @@ function install() {
     const navType = (
       performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined
     )?.type;
-    // A reload of the home page starts at the top, where its intro plays
-    // (Ansage 01.10.2026); the head script already stopped Safari's own
-    // restore there.
+    // A reload of the home page starts at the top, where its intro plays; the
+    // head script already stopped Safari's own restore there.
     const homeReload =
       navType === 'reload' && document.documentElement.getAttribute('data-active-page') === 'start';
     if ((navType === 'back_forward' || navType === 'reload') && !homeReload) {

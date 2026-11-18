@@ -88,11 +88,11 @@ describe('MustEatsSection', () => {
   });
 
   it('never states a Must Eat in the singular per spot', () => {
-    // Ein Spot kann MEHRERE Must Eats haben (mustEatCountByRestaurant in
+    // Ein Spot kann mehrere Must Eats haben (mustEatCountByRestaurant in
     // lib/map/server-initial-map-data.ts zählt sie hoch, der Pager blättert
-    // zwischen ihnen). Die Behauptung "ein Gericht pro Spot" stand hier schon
-    // dreimal drin und ist dreimal aufgefallen — deshalb ein eigener Test statt
-    // einer Zeile im Copy-Test.
+    // zwischen ihnen). Die Behauptung "ein Gericht pro Spot" schleicht sich
+    // leicht in die Texte ein, deshalb ein eigener Test statt einer Zeile im
+    // Copy-Test.
     for (const locale of ['de', 'en'] as const) {
       const html = render(locale);
       for (const forbidden of [

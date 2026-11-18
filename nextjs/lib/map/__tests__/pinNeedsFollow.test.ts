@@ -19,10 +19,10 @@ describe('pinNeedsFollow', () => {
   });
 
   it('lässt die Karte im Kartenstreifen in Ruhe', () => {
-    /* Streifen: 72 px + Safe Area. Dort ist die Karte Kulisse, gelesen wird
-       das Detail. Bis 29.09.2026 holte die Kamera den Pin in den Streifen —
-       beim Lesen verschob sich die Karte darin, am Ende des Details bei jedem
-       Nachziehen (Betreiber). */
+    /* Streifen: 72 px + Safe Area. Dort ist die Karte Kulisse, gelesen wird das
+       Detail. Die Kamera holt den Pin nicht in den Streifen: Sonst verschöbe
+       sich die Karte darin beim Lesen, am Ende des Details bei jedem
+       Nachziehen. */
     const stripTop = 72 + SAFE_TOP;
     expect(pinNeedsFollow(55 + SAFE_TOP, stripTop, SAFE_TOP)).toBe(false);
     expect(pinNeedsFollow(30, stripTop, SAFE_TOP)).toBe(false);
@@ -30,8 +30,8 @@ describe('pinNeedsFollow', () => {
   });
 
   it('lässt sie auch in Ruhe, wenn das Sheet über den Streifen hinaus gescrollt ist', () => {
-    /* Die Oberkante des Sheets steht dann weit über dem Bildschirm; bis
-       29.09.2026 galt jeder Pin darüber als verdeckt. */
+    /* Die Oberkante des Sheets steht dann weit über dem Bildschirm; ein Pin
+       darüber gilt deshalb nicht als verdeckt. */
     expect(pinNeedsFollow(253, -769, SAFE_TOP)).toBe(false);
   });
 });

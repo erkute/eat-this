@@ -19,7 +19,7 @@ import {
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
-// Websuche plus Artikel auf Deutsch und Englisch: gemessen 4:40 min.
+// Websuche plus Artikel auf Deutsch und Englisch dauern einige Minuten.
 export const maxDuration = 600;
 
 // „Mit AI schreiben“ im Studio: Die App schreibt den Artikel und setzt ihn

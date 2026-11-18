@@ -2,10 +2,10 @@
  * Seed test-mode Stripe products/prices for every catalog pack.
  *
  * Staging and local dev run Stripe with a test key; the live price IDs in
- * lib/stripe-catalog.ts don't exist there, so checkout failed with
- * "No such price". This creates one product + price per pack with
- * lookup_key = packId, which lib/stripe-price.ts resolves at runtime.
- * Idempotent — packs whose lookup_key already exists are skipped.
+ * lib/stripe-catalog.ts don't exist there, so checkout would fail with "No such
+ * price". This creates one product + price per pack with lookup_key = packId,
+ * which lib/stripe-price.ts resolves at runtime. Idempotent: packs whose
+ * lookup_key already exists are skipped.
  *
  * Run from `nextjs/` with the TEST key (refuses live keys):
  *   STRIPE_SECRET_KEY=sk_test_... npx tsx scripts/seed-stripe-test-prices.ts
@@ -24,7 +24,7 @@ async function main() {
     process.exit(1);
   }
 
-  const stripe = new Stripe(key, { apiVersion: '2025-02-24.acacia', typescript: true });
+  const stripe = new Stripe(key, { apiVersion: '2026-10-28.endive', typescript: true });
 
   for (const pack of Object.values(CATALOG)) {
     const existing = await stripe.prices.list({

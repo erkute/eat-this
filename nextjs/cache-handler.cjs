@@ -5,54 +5,32 @@ const path = require('path');
 
 // ISR-Cache für mehrere Cloud-Run-Instanzen.
 //
-// Nexts eingebauter FileSystemCache hält, welcher Tag wann invalidiert wurde,
-// in einer Map im Prozess. Auf App Hosting laufen aber mehrere Instanzen
-// nebeneinander (am 09.10.2026 bis zu vier gleichzeitig), und der Sanity-Webhook
-// auf /api/revalidate landet auf genau einer davon. Alle anderen zeigten den
-// alten Stand weiter, bis die 24-Stunden-Frist ablief. Dieser Handler schreibt
-// jede Invalidierung zusätzlich nach Firestore und gleicht den Stand vor jedem
-// Cache-Zugriff ab, höchstens alle SYNC_INTERVAL_MS.
+// Nexts FileSystemCache hält, welcher Tag wann invalidiert wurde, in einer Map
+// im Prozess. Auf App Hosting laufen mehrere Instanzen, und der Sanity-Webhook
+// auf /api/revalidate landet auf genau einer. Dieser Handler schreibt jede
+// Invalidierung zusätzlich nach Firestore und gleicht den Stand vor jedem
+// Cache-Zugriff ab, höchstens alle SYNC_INTERVAL_MS. Geteilt wird nur die
+// Tabelle Tag → Zeitpunkt; Seiten und Daten bleiben im Cache der Instanz.
 //
-// Zweitens: Next 15.5 setzt einen Tag nur, wenn er noch NICHT in der Map steht
-// (`if (!tagsManifest.has(tag)) tagsManifest.set(tag, Date.now())`). Pro
-// Instanz griff damit nur die erste Invalidierung eines Tags; jede weitere –
-// etwa die zweite Änderung am selben Spot oder jede Änderung an einem anderen
-// Spot über den Sammel-Tag `restaurant` – lief ins Leere. Hier wird der
-// Zeitpunkt bei jedem Aufruf neu gesetzt.
+// Zweitens läuft jede Invalidierung sofort ab (`expired`), auch wenn ein
+// Aufrufer eine cacheLife-Dauer mitgibt: die Seite wird beim nächsten Aufruf
+// blockierend neu gebaut, nie veraltet ausgeliefert.
 //
-// Seiten und Daten liegen weiter im FileSystemCache der Instanz; geteilt wird
-// nur die kleine Tabelle Tag → Zeitpunkt.
+// Drittens zählen Tags aus der Zeit vor dem Build nicht. App Hosting setzt das
+// Dateidatum im Image auf 1980-01-01, und Next nimmt es als Alter einer
+// vorgebauten Seite; jede Instanz rechnete sonst jede Seite mit Sammel-Tag
+// (`restaurant`, `news`) beim ersten Aufruf blockierend neu. Den
+// Build-Zeitpunkt trägt die BUILD_ID (next.config.ts).
 //
-// Drittens: Tags aus der Zeit vor dem Build zählen nicht. Die Buildpacks von
-// App Hosting setzen das Dateidatum jeder Datei im Image auf 1980-01-01
-// (geprüft am Image build-2026-11-06-001), und Next nimmt dieses Datum als
-// Alter einer vorgebauten Seite. Jeder Tag in der Tabelle war damit jünger als
-// jede vorgebaute Seite: Spot-, Bezirks-, Kategorie- und Artikelseiten tragen
-// Sammel-Tags wie `restaurant` und `news`, also rechnete jede Instanz jede
-// dieser Seiten beim ersten Aufruf blockierend neu (live `x-nextjs-cache:
-// MISS`, 0,4–0,6 s Serverzeit, auf frischen Instanzen mehrere Sekunden), obwohl
-// sie seit dem Build unverändert war. Ältere Tags beschreiben Änderungen, die
-// der Build schon enthält. Den Zeitpunkt trägt die BUILD_ID (next.config.ts).
-//
-// Viertens wirkt jede Invalidierung nach FOLLOW_UP_MS noch zweimal nach. Die
-// Seiten lesen Sanity über das API-CDN, und das liefert nach einer Änderung
-// noch Minuten lang auf einem Teil seiner Knoten den alten Stand, auch für
-// eine Abfrage, die eben schon frisch kam (staging, 06.11.2026: bis +50 s rund
-// jede zweite Antwort alt, bei +180 s noch zwei von sieben, nach gut vier
-// Minuten noch einzelne). Eine Seite, die direkt nach dem Webhook neu gebaut
-// wird, hielt diesen Stand bis zur 24-Stunden-Frist fest — so am 06.11.2026
-// /kategorie/coffee nach dem Umbenennen eines Spots. Nach jedem Nachlauf gilt
-// alles, was vor ihm geschrieben wurde, wieder als veraltet und wird beim
-// nächsten Abruf neu gebaut. Die Nachläufe rechnet jede Instanz selbst aus
-// dem geteilten Zeitpunkt; es läuft dafür kein Timer im Hintergrund.
+// Viertens wirkt jede Invalidierung nach FOLLOW_UP_MS noch zweimal nach: das
+// Sanity-API-CDN liefert nach einer Änderung minutenlang auf einem Teil seiner
+// Knoten den alten Stand, und eine sofort neu gebaute Seite hielte ihn bis zur
+// 24-Stunden-Frist fest. Die Nachläufe rechnet jede Instanz selbst aus dem
+// geteilten Zeitpunkt, ohne Timer.
 //
 // Fünftens gilt eine vorgebaute Seite als so alt wie ihr Build. Mit dem
-// Dateidatum 1980 war sie für die 24-Stunden-Frist sofort abgelaufen: jede
-// Instanz lieferte jede vorgebaute Seite beim ersten Aufruf als `STALE` aus
-// und rechnete sie danach im Hintergrund neu (live am 11.11.2026, viereinhalb
-// Stunden nach dem Build: 20 von 30 Spot-Seiten `STALE`). Nach der Antwort
-// drosselt Cloud Run die CPU, die Sanity-Abfrage dieser Neuberechnung lief
-// darum in ihr Zeitlimit (Sentry JAVASCRIPT-AH).
+// Dateidatum 1980 wäre sie sofort `STALE`, und die Neuberechnung im Hintergrund
+// liefe nach der Antwort in Cloud Runs CPU-Drossel.
 
 const FileSystemCache =
   require('next/dist/server/lib/incremental-cache/file-system-cache').default;
@@ -86,9 +64,9 @@ const FOLLOW_UP_MS = [2 * 60 * 1000, 10 * 60 * 1000];
 
 /**
  * Trägt Invalidierungen in Nexts Tag-Tabelle ein, samt ihren Nachläufen.
- * Next hält eine Seite für veraltet, wenn einer ihrer Tags einen Zeitpunkt
- * >= ihrer Entstehung trägt. Eingetragen wird darum der letzte Nachlauf, der
- * schon erreicht ist; `tick` rückt nach, solange einer aussteht.
+ * Next verwirft eine Seite, wenn einer ihrer Tags ein `expired` nach ihrer
+ * Entstehung und nicht nach jetzt trägt. Eingetragen wird darum der letzte
+ * Nachlauf, der schon erreicht ist; `tick` rückt nach, solange einer aussteht.
  */
 function createTagClock({ now = () => Date.now(), manifest = tagsManifest, followUps = FOLLOW_UP_MS } = {}) {
   const lastFollowUp = Math.max(0, ...followUps);
@@ -102,8 +80,8 @@ function createTagClock({ now = () => Date.now(), manifest = tagsManifest, follo
   }
 
   function raise(tag, at) {
-    const local = manifest.get(tag);
-    if (local === undefined || at > local) manifest.set(tag, at);
+    const entry = manifest.get(tag);
+    if (!(entry?.expired >= at)) manifest.set(tag, { ...entry, stale: at, expired: at });
   }
 
   function record(tag, ts) {
@@ -248,10 +226,11 @@ function withBuildAge(entry, builtAt) {
 
 // Nur auf Cloud Run (K_SERVICE), nicht im Build und nicht lokal: ein lokaler
 // Produktionslauf mit den Admin-Schlüsseln aus .env.local schriebe sonst in
-// die Prod-Datenbank.
+// die Prod-Datenbank. Nie in der Edge-Middleware, die kein Firestore kennt.
 function sharedEnabled() {
   return (
     Boolean(process.env.K_SERVICE) &&
+    process.env.NEXT_RUNTIME !== 'edge' &&
     process.env.NEXT_PHASE !== 'phase-production-build' &&
     process.env.REVALIDATE_SHARED_TAGS !== 'off'
   );
@@ -279,8 +258,7 @@ function getShared(serverDistDir) {
 }
 
 class CacheHandler extends FileSystemCache {
-  async revalidateTag(...args) {
-    let [tags] = args;
+  async revalidateTag(tags) {
     tags = typeof tags === 'string' ? [tags] : tags || [];
     if (tags.length === 0) return;
     const ts = Date.now();

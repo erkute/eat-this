@@ -8,18 +8,17 @@ import { normalizeName } from '@/lib/normalizeName';
 import type { RevealStatus } from './useMustEatDetailState';
 import styles from './MustEatRevealOverlay.module.css';
 
-/* Aufdecken in drei Takten, wie ein Pack, das man aufreißt (Betreiber,
-   24.09.2026: „das muss befriedigender sein").
+/* Aufdecken in drei Takten, wie ein Pack, das man aufreißt.
 
-   1. Spannung (`lift`, `charge`): die Karte hebt sich auf eine dunkle Bühne,
+   1. Spannung (`lift`, `charge`): Die Karte hebt sich auf eine dunkle Bühne,
       die sich aus ihr heraus öffnet, und zittert immer stärker, während Licht
       hinter ihr hervorsickert. Diese Phase deckt die Wartezeit auf den Server
-      ab — sie dauert mindestens CHARGE_MIN_MS, auch wenn die Antwort sofort
+      ab; sie dauert mindestens CHARGE_MIN_MS, auch wenn die Antwort sofort
       da ist, sonst fehlt der Anlauf.
    2. Knall (`flip`): kurz zurückholen, eine entschlossene Drehung, die Karte
-      schlägt mit dem Gericht nach oben auf — und genau dann Strahlen,
+      schlägt mit dem Gericht nach oben auf, und genau dann Strahlen,
       Schockwelle, Konfetti, Vibration.
-   3. Beute (`show`): unter der Karte, auf der Bühne und nicht im Namensfeld
+   3. Beute (`show`): Unter der Karte, auf der Bühne und nicht im Namensfeld
       des Sheets, steht, was man bekommen hat, und der Zähler der Sammlung
       tickt eins hoch. Lange genug zum Lesen; ein Tipp geht früher weiter.
       Dann fliegt die Karte in ihren Platz im Sheet und die Bühne schließt

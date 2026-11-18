@@ -27,8 +27,8 @@ describe('getPublicMustEatIds', () => {
     expect(getCachedMapData).not.toHaveBeenCalled();
   });
 
-  // Prod 03.11.2026: ~80 Bilder auf einer frischen Instanz, jedes mit eigenen
-  // Sanity-Abfragen — alle liefen ins Zeitlimit und endeten als 500.
+  // Rund 80 Bilder auf einer frischen Instanz, jedes mit eigenen
+  // Sanity-Abfragen: Alle liefen ins Zeitlimit und endeten als 500.
   it('teilt sich eine Anfrage, solange sie läuft', async () => {
     const results = await Promise.all(Array.from({ length: 80 }, () => getPublicMustEatIds()));
 

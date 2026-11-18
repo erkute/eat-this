@@ -1,16 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 /**
- * The map chunk is ~800 KB, so hovering a map link warms it. That makes this a
- * bet, not a requirement — and a bet that loses must not leave anything behind.
+ * The map chunk is large, so hovering a map link warms it. That makes this a
+ * bet, and a bet that loses must not leave anything behind: no unhandled
+ * rejection (the caller fires and forgets with `void`), and no rejected promise
+ * cached for the rest of the session.
  *
- * Both cases below are things it did: a failed chunk request surfaced as an
- * unhandled rejection (the caller fires and forgets with `void`, which attaches
- * no handler), and the rejected promise stayed in the module cache, so every
- * later hover handed the same rejection back and preloading stayed dead for the
- * rest of the session — long after the network came back.
- *
- * The retry is asserted on promise IDENTITY rather than on how often the import
+ * The retry is asserted on promise identity rather than on how often the import
  * ran: a mocked module is cached after its first import, so counting factory
  * calls would measure the mock, not the code.
  */

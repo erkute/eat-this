@@ -56,14 +56,10 @@ function compose(over: Record<string, unknown> = {}) {
   } as Parameters<typeof composeAccountSurface>[0]);
 }
 
-/* Diese Ableitung stand bis zum 31.08.2026 zweimal da — in /api/map-data und
-   in publicDeck.server.ts — und ist auseinandergelaufen: der Admin-Zweig
-   fehlte in der zweiten Kopie, das geteilte Deck meldete „0 von 24", waehrend
-   das Profil desselben Kontos „24 von 24" zeigte. Kein Test hielt die beiden
-   zusammen. Jetzt gibt es nur noch eine Definition, und hier steht sie fest. */
+/* Diese Ableitung gibt es genau einmal, für /api/map-data und für
+   publicDeck.server.ts; hier steht die eine Definition fest. */
 describe('composeAccountSurface', () => {
-  /* Die eine Zeile, an der der ganze Umbau vom 06.09.2026 haengt: es gibt
-     keine gesperrten SPOTS mehr, fuer niemanden. Gestaffelt ist nur der
+  /* Es gibt keine gesperrten Spots, für niemanden. Gestaffelt ist nur der
      Kartenstapel. */
   it('gibt jedem jeden Spot — auch ohne Konto', async () => {
     const s = await compose();
@@ -90,8 +86,8 @@ describe('composeAccountSurface', () => {
     expect(s.faceUpIds.size).toBe(ALL_MUST_EATS.length);
   });
 
-  /* All-Berlin ist gekauft, nicht vergeben — muss aber dasselbe ergeben.
-     Genau diese zweite Bedingung ist beim Kopieren verloren gegangen. */
+  /* All-Berlin ist gekauft, nicht vergeben, muss aber dasselbe ergeben wie der
+     Admin. */
   it('behandelt all-berlin wie den Admin', async () => {
     const admin = await compose({ ent: { ...EMPTY_ENT, isAdmin: true } });
     const allBerlin = await compose({ ent: { ...EMPTY_ENT, hasAllBerlin: true } });

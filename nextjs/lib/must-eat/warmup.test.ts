@@ -40,8 +40,8 @@ describe('warmMustEatImages', () => {
     readPrivateMustEatContent.mockResolvedValue({ a: {}, b: {} });
   });
 
-  // Prod 26.09.2026: auf zwei von drei frischen Instanzen lief die
-  // Sanity-Abfrage ins Zeitlimit und riss den ganzen Lauf mit.
+  // Auf einer frischen Instanz kann die Sanity-Abfrage ins Zeitlimit laufen;
+  // sie darf den Lauf nicht mitreißen.
   it('waermt Firestore und Bucket auch, wenn Sanity scheitert', async () => {
     getPublicMustEatIds.mockRejectedValue(new Error('Socket timed out'));
 

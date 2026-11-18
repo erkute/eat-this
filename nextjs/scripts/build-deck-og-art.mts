@@ -1,13 +1,12 @@
 // Das Vorschaubild eines geteilten Decks (og:image von /deck/<uid>), lokal
 // fertig gerendert, je Sprache eine Datei.
 //
-// Warum vorab und nicht pro Abruf: Das Bild haengt an keinem einzelnen Deck
-// (Name und Stand stehen im Titel und in der Beschreibung der Vorschau). Pro
-// Abruf gerechnet dauerte der erste Aufruf live 20 s, weil die Kartenfotos erst
-// aus dem Speicher kamen; Messenger warten nur wenige Sekunden. Als Datei
-// kommt es sofort vom CDN.
+// Vorab und nicht pro Abruf: das Bild haengt an keinem einzelnen Deck (Name und
+// Stand stehen im Titel und in der Beschreibung), und pro Abruf gerechnet
+// dauerte der erste Aufruf laenger, als Messenger warten. Als Datei kommt es
+// sofort vom CDN.
 //
-// Warum lokal: Die Markenschrift darf nicht auf den Server.
+// Lokal, weil die Markenschrift nicht auf den Server darf.
 //
 // Aufbau wie die Deck-Seite: links die Ink-Tafel mit einem Faecher aus fuenf
 // offenen Karten (der oeffentliche Satz, in Kartenreihenfolge), rechts Papier
@@ -18,8 +17,8 @@
 //
 //   npm run build:deck-og-art
 //
-// Neu laufen lassen nach Aenderungen an den beiden Texten oder am
-// oeffentlichen Kartensatz.
+// Neu laufen lassen nach Aenderungen an den beiden Texten oder am oeffentlichen
+// Kartensatz.
 import React from 'react';
 import { ImageResponse } from 'next/og';
 import sharp from 'sharp';

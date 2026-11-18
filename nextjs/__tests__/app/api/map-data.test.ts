@@ -1,4 +1,3 @@
-import { brotliDecompressSync } from 'node:zlib'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('@/lib/map/cached-sanity', () => ({
@@ -74,9 +73,8 @@ beforeEach(() => {
   vi.clearAllMocks()
 })
 
-/* Bis zum 06.09.2026 staffelte diese Route die SPOTS: 100 ohne Konto, 150 mit,
-   der Rest gegen Geld. Das ist weg — sie liefert jedem den ganzen Katalog und
-   entscheidet nur noch, welche KARTEN offen liegen. */
+/* Die Route liefert jedem den ganzen Katalog und entscheidet nur, welche Karten
+   offen liegen. */
 describe('/api/map-data — die Karte ist frei', () => {
   it('gibt einem anonymen Besucher jeden Spot', async () => {
     const restaurants = Array.from({ length: 200 }, (_, i) =>
@@ -127,9 +125,9 @@ describe('/api/map-data — welche Karten offen liegen', () => {
 
     const json = await (await GET(mkReq(null))).json()
 
-    /* Ohne Konto liegt seit dem 07.09.2026 der GANZE Stapel da — als Ruecken,
-       jeder ein Anlass zur Anmeldung. Offen ist nur das Schaufenster, und die
-       Ruecken tragen nichts Bezahltes (siehe naechster Test). */
+    /* Ohne Konto liegt der ganze Stapel da, als Rücken, jeder ein Anlass zur
+       Anmeldung. Offen ist nur das Schaufenster, und die Rücken tragen nichts
+       Bezahltes (siehe nächster Test). */
     expect(json.mustEats).toHaveLength(REVEALED_TARGET + 3)
     expect(json.revealedMustEatIds).toHaveLength(REVEALED_TARGET)
     const covered = json.mustEats.filter(
@@ -144,10 +142,9 @@ describe('/api/map-data — welche Karten offen liegen', () => {
     }
   })
 
-  /* Eine verdeckte Karte gibt es seit der Deck-Staffelung nur fuer ein Konto,
-     das sie besitzt — das Starter Pack vergibt zehn davon. Die bezahlten
-     Felder duerfen den Server trotzdem nicht verlassen: sichtbar heisst
-     „Ruecken im Album", nicht „offen". */
+  /* Verdeckte Karten liegen fuer jeden im Stapel. Die bezahlten Felder duerfen
+     den Server trotzdem nicht verlassen: sichtbar heisst „Ruecken", nicht
+     „offen". */
   it('covered cards carry no dish/image/price/description, revealed ones stay full', async () => {
     const restaurants = [mkRestaurant('a1'), mkRestaurant('a2')]
     const mustEats = [
@@ -290,32 +287,5 @@ describe('/api/map-data — welche Karten offen liegen', () => {
 
     await GET(mkReq(null))
     expect(getUnlockedMustEatIds).not.toHaveBeenCalled()
-  })
-})
-
-/* 379 kB gingen roh raus — Next komprimiert Route-Handler nicht. Am Telefon
-   kam die Antwort dadurch mit p90 2,4 s an, obwohl der Server p99 0,73 s
-   brauchte (Prod-Log 26.09.2026). */
-describe('/api/map-data — Kompression', () => {
-  it('antwortet mit Brotli, wenn der Browser es anbietet', async () => {
-    const restaurants = Array.from({ length: 200 }, (_, i) =>
-      mkRestaurant(`r${String(i).padStart(3, '0')}`),
-    )
-    vi.mocked(getCachedMapData).mockResolvedValue({
-      restaurants: restaurants as any,
-      mustEats: [],
-      categories: [],
-    })
-    vi.mocked(resolveEntitlements).mockResolvedValue(baseEnt)
-
-    const req = new Request('https://example.com/api/map-data', {
-      headers: { 'accept-encoding': 'gzip, deflate, br' },
-    })
-    const res = await GET(req)
-
-    expect(res.headers.get('content-encoding')).toBe('br')
-    expect(res.headers.get('cache-control')).toBe('private, no-store')
-    const json = JSON.parse(brotliDecompressSync(Buffer.from(await res.arrayBuffer())).toString())
-    expect(json.restaurants).toHaveLength(200)
   })
 })

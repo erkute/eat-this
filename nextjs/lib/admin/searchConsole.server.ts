@@ -3,19 +3,19 @@ import { sinceDay, dayBefore, type Range } from '@/lib/admin/stats.server';
 import { summarizeSearch, type ApiRow, type SearchResult } from '@/lib/admin/searchConsole';
 
 /**
- * Holt die Suchzahlen aus der Search Console — mit dem Dienstkonto, das die
- * App ohnehin traegt.
+ * Holt die Suchzahlen aus der Search Console, mit dem Dienstkonto, das die App
+ * ohnehin trägt.
  *
- * Lokal ist das das explizite Konto aus `.env.local` (FIREBASE_ADMIN_*), in
- * App Hosting das Compute-Konto des Backends ueber Application Default
- * Credentials — dieselbe Logik wie lib/firebase/admin.ts, nur dass hier ein
- * Google-API-Token mit dem Search-Console-Scope gebraucht wird, kein
- * Firebase-Admin-Handle. Beide Konten muessen in der Search Console als
- * Nutzer der Property eingetragen sein; fehlt das, antwortet Google mit 403,
- * und die Route zeigt statt Zahlen die E-Mail, die freizuschalten ist.
+ * Lokal ist das das explizite Konto aus `.env.local` (FIREBASE_ADMIN_*), in App
+ * Hosting das Compute-Konto des Backends über Application Default Credentials:
+ * dieselbe Logik wie lib/firebase/admin.ts, nur dass hier ein Google-API-Token
+ * mit dem Search-Console-Scope gebraucht wird, kein Firebase-Admin-Handle.
+ * Beide Konten müssen in der Search Console als Nutzer der Property eingetragen
+ * sein; fehlt das, antwortet Google mit 403, und die Route zeigt statt Zahlen
+ * die E-Mail, die freizuschalten ist.
  *
- * Die Search Console API ist im Projekt eat-this-8a13b aktiviert (geprueft
- * 03.09.2026); die Zahlen hinken dem Tag um zwei bis drei Tage nach.
+ * Die Search Console API ist im Projekt eat-this-8a13b aktiviert; die Zahlen
+ * hinken dem Tag um zwei bis drei Tage nach.
  */
 
 const SEARCH_CONSOLE_PROPERTY = 'sc-domain:eatthisdot.com';

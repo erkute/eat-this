@@ -51,9 +51,8 @@ function imageAssetKey(url: string | undefined): string {
 
 /**
  * Obergrenze für den Titelgrad aus dem längsten Wort des Namens, in `cqi` der
- * Kopfspalte. Versalien laufen rund 0,62em breit (gemessen an der früheren
- * Titelschrift); ein Wort mit n
- * Zeichen passt also bis 100cqi / (0,62·n) in eine Zeile.
+ * Kopfspalte. Versalien laufen rund 0,62em breit; ein Wort mit n Zeichen passt
+ * also bis 100cqi / (0,62·n) in eine Zeile.
  */
 function titleFitStyle(name: string): CSSProperties {
   const longest = Math.max(...name.split(/\s+/).map((w) => w.length), 1);
@@ -146,9 +145,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     : null;
   const title = menuTitle ?? editorialTitle;
 
-  // Branded share card — the dynamic OG route overlays name + cuisine + district
-  // on the restaurant photo (and falls back to a brand card when there is none),
-  // which previews far stronger on social than the bare photo did.
+  // Branded share card: the dynamic OG route overlays name + cuisine + district
+  // on the restaurant photo, with a brand card when there is none.
   const ogImage = `${SITE_URL}/api/og/restaurant?slug=${slug}&locale=${loc}`;
 
   const alternates = buildHreflangAlternates(`/restaurant/${slug}`, loc, {
@@ -211,26 +209,24 @@ function SpotPhoto({
 }
 
 /**
- * Die Spot-Seite im Heftlook nach 032c (Wahl 03.10.2026, Entwurf A6): eine
- * Spalte von 768px, der Name riesig, darunter nur der Bezirk, dann der
- * Vorspann gross und fett. Bei wenig Text stehen Galeriefotos als breite
- * Bildgruppen; Absätze bleiben zusammen (lib/spotFlow.ts).
- * Insider-Tipp und Must Eats sind eigene Abschnitte. Was man zum Hingehen
- * braucht — Adresse, Zeiten, Küche, Preis und die Knöpfe —, steht am Ende,
- * überschrieben mit dem Namen des Spots. Der Schluss führt über Kategorien
- * und zwei weitere Spots zurück ins Entdecken.
+ * Die Spot-Seite im Heftlook nach 032c: eine Spalte von 768px, der Name riesig,
+ * darunter nur der Bezirk, dann der Vorspann groß und fett. Bei wenig Text
+ * stehen Galeriefotos als breite Bildgruppen; Absätze bleiben zusammen
+ * (lib/spotFlow.ts). Insider-Tipp und Must Eats sind eigene Abschnitte. Was man
+ * zum Hingehen braucht (Adresse, Zeiten, Küche, Preis und die Knöpfe), steht am
+ * Ende, überschrieben mit dem Namen des Spots. Der Schluss führt über
+ * Kategorien und zwei weitere Spots zurück ins Entdecken.
  *
- * Weggefallen gegenüber der Ink-Fassung vom 25.09.2026: der Öffnungsstatus im
- * Kopf, Küche und Preis über dem Namen, Remy (Abschnitt und Knopf) und die
- * Map-Tafel am Ende — alles auf Ansage 03.10.2026.
+ * Nicht auf dieser Seite: Öffnungsstatus im Kopf, Küche und Preis über dem
+ * Namen, Remy (Abschnitt und Knopf) und eine Map-Tafel am Ende.
  */
 export default async function RestaurantPage({ params }: PageProps) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
   const page = await getRestaurantPageData(slug);
   if (!page) {
-    // Post-rebuild slug migration: try to 301 an old/404 slug to its current
-    // page before giving up. See lib/seo/legacyRedirects.ts.
+    // An old slug 301s to its current page before giving up
+    // (lib/seo/legacyRedirects.ts).
     const dest = resolveLegacyRestaurantSlug(slug, await getAllRestaurantsLite());
     if (dest && dest !== slug) {
       permanentRedirect(locale === 'de' ? `/restaurant/${dest}` : `/${locale}/restaurant/${dest}`);
@@ -248,9 +244,9 @@ export default async function RestaurantPage({ params }: PageProps) {
   const tipText = pickLocale(r.tip, r.tipEn, loc);
   const displayName = normalizeName(r.name);
   const heroAssetKey = imageAssetKey(r.photo);
-  // The hero photo is NOT a gallery item. It used to be prepended here, which
-  // showed the same picture twice on every spot that has no extra gallery
-  // images (Bari et al.) — header photo, then the identical "gallery".
+  // The hero photo is NOT a gallery item: prepended here, it would show the
+  // same picture twice on every spot that has no extra gallery images — header
+  // photo, then the identical "gallery".
   const galleryImages = (r.gallery ?? [])
     .filter((img): img is typeof img & { thumb: string; full: string } =>
       Boolean(img?.thumb && img?.full)
@@ -276,7 +272,7 @@ export default async function RestaurantPage({ params }: PageProps) {
   const categoryLinks = (r.categories ?? []).filter(
     (c): c is typeof c & { slug: string; name: string } => Boolean(c?.slug && c?.name)
   );
-  // Zur Map führt auf UNSERE Map (Nutzer-Entscheidung 28.08.), nie zu Google.
+  // Zur Map führt auf unsere Map, nie zu Google.
   const mapHref = `/map?r=${slug}`;
   // Vorübergehend geschlossen: die Map lässt den Spot weg, `?r=` liefe dort
   // ins Leere — also kein Map-Knopf, dafür der Hinweis bei den Angaben.
@@ -307,9 +303,8 @@ export default async function RestaurantPage({ params }: PageProps) {
   const galleryAlt = (i: number) =>
     galleryImages[i].alt || `${displayName} ${de ? 'Foto' : 'photo'} ${i + 2}`;
   // Jedes Foto braucht seinen Nachweis. Stammen alle von derselben Quelle,
-  // steht er einmal in der Mehrzahl unter dem Aufmacher („Fotos: AVIV 030") —
-  // fünfmal dieselbe Zeile war Rauschen, „Foto:" in der Einzahl las sich, als
-  // gelte er nur fürs erste Bild. Sonst steht er unter jedem Bild.
+  // steht er einmal in der Mehrzahl unter dem Aufmacher („Fotos: AVIV 030");
+  // sonst unter jedem Bild.
   const sharedCredit =
     galleryImages.length > 0 &&
     Boolean(r.photoCredit) &&
@@ -341,8 +336,8 @@ export default async function RestaurantPage({ params }: PageProps) {
       />
       <main className={styles.page} data-page="restaurant">
         <SpotArrival slug={slug} />
-        {/* Unter dem Namen nur der Bezirk — keine Küche, kein Preis, kein
-            Status, keine Knöpfe (Ansage 03.10.2026). */}
+        {/* Unter dem Namen nur der Bezirk: keine Küche, kein Preis, kein
+            Status, keine Knöpfe. */}
         <header className={styles.head}>
           <h1 className={styles.title} style={titleFitStyle(displayName)}>
             {displayName}
@@ -441,12 +436,11 @@ export default async function RestaurantPage({ params }: PageProps) {
             </ul>
           )}
 
-          {/* Der Steckbrief (Wahl 07.10.2026 im Steckbrief-Labor, Fassung
-              „Heft"): in der Typografie der Seite selbst, zentriert wie der
-              Kopf — der Name, darunter Bezirk · Küche · Preis, dann wie beim
-              Insider-Tipp kleine Zwischentitel über grosser Schrift. Jede
-              Zeile für sich mittig. Abgelehnt: Ink-Tafel mit gelben Labels
-              („zu schwarz") und ein Datenblatt mit Haarlinien. */}
+          {/* Der Steckbrief: in der Typografie der Seite selbst, zentriert wie
+              der Kopf. Der Name, darunter Bezirk · Küche · Preis, dann wie beim
+              Insider-Tipp kleine Zwischentitel über großer Schrift. Jede Zeile
+              für sich mittig. Keine Ink-Tafel mit gelben Labels und kein
+              Datenblatt mit Haarlinien. */}
           <section className={styles.brief} aria-labelledby="spot-facts">
             <h2 id="spot-facts" className={styles.briefTitle}>
               {displayName}
@@ -554,7 +548,7 @@ export default async function RestaurantPage({ params }: PageProps) {
           </section>
 
           {/* Das Herz als Satz „Ich ♥ <Name>" nach dem Steckbrief, über „Im
-              Magazin" (Wahl 07.10.2026; davor stand der Name doppelt). */}
+              Magazin". */}
           <HeartButton
             restaurantId={r._id}
             name={r.name}

@@ -3,17 +3,12 @@ import type { RestaurantCard } from './types';
 /**
  * Reihenfolge einer Restaurant-Liste: kuratierte Bestenliste oben, Rest als
  * vollständiges Verzeichnis darunter. Genutzt von den Bezirks-Seiten
- * (`bezirk.topSpots`) und den Kategorie-Seiten (`category.topSpots`) — dieselbe
- * Mechanik, ein Modul.
+ * (`bezirk.topSpots`) und den Kategorie-Seiten (`category.topSpots`).
  *
- * Warum kuratiert statt berechnet: Der Datensatz enthält kein Qualitätssignal.
- * `tip`, `shortDescription` und `description` werden beim Import generiert und
- * sind zu 100 % gefüllt (340/340), Herzen gibt es 12 auf 340 Spots. Jede Formel
- * darüber erzeugt eine Reihenfolge, die kuratiert *aussieht* und Zufall ist —
- * schlechter als alphabetisch, weil alphabetisch wenigstens ehrlich willkürlich
- * ist. Die Rangfolge kommt deshalb aus dem Studio.
- *
- * Entscheidung und aktuelle Mechanik: AGENTS.md (Gewollte Produktlogik)
+ * Kuratiert statt berechnet, weil der Datensatz kein Qualitätssignal trägt: die
+ * Texte entstehen beim Import, Herzen sind zu wenige. Jede Formel darüber
+ * erzeugt eine Reihenfolge, die kuratiert aussieht und Zufall ist. Die
+ * Rangfolge kommt deshalb aus dem Studio (AGENTS.md, Gewollte Produktlogik).
  */
 
 /**
@@ -44,11 +39,10 @@ const directoryCollator = new Intl.Collator('de', { sensitivity: 'base', numeric
 /**
  * Alphabetisch, Ziffern-Namen ans Ende.
  *
- * Bis 25.09.2026 blieb hier die GROQ-Reihenfolge stehen (`order(name asc)`).
- * Die sortiert aber nach Codepunkten: jeder kleingeschriebene Name („barlevain",
- * „jaja", „otto") und jeder Umlaut („Österelli") landete HINTER Z — im
- * Dinner-Verzeichnis elf Spots, die dort niemand sucht. Seit das Verzeichnis
- * Buchstaben-Marken trägt, wäre das ein zweites „B" nach dem „Z" gewesen.
+ * Nicht die GROQ-Reihenfolge (`order(name asc)`): Die sortiert nach
+ * Codepunkten, jeder kleingeschriebene Name („barlevain", „jaja", „otto") und
+ * jeder Umlaut („Österelli") landete hinter Z. Mit den Buchstaben-Marken des
+ * Verzeichnisses wäre das ein zweites „B" nach dem „Z".
  */
 function directoryOrder(restaurants: RestaurantCard[]): RestaurantCard[] {
   return [...restaurants].sort(

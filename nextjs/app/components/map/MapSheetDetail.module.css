@@ -15,15 +15,9 @@
   touch-action: pan-y;
   overscroll-behavior: contain;
 }
-/* Cap the mount to the *visible* sheet slice on tablets so the inner
-   scroller's height matches what the user can actually see. Without this
-   the aside extends past the viewport (its height is the full body grid
-   cell, only translated down), and the scroller — a flex:1 child — uses
-   that full height as its scroll-port. Result: max scrollTop equals
-   (content - full-aside-height) which lets the user only reach a fraction
-   of the body at mid-snap. Capping at --sheet-visible-px makes the
-   scroll-port equal to the visible slice, so the user can read everything
-   at any snap. */
+/* Cap the mount to the visible sheet slice on tablets, so the inner scroller's
+   scroll-port matches what the user sees and the whole body stays reachable at
+   any snap. */
 @media (max-width: 1023.98px) {
   .detailMount {
     /* --sheet-visible-px already measures the visible viewport. Subtract
@@ -31,10 +25,9 @@
        bottom off-screen and leaves the final content unreachable. */
     max-height: calc(var(--sheet-visible-px, 100dvh) - 26px);
   }
-  /* Must-Eat-Detail: KEIN URL-Bar-Apron. Das Layout ist fix (Karte + Text,
-     kein Scrollen) — der Overhang stünde als toter Weißraum unterm Pager
-     (Screenshots User 2026-06-11). Mount endet an der sichtbaren
-     Viewport-Unterkante; 36px = Detail-Handle überm Mount. */
+  /* Must-Eat-Detail: kein URL-Bar-Apron. Das Layout ist fix (Karte + Text, kein
+     Scrollen), der Overhang stünde als toter Weißraum unterm Pager. Mount endet
+     an der sichtbaren Viewport-Unterkante; 36px = Detail-Handle überm Mount. */
   .detailMountMustEat {
     max-height: calc(var(--sheet-visible-px, 100dvh) - 36px);
   }
@@ -50,32 +43,18 @@
   }
 }
 
-/* ══════════════════════════════════════════════════════════════════════
-   IN-FLOW MAP LIST (phones ≤767.98px) — the list is window-scrolled in-flow
-   content that OVERLAYS a sticky full-screen map, so its rows composite into
-   iOS Safari's translucent bottom URL bar ("frosting" — proven on device in
-   spike #127; the drag-sheet cannot do this, see revert #129). The map is a
-   position:sticky 100dvh background; the list is pulled up over its lower
-   part (peek) and rises over it as the window scrolls — the Google-Maps
-   sheet feel, driven by scroll instead of drag. useBottomSheet is inert for
-   the phone list view (SheetConfig.inflow) so no touchmove preventDefault
-   swallows the window scroll. The DETAIL view stays a fixed drag-sheet with
-   the full snap/dismiss behavior. Appended last + scoped ≤767.98px so it
-   wins over the ≤1023.98px sheet rules without touching tablet or desktop.
-   Snap→scroll anchors live in MapSection (scrollListToAnchor).
-   ══════════════════════════════════════════════════════════════════════ */
+/* Phones (≤767.98px): the list is window-scrolled in-flow content over the map,
+   so its rows composite into iOS Safari's translucent bottom URL bar.
+   useBottomSheet is inert there (SheetConfig.inflow), so no touchmove
+   preventDefault swallows the window scroll. Appended last and scoped ≤767.98px
+   so it wins over the ≤1023.98px sheet rules without touching tablet or
+   desktop. */
 @media (max-width: 767.98px) {
-  /* Open the inner detail ports — the WINDOW scrolls the content now (an
-     inner overflow:auto would re-break the frosting). This later phone-only
-     block resets the ≤1023.98px --sheet-y-keyed caps by source order.
-     overflow-x: clip (NOT visible) contains the pager's translateX preview:
-     the fixed drag-sheet's overflow:hidden used to clip it, but in-flow the
-     whole hero shifted sideways past the viewport edge and the document
-     went horizontally scrollable ("das Bild lässt sich nach links/rechts
-     bewegen", User 2026-07-04). clip + overflow-y:visible is a valid pair
-     that clips horizontally while the vertical content still flows into the
-     window scroll (frosting intact). The gallery keeps its own overflow-x
-     auto for internal scrolling. */
+  /* Open the inner detail ports: the window scrolls the content (an inner
+     overflow:auto would break the URL-bar frosting). overflow-x: clip contains
+     the pager's translateX preview without making the document horizontally
+     scrollable; overflow-y stays visible. The gallery keeps its own overflow-x
+     auto. */
   .detailMount {
     max-height: none;
     overflow-x: clip;
@@ -89,11 +68,9 @@
     overflow: hidden;
   }
 }
-/* Phone restaurant detail must be real document flow, like the restaurant
-   list. If any older sheet rule leaves the detail as a flex/auto scroll-port,
-   iOS Safari samples the page background instead of the detail surface behind
-   the translucent bottom URL bar. Keep Must-Eat detail out of this: it owns a
-   fixed card/pager composition above. */
+/* Phone restaurant detail is real document flow, like the list; as a flex/auto
+   scroll-port iOS Safari would sample the page background behind the URL bar.
+   Must-Eat detail keeps its fixed card/pager composition above. */
 @media (max-width: 767.98px) {
   [data-map-sheet][data-view='detail'] .detailMount {
     display: block;
@@ -107,16 +84,11 @@
     min-height: calc(100dvh - var(--detail-map-peek, 190px) + var(--map-bar-overhang, 0px));
   }
 
-  /* `overflow: visible` als Kurzform stand hier einmal und hat die x-Achse der
-     Regel weiter oben mitgerissen. Das Blaettern schiebt den Hero per
-     translateX um eine volle Viewport-Breite — ohne Klemme in x wuchs damit
-     das DOKUMENT auf 750px (gemessen bei 375px Viewport), und mit ihm die
-     Layout-Viewport-Breite: `innerWidth` sprang 375 -> 750, iOS Safari zog die
-     Seite auf Bildschirmbreite zusammen und beim Loslassen wieder auf. Genau
-     das "klein ziehen und wieder gross werden" waehrend des Wisches. Die
-     y-Achse bleibt `visible` — der Telefon-Detailfluss ist Absicht (siehe
-     Kommentar am Blockanfang), nur `clip` in x hält den Fluss und macht keinen
-     Scroll-Container auf (anders als `hidden`). */
+  /* Nicht `overflow: visible` als Kurzform: sie risse die x-Achse der Regel
+     oben mit. Das Blättern schiebt den Hero um eine volle Viewport-Breite; ohne
+     Klemme in x wüchse das Dokument auf doppelte Breite, und iOS Safari zöge
+     die Seite zusammen. `clip` in x hält den Fluss und macht keinen
+     Scroll-Container auf. */
 
   [data-map-sheet][data-view='detail'] .detailMount:not(.detailMountMustEat) {
     width: auto;

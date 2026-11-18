@@ -2,17 +2,15 @@
 // (scripts/embed-restaurants.ts, scripts/embed-articles.ts); zur Laufzeit wird
 // die Anfrage eingebettet und per Kosinus dagegen gerankt.
 //
-// Die beiden Aufrufer benutzen dasselbe Ranking verschieden, und der
-// Unterschied ist beabsichtigt:
+// Die beiden Aufrufer benutzen dasselbe Ranking verschieden:
 //
-//   - Spots: ein Signal UEBER der GROQ-Suche. searchSpots filtert weiter, die
+//   - Spots: ein Signal ueber der GROQ-Suche. searchSpots filtert weiter, die
 //     Punkte sortieren nur um.
-//   - Artikel: das Ranking IST die Suche. Das dortige GROQ-`match` traf bei
-//     einer ausformulierten Frage nie (gemessen 0 Treffer), taugte als Gate
-//     also nicht — es ist jetzt nur noch der Rueckfallweg.
+//   - Artikel: das Ranking ist die Suche. Das GROQ-`match` trifft bei einer
+//     ausformulierten Frage nie und ist nur der Rueckfallweg.
 //
-// Bei jedem Fehler (kein Key, 429, fehlender Index) kommt null zurueck, und
-// der Aufrufer bleibt bei seiner Keyword-Reihenfolge.
+// Bei jedem Fehler (kein Key, 429, fehlender Index) kommt null zurueck, und der
+// Aufrufer bleibt bei seiner Keyword-Reihenfolge.
 import { embed, cosine } from './voyage';
 
 interface EmbeddingsFile {

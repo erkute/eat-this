@@ -5,19 +5,18 @@ import PaperPhoto from './PaperPhoto';
 
 // Plain <a> with a hand-built prefix instead of next-intl's `Link`.
 //
-// This is a SERVER component, and `not-found.tsx` sits in the tree of every
+// This is a server component, and `not-found.tsx` sits in the tree of every
 // route. next-intl's `Link` resolves the active locale through the request
-// config on the server, which reads headers() — and a single headers() read
-// anywhere in a route's tree makes that route dynamic. It made ALL of them
-// dynamic: `next build --debug` reported "Static generation failed … reason:
-// headers" 791 times, the build wrote zero prerendered HTML files, and every
-// page, including the ~690 restaurant pages, was re-rendered per request and
-// answered `no-store`. Keep this file free of next-intl server APIs.
+// config on the server, which reads headers(), and a single headers() read
+// anywhere in a route's tree makes that route dynamic: no prerendered HTML,
+// every page rendered per request with `no-store`
+// (not-found-keeps-pages-static.test.ts). Keep this file free of next-intl
+// server APIs.
 //
-// The locale is a prop here, never inferred, so the prefix is just string
-// work. `localePrefix: 'as-needed'` means DE is unprefixed and EN is `/en`.
-// Cost: these links do a full page load instead of a soft nav. On a 404 that
-// is the right trade.
+// The locale is a prop here, never inferred, so the prefix is just string work.
+// `localePrefix: 'as-needed'` means DE is unprefixed and EN is `/en`. Cost:
+// these links do a full page load instead of a soft nav. On a 404 that is the
+// right trade.
 type Locale = 'de' | 'en';
 
 const linkTo = (locale: Locale, href: string) => (locale === 'en' ? `/en${href}` : href);

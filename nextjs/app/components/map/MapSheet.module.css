@@ -30,9 +30,9 @@
   user-select: none;
 }
 
-/* Der Griff: ein schmaler, glatter Balken in leisem Grau (Ansage 23.10.2026:
-   der gezeichnete Strich gefiel nicht). Die Farbe kommt aus der Schrift,
-   damit hell und dunkel mitgehen. Eine Farbe für Liste und Detail. */
+/* Der Griff: ein schmaler, glatter Balken in leisem Grau, kein gezeichneter
+   Strich. Die Farbe kommt aus der Schrift, damit hell und dunkel mitgehen. Eine
+   Farbe für Liste und Detail. */
 .handle::before {
   content: '';
   border-radius: 2px;
@@ -45,8 +45,7 @@
   overflow-y: auto;
   /* 14px each side: the list cards run edge to edge over it
      (RestaurantList.module.css .rcardSlot). The must-eat peek sits inside the
-     photo now, so the top needs no room for it — only a hair below the
-     filter bar (Ansage 22.10.2026: „zu viel Abstand"). */
+     photo, so the top needs no room for it — only a hair below the filter bar. */
   padding: 4px 14px 0;
   padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
   -webkit-overflow-scrolling: touch;
@@ -58,8 +57,8 @@
 /* ── Desktop: the rail ─────────────────────────────────────────────────── */
 @media (min-width: 1024px) {
   /* Over the map's right edge at its full width: hiding slides it out to the
-     right, showing slides it back in — nothing inside it shrinks (Betreiber,
-     29.09.2026). The map under it never changes size. */
+     right, showing slides it back in — nothing inside it shrinks. The map under
+     it never changes size. */
   .list {
     position: absolute;
     top: 0;
@@ -195,15 +194,12 @@
   }
 
   /* The end of the page stands still when Safari unfolds its bar. Scrolling
-     down, Safari shrinks the bar (viewport 714 → 754px on an iPhone 17); at
-     the end it unfolds it again. A plain page runs into its rubber band there
-     and settles at the new end; the map has none (overscroll-behavior-y in
-     globals.css), so the last 40px slid under the bar and could be pushed up
-     once more (Betreiber, 29.09.2026). Moving the page along with the bar
-     looked wrong, too (30.09.2026). This pad is exactly what the bar takes
-     back — `100dvh` follows the viewport, `100svh` is its unfolded height —
-     so the end of the scroll stays where it was and the bar covers ink.
-     Not the must-eat takeover, which must not scroll at all. */
+     down, Safari shrinks the bar; at the end it unfolds it again. A plain page
+     runs into its rubber band there; the map has none (overscroll-behavior-y in
+     globals.css), so the last rows would slide under the bar. This pad is
+     exactly what the bar takes back (`100dvh` follows the viewport, `100svh` is
+     its unfolded height), so the end of the scroll stays where it was. Not the
+     must-eat takeover, which must not scroll at all. */
   .list:not([data-detail-kind='must-eat'])::after {
     content: '';
     display: block;
@@ -211,11 +207,11 @@
     background: var(--map-collage-paper, #fff);
   }
 
-  /* The list sheet is see-through; its two parts carry the ink — the filter
-     bar (MapFilters.module.css, with the sheet's edge) and the rows. Once the
-     bar sticks, the slot it leaves travels up with the sheet: with an ink
-     sheet that was a dark band growing above the bar (user, 23.09.2026). A
-     see-through slot shows the map it sits on. */
+  /* The list sheet is see-through; its two parts carry the ink — the filter bar
+     (MapFilters.module.css, with the sheet's edge) and the rows. Once the bar
+     sticks, the slot it leaves travels up with the sheet: with an ink sheet
+     that would be a dark band growing above the bar. A see-through slot shows
+     the map it sits on. */
   .list[data-view='list'] {
     background: transparent;
     border-top: 0;
@@ -262,10 +258,10 @@
     border-radius: 0;
   }
 
-  /* The must-eat takeover stays in document flow: iOS Safari samples the
-     real page behind its chrome, and a fixed viewport layer left the URL bar
-     with a stale backdrop. The negative margin is the map's height (100lvh);
-     -100dvh put it a toolbar height too low on the iPhone (23.09.2026). */
+  /* The must-eat takeover stays in document flow: iOS Safari samples the real
+     page behind its chrome, and a fixed viewport layer leaves the URL bar with
+     a stale backdrop. The negative margin is the map's height (100lvh); -100dvh
+     would put it a toolbar height too low on the iPhone. */
   .list[data-view='detail'][data-detail-kind='must-eat'] {
     width: 100%;
     height: 100dvh;

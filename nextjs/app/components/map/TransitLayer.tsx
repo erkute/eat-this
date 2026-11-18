@@ -39,13 +39,12 @@ const BADGE_GAP = 2.5;
    kosten im Atlas nichts. */
 const BADGE_PIXEL_RATIO = 3;
 
-/* Die Signalfarben der beiden Netze, je eine Spur dunkler als das Original —
-   die volle Sättigung trägt zu weit und tritt gegen die Pins an. Auf der
-   Druckkarte die einzigen Buntfarben neben den Pins (Ansage 22.10.2026).
-   Das Weiß der Buchstaben steht auf beiden über 5:1, bleibt also auch bei
-   10 px lesbar.
-   Blau und Grün sind hier keine Gestaltungsentscheidung, sondern die Sache
-   selbst: nach genau diesen zwei Farben sucht man in Berlin. */
+/* Die Signalfarben der beiden Netze, je eine Spur dunkler als das Original: Die
+   volle Sättigung trägt zu weit und tritt gegen die Pins an. Auf der Druckkarte
+   die einzigen Buntfarben neben den Pins. Das Weiß der Buchstaben steht auf
+   beiden über 5:1, bleibt also auch bei 10 px lesbar. Blau und Grün sind hier
+   keine Gestaltungsentscheidung, sondern die Sache selbst: Nach genau diesen
+   zwei Farben sucht man in Berlin. */
 const U_BAHN_BLUE = '#0a5ca9';
 const S_BAHN_GREEN = '#00713f';
 
@@ -201,8 +200,8 @@ export default function TransitLayer() {
 
   if (!badgesReady) return null;
 
-  /* Die Zeichen bleiben in den Farben der BVG (Ansage 22.10.2026), die Namen
-     stehen in Ink auf Papier wie die übrige Beschriftung der Grundkarte. */
+  /* Die Zeichen bleiben in den Farben der BVG, die Namen stehen in Ink auf
+     Papier wie die übrige Beschriftung der Grundkarte. */
   const layer: SymbolLayerProps = {
     ...badgeLayer,
     paint: {

@@ -1,13 +1,10 @@
 import { useLayoutEffect, type RefObject } from 'react';
 
-/* Spot-Namen stehen eng (line-height 1.1), weil die Titelschrift weit unter
-   die Grundlinie hängen kann (in der früheren Schrift reichte das g 0,484em
-   hinunter, ein l 0,699em hinauf).
-   Kollisionsfrei für jeden Fall wären 1,18 — so weit aufgezogen stehen
-   zweizeilige Namen aber sichtbar auseinander (User, 04.09.2026). Kracht es
-   trotzdem, dann nur, wo eine Unterlänge genau über einer Oberlänge steht:
-   „Burgermeister / Schlesisches Tor", das g über dem l (User, 09.10.2026).
-   Gemessen an allen 247 Spots trifft das bei 1.1 zwei Namen.
+/* Spot-Namen stehen eng (line-height 1.1), obwohl die Titelschrift weit unter
+   die Grundlinie hängen kann. Kollisionsfrei für jeden Fall wären 1,18; so weit
+   aufgezogen stehen zweizeilige Namen aber sichtbar auseinander. Bei 1.1 kracht
+   es nur, wo eine Unterlänge genau über einer Oberlänge steht: „Burgermeister /
+   Schlesisches Tor", das g über dem l. Das trifft einzelne Namen.
 
    Deshalb misst der Hook die gesetzten Zeilen nach: Glyphen-Maße aus der
    geladenen Schrift (Canvas), Positionen aus dem Layout (Range je Zeichen).

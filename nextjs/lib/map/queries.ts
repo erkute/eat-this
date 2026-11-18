@@ -13,19 +13,17 @@ const CATEGORY_PROJECTION = `categories[defined(@->_id)]->{
   nameEn
 }`;
 
-// Map list/marker payload — deliberately WITHOUT the detail-only fields
-// (phone, website, menuUrl, reservationUrl, mapsUrl, instagramHandle, tip,
-// description, photoCredit*). Those are fetched on demand when the detail
-// sheet opens (restaurantMapDetailQuery / /api/restaurant-detail), which keeps
-// the map payload small (description is the bulk).
-// `openingHours` MUST stay — the list + marker render the open-now badge.
-// `address` stays too: the search finds a spot by its street (spotSearch).
-// Dropped with the detail fields, "kastanienallee" found nothing for weeks
-// while the search code still read the field (audit 28.09.2026). ~9 KB raw
-// for the whole catalogue; it is public anyway, and no spot is locked since
-// the map went free.
-// Public descriptions feed the search too. cached-sanity compacts them into
-// unique words before sending the map payload; detail text still loads on demand.
+// Map list/marker payload — deliberately WITHOUT the detail-only fields (phone,
+// website, menuUrl, reservationUrl, mapsUrl, instagramHandle, tip, description,
+// photoCredit*). Those are fetched on demand when the detail sheet opens
+// (restaurantMapDetailQuery / /api/restaurant-detail), which keeps the map
+// payload small (description is the bulk). `openingHours` MUST stay — the list
+// + marker render the open-now badge. `address` stays too: the search finds a
+// spot by its street (spotSearch); without it "kastanienallee" finds nothing.
+// ~9 KB raw for the whole catalogue; it is public anyway, and no spot is
+// locked. Public descriptions feed the search too. cached-sanity compacts them
+// into unique words before sending the map payload; detail text still loads on
+// demand.
 export const mapRestaurantsQuery = `
   *[_type == "restaurant" && ${liveRestaurant()}] {
     _id,
@@ -85,17 +83,14 @@ export const restaurantMapDetailQuery = `
   }
 `;
 
-/* Derselbe Katalogfilter wie oben. Ohne ihn hing Karte 022 (Crapulix) an einem
-   geschlossenen Lokal: die Map liess den Spot weg, schickte die Karte aber mit
-   — im Album stand ein Platz, den niemand mehr vor Ort umdrehen kann, und das
-   All-Berlin-Pack versprach 25 Karten, waehrend das Deck 26 Plaetze zeigte.
-   Solange die Karten das Produkt sind, muessen alle vier Flaechen (Map, Album,
-   geteiltes Deck, Pack-Zahl) dieselbe Menge meinen.
+/* Derselbe Katalogfilter wie oben: eine Karte an einem geschlossenen Lokal
+   stuende sonst in Album und Pack-Zahl, waehrend die Map den Spot weglaesst.
+   Alle vier Flaechen (Map, Album, geteiltes Deck, Pack-Zahl) muessen dieselbe
+   Menge meinen.
 
    Sortiert nach Kartennummer: das Must-Eat-Detail blaettert durch genau diese
-   Liste (Vor/Zurueck, „3 / 39"), und mehrere Karten eines Spots stehen in
-   ihrer Reihenfolge. Ohne order kam die Liste in Sanitys _id-Folge
-   (022, 021, 036, …). */
+   Liste (Vor/Zurueck, „3 / 39"), und mehrere Karten eines Spots stehen in ihrer
+   Reihenfolge. */
 export const mapMustEatsQuery = `
   *[_type == "mustEat" && ${liveRestaurant('restaurantRef->')}] | order(order asc, _id asc) {
     _id,

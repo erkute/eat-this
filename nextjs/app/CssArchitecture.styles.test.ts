@@ -67,14 +67,13 @@ function declarationsFor(root: Root, selector: string) {
 describe('CSS architecture contracts', () => {
   /**
    * Ein CSS-Modul ist zur Laufzeit nur ein Objekt. Greift eine Komponente auf
-   * einen Schluessel zu, den das Stylesheet nicht mehr exportiert, kommt
-   * `undefined` zurueck — und React laesst `className={undefined}` stumm ganz
-   * weg. Kein Fehler, keine Warnung, nur ein Element ohne Stil.
+   * einen Schlüssel zu, den das Stylesheet nicht exportiert, kommt `undefined`
+   * zurück, und React lässt `className={undefined}` stumm ganz weg. Kein
+   * Fehler, keine Warnung, nur ein Element ohne Stil.
    *
-   * Genau so verlor die geteilte Deck-Seite am 04.09.2026 ihre Kopfzeile: das
-   * Profil raeumte `.bank*` und `.city*` aus Profile.module.css, /deck las sie
-   * mit, und nichts schlug an. Deshalb steht der Abgleich hier und nicht nur
-   * als Skript (`npm run audit:css-modules`).
+   * Das trifft vor allem Seiten, die ein fremdes Modul mitlesen (/deck liest
+   * Profile.module.css). Deshalb steht der Abgleich hier und nicht nur als
+   * Skript (`npm run audit:css-modules`).
    */
   it('leaves no CSS-module class referenced that the stylesheet does not export', () => {
     const dead = auditCssModules(nextDir)

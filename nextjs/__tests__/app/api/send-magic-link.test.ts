@@ -116,9 +116,31 @@ describe('/api/auth/send-magic-link staging boundary', () => {
   })
 })
 
-/* EN seit 21.09.2026: die Route benutzte das mitgeschickte `locale` nie, und
-   ohne eigene Continue-URL landete auch EN auf `/` — und `/` ist immer
-   Deutsch (localeDetection: false). */
+describe('/api/auth/send-magic-link localhost continue URL', () => {
+  async function continueUrlFor(nodeEnv: string) {
+    vi.stubEnv('NODE_ENV', nodeEnv)
+    vi.stubEnv('COUNT_SALT', 'test-salt')
+    const { POST } = await import('@/app/api/auth/send-magic-link/route')
+    await POST(new Request('https://staging.example.com/api/auth/send-magic-link', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ email: 'guest@example.com', continueUrl: 'http://localhost:3000/map' }),
+    }))
+    return mocks.sendMagicLinkEmail.mock.calls[0][0].continueUrl
+  }
+
+  it('returns to a local dev server outside production', async () => {
+    expect(await continueUrlFor('development')).toBe('http://localhost:3000/map')
+  })
+
+  it('never returns to localhost from a deployed app', async () => {
+    expect(await continueUrlFor('production')).toBe('https://staging.example.com/')
+  })
+})
+
+/* Die Route gibt das mitgeschickte `locale` weiter, und ohne eigene
+   Continue-URL landet EN auf `/en`: `/` ist immer Deutsch (localeDetection:
+   false). */
 describe('/api/auth/send-magic-link Sprache', () => {
   async function post(body: Record<string, unknown>) {
     const { POST } = await import('@/app/api/auth/send-magic-link/route')

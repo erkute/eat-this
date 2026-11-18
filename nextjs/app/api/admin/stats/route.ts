@@ -24,6 +24,7 @@ import { loadSearch } from '@/lib/admin/searchConsole.server';
 import { berlinDay } from '@/lib/analytics/visitorHash';
 import { summarizeHome, type HomeDoc } from '@/lib/analytics/homeHeat';
 import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/admin';
+import { verifyBearer } from '@/lib/firebase/bearerAuth';
 import { isAdminEmail, isAdminToken } from '@/lib/firebase/entitlements';
 import { getCachedMapData } from '@/lib/map/cached-sanity';
 
@@ -60,16 +61,15 @@ function ownerOf(doc: { ref: { parent: { parent: { id: string } | null } } }): s
 }
 
 /**
- * Konten aus Firebase Auth, nicht aus `users/`: dort liegen Seed-Dokumente
- * vom Mai 2026, die nie ein Konto waren. Admin- und Test-Konten fallen raus (`isOwnAccount`), sonst ist
- * der Betreiber jeden Tag das aktive Konto — und seine Testkaeufe waeren
- * Umsatz. Alles Weitere — Starter Packs,
- * Käufe, Aufdeckungen vor Ort, Einladungen, Checkout-Versuche — kommt aus den
- * Unter-Sammlungen, ueber Collection-Group-Abfragen ohne Filter; die brauchen
- * keinen Index.
+ * Konten aus Firebase Auth, nicht aus `users/`: Dort liegen Seed-Dokumente, die
+ * nie ein Konto waren. Admin- und Test-Konten fallen raus (`isOwnAccount`),
+ * sonst ist der Betreiber jeden Tag das aktive Konto, und seine Testkäufe wären
+ * Umsatz. Alles Weitere (Starter Packs, Käufe, Aufdeckungen vor Ort,
+ * Einladungen, Checkout-Versuche) kommt aus den Unter-Sammlungen, über
+ * Collection-Group-Abfragen ohne Filter; die brauchen keinen Index.
  *
  * Alles hier ist klein (zweistellige Kontenzahl, dreistellige Dokumente) und
- * wird bei jedem Aufruf frisch gelesen; ein Cache waere mehr Code als Nutzen.
+ * wird bei jedem Aufruf frisch gelesen; ein Cache wäre mehr Code als Nutzen.
  */
 /**
  * Konten, die nicht in die Zahlen gehören: der Admin und die Test-Konten des
@@ -223,22 +223,8 @@ export async function GET(request: Request) {
   const notFound = () =>
     NextResponse.json({ error: 'not found' }, { status: 404, headers: NO_STORE });
 
-  const header = request.headers.get('authorization');
-  const token = header?.startsWith('Bearer ') ? header.slice(7) : null;
-  if (!token) return notFound();
-
-  let isAdmin = false;
-  try {
-    const decoded = await getAdminAuth().verifyIdToken(token, true);
-    isAdmin = isAdminToken({
-      email: decoded.email ?? null,
-      emailVerified: decoded.email_verified === true,
-      admin: decoded.admin === true,
-    });
-  } catch {
-    return notFound();
-  }
-  if (!isAdmin) return notFound();
+  const auth = await verifyBearer(request);
+  if (auth.status !== 'ok' || !isAdminToken(auth.identity)) return notFound();
 
   const db = getAdminFirestore();
   const params = new URL(request.url).searchParams;

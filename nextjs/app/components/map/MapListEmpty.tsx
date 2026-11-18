@@ -17,24 +17,20 @@ interface Props {
 /**
  * Nichts gefunden.
  *
- * DREI Zustände, weil Suche und Chips zusammen filtern (seit 23.09.2026):
- * nur Suche, nur Filter, beides. Wer sucht, will seinen Suchbegriff loswerden;
- * wer filtert, seine Filter. Der Knopf benennt, was er abräumt, und räumt auch
- * nur das ab.
+ * Drei Zustände, weil Suche und Chips zusammen filtern: nur Suche, nur Filter,
+ * beides. Wer sucht, will seinen Suchbegriff loswerden; wer filtert, seine
+ * Filter. Der Knopf benennt, was er abräumt, und räumt auch nur das ab.
  *
- * Bei beidem gehen die Filter, die Anfrage bleibt: sie ist das, was man gerade
+ * Bei beidem gehen die Filter, die Anfrage bleibt: Sie ist das, was man gerade
  * getippt hat. Findet sie auch ohne Filter nichts, landet man im Suchzustand
- * und kann sie dort löschen — ein Schritt pro Zustand.
+ * und kann sie dort löschen, ein Schritt pro Zustand.
  *
  * Die Suchvarianten nennen die Anfrage beim Namen. „Nichts gefunden" allein
  * lässt offen, ob man sich vertippt hat oder ob es das wirklich nicht gibt.
  *
- * Es gab hier mal eine weitere Variante — „0 freie Treffer, N stecken in einem
- * Pack" — für einen Filter, der nur bezahlte Spots traf. Die Liste trägt die
- * inzwischen selbst (Entscheidung 25.08.2026), ein Filter hat also entweder
- * Zeilen oder gar nichts im Katalog, und aus einem leeren Bildschirm heraus
- * gibt es nichts zu verkaufen. Das Pack-Angebot steht unter der letzten Zeile,
- * wo es etwas zu wollen gibt.
+ * Ein Pack-Angebot steht hier nicht: Ein Filter hat entweder Zeilen oder gar
+ * nichts im Katalog, und aus einem leeren Bildschirm heraus gibt es nichts zu
+ * verkaufen. Es steht unter der letzten Zeile, wo es etwas zu wollen gibt.
  */
 export default function MapListEmpty({
   query,

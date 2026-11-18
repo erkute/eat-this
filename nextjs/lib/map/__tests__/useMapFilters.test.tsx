@@ -6,15 +6,9 @@ import { useMapFilters } from '../useMapFilters';
 import { MUST_EATS_CATEGORY } from '../mapFilterParams';
 
 /**
- * The picker counts. Before them both lists were built from the whole
- * catalogue with nothing said about what any row would return: a Bezirk
- * holding five spots still offered every cuisine in Berlin, and eighteen of
- * those rows were guaranteed zeroes you only discovered by tapping.
- *
- * What has to hold: each row is counted against the OTHER chips, and its own
- * chip is lifted while counting — otherwise picking "Neukölln" would make
- * every district but Neukölln read 0 and the picker would be useless for
- * switching.
+ * The picker counts: each row is counted against the OTHER chips, with its own
+ * chip lifted, or picking "Neukölln" would make every other district read 0 and
+ * the picker useless for switching.
  */
 
 let nextId = 0;
@@ -110,8 +104,7 @@ describe('useMapFilters option counts', () => {
     act(() => result.current.setBezirk('Mitte'));
 
     const { byValue, withoutDimension } = result.current.optionCounts;
-    // Mitte hält vier 20-€-Spots und einen 10-€-Spot, und gar nichts unter 10 —
-    // die Zeile, die früher aussah wie jede andere.
+    // Mitte hält vier 20-€-Spots und einen 10-€-Spot, und nichts unter 10.
     expect(byValue.price.get('20')).toBe(4);
     expect(byValue.price.get('10')).toBe(1);
     expect(byValue.price.get('u10')).toBeUndefined();
@@ -190,9 +183,9 @@ describe('useMapFilters Must Eats', () => {
   });
 });
 
-/* Bis zum 23.09.2026 hob eine Suchanfrage jeden Chip auf: „pizza" mit
-   Bezirk Mitte zeigte Pizza aus ganz Berlin. Wer filtert und dann tippt, sucht
-   innerhalb dessen, was die Chips übrig lassen. */
+/* Eine Suchanfrage hebt die Chips nicht auf: „pizza" mit Bezirk Mitte zeigt
+   Pizza in Mitte. Wer filtert und dann tippt, sucht innerhalb dessen, was die
+   Chips übrig lassen. */
 describe('useMapFilters Suche mit Chips', () => {
   it('sucht nur in dem, was die Chips übrig lassen', () => {
     const { result } = mount();
@@ -223,10 +216,9 @@ describe('useMapFilters Suche mit Chips', () => {
 });
 
 /**
- * The paywalled half of the catalogue. It used to be invisible up here: the
- * pickers were built and counted from the free set alone, so a cuisine only
- * locked spots carry had no row at all, and a row whose every hit was locked
- * read 0 while the map underneath showed its dots.
+ * The paywalled half of the catalogue counts in the pickers too: otherwise a
+ * cuisine only locked spots carry would have no row, and a row of locked hits
+ * would read 0 over visible dots.
  */
 describe('useMapFilters with the paywalled spots in', () => {
   it('offers a price step that only locked spots carry', () => {
@@ -244,8 +236,7 @@ describe('useMapFilters with the paywalled spots in', () => {
     expect(result.current.optionCounts.byValue.price.get('100')).toBeUndefined();
   });
 
-  /* Marker und Liste zeigen dieselben Treffer — bis zum 06.09.2026 waren das
-     zwei Mengen, weil die Karte gesperrte Spots anders zeichnete. */
+  /* Marker und Liste zeigen dieselben Treffer. */
   it('hands the map and the list the same matches', () => {
     const { result } = mount();
     act(() => result.current.setPrice('u10'));
@@ -256,11 +247,7 @@ describe('useMapFilters with the paywalled spots in', () => {
 });
 
 /**
- * The order of the list itself. It used to have none: it inherited the order
- * the map payload was assembled in — curated spots, the round-robin district
- * fill, and then whatever the home page surfaces, appended at the end. Tapping
- * a dish on the home page therefore landed you on the very last row of 340
- * when you closed it again.
+ * The order of the list itself, not the order the map payload was assembled in.
  */
 describe('useMapFilters list order', () => {
   const ROW_ZOLA = spot({ name: 'Zola', mustEatCount: 0 });
@@ -310,7 +297,7 @@ describe('useMapFilters list order', () => {
     expect(result.current.listRestaurants.map((r) => r.name)).toEqual(['Zola', 'Mustafa']);
   });
 
-  /* Montag 09:00: im Audit waren zehn der ersten zwölf Zeilen geschlossen. */
+  /* Montag 09:00, viele Spots noch geschlossen. */
   const MON_9AM = new Date('2026-04-20T09:00:00');
   const MORNING = [{ days: 'Mo–Sa', hours: '07:00–18:00' }];
   const EVENING = [{ days: 'Mo–Sa', hours: '18:00–23:00' }];
@@ -379,8 +366,8 @@ describe('useMapFilters list order', () => {
 });
 
 /**
- * Die zwei Regeln, die den Chip-Rail am 27.08.2026 gekürzt haben: Bezirke erst
- * ab fünf Spots, und ein Spot ohne gepflegten Preis fällt in keine Stufe.
+ * Die zwei Regeln, die den Chip-Rail kurz halten: Bezirke erst ab fünf Spots,
+ * und ein Spot ohne gepflegten Preis fällt in keine Stufe.
  */
 describe('useMapFilters, gekürzte Auswahllisten', () => {
   it('bietet nur Bezirke mit mindestens fünf Spots an', () => {
@@ -414,14 +401,8 @@ describe('useMapFilters, gekürzte Auswahllisten', () => {
 });
 
 /**
- * Was man tippt, ist nicht, was in Sanity steht.
- *
- * Zwei gemeldete Fehlschlaege, zwei verschiedene Ursachen:
- * - „banh mi" fand „Saveur de Bánh Mì" nicht. `includes` vergleicht Zeichen
- *   fuer Zeichen, und `a` ist nicht `á`.
- * - „vietnamesisch" fand keinen der acht vietnamesischen Spots. Der
- *   `cuisineType` steht ENGLISCH in Sanity; das deutsche Label, das man auf
- *   der Karte liest und deshalb auch eintippt, kannte die Suche nicht.
+ * Was man tippt, ist nicht, was in Sanity steht: Akzente („banh mi" für „Bánh
+ * Mì") und das deutsche Küchen-Label („vietnamesisch" für `Vietnamese`).
  */
 describe('useMapFilters Suche', () => {
   const SUCHZEILEN: MapRestaurant[] = [
@@ -485,14 +466,14 @@ describe('useMapFilters Suche', () => {
 });
 
 /**
- * Nachgemessen am echten Katalog (23.09.2026), jeweils 0 Treffer:
- * - „pizza neukölln" — der ganze Satz musste in EINEM Feld stehen.
- * - „doener", „neukoelln", „fruehstueck" — Umlaute ausgeschrieben, wie man
+ * Anfragen, die am echten Katalog Treffer finden müssen:
+ * - „pizza neukölln": Der Satz muss nicht in einem Feld stehen.
+ * - „doener", „neukoelln", „fruehstueck": Umlaute ausgeschrieben, wie man
  *   sie auf einer Tastatur ohne Umlaute tippt.
- * - „strasse" — alle Adressen schreiben „straße".
- * - „x-berg", „f'hain" — so heissen die Kieze im Alltag.
- * Und „eis" holte „Speiselokal" und „Geist im Glas" zu den Eisdielen: ein
- * kurzes Wort zählt deshalb nur am Wortanfang.
+ * - „strasse": Alle Adressen schreiben „straße".
+ * - „x-berg", „f'hain": So heißen die Kieze im Alltag.
+ * Und „eis" darf nicht „Speiselokal" und „Geist im Glas" zu den Eisdielen
+ * holen: Ein kurzes Wort zählt deshalb nur am Wortanfang.
  */
 describe('useMapFilters Suche, zweite Runde', () => {
   const KATALOG: MapRestaurant[] = [
@@ -548,17 +529,17 @@ describe('useMapFilters Suche, zweite Runde', () => {
   });
 
   it('findet ein Wort nicht mitten in einem anderen', () => {
-    /* „eis" steckt in „Speiselokal" — bis 30.10.2026 ein Treffer. */
+    /* „eis" steckt in „Speiselokal" und ist dort kein Treffer. */
     const amSpeiselokal = { lat: 52.5, lng: 13.4 };
     expect(liste('eis', amSpeiselokal)).toEqual(['Natur Eis']);
   });
 });
 
 /**
- * Nachgemessen auf Produktion (28.09.2026), jeweils 0 Treffer:
- * - „kastanienallee", „weserstr" — die Adresse fehlte im Kartenpayload.
- * - „brunch", „kebab", „nkln" — kein Synonym, keine Schreibvariante.
- * - „piza" — ein Buchstabe daneben, und nichts kam.
+ * Anfragen, die auf Produktion Treffer finden müssen:
+ * - „kastanienallee", „weserstr": Die Adresse steht im Kartenpayload.
+ * - „brunch", „kebab", „nkln": Synonyme und Schreibvarianten.
+ * - „piza": ein Buchstabe daneben.
  */
 describe('useMapFilters Suche, dritte Runde', () => {
   const KATALOG: MapRestaurant[] = [
@@ -607,7 +588,7 @@ describe('useMapFilters Suche, dritte Runde', () => {
     expect(liste('nkln')).toEqual(['Gazzo']);
     expect(liste('gelato')).toEqual(['Jones Ice Cream']);
     expect(liste('wein')).toEqual(['Rutz']);
-    /* Pasta meint Pasta, nicht jede italienische Küche (30.10.2026). */
+    /* Pasta meint Pasta, nicht jede italienische Küche. */
     expect(liste('pasta')).toEqual([]);
     expect(liste('brot')).toEqual(['Crapulix']);
   });

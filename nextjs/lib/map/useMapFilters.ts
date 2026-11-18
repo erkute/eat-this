@@ -13,8 +13,9 @@ import {
   suggestSpots,
 } from './spotSearch';
 
-/** Ab wie vielen Spots ein Bezirk im Filter erscheint. Zehn der zwanzig
- *  Bezirke lagen darunter, die Hälfte davon bei ein oder zwei Treffern. */
+/**
+ * Ab wie vielen Spots ein Bezirk im Filter erscheint.
+ */
 const BEZIRK_MIN_SPOTS = 5;
 import { haversineDistance } from './distance';
 
@@ -133,21 +134,17 @@ export function useMapFilters({
   const [price, setPrice] = useState<string | null>(null);
   const [openOnly, setOpenOnly] = useState(false);
 
-  /* Der ganze Katalog. Bis zum 06.09.2026 kamen hier zwei Mengen zusammen —
-     die freien Spots und die bezahlten —, weil die Picker beide beschreiben
-     mussten. Seit die Karte frei ist, gibt es nur noch eine. */
+  /* Der ganze Katalog: Die Karte ist frei, es gibt nur eine Menge. */
   const catalogue = restaurants;
 
-  /* Distinct district names across the catalogue — populates the Bezirk
-     picker. Sorted alphabetically (German collation).
+  /* Distinct district names across the catalogue — populates the Bezirk picker.
+     Sorted alphabetically (German collation).
 
-     Erst ab fünf Spots: die Liste stand auf 20 Werten, von denen die Hälfte
-     ein bis drei Treffer hatte (Friedenau 1, Treptow 1, Lichtenberg 2 …) —
-     eine Auswahl, die einen einzigen Spot zurückgibt, ist keine Auswahl
-     (User, 2026-08-27). Gezählt wird über den GESAMTEN Katalog, nicht über die
-     gerade gefilterte Menge: sonst käme und ginge Wedding, je nachdem, was
+     Erst ab fünf Spots: Eine Auswahl, die einen einzigen Spot zurückgibt, ist
+     keine Auswahl. Gezählt wird über den gesamten Katalog, nicht über die
+     gerade gefilterte Menge: Sonst käme und ginge Wedding, je nachdem, was
      sonst noch aktiv ist. Die Spots selbst bleiben auf der Karte, in der Liste
-     und in der Suche — nur der Filter zeigt sie nicht mehr an. */
+     und in der Suche; nur der Filter zeigt ihren Bezirk nicht an. */
   const bezirkNames = useMemo(() => {
     const counts = new Map<string, number>();
     for (const r of catalogue) {
@@ -193,10 +190,8 @@ export function useMapFilters({
     [tokens, searchIndex, fuzzy]
   );
 
-  /* Suche UND Chips. Bis zum 23.09.2026 hob eine Anfrage jeden Chip auf —
-     „pizza" in Neukölln zeigte Pizza aus ganz Berlin, die Chips standen
-     ausgegraut daneben. Wer einen Bezirk gewählt hat und dann tippt, sucht
-     IN diesem Bezirk (User, 23.09.2026). */
+  /* Suche und Chips zusammen: Wer einen Bezirk gewählt hat und dann tippt,
+     sucht in diesem Bezirk. „pizza" in Neukölln zeigt Pizza in Neukölln. */
   const filterRestaurant = useCallback(
     (r: MapRestaurant): boolean =>
       matchesQuery(r) && matchesChips(r, { category, bezirk, price, openOnly }),
@@ -204,13 +199,8 @@ export function useMapFilters({
   );
 
   /* What every picker row would actually yield, counted against the OTHER
-     chips. Both lists are built from the whole catalogue, so a Bezirk with
-     five spots still offered all 23 cuisines and eighteen of them were
-     guaranteed zeroes with nothing saying so — you found out by tapping and
-     landing on "Keine Spots".
-
-     The query counts too: it narrows the list like any chip, so a row that
-     reads 12 under "pizza" has to yield 12 pizza spots. */
+     chips, so a row never promises spots it does not have. The query counts
+     too: a row that reads 12 under "pizza" has to yield 12 pizza spots. */
   const optionCounts = useMemo<MapOptionCounts>(
     () => countOptions(catalogue, { category, bezirk, price, openOnly }, matchesQuery),
     [catalogue, category, bezirk, price, openOnly, matchesQuery]

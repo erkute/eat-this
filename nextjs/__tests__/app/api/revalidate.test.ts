@@ -55,13 +55,13 @@ describe('/api/revalidate', () => {
 
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual(expect.objectContaining({ ok: true, type: 'restaurant', slug: 'test-spot' }))
-    expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurant:test-spot')
-    expect(mocks.revalidateTag).toHaveBeenCalledWith('map-data')
-    expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurant-siblings')
-    // Jede Spot-Seite haengt am blanken Tag `restaurant` — ohne ihn stuende
-    // eine Aenderung bis zum Ablauf der ISR-Frist nicht auf den uebrigen
-    // Spot-Seiten, seit dem 25.08.2026 also bis zu 24 Stunden.
-    expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurant')
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurant:test-spot', { expire: 0 })
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('map-data', { expire: 0 })
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurant-siblings', { expire: 0 })
+    // Jede Spot-Seite hängt am blanken Tag `restaurant`. Ohne ihn stünde eine
+    // Änderung bis zum Ablauf der ISR-Frist (24 Stunden) nicht auf den übrigen
+    // Spot-Seiten.
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurant', { expire: 0 })
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/restaurant/test-spot')
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/map')
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/en/map')
@@ -87,12 +87,12 @@ describe('/api/revalidate', () => {
     const res = await pending
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual(expect.objectContaining({ settled: 'fresh' }))
-    expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurant:comedor')
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurant:comedor', { expire: 0 })
   })
 
   // Die Projektion des Hooks schickt bei einer Karte nur `_type` und `_id`.
   // Ohne die ID kann waitForFreshCdn den Spot nicht finden, auf dessen Seite
-  // die Karte steht, und fällt auf die pauschale Pause zurück (14.10.2026).
+  // die Karte steht, und fällt auf die pauschale Pause zurück.
   it('reicht bei einer Must-Eat-Karte die Dokument-ID an den CDN-Abgleich', async () => {
     process.env.SANITY_WEBHOOK_SETTLE_MS = '5000'
     mocks.waitForFreshCdn.mockResolvedValue('fresh')
@@ -105,7 +105,7 @@ describe('/api/revalidate', () => {
       { fallbackMs: 5000 }
     )
     expect(await res.json()).toEqual(expect.objectContaining({ settled: 'fresh' }))
-    expect(mocks.revalidateTag).toHaveBeenCalledWith('mustEat')
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('mustEat', { expire: 0 })
   })
 
   it('invalidiert trotzdem, wenn der CDN-Abgleich scheitert', async () => {
@@ -116,7 +116,7 @@ describe('/api/revalidate', () => {
 
     const res = await POST(mkReq(raw, signature(raw, Date.now())))
     expect(res.status).toBe(200)
-    expect(mocks.revalidateTag).toHaveBeenCalledWith('article:restaurants-mitte')
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('article:restaurants-mitte', { expire: 0 })
     errors.mockRestore()
   })
 
@@ -165,8 +165,8 @@ describe('/api/revalidate', () => {
     const res = await POST(mkReq(raw, signature(raw, ts)))
 
     expect(res.status).toBe(200)
-    expect(mocks.revalidateTag).toHaveBeenCalledWith('mustEat')
-    expect(mocks.revalidateTag).toHaveBeenCalledWith('map-data')
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('mustEat', { expire: 0 })
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('map-data', { expire: 0 })
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/map')
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/en/map')
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/must-eats')
@@ -184,18 +184,15 @@ describe('/api/revalidate', () => {
       const res = await POST(mkReq(raw, signature(raw, ts)))
 
       expect(res.status).toBe(200)
-      expect(mocks.revalidateTag).toHaveBeenCalledWith('pack-contents')
+      expect(mocks.revalidateTag).toHaveBeenCalledWith('pack-contents', { expire: 0 })
       expect(mocks.revalidatePath).toHaveBeenCalledWith('/packs')
       expect(mocks.revalidatePath).toHaveBeenCalledWith('/en/packs')
     }
   )
 
-  // Die echte Webhook-Projektion sendet `"slug": slug.current` — einen
-  // STRING (Hook-Log vom 27.08.2026: { _id, _type, slug: 'beste-burger-berlin' }).
-  // Die Route las nur `doc.slug?.current`; auf dieser Payload war der Slug
-  // damit immer undefined und keine slug-spezifische Revalidierung lief je.
-  // Die Objekt-Tests oben haben den Irrtum mitgetragen — dieser hier prüft
-  // die Form, die wirklich über die Leitung geht.
+  // Die echte Webhook-Projektion sendet `"slug": slug.current`, also einen
+  // String ({ _id, _type, slug: 'beste-burger-berlin' }). Dieser Test prüft die
+  // Form, die wirklich über die Leitung geht.
   it('revalidates the article path when the webhook sends the slug as a plain string', async () => {
     const raw = JSON.stringify({
       _id: 'news-beste-burger-berlin',
@@ -210,7 +207,7 @@ describe('/api/revalidate', () => {
     expect(await res.json()).toEqual(
       expect.objectContaining({ ok: true, type: 'newsArticle', slug: 'beste-burger-berlin' })
     )
-    expect(mocks.revalidateTag).toHaveBeenCalledWith('article:beste-burger-berlin')
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('article:beste-burger-berlin', { expire: 0 })
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/news/beste-burger-berlin')
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/en/news/beste-burger-berlin')
   })
@@ -222,22 +219,22 @@ describe('/api/revalidate', () => {
     const res = await POST(mkReq(raw, signature(raw, ts)))
 
     expect(res.status).toBe(200)
-    expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurant:gully-burger')
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurant:gully-burger', { expire: 0 })
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/restaurant/gully-burger')
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/en/restaurant/gully-burger')
   })
 
   it('frischt die Slug-Tabelle ueber ALLE Restaurants mit auf', async () => {
-    // `restaurants-lite` (Slug-Tabelle des Legacy-Redirects) hing an einem
-    // eigenen Tag, den niemand invalidierte: ein umgezogener Slug lief bis zu
-    // 24 Stunden ins 404 statt in seinen Redirect.
+    // `restaurants-lite` (Slug-Tabelle des Legacy-Redirects) hängt an einem
+    // eigenen Tag: Ohne Invalidierung liefe ein umgezogener Slug bis zu 24
+    // Stunden ins 404 statt in seinen Redirect.
     const raw = JSON.stringify({ _type: 'restaurant', slug: 'umbenannt' })
     const ts = Date.now()
 
     const res = await POST(mkReq(raw, signature(raw, ts)))
 
     expect(res.status).toBe(200)
-    expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurants-lite')
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurants-lite', { expire: 0 })
   })
 
   it('rendert die Sitemap auch bei Kategorie-Aenderungen neu', async () => {
@@ -268,16 +265,13 @@ describe('/api/revalidate', () => {
   })
 })
 
-// Diese beiden Tests halten die Kodierung fest, an der der Hook von seiner
-// Einrichtung bis zum 25.08.2026 gescheitert ist: die Route erwartete hex,
-// Sanity sendet base64url. Der Helfer `signature()` oben signierte damals
-// ebenfalls hex — die Suite war also mit dem Fehler einverstanden und grün,
-// während in Produktion jede einzelne Auslieferung mit 401 abgewiesen wurde.
+// Diese beiden Tests halten die Kodierung fest: Sanity sendet base64url, nicht
+// hex.
 //
-// Deshalb signiert der erste Test hier NICHT mit Nodes `digest('base64url')`,
-// sondern baut die Signatur so nach, wie sanity-io/webhook-toolkit sie
-// tatsächlich erzeugt (signature.ts). Ein gemeinsamer Helfer könnte sich mit
-// der Route zusammen irren; dieser Nachbau kann es nicht.
+// Der erste Test signiert deshalb nicht mit Nodes `digest('base64url')`,
+// sondern baut die Signatur so nach, wie sanity-io/webhook-toolkit sie erzeugt
+// (signature.ts). Ein gemeinsamer Helfer könnte sich mit der Route zusammen
+// irren; dieser Nachbau kann es nicht.
 describe('/api/revalidate: Signaturkodierung', () => {
   const RAW = JSON.stringify({ _type: 'category', slug: { current: 'lunch' } })
 
@@ -301,7 +295,7 @@ describe('/api/revalidate: Signaturkodierung', () => {
     const res = await POST(mkReq(RAW, toolkitSignature(RAW, ts)))
 
     expect(res.status).toBe(200)
-    expect(mocks.revalidateTag).toHaveBeenCalledWith('category:lunch')
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('category:lunch', { expire: 0 })
   })
 
   it('weist dieselbe Signatur hex-kodiert ab — das war der Fehler', async () => {
@@ -315,11 +309,8 @@ describe('/api/revalidate: Signaturkodierung', () => {
   })
   it('weist einen Zeitstempel in Sekunden ab — das war der zweite Fehler', async () => {
     // Sanity sendet `t` in Millisekunden (MINIMUM_TIMESTAMP im Toolkit ist
-    // 1609459200000). Die Route verglich ihn gegen `Date.now() / 1000`; die
-    // Differenz lag dauerhaft bei ~1,7 Billionen und riss jede Toleranz. Auch
-    // dieser Fehler allein hätte den Hook für immer auf 401 gehalten — und
-    // auch ihn hat die Suite mitgetragen, weil sie ebenfalls in Sekunden
-    // signierte.
+    // 1609459200000); gegen Sekunden verglichen, risse die Differenz jede
+    // Toleranz. Der Test signiert darum wie das Toolkit.
     const seconds = Math.floor(Date.now() / 1000)
     const v1 = crypto
       .createHmac('sha256', SECRET)

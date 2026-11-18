@@ -1,15 +1,11 @@
-/* Map Intro — die H1 der Seite, sichtbar nur für Crawler und Screenreader.
+/* Map Intro: die H1 der Seite, sichtbar nur für Crawler und Screenreader. Oben
+   im Bild stehen nur Suche, Burger und Karte, auch im Kartenstreifen über der
+   hochgezogenen Liste.
 
-   Bis zum 23.09.2026 schwebte „BERLIN FOOD MAP" als Beschriftung über der
-   Karte, zwischen Suche und Burger. Auf Wunsch raus aus dem Bild (User: „kriegen
-   wir das da oben weg?") — die Karte oben zeigt jetzt nur Suche, Burger und
-   Karte, auch im Kartenstreifen über der hochgezogenen Liste.
-
-   Die H1 bleibt im ausgelieferten HTML: sie trägt denselben Text wie der
+   Die H1 bleibt im ausgelieferten HTML: Sie trägt denselben Text wie der
    Seitentitel, verspricht also nichts, was die Seite nicht ist. Ausgeblendet
-   nach dem üblichen Muster für visuell versteckten Text — nicht per
-   `display: none` oder `visibility: hidden`, die nähmen sie auch Screenreadern
-   weg. */
+   nach dem üblichen Muster für visuell versteckten Text, nicht per `display:
+   none` oder `visibility: hidden`, die nähmen sie auch Screenreadern weg. */
 
 .title {
   position: absolute;

@@ -6,10 +6,9 @@
 export const VOYAGE_MODEL = 'voyage-3-lite';
 export const VOYAGE_DIM = 512;
 
-// Voyage accepts up to 1000 inputs per request, but the free tier WITHOUT a
-// billing method on file is throttled to 3 requests/min and 10k tokens/min.
-// Keep batches small and pace them well clear of both limits (see embedBatched).
-// Adding a payment method on the Voyage dashboard lifts this; then MAX_BATCH and
+// Voyage accepts up to 1000 inputs per request, but the account's rate limits
+// (requests and tokens per minute) are far lower. Keep batches small and pace
+// them well clear of both (see embedBatched); with higher limits MAX_BATCH and
 // the pause can go back up.
 const MAX_BATCH = 50;
 
@@ -75,9 +74,10 @@ export async function embedBatched(
   opts: {
     apiKey?: string;
     pauseMs?: number;
-    /** Kleiner als MAX_BATCH, wenn die Texte lang sind. Der Free-Tier begrenzt
-     *  nicht nur Anfragen (3/min), sondern auch TOKEN pro Minute (10k) — 24
-     *  Artikeltexte in einer Anfrage reissen das, 465 kurze Spot-Zeilen nicht. */
+    /**
+     * Kleiner als MAX_BATCH, wenn die Texte lang sind: der Tarif begrenzt auch
+     * Token pro Minute, und lange Artikeltexte in einer Anfrage reissen das.
+     */
     batchSize?: number;
     onProgress?: (done: number, total: number) => void;
   } = {}

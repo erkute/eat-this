@@ -1,16 +1,20 @@
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
-import { FlatCompat } from '@eslint/eslintrc';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
+import nextVitals from 'eslint-config-next/core-web-vitals';
+import nextTs from 'eslint-config-next/typescript';
 
 const eslintConfig = [
-  ...compat.extends('next/core-web-vitals', 'next/typescript'),
+  ...nextVitals,
+  ...nextTs,
+  {
+    // Regeln für den React Compiler, den die App nicht nutzt. Sie verlangen
+    // andere Muster für Refs und Effekte, ändern aber nichts am Verhalten ohne
+    // Compiler.
+    rules: {
+      'react-hooks/refs': 'off',
+      'react-hooks/set-state-in-effect': 'off',
+      'react-hooks/purity': 'off',
+      'react-hooks/immutability': 'off',
+    },
+  },
   {
     // Map markers and sheet thumbs render plain <img> on purpose: they live
     // inside MapLibre overlays that re-render constantly, and their sources
@@ -20,10 +24,10 @@ const eslintConfig = [
     rules: { '@next/next/no-img-element': 'off' },
   },
   {
-    // next/image nur über app/components/SiteImage.tsx: dort bekommen
+    // next/image nur über app/components/SiteImage.tsx: Dort bekommen
     // Sanity-URLs den Sanity-Loader und gehen direkt an die CDN. Ein direkter
-    // Import schickte sie wieder durch den Optimierer der Instanz — Speicher,
-    // der auf Cloud Run fehlt (25.09.2026, siehe lib/imageLoader.ts).
+    // Import schickte sie durch den Optimierer der Instanz, und der kostet
+    // Speicher, der auf Cloud Run fehlt (siehe lib/imageLoader.ts).
     files: ['app/**/*.{ts,tsx}', 'lib/**/*.{ts,tsx}'],
     ignores: ['app/components/SiteImage.tsx', '**/*.test.{ts,tsx}'],
     rules: {

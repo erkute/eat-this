@@ -2,35 +2,34 @@
  * Pulling the phone list off the map and back — the Google Maps / Airbnb
  * gesture, built on a window-scrolled page.
  *
- * The phone list is a window-scrolled document; the map lies in a frame over
- * it that ends at its top edge (MapLayout.module.css, "The map frame"). Deep in the list, the way back to the map
- * is the grabber in the sticky filter bar: pull it down and the list follows
- * the finger, let go and it stays where the finger left it — over the map,
- * or below its resting place, down to where only the bar is left above the
- * bottom. Nothing snaps (user, 28.09.2026). Back over the map the list
- * starts at its top again. Remembering the row it was pulled from and
- * keeping it in the peek left a cut-off or empty sheet over the map (user,
- * 27.09.2026).
+ * The phone list is a window-scrolled document; the map lies in a frame over it
+ * that ends at its top edge (MapLayout.module.css, "The map frame"). Deep in
+ * the list, the way back to the map is the grabber in the sticky filter bar:
+ * pull it down and the list follows the finger, let go and it stays where the
+ * finger left it — over the map, or below its resting place, down to where only
+ * the bar is left above the bottom. Nothing snaps. Back over the map the list
+ * starts at its top again: keeping the row it was pulled from in the peek would
+ * leave a cut-off or empty sheet over the map.
  *
  * Under the hood the list never scrolls through its rows on the way. The slab
  * on screen is moved by a transform, and the scroll position changes only at
  * the resting line, where the bar sits in the same place before and after.
- * Going back to the top by scrolling was the old route, and iOS Safari runs a
- * programmatic smooth scroll in a fixed short time whatever the distance —
- * from three thousand pixels down it read as a jump.
+ * Scrolling back to the top is not an option: iOS Safari runs a programmatic
+ * smooth scroll in a fixed short time whatever the distance — from three
+ * thousand pixels down it reads as a jump.
  *
- * The bar never reaches the bottom edge. The first version let the slab drop
- * out through the bottom of the screen, and on the way the sticky filter bar
- * crossed that edge: iOS Safari tints its URL bar after a sticky container
- * there and keeps the colour afterwards, so the translucent bar turned black
- * (user, 22.09.2026). At the lowest stop LOWERED_GAP_PX of rows stay below
- * the bar for that reason, measured from clearBottom().
+ * The bar never reaches the bottom edge. If the slab dropped out through the
+ * bottom of the screen, the sticky filter bar would cross that edge: iOS Safari
+ * tints its URL bar after a sticky container there and keeps the colour
+ * afterwards, so the translucent bar turns black. At the lowest stop
+ * LOWERED_GAP_PX of rows stay below the bar for that reason, measured from
+ * clearBottom().
  *
  * The document itself is never frozen, fixed or overflow-locked: it stays the
  * window-scrolled page it always was, which keeps it flowing behind Safari's
  * and Chrome's toolbars (and lets them collapse). The transform exists for the
- * length of a gesture, and while the sheet is held below the map stop
- * (scroll 0), where no scroll position can put it.
+ * length of a gesture, and while the sheet is held below the map stop (scroll
+ * 0), where no scroll position can put it.
  */
 
 import { safeAreaInsetTop } from './safeArea';
@@ -53,7 +52,6 @@ export function mapStripLine(): number {
 export const SHEET_SETTLED_EVENT = 'et:map-sheet-settled';
 const announceSettled = () => window.dispatchEvent(new Event(SHEET_SETTLED_EVENT));
 
-/* Decelerates into its stop. */
 const SETTLE_MS = 360;
 const SETTLE_EASING = 'cubic-bezier(0.2, 0.8, 0.2, 1)';
 
@@ -83,12 +81,11 @@ function smallViewportHeight(): number {
  * The lowest line on screen the sheet's bar may reach: the bottom of the
  * viewport as it is with Safari's bars unfolded, whatever they do right now.
  *
- * `innerHeight` alone let the bar slip under the URL bar "sometimes" (user,
- * 28.09.2026): a pull that starts deep in the sheet starts with the toolbar
- * folded away and a taller viewport, and the scroll back to the map unfolds
- * it — over the bar. So the smallest of the three: the layout viewport, the
- * visual one (pinch zoom, keyboard) and 100svh, the viewport with every bar
- * shown.
+ * `innerHeight` alone would let the bar slip under the URL bar: a pull that
+ * starts deep in the sheet starts with the toolbar folded away and a taller
+ * viewport, and the scroll back to the map unfolds it — over the bar. So the
+ * smallest of the three: the layout viewport, the visual one (pinch zoom,
+ * keyboard) and 100svh, the viewport with every bar shown.
  */
 export function clearBottom(): number {
   const vv = window.visualViewport;
@@ -268,10 +265,9 @@ function glide(sheet: HTMLElement, fromPx: number, toPx: number, edgeTo: number)
 
 /**
  * A tap on the bar deep in the sheet: the slab glides down to `toPx`, the
- * resting line, and the page returns to the map stop underneath it, so the
- * bar stands in the same place before and after. The sheet comes back at
- * its top: the rows it was pulled from are not where the map picks up
- * (user, 27.09.2026).
+ * resting line, and the page returns to the map stop underneath it, so the bar
+ * stands in the same place before and after. The sheet comes back at its top:
+ * the rows it was pulled from are not where the map picks up.
  */
 export async function settleOnMap(
   sheet: HTMLElement,

@@ -56,9 +56,9 @@ export async function GET(): Promise<Response> {
   return new Response(body, {
     headers: {
       'Content-Type': 'application/xml; charset=utf-8',
-      // Same as the old metadata route served: the CDN and the browser
-      // revalidate every time, Next's own ISR cache above absorbs the load.
-      // A longer s-maxage would outlive the Sanity webhook's revalidatePath.
+      // The CDN and the browser revalidate every time; Next's own ISR cache
+      // above absorbs the load. A longer s-maxage would outlive the Sanity
+      // webhook's revalidatePath.
       'Cache-Control': 'public, max-age=0, must-revalidate',
     },
   });

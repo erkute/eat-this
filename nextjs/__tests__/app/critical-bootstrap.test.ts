@@ -39,11 +39,12 @@ describe('critical auth bootstrap', () => {
     expect(line).toContain("setAttribute('data-theme','dark')")
   })
 
-  /* Adobe's kit stylesheet used to be linked here and loaded with media="print"
-   * until the bootstrap flipped it. It @imported p.typekit.net/p.css — Adobe's
-   * usage beacon — which ran for every visitor. The @font-face rules now live in app/globals.css and only the
-   * font files are fetched. Do not put a third-party stylesheet back in a head:
-   * a stylesheet is a request the visitor never agreed to. */
+  /*
+   * No third-party stylesheet in a head. Adobe's kit stylesheet @imports
+   * p.typekit.net/p.css — Adobe's usage beacon — which would run for every
+   * visitor. The @font-face rules live in app/globals.css and only the font
+   * files are fetched. A stylesheet is a request the visitor never agreed to.
+   */
   // Neither the standalone 404 nor the regular site shell may link the kit.
   it.each([
     'app/[locale]/layout.tsx',

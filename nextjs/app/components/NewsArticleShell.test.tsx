@@ -324,7 +324,7 @@ describe('NewsArticleShell', () => {
       conclusion,
     ]);
     const head = html.slice(0, html.indexOf('</header>'));
-    // „nicht Kapitel nennen" (02.10.2026): die Zeile zählt Spots auf.
+    // Die Zeile zählt Spots auf und heißt nicht „Kapitel".
     expect(head).toContain('aria-label="Die Spots"');
     // Das Fazit ist kein Spot.
     expect(head).not.toContain('Fünf Pizzen');
@@ -332,8 +332,8 @@ describe('NewsArticleShell', () => {
     expect(head).toMatch(/href="#kolo-coffee-[^"]*"[^>]*>Kolo Coffee<\/a>/);
   });
 
-  // Ansage 02.10.2026: „das brauche ich hier nicht, nur wenn Spots gelistet
-  // sind" — ein Essay mit Zwischenüberschriften bekommt keine Zeile.
+  // Die Zeile gibt es nur, wenn Spots gelistet sind: Ein Essay mit
+  // Zwischenüberschriften bekommt keine.
   it('shows no chapter row for an essay that lists no spots', () => {
     const html = render([
       h2('Von der Sterneküche'),
@@ -344,8 +344,8 @@ describe('NewsArticleShell', () => {
     expect(html).not.toContain('aria-label="Die Spots"');
   });
 
-  // Ansage 11.10.2026: ein erzählender Guide gliedert nach Themen, die Spots
-  // stehen im Text — seine Überschriften gehören nicht in die Zeile.
+  // Ein erzählender Guide gliedert nach Themen, die Spots stehen im Text: Seine
+  // Überschriften gehören nicht in die Zeile.
   it('lists only headings that open a spot', () => {
     const narrative = render([
       h2('Als Berlin chinesisch essen lernte'),
@@ -470,8 +470,7 @@ describe('NewsArticleShell', () => {
 
     it('shows the next issues as covers with their own numbers', () => {
       const html = renderWith(issues(['pizza', 'doener', 'eis', 'donuts']));
-      // Darunter liegen Hefte, also „Weitere Ausgaben" — nicht mehr „Weiter
-      // auf dem Teller" (Ansage 02.10.2026).
+      // Darunter liegen Hefte, also „Weitere Ausgaben".
       expect(html).toContain('>Weitere Ausgaben</h2>');
       expect(html).not.toContain('Weiter auf dem Teller');
       const related = html.slice(html.indexOf('Weitere Ausgaben'));

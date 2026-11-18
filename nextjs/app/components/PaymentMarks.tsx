@@ -1,21 +1,21 @@
 /* The four accepted payment marks, inlined as vectors.
 
-   These are the brands' OWN artwork, unmodified apart from stripped editor
-   cruft (Sketch comments, <title>, element ids) and the one namespaced clip-path
-   id PayPal ships as "#a" — generic enough to collide with anything else on the
-   page. Sources: Apple Pay Mark from developer.apple.com, paypal-color.svg from
-   paypalobjects.com, the Klarna Payment Badge from x.klarnacdn.net, and the
-   Mastercard symbol from Stripe's Elements icon set (mastercard.com answers 403
-   on every asset path). Nothing here is redrawn — same rule as GoogleMark.tsx.
+   These are the brands' own artwork, unmodified apart from stripped editor
+   cruft (Sketch comments, <title>, element ids) and the one namespaced
+   clip-path id PayPal ships as "#a", generic enough to collide with anything
+   else on the page. Sources: Apple Pay Mark from developer.apple.com,
+   paypal-color.svg from paypalobjects.com, the Klarna Payment Badge from
+   x.klarnacdn.net, and the Mastercard symbol from Stripe's Elements icon set
+   (mastercard.com answers 403 on every asset path). Nothing here is redrawn,
+   same rule as GoogleMark.tsx.
 
    Inline rather than <img> or next/image: next/image refuses SVG without
-   dangerouslyAllowSVG, and four files were four requests plus a lazy-load pop
-   for ~15 KB of artwork. They were 70x48 rasters before, which meant a 2x
-   stretch on the detail page and visible mush on every retina screen.
+   dangerouslyAllowSVG, and four files would be four requests plus a lazy-load
+   pop for a few KB of artwork.
 
-   Each brand ships a different build — Apple Pay a bordered white card, Klarna
-   a pink one, PayPal and Mastercard bare — so they are normalised on HEIGHT,
-   not width. PayPal's lockup is 3.5x as wide as it is tall and would otherwise
+   Each brand ships a different build (Apple Pay a bordered white card, Klarna a
+   pink one, PayPal and Mastercard bare), so they are normalised on height, not
+   width. PayPal's lockup is far wider than it is tall and would otherwise
    dominate the row, hence the deliberate 0.75 step-down. */
 
 type MarkProps = { height: number };

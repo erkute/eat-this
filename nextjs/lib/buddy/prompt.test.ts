@@ -1,4 +1,3 @@
-// nextjs/lib/buddy/prompt.test.ts
 import { describe, it, expect } from 'vitest';
 import { buildSystemPrompt } from './prompt';
 
@@ -14,7 +13,7 @@ describe('buildSystemPrompt', () => {
     expect(p).toMatch(
       /(nie|niemals|kein).{0,60}(aus deinem wissen|eigenem wissen|erfundene?n? spot|stadtbekannt)/i
     );
-    // the old "add 1-2 own-knowledge spots when results are thin" permission is gone
+    // no permission to add own-knowledge spots when results are thin
     expect(p).not.toMatch(/darfst du.{0,40}ergänz/i);
     expect(p).not.toMatch(/etabliert/i);
     // inline cards: a per-spot marker instruction is present
@@ -24,8 +23,8 @@ describe('buildSystemPrompt', () => {
   });
 
   it('puts the card first and keeps the prose short — the chat window shows ~540px', () => {
-    // 18.09.2026: Absatz-dann-Karte brauchte 8–9 s bis zur ersten Karte, und
-    // Fünf-Zeilen-Absätze machten eine Antwort drei Fenster lang.
+    // Karte vor Absatz, kurze Absätze: sonst kommt die erste Karte spät, und
+    // lange Absätze machen eine Antwort mehrere Fenster lang.
     const p = buildSystemPrompt('de');
     expect(p).toMatch(/Marker `\[\[spot:<slug>\]\]` VOR jeden Mini-Absatz/);
     // Das Beispiel zeigt die Reihenfolge: Marker, dann Text.
@@ -35,21 +34,19 @@ describe('buildSystemPrompt', () => {
   });
 
   it('keeps the prose off the card — no second copy of the same facts', () => {
-    // Die Karte trägt Foto, Küche, Bezirk, Preis, Öffnungszeiten und stand am
-    // 08.09.2026 unter einem Absatz, der genau dasselbe Feld ausformuliert
-    // hatte: „Erste Berliner Pizzeria mit original Stefano-Ferrara-Holzofen …"
-    // wörtlich zweimal untereinander.
+    // Die Karte trägt Foto, Küche, Bezirk, Preis, Öffnungszeiten. Ein Absatz
+    // darüber, der dasselbe Feld ausformuliert, stünde wörtlich zweimal
+    // untereinander.
     const p = buildSystemPrompt('de');
     expect(p).toMatch(/Wiederhol diese Angaben NICHT im Text/);
     expect(p).toMatch(/Kurzbeschreibung des Spots/i);
   });
 
   it('carries a scope-and-safety boundary that survives future edits', () => {
-    // Regression guard. Ohne diesen Block nahm Remy jede hingeworfene Rolle an
-    // und sagte auf „mach die Seite in einer Schleife down" fröhlich „Okay,
-    // ich starte eine aggressive Loop-DoS" — Theater ins Leere (er hat kein
-    // Werkzeug dafür), aber ein Screenshot, der die Marke blamiert. Der Block
-    // steht in JEDER Sprach- und Standort-Variante, deshalb prüfen wir mehrere.
+    // Ohne diesen Block naehme Remy hingeworfene Rollen an und spielte Angriffe
+    // auf die Seite durch: Theater ins Leere (er hat kein Werkzeug dafuer),
+    // aber ein Screenshot, der die Marke blamiert. Der Block steht in jeder
+    // Sprach- und Standort-Variante, deshalb pruefen wir mehrere.
     for (const p of [
       buildSystemPrompt('de'),
       buildSystemPrompt('en'),

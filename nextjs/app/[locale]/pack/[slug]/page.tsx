@@ -23,8 +23,8 @@ interface PageProps {
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-// Nur die Kategorie-Packs haben eine Seite. All Berlin ist die Tafel auf
-// /packs plus die „Was drin ist"-Sheet — /pack/all-berlin gibt es nicht mehr.
+// Nur die Kategorie-Packs haben eine Seite. All Berlin ist die Tafel auf /packs
+// plus die „Was drin ist"-Sheet; /pack/all-berlin gibt es nicht.
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale, slug } = await params;
@@ -77,10 +77,10 @@ export default async function PackDetailPage({ params }: PageProps) {
   const categorySlug = pack.slug;
   const packContents = await getPackContents();
 
-  /* Ein Pack ohne Karte ist eine leere Schachtel — Fine Dining stand am
-     06.09.2026 auf null. Die Seite bleibt (die Kategorie kommt ja), der
-     Kaufknopf nicht. Die Zahl selbst steht nirgends: das Produkt nennt seine
-     Zahlen nicht, sie beantwortet hier nur diese eine Ja/Nein-Frage. */
+  /* Ein Pack ohne Karte ist eine leere Schachtel. Die Seite bleibt (die
+     Kategorie kommt ja), der Kaufknopf nicht. Die Zahl selbst steht nirgends:
+     Das Produkt nennt seine Zahlen nicht, sie beantwortet hier nur diese eine
+     Ja/Nein-Frage. */
   const empty = (packContents.byCategory[categorySlug]?.mustEats ?? 0) === 0;
   const art = categoryArt(categorySlug);
   const heroName = pack.displayName;

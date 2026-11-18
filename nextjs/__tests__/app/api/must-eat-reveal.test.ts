@@ -32,16 +32,15 @@ vi.mock('@/lib/firebase/entitlements', () => ({
   resolveEntitlements: vi.fn(),
 }));
 
-/* `composeAccountSurface` ist seit dem 31.08.2026 die eine Stelle, an der
-   „was sieht dieses Konto und was liegt offen" definiert ist — dieselbe
-   Funktion benutzen /api/map-data und die oeffentliche Deck-Seite. Hier stand
-   die Formel als dritte Kopie. */
+/* `composeAccountSurface` ist die eine Stelle, an der „was sieht dieses Konto
+   und was liegt offen" definiert ist; dieselbe Funktion benutzen /api/map-data
+   und die öffentliche Deck-Seite. */
 vi.mock('@/lib/map/visible-restaurants.server', () => ({
   composeAccountSurface: vi.fn(),
 }));
 
 const checkRateLimit = vi.fn();
-vi.mock('@/lib/rateLimitWindow', () => ({
+vi.mock('@/lib/rateLimit', () => ({
   checkWindowedRateLimit: (...args: unknown[]) => checkRateLimit(...args),
 }));
 
@@ -120,10 +119,8 @@ describe('/api/must-eat-reveal', () => {
     expect(unlockMustEat).not.toHaveBeenCalled();
   });
 
-  /* Bis zum 06.09.2026 stand hier eine 403: der Spot musste auf der Map DIESES
-     Kontos liegen. Sie fiel mit der Staffelung — wer vor einem Laden steht,
-     deckt dessen Karte auf, egal welcher Laden. Der Fall bleibt als Test
-     stehen, weil er die Regel benennt, nicht nur ihren Wegfall. */
+  /* Wer vor einem Laden steht, deckt dessen Karte auf, egal welcher Laden: Der
+     Spot muss nicht auf der Map dieses Kontos liegen. */
   it('deckt auch an einem Spot auf, der sonst nirgends im Konto vorkommt', async () => {
     vi.mocked(composeAccountSurface).mockResolvedValueOnce({
       restaurants: [{ _id: 'other-restaurant' }] as never[],

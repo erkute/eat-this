@@ -21,10 +21,9 @@ describe('packContentsQuery', () => {
     expect(packContentsQuery).toContain('restaurantRef->isOpen != false');
   });
 
-  /* Die Kontrollzahl: Map, Album, geteiltes Deck und Pack-Zahl muessen
-     dieselbe Kartenmenge meinen. Ohne den Filter hier hing Karte 022
-     (Crapulix) an einem geschlossenen Lokal — das Deck zeigte 26 Plaetze,
-     All Berlin versprach 25, und der Platz war vor Ort nicht einloesbar. */
+  /* Die Kontrollzahl: Map, Album, geteiltes Deck und Pack-Zahl muessen dieselbe
+     Kartenmenge meinen. Eine Karte an einem geschlossenen Lokal stuende sonst
+     im Deck, aber nicht in der Pack-Zahl, und waere vor Ort nicht einloesbar. */
   it('drops a card whose spot is closed, exactly like the pack count does', () => {
     expect(mapMustEatsQuery).toContain('restaurantRef->isOpen != false');
     expect(mapMustEatsQuery).toContain('restaurantRef->isClosed != true');

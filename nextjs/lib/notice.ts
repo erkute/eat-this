@@ -2,18 +2,16 @@
  * Jede Meldung der zentralen Info-Karte (NotificationToast), mit ihren Worten.
  *
  * Aufrufer nennen die Lage, nicht den Text: `notify('mapDataError', locale)`.
- * Bis zum 24.09.2026 kam jede Meldung als freier Satz an und wurde in der
- * Karte über Stichworte einsortiert — „Konnte nicht gespeichert werden."
- * enthielt „gespeichert" und lief dadurch als grüne Bestätigung „Spot
- * gespeichert" durch, und Remys eigener Satz ging im Standort-Stichwort unter.
- * Ein fester Katalog kann das nicht mehr.
+ * Ein fester Katalog statt freier Sätze, die die Karte über Stichworte
+ * einsortieren müsste: „Konnte nicht gespeichert werden." enthält „gespeichert"
+ * und liefe sonst als Bestätigung „Spot gespeichert" durch.
  *
- * Bewusst NICHT im Katalog (24.09.2026 gestrichen), weil die Seite es selbst
- * schon sagt: „Standort sitzt" (die Liste sortiert sich um), „Wir suchen dich"
- * auf der Startseite (der Knopf zeigt es), „Spot entfernt" (das Herz leert
- * sich), „Gespeichert" ab dem zweiten Spot (das Herz füllt sich, seit
- * 27.10.2026), „Karte wird geladen" (die Map kommt mit Server-Daten), „Du bist
- * drin" und „Abgemeldet" (der Wartescreen davor sagt beides schon).
+ * Bewusst nicht im Katalog, weil die Seite es selbst schon sagt: „Standort
+ * sitzt" (die Liste sortiert sich um), „Wir suchen dich" auf der Startseite
+ * (der Knopf zeigt es), „Spot entfernt" (das Herz leert sich), „Gespeichert" ab
+ * dem zweiten Spot (das Herz füllt sich), „Karte wird geladen" (die Map kommt
+ * mit Server-Daten), „Du bist drin" und „Abgemeldet" (der Wartescreen davor
+ * sagt beides schon).
  */
 
 export type NoticeKind =
@@ -137,9 +135,8 @@ const COPY: Record<NoticeKind, { de: Copy; en: Copy }> = {
     en: { eyebrow: 'Map', title: 'Not current', detail: 'You are looking at older map data.' },
   },
   /* Beim Speichern meldet sich nur der allererste Spot, einmal je Gerät
-     (Betreiber, 27.10.2026; useFavorites): die Map markiert gespeicherte
-     Spots nicht, man findet sie im Profil. Danach sagt das gefüllte Herz
-     genug. */
+     (useFavorites): Die Map markiert gespeicherte Spots nicht, man findet sie
+     im Profil. Danach sagt das gefüllte Herz genug. */
   spotSavedFirst: {
     de: { eyebrow: 'Spot', title: 'Gespeichert', detail: 'Deine Spots findest du im Profil.' },
     en: { eyebrow: 'Spot', title: 'Saved', detail: 'Your spots are in your profile.' },

@@ -19,15 +19,15 @@ describe('auth mail plain-text parts', () => {
     expect(t).not.toContain('Must Eats');
   });
 
-  /* Die Anmeldemail muss sagen, was ein Konto bringt — und das sind seit dem
-     06.09.2026 Karten, nicht mehr Spots: die Map liegt fuer jeden ganz da. */
+  /* Die Anmeldemail muss sagen, was ein Konto bringt, und das sind Karten,
+     nicht Spots: Die Map liegt für jeden ganz da. */
   it('the signup part names what an account is actually worth', () => {
     const t = buildSignupText('https://x/verify', 'de');
     expect(t).toContain('20 zusätzliche Must Eats');
-    // Nicht nur wohin, sondern was bestellen — das Versprechen seit 22.09.2026.
+    // Nicht nur wohin, sondern was bestellen.
     expect(t).toContain('ein Gericht und den passenden Spot');
     expect(t).not.toContain('Gute Spots findest du überall');
-    // „auf deiner Map" war das alte Versprechen — Spots gibt es gratis.
+    // Spots gibt es ohne Konto; „auf deiner Map" verspricht die Mail nicht.
     expect(t).not.toContain('Spots samt');
     expect(t).not.toContain('weitere Spots');
   });

@@ -2,21 +2,21 @@
  * Provision the `admin: true` Firebase custom claim for trusted operators.
  *
  * This is the authoritative admin signal checked by isAdminToken() in
- * lib/firebase/entitlements.ts. The verified-email-in-ADMIN_EMAILS path is
- * only a bootstrap fallback; setting the claim is the durable mechanism and
- * removes any dependence on the (mutable) email field.
+ * lib/firebase/entitlements.ts. The verified-email-in-ADMIN_EMAILS path is only
+ * a bootstrap fallback; setting the claim is the durable mechanism and removes
+ * any dependence on the (mutable) email field.
  *
  * Reads ADMIN_EMAILS from the environment and sets the claim for each user
- * whose account has a VERIFIED matching email. Refuses to grant admin to an
- * unverified account — that would re-open the very hole this fixes.
+ * whose account has a verified matching email. Refuses to grant admin to an
+ * unverified account.
  *
  * Run from `nextjs/` (needs FIREBASE_ADMIN_* in .env.local):
  *   npx tsx scripts/set-admin-claims.ts            # apply to ADMIN_EMAILS
  *   npx tsx scripts/set-admin-claims.ts a@b.com    # apply to a specific email
  *   npx tsx scripts/set-admin-claims.ts --revoke a@b.com
  *
- * Note: the user must obtain a fresh ID token (re-login, or wait up to ~1h
- * for token refresh) before the new claim takes effect on the API.
+ * Note: the user must obtain a fresh ID token (re-login, or wait up to ~1h for
+ * token refresh) before the new claim takes effect on the API.
  */
 import { config as loadEnv } from 'dotenv';
 import { initializeApp, cert } from 'firebase-admin/app';

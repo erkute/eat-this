@@ -86,11 +86,10 @@ export default async function PacksOverviewPage({ params }: PageProps) {
                 const art = pack.slug ? categoryArt(pack.slug) : null;
                 const href = `/pack/${packUrlSlug(pack)}`;
                 /* Ein Pack ohne Karte ist kein Produkt, sondern eine leere
-                 Schachtel — Fine Dining stand am 06.09.2026 auf null. Es bleibt
-                 sichtbar (die Kategorie kommt ja), aber es ist nicht käuflich.
-                 Wie viele Karten drin sind, steht nirgends: das Produkt nennt
-                 seine Zahlen nicht. Umso mehr haengt der Fehlkauf an diesem
-                 Riegel — er ist das Einzige, was ihn noch verhindert. */
+                   Schachtel. Es bleibt sichtbar (die Kategorie kommt ja), aber
+                   es ist nicht käuflich. Wie viele Karten drin sind, steht
+                   nirgends: Das Produkt nennt seine Zahlen nicht. Umso mehr
+                   hängt der Fehlkauf an diesem Riegel. */
                 const empty =
                   (pack.slug ? (packContents.byCategory[pack.slug]?.mustEats ?? 0) : 1) === 0;
 
@@ -113,9 +112,9 @@ export default async function PacksOverviewPage({ params }: PageProps) {
                         <span className={styles.tileName}>{pack.displayName}</span>
                         <p className={styles.spectrum}>{pack.spectrum[loc]}</p>
 
-                        {/* Gekauft wird auf der Detailseite, nach dem Blick hinein
-                            (Ansage 22.10.2026) — hier nur der Weg dorthin; der
-                            Preis steht erst dort. */}
+                        {/* Gekauft wird auf der Detailseite, nach dem Blick
+                            hinein. Hier nur der Weg dorthin; der Preis steht
+                            erst dort. */}
                         {empty ? (
                           <span className={styles.soon}>{t.soon}</span>
                         ) : (

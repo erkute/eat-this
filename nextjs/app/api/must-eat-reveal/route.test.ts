@@ -1,7 +1,6 @@
 // Was /api/must-eat-reveal einem angemeldeten Konto herausgibt. Die Herausgabe
-// ist bewusst offen (Betreiber, 02.10.2026; AGENTS.md): wer eine
-// Karte anfragt, bekommt sie — begrenzt nur über das
-// Ratenlimit. Ändert sich das, ändert sich dieser Test mit.
+// ist bewusst offen (AGENTS.md): Wer eine Karte anfragt, bekommt sie, begrenzt
+// nur über das Ratenlimit. Ändert sich das, ändert sich dieser Test mit.
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import type { MapMustEat } from '@/lib/types';
@@ -32,7 +31,7 @@ vi.mock('@/lib/firebase/unlockedMustEats.server', () => ({
   getUnlockedMustEatIds: m.getUnlockedMustEatIds,
   unlockMustEat: m.unlockMustEat,
 }));
-vi.mock('@/lib/rateLimitWindow', () => ({
+vi.mock('@/lib/rateLimit', () => ({
   checkWindowedRateLimit: m.rateLimit,
 }));
 vi.mock('@/lib/must-eat/private-store', () => ({

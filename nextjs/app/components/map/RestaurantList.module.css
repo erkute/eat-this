@@ -1,13 +1,12 @@
 /* Restaurant List — isolated map subsystem.
 
-   Glatte Fotos mit kräftigen Namen und Angaben auf weissen Textflächen,
-   direkt im Bild (032c-Referenz, 23.10.2026). Keine Abdunklung.
+   Glatte Fotos mit kräftigen Namen und Angaben auf weißen Textflächen, direkt
+   im Bild (032c-Referenz). Keine Abdunklung.
 
-   Kein `content-visibility: auto` auf den Zeilen (23.09.2026 entfernt).
-   Safari legt einen solchen Slot erst aus, wenn er schon im Bild steht (in
-   WebKit gemessen: Oberkante 13px über dem unteren Rand), und der Slot
-   springt dann von der geschätzten auf seine echte Höhe — beim Scrollen
-   ruckte die Liste am unteren Rand (Betreiber am iPhone). Die Liste rendert
+   Kein `content-visibility: auto` auf den Zeilen. Safari legt einen solchen
+   Slot erst aus, wenn er schon im Bild steht (in WebKit: Oberkante 13px über
+   dem unteren Rand), und der Slot springt dann von der geschätzten auf seine
+   echte Höhe; beim Scrollen ruckt die Liste am unteren Rand. Die Liste rendert
    ohnehin nur ein Fenster von Zeilen (lib/map/listWindow). */
 .rcardSlot {
   margin-inline: -6px;

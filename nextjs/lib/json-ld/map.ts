@@ -14,21 +14,20 @@ interface BuildMapJsonLdArgs {
 }
 
 /**
- * WebPage + ItemList für `/map`. Kein FAQPage mehr: der Textblock mit den
- * Fragen am Listenende ist seit 22.10.2026 weg (Betreiber), und ein FAQPage
- * ohne sichtbare Fragen wäre eine Behauptung über die Seite.
+ * WebPage + ItemList für `/map`. Kein FAQPage: Die Seite zeigt keine Fragen,
+ * und ein FAQPage ohne sichtbare Fragen wäre eine Behauptung über die Seite.
  *
- * Das Seitenbild ist die Markenkarte, nicht ein Restaurantfoto: die Karte zeigt
+ * Das Seitenbild ist die Markenkarte, nicht ein Restaurantfoto: Die Karte zeigt
  * keinen Ort, sondern alle, und `primaryImageOfPage` soll sagen, was Google als
- * Thumbnail nehmen darf — dieselbe Überlegung wie auf der Startseite, nur ohne
+ * Thumbnail nehmen darf. Dieselbe Überlegung wie auf der Startseite, nur ohne
  * deren zweite quadratische Variante (die gehört dem Home-Graph).
  *
  * Die ItemList führt bewusst nur die Zeilen, die wirklich im HTML stehen.
- * `RestaurantList` rendert zunächst `INITIAL_LIST_ROWS` Karten und lädt den Rest
- * über einen Sentinel nach; eine Liste über alle ~340 Spots wäre eine Behauptung
- * über eine Seite, die so nicht ausgeliefert wird. Deshalb bekommt der Builder
- * die Auswahl fertig übergeben — der Aufrufer schneidet sie mit demselben
- * Vergleich zu, nach dem die Liste sortiert (`byMustEatsThenName`).
+ * `RestaurantList` rendert zunächst `INITIAL_LIST_ROWS` Karten und lädt den
+ * Rest über einen Sentinel nach; eine Liste über alle Spots wäre eine
+ * Behauptung über eine Seite, die so nicht ausgeliefert wird. Deshalb bekommt
+ * der Builder die Auswahl fertig übergeben; der Aufrufer schneidet sie mit
+ * demselben Vergleich zu, nach dem die Liste sortiert (`byMustEatsThenName`).
  */
 export function buildMapJsonLd({
   locale,

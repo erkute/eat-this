@@ -5,13 +5,10 @@ import { describe, expect, it, vi } from 'vitest';
 import MapFilterPickerSheet, { type PickerItem } from './MapFilterPickerSheet';
 
 /**
- * A picker row promises a result set, and every row used to keep that promise
- * the same way: by being tappable. A row reading 0 then delivered a list that
- * could only say "keine Spots" — the one thing nobody opened a filter for.
- *
- * The counts include the paywalled spots (they stand in the list too), so a
- * zero here means the catalogue has nothing, and the row stops leading
- * anywhere.
+ * A picker row promises a result set. A row reading 0 would deliver a list that
+ * can only say "keine Spots" — the one thing nobody opens a filter for. A zero
+ * means the catalogue has nothing, so the row leads nowhere and is not
+ * tappable.
  */
 const ITEMS: PickerItem[] = [
   { value: 'italian', label: 'Italienisch', sub: '4' },
@@ -73,13 +70,13 @@ describe('MapFilterPickerSheet rows', () => {
 
 /**
  * Der Chip schaltet die Leiste selbst um (auf == zu). Schließt der
- * Außenklick-Wächter vorher, zieht derselbe Klick sie danach wieder auf —
- * die Leiste ginge beim zweiten Tippen nie zu. Deshalb ist die ganze
- * Chip-Zeile von ihm ausgenommen, nicht nur der eigene Chip.
+ * Außenklick-Wächter vorher, zieht derselbe Klick sie danach wieder auf; die
+ * Leiste ginge beim zweiten Tippen nie zu. Deshalb ist die ganze Chip-Zeile von
+ * ihm ausgenommen, nicht nur der eigene Chip.
  *
- * Der Wächter gilt nur noch für die eingeklappte Desktop-Variante: als
- * Bottom-Sheet liegt ein Backdrop über allem, und der schließt über seinen
- * eigenen Klick (siehe „wegtippen" weiter unten).
+ * Der Wächter gilt nur für die eingeklappte Desktop-Variante: Als Bottom-Sheet
+ * liegt ein Backdrop über allem, und der schließt über seinen eigenen Klick
+ * (siehe „wegtippen" weiter unten).
  */
 describe('MapFilterPickerSheet: Außenklick', () => {
   it('lässt die Chip-Zeile in Ruhe — sonst öffnet der zweite Klick neu', () => {
@@ -111,18 +108,11 @@ describe('MapFilterPickerSheet: Außenklick', () => {
 });
 
 /**
- * Wegtippen darf nie auf der Karte darunter ankommen.
- *
- * Das Sheet schloss auf `touchstart`/`mousedown` an `document`. Damit war der
- * Backdrop weg, bevor der Klick kam — der Klick landete auf der Karte und
- * oeffnete einen Spot. Dagegen stand ein Abfaenger, der genau den naechsten
- * Klick schluckte, mit einer Frist von 400 ms. Ein bedaechtiger Tipp ist
- * laenger: mit 600 ms Finger auf demselben Punkt ging reproduzierbar ein
- * fremder Spot auf.
- *
- * Jetzt nimmt der Backdrop den Klick selbst an — damit ist der Tipp
- * verbraucht und es gibt gar kein Zeitfenster mehr. Diese Tests halten beide
- * Haelften fest.
+ * Wegtippen darf nie auf der Karte darunter ankommen: der Backdrop nimmt den
+ * Klick selbst an, damit ist der Tipp verbraucht, ohne Zeitfenster. Ein
+ * Schließen auf `touchstart`/`mousedown` an `document` nähme den Backdrop weg,
+ * bevor der Klick kommt, und der öffnete einen Spot. Diese Tests halten beide
+ * Hälften fest.
  */
 describe('MapFilterPickerSheet wegtippen', () => {
   const backdrop = (container: HTMLElement) =>

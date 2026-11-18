@@ -2,27 +2,18 @@ import type { MapRestaurant } from '@/lib/types';
 import { getOpenStatus } from './openingHours';
 
 /**
- * The list's order when there is no location to sort by.
+ * The list's order when there is no location to sort by, instead of the order
+ * the map payload was assembled in.
  *
- * Without this the list simply inherited the order the map payload was
- * assembled in — curated spots, then the round-robin district fill, then
- * whatever the home page surfaces appended at the end (applyFreeSurface). That
- * last step is why tapping a dish on the home page and closing it again landed
- * you on the very last row of 340: not a ranking anyone chose, a build order
- * leaking into the UI.
+ * Must Eats first, because that is what the map is for, and only a small share
+ * of spots carry one, so it is a real distinction. Alphabetical underneath:
+ * nothing else in the payload ranks quality, and a name keeps the rest findable
+ * and the order stable between visits.
  *
- * Must Eats first, because that is what the map is for — "we tell you what to
- * eat" — and only 28 of 344 spots carry one, so it is a real distinction rather
- * than a shuffle. Alphabetical underneath: nothing else in the payload ranks
- * quality (the importer fills photo, tip and description for every spot), and a
- * name at least makes the rest findable and keeps the order stable between two
- * visits. Free and paywalled spots rank by the same rule; they are one list.
- *
- * Lives in its own module because two callers need it and only one of them may
- * import a hook: `useMapFilters` sorts the live list, and the map page's
- * `generateMapJsonLd` has to reproduce the SSR'd rows for its ItemList. The
- * `lib/map` barrel re-exports client hooks, so server code must not go through
- * it — hence a deep, hook-free file.
+ * Its own module because two callers need it and only one may import a hook:
+ * `useMapFilters` sorts the live list, and the map page's `generateMapJsonLd`
+ * reproduces the SSR'd rows for its ItemList. The `lib/map` barrel re-exports
+ * client hooks, so server code must not go through it.
  */
 export function byMustEatsThenName(a: MapRestaurant, b: MapRestaurant): number {
   const mustEats = (b.mustEatCount ?? 0) - (a.mustEatCount ?? 0);
@@ -31,16 +22,15 @@ export function byMustEatsThenName(a: MapRestaurant, b: MapRestaurant): number {
 }
 
 /**
- * Geöffnet vor geschlossen, sonst unverändert (stabil). Montag 09:00 standen
- * zehn der ersten zwölf Zeilen auf „Geschlossen" (Audit 28.09.2026): die
- * Liste empfahl, was man gerade nicht haben kann. Ein Spot ohne gepflegte
- * Öffnungszeiten zählt zu den geschlossenen — offen ist er nur, wenn wir es
- * wissen.
+ * Geöffnet vor geschlossen, sonst unverändert (stabil): Die Liste soll nicht
+ * empfehlen, was man gerade nicht haben kann (Montag 09:00 ist fast alles zu).
+ * Ein Spot ohne gepflegte Öffnungszeiten zählt zu den geschlossenen; offen ist
+ * er nur, wenn wir es wissen.
  *
- * `now` ist Berliner Wanduhrzeit (berlinNow), wie getOpenStatus sie liest.
- * Die Karte übergibt den Zeitpunkt, zu dem der Server die Seite gerendert
- * hat: so sortieren Server und Browser gleich, und die Liste sortiert nicht
- * unter dem Finger um, wenn um zwölf ein Laden aufmacht.
+ * `now` ist Berliner Wanduhrzeit (berlinNow), wie getOpenStatus sie liest. Die
+ * Karte übergibt den Zeitpunkt, zu dem der Server die Seite gerendert hat: So
+ * sortieren Server und Browser gleich, und die Liste sortiert nicht unter dem
+ * Finger um, wenn um zwölf ein Laden aufmacht.
  */
 export function openFirst(list: MapRestaurant[], now: Date): MapRestaurant[] {
   const isOpen = (r: MapRestaurant) =>

@@ -11,7 +11,7 @@ const bucketOf = (min?: number) =>
 
 describe('priceBucketOf', () => {
   it('schneidet am Einstiegspreis, nicht an der Spanne', () => {
-    // Google liefert genau diese acht Einstiegspreise (prod, 29.08.2026).
+    // Google liefert genau diese acht Einstiegspreise.
     expect(bucketOf(1)).toBe('u10');
     expect(bucketOf(10)).toBe('10');
     expect(bucketOf(20)).toBe('20');

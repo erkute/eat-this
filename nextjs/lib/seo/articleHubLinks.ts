@@ -1,14 +1,14 @@
 /**
  * Artikel → Hub: der zweite Schritt der Kette „Artikel fängt die Suche, Hub
  * hält das Ranking". Guides zu Themen, für die es einen Kategorie- oder
- * Bezirks-Hub gibt, verweisen prominent dorthin — der Artikel gibt seine
+ * Bezirks-Hub gibt, verweisen prominent dorthin; der Artikel gibt seine
  * Autorität an die Seite weiter, die das Keyword dauerhaft besitzen soll.
  *
  * Bewusst eine Tabelle im Code statt eines Sanity-Felds: die Zuordnung ist
  * redaktionell stabil, und ein Feld, das bei jedem Artikel gepflegt werden
- * muss, wäre bei 21 Bestandsartikeln vor allem eine Fehlerquelle. Artikel
- * ohne Eintrag sind kein Versäumnis — die Lücken-Guides (Italiener,
- * Vietnamesisch, Vegan, …) HABEN keinen Hub, genau deshalb gibt es sie.
+ * muss, wäre vor allem eine Fehlerquelle. Artikel ohne Eintrag sind kein
+ * Versäumnis: die Lücken-Guides (Italiener, Vietnamesisch, Vegan, …) haben
+ * keinen Hub, genau deshalb gibt es sie.
  */
 interface ArticleHubLink {
   /** i18n-Pfad, wird durch den `Link` aus i18n/navigation lokalisiert. */

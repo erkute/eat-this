@@ -23,23 +23,15 @@ interface ComposeAccountSurfaceArgs {
 }
 
 /**
- * Die Definition von „was gehört diesem Konto" — an genau EINER Stelle.
+ * Die Definition von „was gehört diesem Konto", an genau einer Stelle, für
+ * /api/map-data und lib/profile/publicDeck.server.ts; zwei Kopien liefen still
+ * auseinander.
  *
- * Sie stand bis zum 31.08.2026 zweimal da: in /api/map-data und in
- * lib/profile/publicDeck.server.ts. Beide Kopien mussten dieselbe Antwort
- * geben, und keine hielt die andere fest — der Admin-Zweig fehlte in der
- * zweiten, das geteilte Deck meldete „0 von 24", während das Profil desselben
- * Kontos „24 von 24" zeigte. Der Fehler war still; er fällt nur auf, wenn
- * jemand beide Flächen nebeneinander hält.
- *
- * Seit dem 06.09.2026 entscheidet sie nur noch über Karten. Die Spots sind
- * frei — `restaurants` ist für jeden der ganze Katalog, und dass eine Karte
- * verdeckt danebenliegt, ist das Sichtbare, was von der Staffelung übrig ist.
- * Genau so soll es sein: ein Kartenrücken auf einem offenen Spot ist eine
- * Einladung hinzugehen, ein gesperrter Spot war eine Absage.
+ * Sie entscheidet nur über Karten. Die Spots sind frei: `restaurants` ist für
+ * jeden der ganze Katalog, und ein Kartenrücken auf einem offenen Spot ist eine
+ * Einladung hinzugehen.
  *
  * Wer hier eine weitere Quelle offener Karten ergänzt, ergänzt sie überall.
- * Das ist der ganze Zweck.
  */
 export async function composeAccountSurface({
   all,
@@ -77,16 +69,14 @@ export async function composeAccountSurface({
     for (const m of allMustEats) if (owned.has(m.restaurant._id)) faceUpIds.add(m._id);
   }
 
-  /* Jeder sieht den ganzen Stapel — gestaffelt ist nur, was davon OFFEN
-     liegt. Gericht, Bild und Beschreibung verdeckter Karten bleiben auf dem
-     Server (stripCoveredMustEats); was der Rücken preisgibt, ist der Spot,
-     und der steht ohnehin frei auf der Map.
+  /* Jeder sieht den ganzen Stapel; gestaffelt ist nur, was davon offen liegt.
+     Gericht, Bild und Beschreibung verdeckter Karten bleiben auf dem Server
+     (stripCoveredMustEats); was der Rücken preisgibt, ist der Spot, und der
+     steht ohnehin frei auf der Map.
 
-     Bis zum 27.09.2026 sah ein Konto nur seine eigenen Karten: Starter Pack
-     plus die offenen. Damit schrumpfte das Deck beim Anmelden (Gast 28,
-     Konto 25), das Profil schrieb „von 25 Must Eats", als gäbe es nicht
-     mehr — und jede neue Karte blieb für jedes bestehende Konto unsichtbar
-     (Betreiber: „es werden immer neue Karten nach und nach kommen, daher
-     sollte das immer zu sehen sein, das x von …"). */
+     Ein Konto sieht also nicht nur seine eigenen Karten: Der Bestand wächst
+     ständig, und das „x von …" im Profil zählt gegen alle. Sonst schrumpfte das
+     Deck beim Anmelden, und jede neue Karte bliebe für bestehende Konten
+     unsichtbar. */
   return { restaurants: all, faceUpIds, fullCatalog: false };
 }

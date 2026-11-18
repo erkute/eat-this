@@ -26,9 +26,9 @@ describe('computeReferralPools', () => {
     expect([...inviterPool].sort()).toEqual(['m4', 'm5']);
   });
 
-  /* Der heutige Stapel: 10 Schaufenster + 20 Starter Pack decken ihn ganz ab.
-     Dann gibt es nichts zu verschenken — und die Route vergibt auch nichts,
-     statt eine Karte umzudrehen, die der Beschenkte längst hat. */
+  /* Decken Schaufenster und Starter Pack den Stapel ganz ab, gibt es nichts zu
+     verschenken, und die Route vergibt auch nichts, statt eine Karte
+     umzudrehen, die der Beschenkte längst hat. */
   it('hands a freshly packed friend an empty pool', () => {
     const { friendPool } = computeReferralPools({
       allMustEatIds,

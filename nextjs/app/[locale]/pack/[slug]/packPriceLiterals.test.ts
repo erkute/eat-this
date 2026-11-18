@@ -3,10 +3,9 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 /**
- * The All-Berlin upsell CTA carried a hardcoded "20 €" and quietly kept it
- * after the pack dropped to 9,99 € — every other price on the page came from
- * the catalog, so nothing failed. Prices belong to `stripe-catalog`; this page
- * may format them, never spell them out.
+ * Prices belong to `stripe-catalog`; this page may format them, never spell
+ * them out. A hardcoded price would silently survive a catalog change, because
+ * every other price on the page still comes from the catalog.
  */
 describe('pack detail page', () => {
   it('spells out no price of its own', () => {

@@ -75,8 +75,8 @@ describe('LoginPanel — Starter Pack mit Texten zum Anlass', () => {
     expect(container.innerHTML).toContain('starter-pack-front.webp');
   });
 
-  /* Vorher bekam ein Gast mit Herz „Einloggen" und „Dein Deck wartet" — ohne
-     je ein Deck gehabt zu haben. */
+  /* Ein Gast mit Herz hat noch kein Deck: Er bekommt das Starter Pack, nicht
+     „Einloggen" und „Dein Deck wartet". */
   it('zeigt beim Herz nur das Starter Pack', () => {
     modal.reason = {
       kind: 'heart',
@@ -86,7 +86,7 @@ describe('LoginPanel — Starter Pack mit Texten zum Anlass', () => {
     };
     const { container } = panel();
     expect(title(container)).toBe('Für später');
-    // Der Kicker sagt, wozu das Herz da ist — nicht den Bezirk (Betreiber, 24.09.2026).
+    // Der Kicker sagt, wozu das Herz da ist, nicht den Bezirk.
     expect(container.querySelector('h2')?.previousElementSibling?.textContent).toBe(
       'Speichere deine Spots'
     );
@@ -133,8 +133,8 @@ it('offers the automatic pack invitation with a working close button', () => {
   modal.reason = { kind: 'map-prompt' };
   const { container, getByRole } = panel();
   expect(modal.prepare).not.toHaveBeenCalled();
-  /* Die Pack-Texte, einzeilig im Titel — kein eigener, der auf dem Telefon
-     ueberlief, und kein „kostenlos". */
+  /* Die Pack-Texte, einzeilig im Titel: kein eigener, der auf dem Telefon
+     ueberliefe, und kein „kostenlos". */
   expect(title(container)).toBe('Starter Pack');
   expect(container.textContent).toContain('Starte deine Sammlung');
   expect(container.textContent).not.toMatch(/kostenlos/i);

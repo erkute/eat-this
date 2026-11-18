@@ -1,13 +1,11 @@
-/* Der Kartenwechsel im Must-Eat-Detail und in seinem Zoom: die liegende Karte
-   fliegt schräg zur Seite weg, die nächste kommt aus der Gegenrichtung
-   herein — und zwar GLEICHZEITIG. Bis 27.10.2026 lief beides nacheinander:
-   erst flog die alte Karte ganz hinaus, dann lag kurz nur der leere Stapel
-   (im Zoom: der leere Vorhang) da, dann kam die neue (Betreiber: „zu abrupt,
-   ich will sehen, wie die eine wegfliegt und die nächste hereinkommt").
+/* Der Kartenwechsel im Must-Eat-Detail und in seinem Zoom: Die liegende Karte
+   fliegt schräg zur Seite weg, die nächste kommt aus der Gegenrichtung herein,
+   und zwar gleichzeitig. Nacheinander läge dazwischen kurz nur der leere Stapel
+   (im Zoom: der leere Vorhang) da, und der Wechsel wirkte abrupt.
 
    Detail (WAAPI) und Zoom (framer-motion) teilen sich diese Zahlen, damit
    derselbe Wisch sich in beiden gleich anfühlt. Die Einfahrt startet einen
-   Hauch später: so schiebt die neue Karte die alte nicht, sondern folgt ihr. */
+   Hauch später: So schiebt die neue Karte die alte nicht, sondern folgt ihr. */
 
 export const DEAL_OUT_MS = 340;
 export const DEAL_IN_MS = 480;

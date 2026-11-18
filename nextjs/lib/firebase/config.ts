@@ -17,22 +17,16 @@ import { assertFirebaseProjectBoundary, PRODUCTION_FIREBASE_PROJECT_ID } from '.
 // authDomain: the auth helper (/__/auth/*) is reverse-proxied through our own
 // domain (see rewrites() in next.config.ts), so the popup is SAME-origin — no
 // COOP/storage-access breakage — and the Google consent screen shows our host
-// instead of the firebaseapp.com project domain. (An earlier
-// auth.eatthisdot.com subdomain attempt failed because the credential return
-// was still cross-origin; same-origin avoids that entirely.)
+// instead of the firebaseapp.com project domain. (A separate auth subdomain
+// does not work: the credential return is still cross-origin.)
 //
-// This used to apply to www.eatthisdot.com ALONE, and staging paid for it: it
-// initialises from App Hosting's auto-config, whose authDomain is
-// `eat-this-staging-8a13b.firebaseapp.com`, so its popup ran the very
-// cross-origin flow the paragraph above calls broken — it opened, did
-// something, and closed again without signing anyone in (user report,
-// 2026-08-26). The proxy was there all along: `/__/firebase/init.json` and
-// `/__/auth/iframe` both answer 200 through the staging host, and
-// `firebaseAuthProjectId` in next.config.ts already points it at the right
-// project. Only authDomain never used it.
-//
-// So the rule is now the deployment-wide one it should always have been: on
-// any host we serve ourselves, the auth domain IS that host.
+// The rule is deployment-wide: on any host we serve ourselves, the auth domain
+// IS that host. That includes staging, which initialises from App Hosting's
+// auto-config with `eat-this-staging-8a13b.firebaseapp.com` as authDomain; with
+// that value its popup would run the cross-origin flow, open and close again
+// without signing anyone in. The proxy answers there too
+// (`/__/firebase/init.json`, `/__/auth/iframe`), and `firebaseAuthProjectId` in
+// next.config.ts points it at the right project.
 //
 // Local dev is the exception, and not a cosmetic one: the SDK builds helper
 // URLs as https://{authDomain}/__/auth/iframe, so "localhost:3000" would

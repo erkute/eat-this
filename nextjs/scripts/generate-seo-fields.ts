@@ -34,10 +34,8 @@ const usage = newUsage();
 const SANITY_PROJECT_ID = 'ehwjnjr2';
 const SANITY_DATASET = 'production';
 const SANITY_API_VERSION = '2024-01-01';
-// Sonnet 5: newer and cheaper than 4.6 ($2/$10 vs $3/$15 per MTok). It thinks
-// adaptively and thinking counts against max_tokens, so the budget below is
-// doubled and effort stays low — the same treatment that took the description
-// generator's truncation failures to zero.
+// Sonnet 5 thinks adaptively, and thinking counts against max_tokens, so the
+// budget below leaves room and effort stays low.
 const MODEL = 'claude-sonnet-5';
 
 type DocType = 'restaurant' | 'bezirk';
@@ -137,13 +135,11 @@ interface BezirkSource {
   };
 }
 
-// Project all fields with {...} wildcard. The script needs the full doc to clone
-// into a draft via createIfNotExists; partial projections produced incomplete
-// drafts (image, slug, openingHours …) — see feedback_sanity_draft_full_clone.md.
+// The full doc ({...}): it is cloned into a draft via createIfNotExists, and
+// partial projections leave drafts incomplete.
 //
-// Idempotent on BOTH published and draft state: a doc qualifies only if neither
-// side has seo.metaTitle. Without the draft check, re-runs would regenerate
-// every doc whose seo lives only in the draft.
+// Idempotent on both published and draft state: a doc qualifies only if neither
+// side has seo.metaTitle.
 async function fetchRestaurants(opts: {
   draftsOnly: boolean;
   force: boolean;
@@ -284,12 +280,12 @@ const LENGTH_LIMITS: Array<[keyof SeoGen, number]> = [
 /** How much text a clean sentence ending may cost over a plain word cut. */
 const SENTENCE_CUT_TOLERANCE = 25;
 
-/** Last-resort deterministic trim. The model lands within a few characters of
- *  the limit but not reliably under it — 12 of 68 documents in one run
- *  overshot by 1 to 5 characters. Throwing those away costs a whole document
- *  plus the two API calls already spent on it, so cut instead: prefer the last
- *  sentence end that still keeps most of the text, otherwise the last word
- *  boundary, and drop trailing punctuation so the result ends cleanly. */
+/**
+ * Last-resort deterministic trim. The model lands within a few characters of
+ * the limit but not reliably under it, and discarding a document wastes the
+ * calls already spent on it. Prefer the last sentence end that keeps most of
+ * the text, otherwise the last word boundary, and drop trailing punctuation.
+ */
 export function trimToLimit(value: string, max: number): string {
   if (value.length <= max) return value;
   const cut = value.slice(0, max);
@@ -345,9 +341,8 @@ async function generateSeoFromFacts(
         '\n\nWICHTIG: Antworte AUSSCHLIESSLICH mit gültigem JSON in der oben definierten Form. Keine Prosa, keine Erklärungen, keine Markdown-Codeblöcke. Halte die Längen-Limits ein.';
     } else if (reminder === 'length') {
       // Tell the model exactly which fields overshot and by how much. Avoid the
-      // word "count" / "zählen" — Sonnet 4.6 takes it literally and replies with
-      // prose ("I'll count…") instead of JSON. Just state the overshoot and
-      // demand a shortened JSON object.
+      // word "count" / "zählen": the model takes it literally and replies with
+      // prose instead of JSON.
       content += `\n\nDer letzte Versuch hat die HARTEN Längen-Limits verletzt:\n- ${lengthOffenders.join('\n- ')}\n\nKürze die betroffenen Felder strikt unter ihr Limit (metaTitle/metaTitleEn ≤ 60, metaDescription/metaDescriptionEn ≤ 160). Antworte AUSSCHLIESSLICH mit dem aktualisierten JSON-Objekt — keine Erklärung, keine Prosa, kein Markdown-Fence.`;
     }
     const msg = await anthropic.messages.create({
@@ -373,9 +368,8 @@ async function generateSeoFromFacts(
     }
   }
 
-  // Length-violation retry: Sonnet 4.6 routinely overshoots EN metaDescription
-  // by 1-15 chars (~15% rate). Re-prompt with explicit char counts + overshoot
-  // delta — cheaper than a manual cleanup pass after the full run.
+  // Length-violation retry: the model overshoots EN metaDescription now and
+  // then. Re-prompt with explicit char counts and the overshoot.
   let validation = validateLengths(parsed, docId);
   if (!validation.ok) {
     try {
@@ -446,10 +440,8 @@ async function patchSeoDraft(doc: { _id: string }, type: DocType, g: SeoGen): Pr
     _type: type,
   } as { _id: string; _type: DocType } & Record<string, unknown>);
 
-  // setIfMissing the parent seo object first — most docs have no seo block at
-  // all, so a direct .set({'seo.metaTitle': ...}) on a missing parent would
-  // create implicit nesting that's harder to reason about. Two separate awaits,
-  // never transaction.patch(callback) — see feedback_sanity_transaction_patch_callback.md.
+  // setIfMissing the parent seo object first; most docs have no seo block. Two
+  // separate awaits, never transaction.patch(callback).
   await sanity
     .patch(draftId)
     .setIfMissing({ seo: {} })

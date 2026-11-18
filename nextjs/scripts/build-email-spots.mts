@@ -1,18 +1,16 @@
 // Rendert die Spot-Cards der Anmelde-Mail vor.
 //
-// Warum lokal statt zur Laufzeit: die Karten setzen die Restaurantnamen in der
-// Markenschrift, und Neue Haas Grotesk Text Pro liegt unter einer Desktop-Lizenz —
-// die deckt das Erstellen von Grafiken ab, nicht das Ausliefern der Schrift auf
-// einem Server. Vorrendern hält die Schrift auf diesem Rechner und legt nur
-// fertige Bilder ins Repo. Nebeneffekt: auf Staging waren die Karten hinter der
-// Basic Auth nicht abrufbar, statische Bilder unter /pics sind es.
+// Lokal statt zur Laufzeit, weil die Karten die Restaurantnamen in der
+// Markenschrift setzen, und deren Lizenz deckt das Erstellen von Grafiken ab,
+// nicht das Ausliefern der Schrift auf einem Server. Ins Repo kommen nur
+// fertige Bilder, und die liegen auch auf Staging außerhalb der Basic Auth.
 //
 // Jeder Spot kommt mit seiner offenen Must-Eat-Karte: gewaehlt wird aus dem
 // oeffentlichen Schaufenster (composeRevealedMustEats), die Karte kommt von der
 // Produktion und muss dort ohne Konto abrufbar sein.
 //
-// Der Preis: die kuratierten Spots rotieren nicht mehr von selbst aus Sanity.
-// Wenn sich die Auswahl ändern soll, dieses Skript neu laufen lassen.
+// Die Auswahl rotiert nicht von selbst; soll sie sich ändern, dieses Skript neu
+// laufen lassen.
 //
 // Run:  npm run build:email-spots
 //       npm run build:email-spots -- --limit 4

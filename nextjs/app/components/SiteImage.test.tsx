@@ -2,6 +2,8 @@
 
 import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
+import { ImageConfigContext } from 'next/dist/shared/lib/image-config-context.shared-runtime';
+import { imageConfigDefault } from 'next/dist/shared/lib/image-config';
 import SiteImage from './SiteImage';
 
 const ASSET =
@@ -18,8 +20,12 @@ describe('SiteImage', () => {
   });
 
   it('lässt eigene Bilder beim Optimierer', () => {
+    // Ohne Build fehlt `images.qualities` aus next.config.ts; Next nähme
+    // dann jede Qualität außer 75 zurück.
     const { container } = render(
-      <SiteImage src="/buddy/buddy.webp" alt="" width={120} height={120} />
+      <ImageConfigContext.Provider value={{ ...imageConfigDefault, qualities: [75, 80, 90] }}>
+        <SiteImage src="/buddy/buddy.webp" alt="" width={120} height={120} />
+      </ImageConfigContext.Provider>
     );
     expect(container.querySelector('img')!.getAttribute('src')).toMatch(
       /^\/_next\/image\?url=%2Fbuddy%2Fbuddy\.webp&w=\d+&q=80$/

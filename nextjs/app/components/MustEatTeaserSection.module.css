@@ -14,11 +14,10 @@
 .grid {
   list-style: none;
   margin: 0;
-  /* Seitlich 0 — der äußere Rand der Section setzt den Einzug. Oben/unten
-     nur so viel, wie die gekippten und wippenden Karten über ihre Boxen
-     hinausragen; die 28px unten addierten sich sonst zum Seitenrhythmus und
-     rissen unter den Karten ein sichtbar größeres Loch als zwischen allen
-     anderen Modulen (gemessen 148 statt 112). */
+  /* Seitlich 0: der äußere Rand der Section setzt den Einzug. Oben/unten nur so
+     viel, wie die gekippten und wippenden Karten über ihre Boxen hinausragen;
+     mehr addierte sich zum Seitenrhythmus und risse unter den Karten ein
+     größeres Loch als zwischen den anderen Modulen. */
   padding: 10px 0 12px;
   display: grid;
   /* Mobile: 3-up so the row reads as "spread on the table" instead of
@@ -78,12 +77,9 @@
   }
 }
 
-/* globals.css neutralisiert bei `prefers-reduced-motion` bereits jede
-   Animation site-weit (`*` mit animation-duration: .01ms !important). Diese
-   Regel ist damit genau genommen doppelt — sie bleibt, weil sie die Absicht
-   dort festhält, wo die Animation steht, und `animation: none` den Namen
-   löscht statt die Dauer auf 0.01ms zu drücken. Gemessen greifen beide
-   Selektoren auf `.cardWrap`. */
+/* globals.css neutralisiert bei `prefers-reduced-motion` jede Animation
+   site-weit. Diese Regel hält die Absicht dort fest, wo die Animation steht,
+   und `animation: none` löscht den Namen, statt die Dauer zu drücken. */
 @media (prefers-reduced-motion: reduce) {
   .cardWrap {
     animation: none;
@@ -151,9 +147,8 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  /* Freigestellt card-back: show the whole asset, never crop (rule:
-     feedback_musteat_cards_freigestellt). Box ratio matches the asset so
-     contain fills cleanly without letterboxing. */
+  /* Freigestellt card-back: show the whole asset, never crop. Box ratio matches
+     the asset so contain fills cleanly without letterboxing. */
   object-fit: contain;
   /* Auf Weiss liegt die Karte wie ein Heft auf dem Tisch: der Schatten folgt
      der freigestellten Form, nicht dem Kasten. */

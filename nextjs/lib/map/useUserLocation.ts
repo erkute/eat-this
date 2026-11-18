@@ -37,11 +37,8 @@ interface LocationRequestResult {
 export type GeolocationPermissionState = 'granted' | 'denied' | 'prompt' | 'unknown';
 
 /**
- * This origin's geolocation permission, read WITHOUT prompting.
- *
- * Safari ships navigator.permissions from 16.0; where the API or the
- * geolocation descriptor is missing this reports 'unknown' rather than
- * guessing.
+ * This origin's geolocation permission, read without prompting; 'unknown' where
+ * the Permissions API or its geolocation descriptor is missing.
  */
 export async function getGeolocationPermissionState(): Promise<GeolocationPermissionState> {
   if (typeof navigator === 'undefined' || !navigator.permissions?.query) return 'unknown';
@@ -54,19 +51,14 @@ export async function getGeolocationPermissionState(): Promise<GeolocationPermis
 }
 
 /**
- * True only when this origin ALREADY holds geolocation permission — i.e. when
- * calling getCurrentPosition raises no dialog.
+ * True only when this origin already holds geolocation permission, i.e.
+ * getCurrentPosition raises no dialog.
  *
- * The map auto-locates once on mount to centre on the user. Unguarded, that
- * fired the system permission prompt on first paint with nothing on screen to
- * explain it, which is the reliable way to collect a "Don't Allow" — and iOS
- * remembers that per site, so the feature is then dead for good. Gating the
- * background attempt on an existing grant keeps the auto-centre for everyone
- * who already said yes and leaves the ASKING to a deliberate tap on the locate
- * button, where the intent is unambiguous.
- *
- * Every non-'granted' state — 'denied', 'prompt' and 'unknown' alike — is
- * false here: never prompt on a guess.
+ * The map auto-locates once on mount. A system prompt on first paint, with
+ * nothing on screen to explain it, collects a "Don't Allow" that iOS remembers
+ * per site. So the background attempt waits for an existing grant, and asking
+ * is left to a tap on the locate button. Every non-'granted' state is false:
+ * never prompt on a guess.
  */
 export async function hasGeolocationPermission(): Promise<boolean> {
   return (await getGeolocationPermissionState()) === 'granted';
@@ -74,14 +66,10 @@ export async function hasGeolocationPermission(): Promise<boolean> {
 
 interface RequestOptions {
   /**
-   * Background attempts (the once-per-mount auto-centre) must stay invisible.
-   * Only a deliberate tap on "Mein Standort" may raise the status toast — a
-   * user who never asked for their position should not be told it failed, and
-   * on iOS a denial is remembered per site, so the surfaced error would come
-   * back on every single visit with no way to act on it.
-   *
-   * The position itself is still stored on success, so a silent attempt can
-   * centre the map; only `loading`/`error` stay unreported.
+   * Background attempts (the auto-centre on mount) stay invisible: only a tap
+   * on "Mein Standort" may raise the status toast, and iOS remembers a denial
+   * per site. The position is still stored on success; only `loading`/`error`
+   * stay unreported.
    */
   silent?: boolean;
 }
@@ -94,33 +82,21 @@ interface UseUserLocationResult {
   /**
    * Keep `location` moving. Returns the stop function.
    *
-   * `request` is a single fix, and the first fix a phone hands out is the
-   * cheap one — the last known position, or a Wi-Fi/cell estimate a few
-   * hundred metres off. The map stored that once and never asked again, so
-   * someone who opened the map on the way and then walked INTO the spot was
-   * still measured against the position from the U-Bahn: "too far", with no
-   * tap that would refresh it (the card only asks while there is NO fix, and
-   * the locate button just flies to the stale one). Watching lets the phone
-   * hand over the GPS fix as soon as it has one and follow the visitor to the
-   * door.
+   * The first fix a phone hands out is often the cheap one (last known
+   * position, Wi-Fi/cell estimate); a visitor who walks into a spot would
+   * otherwise still be measured against it. Watching hands over the GPS fix as
+   * soon as there is one.
    *
-   * Silent by design: a watcher error must not raise the status toast — the
-   * visitor did not ask right now — and it never touches `loading`. Only
-   * start it once `permitted` says this origin holds the permission;
-   * watchPosition would otherwise raise the system dialog out of nowhere,
-   * see hasGeolocationPermission.
+   * Silent: a watcher error never raises the toast or touches `loading`. Start
+   * it only once `permitted` is true; watchPosition would otherwise raise the
+   * system dialog (see hasGeolocationPermission).
    */
   watch: () => () => void;
   /**
-   * True once a request proved the permission is granted — by a fix, OR by a
-   * timeout/unavailable error: the browser only starts looking (and can only
-   * fail at it) after the visitor said yes.
-   *
-   * The error half is the U-Bahn case. Underground the first request runs
-   * into its timeout, and gating the watcher on a fix meant it never started:
-   * back above ground, at a station with Wi-Fi, the map still had no
-   * position until the visitor tapped again. Watching from the grant on
-   * hands over the first fix the phone finds, whenever that is.
+   * True once a request proved the permission is granted: by a fix, or by a
+   * timeout/unavailable error, since the browser only starts looking after the
+   * visitor said yes. Underground the first request times out, and the watcher
+   * still starts.
    */
   permitted: boolean;
 }
@@ -169,13 +145,12 @@ export function useUserLocation(): UseUserLocationResult {
       });
     };
 
-    /* iOS Safari laesst einen laufenden Beobachter auch bei offener Karte
-       verstummen, ohne Fehler. In der Bahn bewegte sich der Avatar deshalb
-       erst, wenn der Standort-Knopf den Beobachter neu startete (Betreiber,
-       15.10.2026) — ein frischer watchPosition liefert in WebKit sofort die
-       aktuelle Position. Das macht der Beobachter jetzt selbst, sobald
-       WATCH_STALL_MS lang kein Fix kam. Im Hintergrund nicht: dort liefert
-       iOS ohnehin nichts, und MapSection startet ihn bei der Rueckkehr neu. */
+    /* iOS Safari lässt einen laufenden Beobachter auch bei offener Karte
+       verstummen, ohne Fehler; unterwegs bewegte sich der Avatar dann nicht
+       mehr. Ein frischer watchPosition liefert in WebKit sofort die aktuelle
+       Position, also startet der Beobachter sich selbst neu, sobald
+       WATCH_STALL_MS lang kein Fix kam. Im Hintergrund nicht: Dort liefert iOS
+       ohnehin nichts, und MapSection startet ihn bei der Rückkehr neu. */
     function armStallTimer() {
       window.clearTimeout(stallTimer);
       stallTimer = window.setTimeout(() => {

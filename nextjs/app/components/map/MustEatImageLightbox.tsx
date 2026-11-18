@@ -25,12 +25,9 @@ import ZoomCurtain from './ZoomCurtain';
 export interface MustEatImageLightboxProps {
   imageUrl: string | null;
   alt: string;
-  /* Was die Karte im Raster gerade zeigt (`currentSrc` des Slot-Bilds). Ein
-     Raster aus Daumennaegeln hat das grosse `imageUrl` nie geladen — ohne
-     Platzhalter flog die Karte leer heraus und fuellte sich erst nach dem
-     Download. Mit ihm fliegt der Daumennagel, und das grosse Bild loest ihn
-     ab, sobald es dekodiert ist. Gilt nur fuer die erste Karte, nicht fuers
-     Blaettern. */
+  /* Was die Karte im Raster gerade zeigt (`currentSrc` des Slot-Bilds): der
+     Daumennagel fliegt heraus, das grosse Bild loest ihn ab, sobald es
+     dekodiert ist. Nur fuer die erste Karte, nicht beim Blaettern. */
   placeholderUrl?: string | null;
   // null = closed; setting it to a DOMRect opens the lightbox and the
   // card flies out from that rect. Reverting to null triggers exit which
@@ -57,11 +54,10 @@ export interface MustEatImageLightboxProps {
   hasNext?: boolean;
   /** Zählstand für die Leiste, 1-basiert. */
   position?: { index: number; count: number };
-  /* Ein Ausgang unter der Karte — als Slot, damit diese Komponente nicht
-     weiss, wohin. Der Zoom war bis zum 04.09.2026 eine Sackgasse: eine
-     verdeckte Karte zeigte ihre Rueckseite gross, und der einzige Weg
-     weiter war Zumachen (Nutzer, 04.09.2026). Wer den Slot fuellt,
-     entscheidet auch, wann er erscheint. */
+  /* Ein Ausgang unter der Karte, als Slot, damit diese Komponente nicht weiß,
+     wohin. Ohne ihn wäre der Zoom eine Sackgasse: Eine verdeckte Karte zeigte
+     ihre Rückseite groß, und der einzige Weg weiter wäre Zumachen. Wer den Slot
+     füllt, entscheidet auch, wann er erscheint. */
   action?: React.ReactNode;
 }
 
@@ -88,11 +84,9 @@ const SWIPE_PX = 60;
 /** Neigung der Karte unter dem Finger, Grad je Pixel. */
 const DRAG_TILT = 0.04;
 
-// Open from origin → settle in centre with Apple-style ease-out,
-// pointer-driven 3D-tilt, body scroll/touch locked. Click anywhere closes.
-// Kein Glanz-Overlay auf der Karte: ein weisser Verlauf im Overlay-Modus hat
-// das Foto beim Kippen stellenweise ausgebleicht — die Farben bleiben, wie
-// sie sind, nur die Karte bewegt sich.
+// Open from origin, settle in centre with ease-out, pointer-driven 3D tilt,
+// body scroll/touch locked. Click anywhere closes. Kein Glanz-Overlay: ein
+// weisser Verlauf bleichte das Foto beim Kippen aus.
 const Inner = memo(function Inner({
   imageUrl,
   alt,
@@ -191,20 +185,18 @@ const Inner = memo(function Inner({
   }, []);
 
   const [closing, setClosing] = useState(false);
-  /* Der Zoom schliesst auf Tippen — ein Wisch darf das nicht ausloesen.
-     Gemerkt wird der Anfasspunkt, und ob die letzte Geste ein Wisch war:
-     nach einem Zeiger-Wisch feuert der Browser trotzdem noch ein `click`.
+  /* Der Zoom schließt auf Tippen; ein Wisch darf das nicht auslösen. Gemerkt
+     wird der Anfasspunkt, und ob die letzte Geste ein Wisch war: Nach einem
+     Zeiger-Wisch feuert der Browser trotzdem noch ein `click`.
 
-     Die Geste haengt am VORHANG, nicht an der Karte: auf dem Telefon fasst der
-     Daumen beim Wischen oft neben die Karte, und ein Wisch, der auf dem
-     Vorhang beginnt, muss genauso blaettern (Nutzer, 02.09.2026). Das `click`
-     der Karte steigt ohnehin zum Vorhang auf — ein Handler fuer beides. */
+     Die Geste hängt am Vorhang, nicht an der Karte: Auf dem Telefon fasst der
+     Daumen beim Wischen oft neben die Karte, und ein Wisch, der auf dem Vorhang
+     beginnt, muss genauso blättern. Das `click` der Karte steigt ohnehin zum
+     Vorhang auf, ein Handler für beides. */
   const downRef = useRef<{ x: number; y: number } | null>(null);
   const swipedRef = useRef(false);
-  /* Waagerecht gezogen folgt die Karte dem Finger und neigt sich mit — wie
-     eine Karte, die man vom Tisch zieht. Solange gezogen wird, ruht das
-     3D-Kippen: es nahm den Wisch als Kippgeste und warf die Karte schief
-     hinaus (gemessen bis 14° um die Hochachse). */
+  /* Waagerecht gezogen folgt die Karte dem Finger und neigt sich mit. Solange
+     gezogen wird, ruht das 3D-Kippen, sonst flöge die Karte schief hinaus. */
   const draggingRef = useRef(false);
   const dealX = useMotionValue(0);
   const dealRotate = useMotionValue(0);
@@ -332,21 +324,20 @@ const Inner = memo(function Inner({
   }, []);
 
   /* ── Der Wurf ───────────────────────────────────────────────────────────────
-     Geblättert wird wie in einem Deck: die liegende Karte fliegt schräg zur
-     Seite aus dem Bild, und WÄHREND sie fliegt, kommt die nächste aus der
-     Gegenrichtung herein und landet gerade (lib/cardDeal). Bis 27.10.2026
-     lief das nacheinander, dazwischen stand der Vorhang leer.
+     Geblättert wird wie in einem Deck: Die liegende Karte fliegt schräg zur
+     Seite aus dem Bild, und während sie fliegt, kommt die nächste aus der
+     Gegenrichtung herein und landet gerade (lib/cardDeal). Der Vorhang steht
+     dazwischen nie leer.
 
      Die abfahrende Karte ist ein eigener Clip (`leaving`) mit dem Bild, das
      eben noch zu sehen war; der feste Clip trägt sofort das neue Bild und
-     wartet draußen, bis es zeichenbar ist — er kommt nie leer und nie mit dem
+     wartet draußen, bis es zeichenbar ist. Er kommt nie leer und nie mit dem
      alten Bild herein (lib/dom/imageReady).
 
-     Der Wurf sitzt auf den Clips, nicht auf der Karte: die Karte trägt die
-     Fly-In/Fly-Back-Geometrie und die beiden Kipp-Federn, und zwei
-     Animationen auf einem `transform` schlagen sich. Der Clip hat kein
-     eigenes Overflow über sich, die Karte darf also aus ihrem Kasten
-     herausfliegen. */
+     Der Wurf sitzt auf den Clips, nicht auf der Karte: Die Karte trägt die
+     Fly-In/Fly-Back-Geometrie und die beiden Kipp-Federn, und zwei Animationen
+     auf einem `transform` schlagen sich. Der Clip hat kein eigenes Overflow
+     über sich, die Karte darf also aus ihrem Kasten herausfliegen. */
   /* Der Wurf haengt am PLATZ im Stapel, nicht am Bild: alle verdeckten Karten
      tragen dieselbe Rueckseite, zwei davon hintereinander haetten sonst
      denselben `src` — und die Karte blieb einfach stehen. */
@@ -385,11 +376,9 @@ const Inner = memo(function Inner({
   useLayoutEffect(() => {
     if (pageKey === shown.key) return;
     const token = ++dealTokenRef.current;
-    /* Der globale `prefers-reduced-motion`-Reset in globals.css setzt nur
-       CSS-Transitions und -Animationen still; eine framer-motion-Sequenz
-       läuft davon unbeirrt weiter. Wer keine Bewegung will, bekommt den
-       Kartentausch deshalb ohne Flug — sobald das neue Bild zeichenbar ist,
-       sonst stünde dort kurz eine leere Karte. */
+    /* Der Reduced-Motion-Reset in globals.css stoppt nur CSS; framer-motion
+       läuft weiter. Ohne Bewegung tauscht die Karte darum ohne Flug, sobald das
+       neue Bild zeichenbar ist. */
     if (reducedMotion) {
       void whenImageReady(imageUrl).then(() => {
         if (token !== dealTokenRef.current) return;

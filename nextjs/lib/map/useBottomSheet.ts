@@ -3,23 +3,17 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 
 export type SheetSnap = 'peek' | 'mid' | 'full';
 
-// Default peek = grab-handle pip + breathing room. Detail view bumps this up
-// via SheetConfig so the name + action buttons stay visible when collapsed
-// (Google Maps style).
+// Default peek = grab handle plus breathing room; the detail view raises it via
+// SheetConfig.
 const DEFAULT_PEEK_VISIBLE_PX = 40;
-// Die mittlere Position lässt auch im Querformat mindestens die halbe Map sichtbar.
 const MID_VISIBLE_PX = 420;
-// Sheet at 'full' stops 40 px below the top of the map body so a strip of
-// the actual map stays visible above it — same affordance Google Maps uses
-// so the user never loses the "I'm still on the map" anchor.
+// 'full' stops 40 px below the top so a strip of map stays visible.
 const FULL_TOP_PX = 40;
 const MOBILE_MAX = 1023.98;
-/* Phones (≤767.98px) render the LIST and DETAIL views as window-scrolled
-   in-flow documents so their content frosts through iOS Safari's bottom URL
-   bar (see the in-flow block in map.module.css). The sheet hook must be
-   fully inert there: no --sheet-y writes, no maplibre-control offsets, no
-   drag bindings (their touchmove preventDefault would swallow window scroll).
-   Tall tablets keep the drag-sheet; short landscape panels scroll natively. */
+/* Phones render list and detail as window-scrolled documents (so their content
+   shows through iOS Safari's URL bar); the hook must be fully inert there,
+   since its touchmove preventDefault would swallow window scroll. Short
+   landscape panels scroll natively too. */
 const NATIVE_SCROLL_LAYOUT =
   '(max-width: 767.98px), (orientation: landscape) and (max-height: 500px) and (min-width: 600px) and (max-width: 1023.98px)';
 
@@ -52,24 +46,10 @@ function pxToNearestSnap(
   return best;
 }
 
-/* Snap-after-drag resolution combining directional intent with distance.
-
-   Without directional intent, pure nearest-by-distance means the user has to
-   drag past the midpoint between two snaps (~150 px from peek to mid) before
-   the sheet commits — feels like the sheet "fights back" on small swipes.
-
-   Without distance fallback, intent-only caps every drag at one step from
-   start — a hard down-swipe from `full` would stop at `mid` instead of
-   reaching `peek`, requiring a second gesture (feels like extra stops).
-
-   Combined rule:
-   - Intent guarantees the *minimum* one-step move if |dy| ≥ 40 px OR the
-     release velocity reads as a flick (≥ 0.4 px/ms) — a short fast swipe
-     moves the sheet even when the finger only travelled ~20 px. That's
-     the Google-Maps feel; distance-only made quick flicks feel ignored.
-   - Nearest-by-distance overrides if the finger went further in the same
-     direction (so a long hard swipe still spans multiple snaps).
-*/
+/* Snap after a drag: direction plus distance. Direction alone caps every drag
+   at one step; distance alone makes small swipes feel ignored. A move of ≥ 40
+   px or a flick (≥ 0.4 px/ms) guarantees one step in its direction, and the
+   nearest snap wins if the finger went further. */
 const INTENT_THRESHOLD_PX = 40;
 const FLICK_VELOCITY_PX_MS = 0.4;
 
@@ -82,8 +62,6 @@ function pickSnapAfterDrag(
   peekPx: number,
   allowed: SheetSnap[]
 ): SheetSnap {
-  // Order from biggest-visible (full) to smallest-visible (peek). Lower idx
-  // = sheet pulled UP = more visible.
   const order: SheetSnap[] = ['full', 'mid', 'peek'].filter((s): s is SheetSnap =>
     allowed.includes(s as SheetSnap)
   );
@@ -93,26 +71,18 @@ function pickSnapAfterDrag(
 
   const flick = Math.abs(velocity) >= FLICK_VELOCITY_PX_MS;
   if ((Math.abs(dy) < INTENT_THRESHOLD_PX && !flick) || startIdx === -1) {
-    // Below the intent threshold and no flick (or unknown start) → nearest.
     return nearest;
   }
 
-  // up = -1 (smaller idx), down = +1 (larger idx). A flick's direction
-  // wins over the net displacement (finger may have doubled back).
+  // A flick's direction wins over net displacement (the finger may have doubled
+  // back).
   const dir = flick ? (velocity < 0 ? -1 : 1) : dy < 0 ? -1 : 1;
   const intentIdx = Math.max(0, Math.min(order.length - 1, startIdx + dir));
 
-  // Combine: pick the snap that's further in the drag direction.
-  // dir -1 (up) wants the smaller idx → min.
-  // dir +1 (down) wants the larger idx → max.
   const finalIdx = dir < 0 ? Math.min(intentIdx, nearestIdx) : Math.max(intentIdx, nearestIdx);
   return order[finalIdx];
 }
 
-/* Should a drag-release dismiss the sheet? Only when the view configured an
-   onDismiss (detail view) and the finger pulled DOWN clearly past the peek
-   snap — either dragged ~64px below the peek line, or a downward flick that
-   ends at/below peek. Returns false for the list view (no onDismiss). */
 function dismissGesture(
   cfg: SheetConfig,
   finalPx: number,
@@ -121,22 +91,19 @@ function dismissGesture(
   sheetH: number
 ): boolean {
   if (!cfg.onDismiss || dy <= 0) return false;
-  // Dismiss ONLY when swiped almost all the way to the bottom — past the peek
-  // (bottom) anchor and ~92% of the remaining way down to the drag clamp. Top,
-  // middle and the peek rest never bring the list; you have to swipe the detail
-  // right down. Position-only (no velocity/flick shortcut) so a quick swipe
-  // that stops higher up doesn't trigger it.
+  // Dismiss only when swiped almost to the bottom (past ~92 % of the range
+  // below peek); position only, so a quick swipe that stops higher does not
+  // dismiss.
   void vel;
   const peekTopPx = snapToPx('peek', sheetH, cfg.peekVisiblePx);
-  const bottomPx = sheetH - 40; // matches the drag clamp: Math.min(h - 40, …)
+  const bottomPx = sheetH - 40;
   const belowPeekRange = bottomPx - peekTopPx;
-  const overshoot = finalPx - peekTopPx; // > 0 = dragged below the peek line
+  const overshoot = finalPx - peekTopPx;
   return belowPeekRange > 0 && overshoot > belowPeekRange * 0.92;
 }
 
-/* Release-velocity tracker (px/ms, positive = downward). EMA over the move
-   samples so a single jittery event doesn't dominate, but the most recent
-   motion outweighs the start of the gesture. */
+/* Release velocity (px/ms, positive = down), smoothed so a single jittery event
+   does not dominate. */
 interface VelocityState {
   lastY: number;
   lastT: number;
@@ -166,47 +133,30 @@ function usesNativeScroll(): boolean {
   return window.matchMedia(NATIVE_SCROLL_LAYOUT).matches;
 }
 
-/* Snap math anchors to the VISIBLE viewport height (the dvh line), not the
-   sheet's own height: the sheet is 100lvh tall with an overhang that extends
-   below the visual viewport into iOS Safari's URL-bar zone (see map.module.css
-   .list), so measuring the element would push every snap position down by the
-   bar height. window.innerHeight == visual viewport on mobile (innerHeight
-   ignores the iOS keyboard, same as dvh — intended). */
+/* Snaps anchor to the visible viewport height, not the sheet's: the sheet is
+   100lvh with an overhang into iOS Safari's URL-bar zone, and measuring it
+   would push every snap down by the bar height. */
 function visibleViewportH(): number {
   return window.innerHeight;
 }
 
 interface SheetConfig {
-  maxSnap: SheetSnap | null; // cap drag; null = allow full
-  // Explicit list of snap points this view rests at. When set it overrides the
-  // maxSnap-derived list — e.g. the detail view uses ['full','peek'] so it
-  // anchors at the top (minimal map strip) or the bottom peek (lots of map),
-  // and only a swipe well below peek dismisses. Undefined = derive from maxSnap.
+  maxSnap: SheetSnap | null;
+  // Explicit rest points; overrides the maxSnap-derived list (the detail rests
+  // at 'full' or 'peek').
   snaps?: SheetSnap[];
-  // 'all'        — handle + content + header drags active (list view)
-  // 'handleOnly' — only the grab handle drags; content/header skip
-  // 'none'       — disable all drag + hide handle
   dragMode: 'all' | 'handleOnly' | 'none';
-  // How much of the sheet stays visible at the 'peek' snap. Detail view
-  // raises this so the name + action buttons remain reachable when collapsed.
   peekVisiblePx: number;
-  // Optional: a strong downward pull *past* the peek snap dismisses the sheet
-  // (instead of parking at peek) by calling this. The detail view wires it to
-  // "close detail → back to list"; the list view leaves it undefined.
+  // A strong pull past 'peek' calls this instead of parking at 'peek'.
   onDismiss?: () => void;
-  // Phone documents and short landscape panels scroll natively: the hook
-  // leaves positioning and gestures to CSS and the native scroll container.
   inflow?: boolean;
 }
 
-/* Sheet top while dragging: the start position moved by the finger, held
-   between the highest allowed snap and 40 px above the viewport bottom. */
 function dragPx(cfg: SheetConfig, sheetH: number, basePx: number, dy: number): number {
   const upperCap = cfg.maxSnap ? snapToPx(cfg.maxSnap, sheetH, cfg.peekVisiblePx) : FULL_TOP_PX;
   return Math.max(upperCap, Math.min(sheetH - 40, basePx + dy));
 }
 
-/* Where a released drag goes: away (dismiss) or to the snap it points at. */
 function releaseTarget(
   cfg: SheetConfig,
   sheetH: number,
@@ -234,22 +184,16 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     return () => media.removeEventListener('change', sync);
   }, []);
   const [sheetMounted, setSheetMounted] = useState(false);
-  // Bumped whenever the content element re-mounts (sheetView list ↔ detail
-  // toggles). The touch-drag effect uses this as a useEffect dep so it
-  // re-attaches listeners onto the current contentRef.current element.
+  // Bumped when the content element re-mounts, so the touch effect rebinds to
+  // the new element.
   const [contentTick, setContentTick] = useState(0);
   const [headerTick, setHeaderTick] = useState(0);
   const sheetNode = useRef<HTMLDivElement | null>(null);
   const handleRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
-  // Optional secondary drag zone — typically the list header (count row +
-  // tabs) so users can drag the sheet from anywhere up there, not only
-  // from the small handle pip. Movement threshold prevents tap-on-button
-  // from being interpreted as a drag.
+  // Secondary drag zone (the list header); a movement threshold keeps taps on
+  // its buttons working.
   const headerRef = useRef<HTMLDivElement | null>(null);
-  // Wrap contentRef as a callback ref so we can detect (re-)mounts. Setting
-  // a state on each (re-)assignment forces the touch effect below to re-run
-  // and rebind to the new element.
   const setContentRef = useCallback((el: HTMLDivElement | null) => {
     if (el !== contentRef.current) {
       contentRef.current = el;
@@ -280,12 +224,9 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     configRef.current = { ...configRef.current, ...cfg };
   }, []);
 
-  // Last-set offset for maplibre controls; we re-apply it whenever new
-  // controls show up (maplibre mounts them asynchronously after the map ready
-  // event, which is usually AFTER the sheet has done its first applyY).
+  // MapLibre mounts its controls asynchronously, usually after the first
+  // applyY; the last offset is re-applied when they appear.
   const lastControlOffsetRef = useRef<number>(0);
-  // Pending retry timers — cancelled on every new applyY so stale offsets
-  // from mid-drag calls never fire after a subsequent call has already settled.
   const ctrlRetryTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   const updateControls = useCallback((root: HTMLElement, offsetPx: number) => {
@@ -296,25 +237,12 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       });
   }, []);
 
-  /* Two-mode applyY:
-     - 'drag'  → write only the element's transform. No layout reads, no
-                 querySelectorAll, no setTimeouts. Runs 60×/s during a swipe
-                 and must stay sub-millisecond or the sheet feels janky.
-     - 'snap'  → full path: also writes --sheet-visible-px on the sheet and
-                 its parent, and re-offsets the maplibre zoom/attrib controls
-                 above the new sheet height. Only runs at drag-release and
-                 programmatic snap calls (a handful of times per session).
-
-     The visible viewport height is cached at drag-start (sheetHRef) so the
-     move handler doesn't re-read it every frame just to compute
-     `visible = h - px`.
-  */
+  /* 'drag' writes only the element's transform (60×/s, must stay cheap); 'snap'
+     also writes --sheet-visible-px and re-offsets the MapLibre controls. */
   const sheetHRef = useRef<number>(0);
 
-  /* RAF coalescing: iOS Safari fires pointer/touchmove faster than 60 Hz on
-     some devices. Without rAF we'd write the CSS var multiple times per frame,
-     each forcing the browser to schedule an extra paint. Coalescing caps the
-     writes to one per animation frame, which is the maximum the user can see. */
+  /* iOS Safari fires touchmove faster than 60 Hz on some devices; one write per
+     animation frame is all anyone can see. */
   const rafPxRef = useRef<number | null>(null);
   const rafIdRef = useRef<number>(0);
 
@@ -328,16 +256,13 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       if (target === null) return;
       const el = sheetNode.current;
       if (!el) return;
-      // Keep the hot path on this element only. An inherited CSS variable
-      // invalidates the whole sheet subtree, even with stable content height.
+      // An inherited CSS variable would invalidate the whole sheet subtree.
       el.style.transform = `translateY(${target}px)`;
     });
   }, []);
 
-  /* Cancel any pending drag-frame write. Must run on drag-end BEFORE
-     setSnap, otherwise a queued rAF can fire AFTER the snap-sync effect
-     and overwrite the snap-pixel with the last drag position — visible
-     as the sheet appearing to "stick" at the finger's release point. */
+  /* Must run before setSnap, or a queued frame overwrites the snap with the
+     last drag position. */
   const cancelDragRaf = useCallback(() => {
     if (rafIdRef.current) {
       cancelAnimationFrame(rafIdRef.current);
@@ -358,8 +283,6 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     (px: number) => {
       const el = sheetNode.current;
       if (!el) return;
-      /* Native scroll layouts own their geometry in CSS. Sheet offsets would
-         fight both the phone document and the landscape side panel. */
       if (configRef.current.inflow && usesNativeScroll()) return;
       el.style.removeProperty('transform');
       el.style.setProperty('--sheet-y', `${px}px`);
@@ -370,15 +293,12 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       const parent = el.parentElement;
       if (parent) {
         parent.style.setProperty('--sheet-visible-px', `${visible}px`);
-        /* Controls are bottom-anchored inside the 100lvh-tall map body — lift
-         them past the URL-bar overhang (body height minus visual viewport)
-         so they stay above the visual-viewport bottom. */
+        /* Controls sit in the 100lvh map body; lift them past the URL-bar
+           overhang. */
         const overhang = Math.max(0, parent.getBoundingClientRect().height - h);
         const offset = visible + 10 + overhang;
         lastControlOffsetRef.current = offset;
         updateControls(parent, offset);
-        // Cancel any pending retries from previous applyY calls so stale
-        // offsets never fire after a subsequent call has already settled.
         ctrlRetryTimers.current.forEach(clearTimeout);
         ctrlRetryTimers.current = [
           setTimeout(() => updateControls(parent, offset), 200),
@@ -389,15 +309,11 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     [updateControls]
   );
 
-  // Watch for maplibre controls mounting after the sheet has already settled,
-  // and apply the latest offset so they don't sit behind the sheet on first paint.
   useEffect(() => {
     const el = sheetNode.current;
     const parent = el?.parentElement;
     if (!parent) return;
     const apply = () => {
-      // If applyY hasn't run yet, compute the current offset on the fly so
-      // freshly-mounted controls don't sit at the default `bottom: 0`.
       let offset = lastControlOffsetRef.current;
       if (!offset && el && isMobile() && !(configRef.current.inflow && usesNativeScroll())) {
         const h = visibleViewportH();
@@ -407,20 +323,19 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       }
       if (offset) updateControls(parent, offset);
     };
-    apply(); // initial sweep — controls may already be in the DOM
+    apply();
     const observer = new MutationObserver(apply);
     observer.observe(parent, { childList: true, subtree: true });
     return () => observer.disconnect();
   }, [updateControls]);
 
-  // Callback ref so the snap is applied the moment the element attaches —
-  // regular refs + effects race against the parent's `loading` gate that
-  // defers mounting the sheet.
+  // Callback ref: plain refs and effects race against the parent's loading gate
+  // that defers mounting the sheet.
   const sheetRef = useCallback(
     (el: HTMLDivElement | null) => {
       sheetNode.current = el;
       if (el) {
-        setSheetMounted(true); // triggers re-run of the handle effect after delayed mount
+        setSheetMounted(true);
       }
       if (el && isMobile() && !(configRef.current.inflow && usesNativeScroll())) {
         const h = visibleViewportH();
@@ -431,12 +346,11 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
         const parent = el.parentElement;
         if (parent) {
           parent.style.setProperty('--sheet-visible-px', `${visible}px`);
-          // Same overhang lift as applyY — body is 100lvh tall.
           const overhang = Math.max(0, parent.getBoundingClientRect().height - h);
           const offset = visible + 10 + overhang;
           lastControlOffsetRef.current = offset;
           updateControls(parent, offset);
-          // Retry — maplibre might still be mounting its controls async
+          // MapLibre may still be mounting its controls.
           ctrlRetryTimers.current.forEach(clearTimeout);
           ctrlRetryTimers.current = [
             setTimeout(() => updateControls(parent, offset), 250),
@@ -448,7 +362,6 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     [updateControls]
   );
 
-  // Sync CSS var when snap changes (non-dragging path)
   useEffect(() => {
     if (dragging) return;
     const el = sheetNode.current;
@@ -456,7 +369,6 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     applyY(snapToPx(snap, visibleViewportH(), configRef.current.peekVisiblePx));
   }, [snap, dragging, applyY]);
 
-  // Re-sync on resize
   useEffect(() => {
     const onResize = () => {
       const el = sheetNode.current;
@@ -467,7 +379,6 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     return () => window.removeEventListener('resize', onResize);
   }, [snap, applyY]);
 
-  // Drag handlers on the grab handle
   useEffect(() => {
     const handle = handleRef.current;
     const sheet = sheetNode.current;
@@ -477,11 +388,8 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     const onDown = (e: PointerEvent) => {
       if (!isMobile() || configRef.current.dragMode === 'none') return;
       if (configRef.current.inflow && usesNativeScroll()) return;
-      // Cache the visible viewport height once at drag-start so the move
-      // handler doesn't re-read it on every frame just to clamp the target px.
       const h = visibleViewportH();
       sheetHRef.current = h;
-      // Read actual CSS position so custom content-fit snap is the drag baseline.
       const cssY = sheet.style.getPropertyValue('--sheet-y');
       const basePx = cssY ? parseFloat(cssY) : snapToPx(snap, h, configRef.current.peekVisiblePx);
       dragRef.current = {
@@ -513,9 +421,8 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       const displacement = Math.abs(dy);
       dragRef.current = null;
       setDragging(false);
-      // Tap toggles open/closed. From peek, expand one step: 'mid' in the list
-      // view, 'full' in the detail views ('mid' is not an allowed rest
-      // there — hardcoding it parked the detail at a third, foreign height).
+      // A tap from peek expands one step: 'mid' in the list, 'full' in the
+      // detail ('mid' is no rest point there).
       if (displacement < 6 && e.type === 'pointerup') {
         const allowed = configRef.current.snaps ?? ['full', 'mid', 'peek'];
         setSnap(snapRef.current === 'peek' ? (allowed.includes('mid') ? 'mid' : 'full') : 'peek');
@@ -545,15 +452,10 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     };
   }, [snap, applyYDrag, cancelDragRaf, sheetMounted, nativeScrollLayout]);
 
-  // Content-area drag.
-  //   - At 'peek': drag in any direction (sheet handle is small, this is the
-  //     primary way to expand by tapping/dragging anywhere on the list).
-  //   - At 'mid' / 'full': only drag DOWN, and only when the list scroll is
-  //     at the top — that way iOS Safari's native scroll keeps working when
-  //     the user is scrolling through the list, but a downward swipe from
-  //     the top of the list collapses the whole sheet (header bar included).
+  // Content drag: at 'peek' in any direction; at 'mid'/'full' only downward and
+  // only with the list scrolled to the top, so native scrolling keeps working.
   useEffect(() => {
-    void contentTick; // re-run when the content element re-mounts
+    void contentTick;
     const content = contentRef.current;
     const sheet = sheetNode.current;
     if (!content || !sheet) return;
@@ -576,10 +478,8 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       if (e.touches.length !== 1) return;
       const h = visibleViewportH();
       sheetHRef.current = h;
-      /* The detail view's actual scroller is nested inside the contentRef
-         wrapper (marked with data-detail-scroll). Read scrollTop from there
-         when present so the conflict-resolution rule works correctly — the
-         outer wrapper itself never scrolls. */
+      /* The detail's real scroller is nested ([data-detail-scroll]); the outer
+         wrapper never scrolls. */
       const scroller = content.querySelector<HTMLElement>('[data-detail-scroll]') ?? content;
       touchState = {
         startY: e.touches[0].clientY,
@@ -599,22 +499,15 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       if (!touchState.active) {
         const dx = e.touches[0].clientX - touchState.startX;
         if (Math.abs(dy) < 6 && Math.abs(dx) < 6) return;
-        /* Axis lock (Google-Maps style): the first dominant axis owns the
-           whole gesture. A horizontal start belongs to a horizontal scroller
-           / swipe handler inside the sheet — never also move the sheet. */
+        /* Axis lock: a horizontal start belongs to a scroller inside the sheet. */
         if (Math.abs(dx) > Math.abs(dy)) {
           touchState = null;
           return;
         }
-        /* Conflict resolution between sheet-drag and content-scroll, so the
-           user can swipe up/down anywhere in the sheet without fighting
-           native scroll:
-           - At full + swiping UP → already at top, let native scroll absorb it
-           - Marked scroll-native islands (e.g. locked-district upsell + rows)
-             also let UP gestures scroll content from mid, because their first
-             visible surface is list content, not a generic sheet drag zone
-           - Swiping DOWN with the content scrolled past the top → native scroll
-           - Otherwise → drag the sheet between snaps. */
+        /* Sheet drag vs. content scroll: at 'full' an upward swipe scrolls
+           content; scroll-native islands scroll upward from 'mid' too; a
+           downward swipe with content scrolled scrolls content. Otherwise the
+           sheet moves. */
         const atFull = snapRef.current === 'full';
         if (atFull && dy < 0) {
           touchState = null;
@@ -667,10 +560,6 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     };
   }, [applyYDrag, cancelDragRaf, snap, contentTick, nativeScrollLayout]);
 
-  // Header-area drag (count row + filter / search buttons + tabs).
-  // Like Google Maps, lets the user drag the sheet from anywhere up there,
-  // not only the small handle pip. 8 px movement threshold preserves
-  // tap-as-click on the buttons inside.
   useEffect(() => {
     void headerTick;
     const header = headerRef.current;
@@ -709,13 +598,10 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       velocitySample(touchState.v, e.touches[0].clientY, e.timeStamp);
       if (!touchState.active) {
         const dx = e.touches[0].clientX - touchState.startX;
-        // 8 px threshold — below this it's a tap, leave the click event
-        // alone so buttons inside the header still receive their onClick.
+        // Below 8 px it is a tap; leave the click to the buttons inside.
         if (Math.abs(dy) < 8 && Math.abs(dx) < 8) return;
-        /* Axis lock (Google-Maps style): the chip rail inside this zone is
-           a native horizontal scroller (touch-action: pan-x). A horizontal
-           start belongs exclusively to the rail — never also drag the
-           sheet, otherwise both move at once (diagonal mess). */
+        /* Axis lock: a horizontal start belongs to the chip rail (pan-x), or
+           both would move. */
         if (Math.abs(dx) > Math.abs(dy)) {
           touchState = null;
           return;
@@ -762,8 +648,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
   const collapse = useCallback(() => setSnap('peek'), []);
   const expand = useCallback(() => setSnap('mid'), []);
 
-  // Force CSS back to a specific snap immediately — handles the case where
-  // setSnap(s) is a no-op because s equals the current snap state.
+  // Applies a snap even when setSnap(s) is a no-op because s is current.
   const reapplySnap = useCallback(
     (target: SheetSnap) => {
       const el = sheetNode.current;
@@ -777,11 +662,8 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
   return {
     sheetRef,
     handleRef,
-    /** Read-only ref object — for callers that need contentRef.current. */
     contentRef,
-    /** Callback ref — pass to <div ref={...}> so we get re-mount notifications. */
     setContentRef,
-    /** Callback ref for the list-header drag zone (counts/buttons/tabs). */
     setHeaderRef,
     snap,
     setSnap,

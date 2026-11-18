@@ -1,13 +1,10 @@
 /**
  * Das Starter Pack: was eine Anmeldung wert ist.
  *
- * Bis zum 06.09.2026 waren es Spots — die Map war gestaffelt, ein Konto machte
- * sie größer. Das ist weg, die Karte liegt für jeden ganz da. Geblieben ist
- * der Name und das Versprechen dahinter, nur in der neuen Währung: Must-Eat-
- * Karten (Betreiber, 06.09.2026).
+ * Die Karte liegt für jeden ganz da; ein Konto bringt Must-Eat-Karten.
  */
 
-/** Alle 20 Karten des Starter Packs sind sofort offen (28.10.2026). */
+/** Alle 20 Karten des Starter Packs sind sofort offen. */
 export const STARTER_PACK_CARDS = 20;
 
 /** Die Doc-ID des Entitlements — sie IST der Riegel: ein `create()` auf einen
@@ -30,14 +27,14 @@ export function starterPackPool(
 }
 
 /**
- * Die Karte, die den Gast zur Anmeldung gebracht hat, kommt garantiert mit —
- * und zwar offen.
+ * Die Karte, die den Gast zur Anmeldung gebracht hat, kommt garantiert mit, und
+ * zwar offen.
  *
- * Die Anmelde-Tafel auf der Map sagt „20 Must Eats — diese ist dabei"
- * (Betreiber, 07.09.2026). Ein Versprechen, das der Zufall einlösen soll,
- * ist keins: also steht die angetippte Karte an erster Stelle der offenen
- * Hälfte, und die Ziehung füllt den Rest auf. Liegt sie nicht im Pool (schon
- * offen, unbekannt, gar nicht angetippt), zieht das Pack wie immer.
+ * Die Anmelde-Tafel auf der Map sagt „20 Must Eats — diese ist dabei". Ein
+ * Versprechen, das der Zufall einlösen soll, ist keins: Also steht die
+ * angetippte Karte an erster Stelle, und die Ziehung füllt den Rest auf. Liegt
+ * sie nicht im Pool (schon offen, unbekannt, gar nicht angetippt), zieht das
+ * Pack wie immer.
  */
 export function placeWantedFirst(drawn: string[], pool: string[], wanted: string | null): string[] {
   if (!wanted || !pool.includes(wanted)) return drawn;

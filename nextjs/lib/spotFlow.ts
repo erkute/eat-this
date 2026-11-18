@@ -9,10 +9,12 @@ type SpotFlowBlock =
   | { kind: 'image'; index: number }
   | { kind: 'imageGroup'; indices: number[] };
 
-/** Ein einzelner Satz unter dieser Länge wirkt zwischen grossen Bildern wie
- *  eine Bildunterschrift — die Seite setzt ihn dann gross in der Markenschrift.
- *  Mehrere Sätze bleiben Lesetext, auch wenn sie kurz sind: gross gesetzt
- *  sahen sie aus wie der Insider-Tipp (Durchsicht 03.10.2026). */
+/**
+ * Ein einzelner Satz unter dieser Länge wirkt zwischen großen Bildern wie eine
+ * Bildunterschrift; die Seite setzt ihn dann groß in der Markenschrift. Mehrere
+ * Sätze bleiben Lesetext, auch wenn sie kurz sind: Groß gesetzt sähen sie aus
+ * wie der Insider-Tipp.
+ */
 const SHORT_TEXT = 170;
 
 /** Abkürzungen, nach deren Punkt kein Satz endet („Nr. 12", „St. Oberholz"). */
@@ -72,8 +74,8 @@ export function buildSpotFlow({
   imageSizes?: ({ width: number; height: number } | null)[];
 }): { blocks: SpotFlowBlock[]; rest: number[] } {
   const texts = paragraphs.map(p => p.trim()).filter(Boolean);
-  // Der Tipp nach dem ersten Textabschnitt, die Must Eats nach dem zweiten —
-  // getrennt, nicht als ein Block (Ansage 03.10.2026).
+  // Der Tipp nach dem ersten Textabschnitt, die Must Eats nach dem zweiten:
+  // getrennt, nicht als ein Block.
   const sections: SpotFlowBlock[] = [];
   const asText = (text: string): SpotFlowBlock => ({
     kind: 'text',

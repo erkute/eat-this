@@ -69,8 +69,7 @@ beforeEach(() => {
 afterEach(() => cleanup());
 
 describe('LoginBoard — Aufbau', () => {
-  /* „Anmelden" stand im alten Modal dreimal da. Der Titel sagt, was man
-     bekommt — das Wort bleibt dem Knopf. */
+  /* „Anmelden" steht nur auf dem Knopf. Der Titel sagt, was man bekommt. */
   it('traegt eine Ueberschrift, und die heisst nie „Anmelden"', () => {
     const { container } = board();
     const headings = [...container.querySelectorAll('h1, h2, h3')].map((h) => h.textContent);
@@ -93,7 +92,7 @@ describe('LoginBoard — Aufbau', () => {
     expect(screen.getByRole('link', { name: 'Datenschutzerklärung' })).toBeTruthy();
   });
 
-  // Kein Geschenk-Wording (Betreiber, 22.09.2026).
+  // Kein Geschenk-Wording.
   it('sagt nirgends gratis oder kostenlos', () => {
     const { container } = board();
     expect(container.textContent).not.toMatch(/gratis|kostenlos/i);
@@ -196,8 +195,8 @@ describe('LoginBoard — nach dem Absenden', () => {
 });
 
 describe('LoginBoard — Google', () => {
-  /* Auf den Seiten verspricht der Cookie-Hinweis, Google Sign-In lade „nur wenn
-     du es nutzt" — also erst, wenn die Hand zum Knopf geht. */
+  /* Auf den Seiten laedt Google Sign-In nur, wenn es genutzt wird, also erst,
+     wenn die Hand zum Knopf geht. */
   it('waermt auf den Seiten erst an, wenn die Hand zum Knopf geht', () => {
     board({ googleWarmup: 'intent' });
     expect(google.prepare).not.toHaveBeenCalled();

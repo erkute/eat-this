@@ -14,9 +14,9 @@ vi.mock('./HubFragRemy', () => ({
 vi.mock('./HubFaq', () => ({ default: () => <div data-testid="faq" /> }));
 vi.mock('./SiteFooter', () => ({ default: () => '<footer data-testid="footer"></footer>' }));
 vi.mock('./HubHashScroll', () => ({ default: () => null }));
-/* Das Starter-Pack-Formular bietet seit 07.09.2026 auch Google an und liest
-   dafuer den Auth-Kontext; die Seite hier rendert ohne AuthProvider. Der
-   Mail-Weg bleibt echt — er kommt ohne Provider aus. */
+/* Das Starter-Pack-Formular bietet auch Google an und liest dafür den
+   Auth-Kontext; die Seite hier rendert ohne AuthProvider. Der Mail-Weg bleibt
+   echt, er kommt ohne Provider aus. */
 vi.mock('@/lib/auth/AuthContext', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/lib/auth/AuthContext')>()),
   useAuth: () => ({
@@ -94,8 +94,8 @@ describe('HubSection home', () => {
 
   it('carries exactly one signup after the FAQ', () => {
     const html = renderHome();
-    // A second copy lower down was tried and dropped: it looked identical
-    // once it gained the pack and panel, so it read as repetition.
+    // Only one: a second copy lower down would read as repetition once it
+    // carries the pack and panel.
     expect(html.match(/data-hub-starter/g)).toHaveLength(1);
     expect(html.indexOf('data-hub-starter')).toBeGreaterThan(html.indexOf('data-testid="faq"'));
   });

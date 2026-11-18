@@ -55,7 +55,7 @@ export async function generateStaticParams() {
   // redirect Next renders on demand sends `location` twice on EN (Next 15.5),
   // which App Hosting joins to `/en/bezirk,/en/bezirk` — a 404. Prerendered,
   // the first request is a cache hit and carries one; so does every later
-  // background revalidation (measured with revalidate=15, 07.10.2026).
+  // background revalidation.
   return routing.locales.flatMap((locale) => bezirke.map((b) => ({ locale, slug: b.slug })));
 }
 
@@ -68,8 +68,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   // Brandlos in Sanity wie hier: die Bezirksseiten hängen keinen Marken-Suffix
   // an, siehe buildPlainTitle. Die 11 Zeichen gehen an den Titel selbst, damit
-  // „Berlin" neben den Bezirksnamen passt — 491 der 506 Impressionen dieser
-  // Seiten kommen auf Anfragen, die „Berlin" enthalten.
+  // „Berlin" neben den Bezirksnamen passt: fast alle Impressionen dieser Seiten
+  // kommen auf Anfragen mit „Berlin".
   const fallbackTitleDe = `Restaurants in Berlin-${b.name}`;
   const fallbackTitleEn = `Restaurants in Berlin-${b.name}`;
   const title = pickLocale(
@@ -127,9 +127,8 @@ export default async function BezirkDetailPage({ params }: PageProps) {
     Promise.all(bezirkGuideSlugs(slug).map((s) => getGuideTeaser(s, loc))),
   ]);
   if (!b) notFound();
-  // A district without spots renders the head around an empty grid —
-  // dead end + thin content. Google knew nine such pages after the curation
-  // of 27.09.2026, so they 301 to the district index rather than 404; the
+  // A district without spots renders the head around an empty grid — dead end +
+  // thin content. Such pages 301 to the district index rather than 404; the
   // page reappears automatically via ISR once a restaurant references the
   // bezirk (the sitemap drops it meanwhile, see sitemap-entries.ts).
   if (restaurants.length === 0) {
@@ -183,9 +182,9 @@ export default async function BezirkDetailPage({ params }: PageProps) {
         />
 
         <HubFilterProvider queryKey="cat" slugs={categoryFilters.map((c) => c.slug)}>
-          {/* Filtert die Liste an Ort und Stelle. Bis 25.08.2026 stand hier
-              eine Leiste aus Links auf die Kategorie-Hubs — die Geste versprach
-              „Kaffee in Schöneberg" und lieferte „Kaffee in ganz Berlin". */}
+          {/* Filtert die Liste an Ort und Stelle: „Kaffee in Schöneberg" bleibt
+              in Schöneberg, statt auf den Kategorie-Hub für ganz Berlin zu
+              führen. */}
           {categoryFilters.length > 1 && (
             <HubFilterBar
               facets={categoryFilters}

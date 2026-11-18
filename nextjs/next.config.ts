@@ -20,76 +20,39 @@ const GUIDE_TO_CATEGORY = [
 
 const nextConfig: NextConfig = {
   output: 'standalone',
-  // Trägt den Build-Zeitpunkt, weil die Dateien im App-Hosting-Image keinen
-  // haben (alle 1980-01-01). cache-handler.cjs liest ihn hier heraus.
+  // Trägt den Build-Zeitpunkt, weil die Dateien im App-Hosting-Image auf
+  // 1980-01-01 stehen; cache-handler.cjs liest ihn hier heraus.
   generateBuildId: async () => `et-${Date.now()}-${randomUUID().slice(0, 8)}`,
-  // `inlineCss` bleibt aus: Es schreibt das ganze CSS in jede Seite und noch
-  // einmal in deren RSC-Daten, und nichts davon kommt aus dem Browser-Cache.
-  // `cssChunking` bleibt aus: Es legt kleine Module seitenübergreifend zusammen,
-  // sodass eine Seite auch die Stile fremder Seiten lädt. So lädt jede Seite nur
-  // ihre eigenen Module (gemessen 05.11.2026, Startseite: 5 statt 12 Dateien,
-  // 30 statt 47 kB). Ein Modul kann dadurch in mehreren Dateien stehen; zwischen
-  // Modulen bleibt das Überschreiben mit gleicher Spezifität also tabu.
+  // `inlineCss` aus: Es schreibt das ganze CSS in jede Seite, ohne
+  // Browser-Cache. `cssChunking` aus: Sonst lädt jede Seite auch fremde Module.
+  // Ein Modul kann dadurch in mehreren Dateien stehen; zwischen Modulen also
+  // nie mit gleicher Spezifität überschreiben.
   experimental: { cssChunking: false },
   /**
-   * Metadaten in den `<head>`, nicht in den Body.
-   *
-   * Next 15 streamt `<title>`, `<meta>` und `<link rel="canonical">` in den
-   * Body und blockt nur fuer Bots, die kein JavaScript ausfuehren. Nexts
-   * Standardliste dafuer verlangt einen Bindestrich am Google-Namen
-   * (`[\w-]+-Google|Google-[\w-]+`, siehe
-   * `next/dist/shared/lib/router/utils/html-bots.js`).
-   *
-   * Auf Firebase App Hosting kommt aber bei JEDER Anfrage der blanke
-   * User-Agent `Google` am Origin an — die Edge ersetzt den echten, bevor
-   * Cloud Run ihn sieht. Nexts Liste trifft ihn nicht, also landeten
-   * Metadaten auf `/` und `/map` grundsaetzlich im Body, hinter `</head>`
-   * (nachgemessen 06.09.2026 an den Byte-Offsets). Google ignoriert ein
-   * `rel="canonical"` im Body laut eigener Doku, und in der Seitenindexierung
-   * standen genau diese beiden Seiten mit ihren Query-Varianten unter
-   * „Duplikat – vom Nutzer nicht als kanonisch festgelegt".
-   *
-   * `Google` deckt die Standardeintraege `[\w-]+-Google`, `Google-[\w-]+`
-   * und `googleweblight` mit ab; der Rest der Liste ist Nexts Original.
-   * Weil die Edge den UA bei jedem Aufruf schickt, heisst das praktisch:
-   * blockende Metadaten fuer alle. Gemessen am Standalone-Build (je 10 Laeufe,
-   * Median): `/` 24 → 25 ms, `/map` 28 → 30 ms. Ein bis zwei Millisekunden,
-   * weil `generateMetadata` auf beiden Seiten ohne Datenabruf auskommt.
+   * Metadaten in den `<head>`: App Hosting schickt bei jeder Anfrage den
+   * blanken User-Agent `Google`, den Nexts Bot-Liste nicht trifft. Sonst landen
+   * title und canonical im Body, und Google ignoriert ein canonical dort.
+   * `Google` deckt Nexts Google-Einträge mit ab, der Rest ist Nexts Liste.
    */
   htmlLimitedBots:
     /Google|Chrome-Lighthouse|Slurp|DuckDuckBot|baiduspider|yandex|sogou|bitlybot|tumblr|vkShare|quora link preview|redditbot|ia_archiver|Bingbot|BingPreview|applebot|facebookexternalhit|facebookcatalog|Twitterbot|LinkedInBot|Slackbot|Discordbot|WhatsApp|SkypeUriPreview|Yeti/i,
-  // Build output dir. Defaults to `.next` (dev + Firebase App Hosting). A
-  // validation/pre-push build sets NEXT_DIST_DIR=.next-verify so it can run
-  // alongside a live `next dev` without clobbering the dev server's `.next`.
+  // `.next-verify` for the isolated pre-push build, so it can run beside `next
+  // dev`.
   distDir: process.env.NEXT_DIST_DIR || '.next',
-  // Beide Pakete liefern Klassen mit `static {}`-Blöcken aus, die Safari erst
-  // ab 16.4 versteht; Next übersetzt `node_modules` sonst nicht. Unübersetzt
-  // bricht das Skript auf iOS 15 bis 16.3 (auch im Instagram-Browser) beim
-  // Laden ab (Sentry JAVASCRIPT-AV):
-  // - `intl-messageformat` (unter next-intl, auf jeder Seite): Die Seite wird
-  //   nie interaktiv. Kostet
-  //   gepackt rund 0,1 kB.
-  // - `maplibre-gl` (nur /map, samt Worker aus MapCanvas): Die Map zeigt die
-  //   Fehlerseite. Kostet gepackt rund 8 kB (Bundle 5,6, Worker 2,4), weil
-  //   SWC dabei auch `?.` und `??` für Nexts Standardziel (Chrome 64)
-  //   umschreibt.
+  // Beide Pakete liefern `static {}`-Blöcke aus, die Safari vor 16.4 nicht
+  // kennt; unübersetzt bricht das Skript auf iOS 15–16.3 ab.
   transpilePackages: ['intl-messageformat', 'maplibre-gl'],
-  // Each build type-checks against its OWN dist dir's generated route types.
-  // Next appends `<distDir>/types/**/*.ts` to whichever tsconfig it is handed,
-  // so a single config accumulated both `.next/types` and `.next-verify/types`
-  // — and then the isolated build failed on the *other* dir's stale validator
-  // whenever a route had been deleted since the last default-distDir build.
-  // That broke `build:isolated`, which is the pre-push gate, for reasons
-  // unrelated to the code being pushed. One config per dist dir, no crosstalk.
+  // One tsconfig per dist dir: Next appends `<distDir>/types` to whichever
+  // config it gets, and a shared one breaks the isolated build on the other
+  // dir's stale route types.
   typescript: {
     tsconfigPath: process.env.NEXT_DIST_DIR ? 'tsconfig.verify.json' : 'tsconfig.json',
   },
   outputFileTracingRoot: path.resolve(__dirname),
-  // Teilt Tag-Invalidierungen zwischen den Cloud-Run-Instanzen und setzt sie
-  // bei jedem Aufruf neu – Begründung im Kopf von cache-handler.cjs.
+  // Teilt Tag-Invalidierungen zwischen den Instanzen (siehe cache-handler.cjs).
   cacheHandler: path.resolve(__dirname, 'cache-handler.cjs'),
-  // Only the two public OG fonts belong in the server bundle.
-  // Locally activated brand fonts in the same directory stay on this machine.
+  // Only the two public OG fonts belong in the server bundle; local brand fonts
+  // stay on this machine.
   outputFileTracingExcludes: {
     '*': ['./assets/fonts/NeueHaasGroteskTextPro*'],
   },
@@ -98,54 +61,33 @@ const nextConfig: NextConfig = {
   },
 
   images: {
-    // Firebase App Hosting disables Next's built-in image optimizer unless
-    // this is explicitly false. Keep the explicit value: without it every
-    // <Image> ships its original file (including multi-megabyte Sanity PNGs)
-    // and loses its responsive srcset in production.
+    // App Hosting disables the image optimizer unless this is explicitly false.
     unoptimized: false,
-    // Sanity asset URLs are immutable. Eigene Bilder sind es NICHT — sie
-    // werden unter gleichem Namen ersetzt, siehe `replaceableAssetHeaders`
-    // in `headers()`. Der Optimierer erbt deren Spanne und nimmt diesen Wert
-    // als Untergrenze: ein Tag, statt bei jedem Abruf neu zu rechnen.
+    // Eigene Bilder werden unter gleichem Namen ersetzt (siehe
+    // `replaceableAssetHeaders`); der Optimierer nimmt diesen Wert als
+    // Untergrenze.
     minimumCacheTTL: 86400,
-    // SiteImage uses 80; the responsive window paper keeps its fine creases
-    // at 90. Next's default 75 remains available for existing callers.
     qualities: [75, 80, 90],
-    // Sanity-Bilder gehen direkt an die Sanity-CDN (app/components/SiteImage.tsx
-    // setzt für sie `sanityImageLoader`), nur eigene Bilder laufen über den
-    // Optimierer. Gemessen am 25.09.2026 (Standalone-Build, lokal): 510
-    // Sanity-Varianten über den Optimierer kosteten +95 MiB Prozessspeicher,
-    // die auch im Leerlauf blieben, und 30 MiB Bild-Cache — auf Cloud Run
-    // beides RAM. Mit ~550 MiB Last-RSS und neu geschriebenen ISR-Seiten ergab
-    // das den 1-GiB-Überlauf vom 25.09. Kein globaler `loaderFile`: der schaltet
-    // `/_next/image` ganz ab. Kein `remotePatterns` mehr: der Optimierer nimmt
-    // keine Sanity-URL an, also kann niemand die Instanz als Verkleinerer
-    // für sie benutzen.
-    // Local next/image assets live below /pics and /buddy. The checkout logo
-    // set is gone from here on purpose: the payment marks are inline SVG now
-    // (app/components/PaymentMarks.tsx), which the optimizer never sees.
-    // Omitting `search` keeps cache-bust queries such as card-back.webp?v=6
-    // valid.
+    // Sanity-Bilder gehen direkt an die Sanity-CDN (SiteImage setzt
+    // `sanityImageLoader`); über den Optimierer kosteten sie auf Cloud Run
+    // Speicher bis zur 1-GiB-Grenze. Kein globaler `loaderFile`, der schaltet
+    // `/_next/image` ganz ab. Ohne `search`, damit Cache-Bust-Queries wie
+    // `?v=6` gültig bleiben.
     localPatterns: [{ pathname: '/pics/**' }, { pathname: '/buddy/**' }],
   },
 
   async headers() {
-    // Content-Security-Policy shipped in REPORT-ONLY first: it breaks nothing
-    // but surfaces violations so we can validate the allowlist (OpenFreeMap
-    // tiles, Firebase Auth, Stripe Checkout) on staging before flipping to
-    // an enforcing `Content-Security-Policy`. 'unsafe-inline' on script-src is
-    // required by the synchronous CRITICAL_BOOTSTRAP (no
-    // nonce plumbing in the static App Router output yet). Sentry is tunnelled
-    // through same-origin /monitoring, so it needs no extra connect-src host.
+    // Report-Only: blocks nothing, reports violations to /api/csp-report.
+    // 'unsafe-inline' on script-src is required by the synchronous
+    // CRITICAL_BOOTSTRAP (no nonces in the static output). Sentry is tunnelled
+    // through same-origin /monitoring.
     const csp = [
       "default-src 'self'",
       "base-uri 'self'",
       "object-src 'none'",
       "frame-ancestors 'self'",
-      "script-src 'self' 'unsafe-inline' https://apis.google.com",
-      // No third-party stylesheet any more: Adobe's kit CSS is gone and the
-      // @font-face rules live in app/globals.css. Only the font FILES are
-      // still fetched from Adobe, which font-src below covers.
+      `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === 'development' ? " 'unsafe-eval'" : ''} https://apis.google.com`,
+      // Only the Adobe font files are fetched from outside (font-src).
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https://cdn.sanity.io https://*.googleusercontent.com",
       "font-src 'self' data: https://use.typekit.net",
@@ -153,24 +95,11 @@ const nextConfig: NextConfig = {
       "frame-src 'self' https://*.firebaseapp.com https://checkout.stripe.com https://accounts.google.com",
       "worker-src 'self' blob:",
       "form-action 'self' https://checkout.stripe.com",
+      'report-uri /api/csp-report',
     ].join('; ');
-    // Bilder, die unter GLEICHEM Namen ersetzt werden. Dieselbe Rechnung wie
-    // beim Kartenstyle unten, und sie ist am 05.09.2026 teuer gelernt worden:
-    // die Telefone im Hero der Startseite wurden ausgetauscht, lagen als neue
-    // Bytes auf prod (byte-verglichen) — und jeder Browser, der die Seite
-    // schon einmal geladen hatte, zeigte weiter die alten. `immutable` heisst,
-    // dass nicht einmal ein Reload revalidiert, und die Dateinamen tragen
-    // keine Version. Ein Jahr lang.
-    //
-    // Der naheliegende Gegenzug waere ein `?v=`-Token an jeder Aufrufstelle
-    // gewesen — drei fuer die Telefone allein, und beim naechsten Bild denkt
-    // wieder jemand nicht daran. Eine Stunde Frische kostet stattdessen ein
-    // paar bedingte Anfragen, die mit 304 ohne Rumpf zurueckkommen, und
-    // `stale-while-revalidate` haelt die Wartezeit bei null.
-    //
-    // Der Bild-Optimierer erbt diese Spanne fuer `<Image>`-Aufrufe, mit
-    // `minimumCacheTTL` (ein Tag) als Untergrenze — `/about` und die Hubs
-    // heilen darum in einem Tag statt in einer Stunde, aber sie heilen.
+    // Bilder, die unter gleichem Namen ersetzt werden: kein `immutable`, sonst
+    // zeigte jeder Browser nach einem Austausch weiter die alten Bytes. Eine
+    // Stunde Frische kostet nur bedingte Anfragen mit 304.
     const replaceableAssetHeaders = [
       { key: 'Cache-Control', value: 'public, max-age=3600, stale-while-revalidate=86400' },
     ];
@@ -185,12 +114,8 @@ const nextConfig: NextConfig = {
         headers: replaceableAssetHeaders,
       },
       {
-        // Der Kartenstyle (siehe scripts/build-basemap-style.mts).
-        // Die Middleware fasst ihn nicht an — ihr Matcher schliesst alles mit
-        // Punkt im Pfad aus —, die CDN-Antwort bleibt also cachebar.
-        // Bewusst NICHT `immutable`: die Dateinamen tragen keine Version, und
-        // eine Karte, die sich zweimal im Jahr aendert, braucht kein
-        // Cache-Busting, das jemand von Hand pflegen muesste.
+        // Der Kartenstyle (scripts/build-basemap-style.mts): kein `immutable`,
+        // weil die Dateinamen keine Version tragen.
         source: '/basemap/:path*',
         headers: [
           {
@@ -202,7 +127,7 @@ const nextConfig: NextConfig = {
       {
         source: '/:path*',
         headers: [
-          // Required for Firebase signInWithPopup to poll popup.closed without console warnings.
+          // Firebase signInWithPopup polls popup.closed.
           { key: 'Cross-Origin-Opener-Policy', value: 'same-origin-allow-popups' },
           { key: 'Content-Security-Policy-Report-Only', value: csp },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
@@ -216,12 +141,9 @@ const nextConfig: NextConfig = {
   },
 
   async rewrites() {
-    // Same-origin Firebase Auth helper (official "Option 3" reverse proxy):
-    // serving /__/auth/* from our own domain makes the signInWithPopup
-    // credential return same-origin (no COOP/storage-access breakage) and
-    // the Google consent screen shows "Weiter zu eatthisdot.com" instead of
-    // the raw firebaseapp.com project domain. /__/firebase/init.json is
-    // fetched by the helper, hence the broad /__/ prefix.
+    // Same-origin Firebase Auth helper (Firebase's "Option 3" reverse proxy):
+    // the popup credential returns same-origin, and Google's consent screen
+    // names our domain. The helper also fetches /__/firebase/init.json.
     return [
       {
         source: '/__/:path*',
@@ -232,9 +154,6 @@ const nextConfig: NextConfig = {
 
   async redirects() {
     return [
-      // Engelbecken — Sanity-Slug hatte historisch "engelsbecken" (Typo);
-      // offiziell schreibt sich das Restaurant Engelbecken (eigene Domain
-      // engelbecken.de). Slug umgezogen, alte URL 308 → neue.
       {
         source: '/restaurant/engelsbecken',
         destination: '/restaurant/engelbecken',
@@ -245,10 +164,6 @@ const nextConfig: NextConfig = {
         destination: '/en/restaurant/engelbecken',
         permanent: true,
       },
-      // Bäckereien-Guide lag doppelt im Index: NEWS_GUIDES und ein Sanity-
-      // newsArticle teilten sich den Slug, beide selbst-kanonisch, beide in der
-      // Sitemap. Google hat sie durchweg gegeneinander ausgespielt (der Guide
-      // 20-30 Plätze schlechter). Guide-Eintrag entfernt, URL 308 → Artikel.
       {
         source: '/guides/beste-baeckereien-berlin',
         destination: '/news/beste-baeckereien-berlin',
@@ -259,13 +174,8 @@ const nextConfig: NextConfig = {
         destination: '/en/news/beste-baeckereien-berlin',
         permanent: true,
       },
-      // Die drei verbliebenen Guides waren derselbe Fall eine Ebene weiter:
-      // jeder doppelte die Absicht seiner Kategorieseite, beide selbst-
-      // kanonisch, beide in der Sitemap — beste-cafes-berlin trug sogar
-      // denselben Title wie /kategorie/coffee. Die Kategorieseite gewinnt
-      // jeden Vergleich (mehr Text, mehr Spots, FAQ-Schema, Bezirks-
-      // Querlinks) und ist der Ort, auf den die Navigation zeigt; auf die
-      // Guides verlinkte intern nichts.
+      // Die Guides doppelten ihre Kategorieseiten; die Kategorieseite ist das
+      // Ziel.
       ...GUIDE_TO_CATEGORY.flatMap(([slug, category]) => [
         { source: `/guides/${slug}`, destination: `/kategorie/${category}`, permanent: true },
         {
@@ -274,11 +184,6 @@ const nextConfig: NextConfig = {
           permanent: true,
         },
       ]),
-      // /news/markthalle9 war ein Sanity-Artikel, der gelöscht wurde — die URL
-      // liefert seither 404, sammelt in der Search Console aber weiter
-      // Impressionen (8 in 90 Tagen, Ø-Position 14). Die Markthalle Neun liegt
-      // in Kreuzberg; der Bezirks-Guide ist die nächstliegende Antwort auf
-      // dieselbe Frage. Kein eigener Spot in Sanity, auf den es zeigen könnte.
       {
         source: '/news/markthalle9',
         destination: '/news/restaurants-kreuzberg',
@@ -293,51 +198,22 @@ const nextConfig: NextConfig = {
   },
 };
 
-// Sentry build plugin: uploads sourcemaps + creates a release per build, so
-// minified production stack traces resolve back to source in the dashboard.
-// Source-maps upload is gated by SENTRY_AUTH_TOKEN — without it the plugin
-// warns and skips the upload, the build itself does not fail.
+// Source maps upload only with SENTRY_AUTH_TOKEN; without it the build still
+// succeeds.
 export default withSentryConfig(withNextIntl(nextConfig), {
   org: process.env.SENTRY_ORG,
   project: process.env.SENTRY_PROJECT,
   authToken: process.env.SENTRY_AUTH_TOKEN,
   silent: !process.env.CI,
-  // Tunneling routes errors through our own /monitoring endpoint, dodging
-  // ad-blockers that strip Sentry calls. Cheap insurance for prod traffic.
+  // Through our own /monitoring endpoint, past ad blockers.
   tunnelRoute: '/monitoring',
-  // Der Hook misst Seitenwechsel, und das Messen fliegt unten mit `removeTracing`
-  // aus dem Bundle. Ihn zu exportieren holte nur das SDK in den ersten Ladevorgang
-  // (lib/sentry/client-reporting.ts lädt es bewusst erst nach dem ersten Bild).
+  // Der Hook misst Seitenwechsel, und das Messen fliegt mit `removeTracing`
+  // ohnehin aus dem Bundle.
   suppressOnRouterTransitionStartWarning: true,
-  // Tree-shake code we never run.
-  //
-  // These are the `webpack.treeshake` keys, NOT `bundleSizeOptimizations`.
-  // In @sentry/nextjs 10.57.0 only this shape reaches the DefinePlugin that
-  // actually drops the code — see setupTreeshakingFromConfig in
-  // node_modules/@sentry/nextjs/build/cjs/config/webpack.js:549. The names
-  // differ too (`removeTracing`, not `excludeTracing`).
-  //
-  // `removeTracing` is the big one: measured 188 kB → 136 kB "First Load JS
-  // shared by all", i.e. 52 kB gzip off EVERY page. What goes with it is
-  // performance tracing — spans, transactions, Web Vitals, trace headers on
-  // our own API calls. Error reporting is untouched: captureException,
-  // stack traces, breadcrumbs, source-map resolution all still work. At
-  // tracesSampleRate 0.1 and this traffic the traces were never a usable
-  // sample anyway, and Lighthouse CI measures Web Vitals against production
-  // on every main push.
-  //
-  // Note this applies to the server and edge bundles too — Next runs the
-  // webpack config function three times and the DefinePlugin is added on
-  // every pass. Hence tracesSampleRate is gone from all three Sentry configs.
-  //
-  // Session Replay is disabled, so its iframe/shadow-DOM/worker helpers are
-  // dead weight; removeDebugLogging drops Sentry's internal debug logging.
-  //
-  // The old `bundleSizeOptimizations` block is gone: measured with and
-  // without it, the bundle came out at 137 kB either way. It is forwarded to
-  // @sentry/webpack-plugin and may do something in other setups, but here it
-  // did nothing — and keeping a second, differently-named block around is
-  // exactly what made the previous comment claim a saving that never existed.
+  // These are the `webpack.treeshake` keys, not `bundleSizeOptimizations`; only
+  // this shape reaches the DefinePlugin that drops the code. `removeTracing`
+  // takes ~52 kB gzip off every page (error reporting is untouched) and applies
+  // to server and edge bundles too, so no config sets tracesSampleRate.
   webpack: {
     treeshake: {
       removeTracing: true,

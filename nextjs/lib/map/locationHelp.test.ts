@@ -125,9 +125,8 @@ describe('watchLocationUnblock', () => {
   });
 });
 
-/* In echtem Chrome gemessen: gibt der Browser die Freigabe ohne Neuladen
-   zurueck, ortet die Map selbst — die Anleitung stand danach aber weiter
-   ueber der Karte. Sie geht jetzt mit. */
+/* In echtem Chrome: gibt der Browser die Freigabe ohne Neuladen zurueck, ortet
+   die Map selbst, und die Anleitung muss mitgehen. */
 describe('Anleitung raeumt sich ab, wenn der Standort zurueckkommt', () => {
   afterEach(() => {
     delete window.showNotice;

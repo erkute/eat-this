@@ -5,17 +5,16 @@ import { describe, expect, it } from 'vitest';
 
 import { OG_PACK_VERSION } from '@/lib/constants';
 
-/* The nine category share cards in public/pics/og/ are emitted by two routes.
- * They used to carry two independent version numbers — a local
- * `PACK_OG_VERSION = 2` in kategorie/[slug] and a hardcoded `?v=2` in
- * guides/[slug]. Both happened to be 2, which is exactly how that kind of
- * drift stays invisible until one of them moves. The guides route is gone
- * (308 → kategorie), so kategorie/[slug] is the only emitter today — the rule
- * stands for whatever emits them next.
+/*
+ * The nine category share cards in public/pics/og/ carry one version number,
+ * whatever route emits them. Two independent numbers that happen to match drift
+ * invisibly until one of them moves. kategorie/[slug] is the only emitter
+ * today; the rule stands for whatever emits them next.
  *
  * Social crawlers cache these hard, so a route left on a stale version keeps
  * serving the old card long after the file changed. One constant, bumped
- * whenever a file in public/pics/og/ does. */
+ * whenever a file in public/pics/og/ does.
+ */
 
 const ROUTES_EMITTING_OG_CARDS = ['app/[locale]/kategorie/[slug]/page.tsx'];
 

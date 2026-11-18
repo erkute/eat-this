@@ -1,4 +1,3 @@
-// nextjs/lib/buddy/geo.test.ts
 import { describe, it, expect } from 'vitest';
 import { distanceKm, distanceLabel } from './geo';
 

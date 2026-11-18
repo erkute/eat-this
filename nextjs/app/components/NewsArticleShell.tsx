@@ -132,15 +132,12 @@ function ledeDuplicatesOpening(excerpt: string, blocks: PortableTextBlock[]): bo
   if (ledeSentence.length >= 4) {
     if (orderedOverlap(ledeSentence, openingSentence) >= SENTENCE_OVERLAP) return true;
   }
-  // The same question from the article's side. Pizza opens on a short sentence
-  // and its lede welds that sentence to the next one — "Berlin hat kein
-  // Pizza-Problem. Berlin hat inzwischen eher das gegenteilige Problem …"
-  // became "Berlin hat kein Pizza-Problem, sondern das gegenteilige …". Measured
-  // from the lede's long sentence the overlap is small; measured from the
-  // article's short one it is complete. Only the lede's start is searched, at
-  // most half again as long as the sentence looked for: Fine Dining's lede
-  // *closes* on the article's opening sentence after a colon of its own, and
-  // that lede opens on its own words.
+  // The same question from the article's side: a lede may weld the article's
+  // short opening sentence to the next one. Measured from the lede's long
+  // sentence the overlap is small, from the article's short one complete. Only
+  // the lede's start is searched, at most half again as long as the sentence
+  // looked for, so a lede that merely closes on that sentence keeps its own
+  // opening.
   if (openingSentence.length >= 4) {
     const ledeStart = ledeSentence.slice(0, Math.ceil(openingSentence.length * OPENING_REACH));
     if (orderedOverlap(openingSentence, ledeStart) >= SENTENCE_OVERLAP) return true;
@@ -185,13 +182,10 @@ function articleReadingOrder(blocks: PortableTextBlock[]): PortableTextBlock[] {
   return ordered;
 }
 
-// Article detail — magazine feature, the inside of the issue: a tap on a cover
-// opens the magazine and lands here (MagazineLink), so the cover itself does
-// not appear again. On desktop the header splits like Highsnobiety's: title,
-// byline and lede on the left, the lead photo on the right; below, the piece
-// runs as a reading column with a sticky chapter rail beside it. Nothing in
-// the reading column moves. Inline must-eat and spot cards are driven by
-// mustEatCard / spotCard reference blocks in the body.
+// Article detail, the inside of the issue: a tap on a cover opens the magazine
+// and lands here (MagazineLink), so the cover does not appear again. Inline
+// must-eat and spot cards come from mustEatCard / spotCard reference blocks in
+// the body.
 export default function NewsArticleShell({
   article,
   relatedArticles = [],
@@ -210,11 +204,10 @@ export default function NewsArticleShell({
   const content = articleContent(article, locale);
   const dateFormatted = formatDate(article.date, locale);
   // Die Spots eines Guides für die Zeile unter dem Kopf: nur Überschriften, die
-  // einen Spot eröffnen — direkt darunter steht seine Spot-Karte. Erzählende
+  // einen Spot eröffnen, direkt darunter steht seine Spot-Karte. Erzählende
   // Texte gliedern nach Themen („Als Berlin chinesisch essen lernte“), deren
-  // Überschriften sind keine Spots (Ansage 11.10.2026); ebenso wenig das Fazit
-  // oder ein Essay mit Zwischenüberschriften (Ansage 02.10.2026: „nur wenn
-  // Spots gelistet sind“).
+  // Überschriften sind keine Spots; ebenso wenig das Fazit oder ein Essay mit
+  // Zwischenüberschriften.
   const chapters = extractHeadings(
     content.filter(
       (block, i) =>
@@ -293,7 +286,6 @@ export default function NewsArticleShell({
       .filter(Boolean)
       .join(' · ');
 
-    // Foto und gerade Etiketten bilden eine gemeinsame Spot-Karte.
     return (
       <span className={styles.inlineSpot}>
         {block.restaurantPhoto && (
@@ -438,9 +430,9 @@ export default function NewsArticleShell({
   };
 
   const recommendations = relatedArticles.filter((a) => a.slug !== article.slug).slice(0, 3);
-  // Darunter liegen Hefte, also „Weitere Ausgaben" (Ansage 02.10.2026).
+  // Darunter liegen Hefte, also „Weitere Ausgaben".
   const moreLabel = de ? 'Weitere Ausgaben' : 'More issues';
-  // Nicht „Kapitel" (Ansage 02.10.2026): die Zeile zählt die Spots auf.
+  // Nicht „Kapitel": Die Zeile zählt die Spots auf.
   const chaptersLabel = de ? 'Die Spots' : 'The spots';
 
   // Das Datum; Hell/Dunkel stellt man im Menü um.
@@ -464,18 +456,14 @@ export default function NewsArticleShell({
       <ArticleMotion slug={article.slug} />
       <main className={styles.article}>
         <article>
-          {/* Der Kopf wie bei Kaleidoscope (Ansage 02.10.2026, Vorbild
-              manifesto.kaleidoscope.media): mittig Rubrik, die Schlagzeile
-              gross, klein die Credits; darunter das Foto
-              randlos mit schmalem Rahmen, dann der Vorspann als Auftakt. */}
+          {/* Der Kopf wie bei Kaleidoscope (manifesto.kaleidoscope.media):
+              mittig Rubrik, die Schlagzeile groß, klein die Credits; darunter
+              das Foto randlos mit schmalem Rahmen, dann der Vorspann als
+              Auftakt. */}
           <header className={styles.header} data-insight-header="">
-            {/* Keine Brotkrume: der Artikeltitel ist zu lang für eine Zeile und
-                brach als dritte Krume um. Sie trug ohnehin keinen eigenen Link
-                — „/" und „/news" stehen im Burger, der auf jeder Seite
-                gerendert wird. Das BreadcrumbList-JSON-LD in
-                `news/[slug]/page.tsx` bleibt davon unberührt, die SERP-Krume
-                also auch. Eater und Mit Vergnügen führen ihre Guides ebenfalls
-                ohne. */}
+            {/* Keine Brotkrume: der Artikeltitel brach als dritte Krume um, und
+                „/" und „/news" stehen im Burger. Das BreadcrumbList-JSON-LD in
+                `news/[slug]/page.tsx` bleibt. */}
             <div className={styles.introCopy}>
               <h1
                 className={styles.heroTitle}
@@ -502,10 +490,9 @@ export default function NewsArticleShell({
             )}
             {showLede && <p className={styles.lede}>{excerpt}</p>}
             {/* Die Spots als eine Zeile unter dem Kopf, wie die Namenslisten
-                bei Kaleidoscope — sie ersetzt die Kapitel-Leiste links, die
-                als einziges Element aus der Mitte fiel (Ansage 02.10.2026),
-                und gibt es jetzt auch am Telefon. Nur der Name, nicht die
-                ganze Überschrift; ein Tipp springt zum Spot. */}
+                bei Kaleidoscope, mittig wie alles andere und auch am Telefon.
+                Nur der Name, nicht die ganze Überschrift; ein Tipp springt zum
+                Spot. */}
             {chapters.length > 1 && (
               <nav className={styles.chapters} aria-label={chaptersLabel}>
                 <span className={styles.chaptersLabel}>{chaptersLabel}</span>

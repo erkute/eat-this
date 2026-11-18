@@ -1,7 +1,6 @@
-/* Reinweiss, ohne Papierkorn, Kanten oder Folie (Ansage 22.10.2026): die
-   Statusleiste am iPhone färbt Safari mit genau einer Vollfarbe nach dem
-   Kopf ein — Struktur kann sie nicht zeigen. Glatt sind Kopf und Leiste
-   eine Fläche. Dunkel dasselbe in Ink. */
+/* Reinweiß, ohne Papierkorn, Kanten oder Folie: Die Statusleiste am iPhone
+   färbt Safari mit genau einer Vollfarbe nach dem Kopf ein, Struktur kann sie
+   nicht zeigen. Glatt sind Kopf und Leiste eine Fläche. Dunkel dasselbe in Ink. */
 .nav {
   position: fixed;
   inset: 0 0 auto;
@@ -24,10 +23,9 @@
   content: none;
 }
 
-/* Die Fläche des Kopfs, eine eigene Ebene: am Telefon fährt sie mit dem
-   Inhalt weg (siehe unten). Auch oben auf der Startseite steht der Kopf auf
-   seiner Fläche, nicht durchsichtig über dem Aufmacher (Ansage 22.10.2026:
-   „nicht gelb am Anfang"). */
+/* Die Fläche des Kopfs, eine eigene Ebene: Am Telefon fährt sie mit dem Inhalt
+   weg (siehe unten). Auch oben auf der Startseite steht der Kopf auf seiner
+   Fläche, nicht durchsichtig über dem Aufmacher. */
 .nav::before {
   content: '';
   position: absolute;
@@ -168,18 +166,15 @@
     pointer-events: none;
   }
 
-  /* Die Statusleiste um Uhrzeit und Akku färbt Safari nach der Leiste ein —
-     mitgleiten kann sie nicht: Safari zeigt dort nur eine feste Farbe oder
-     die Seite, die Leiste selbst zeichnet er nie hinein (im iOS-Simulator
-     gefilmt, 24.09.2026). Der Wechsel ist also immer ein Sprung, und er soll
-     mit der Bewegung beginnen statt ihr nachzuhinken: vorher fuhr die Leiste
-     weg und erst 280ms später, mit `collapsed`, sprang die Statusleiste um
-     (Betreiber, 23.09.2026).
-     Safari hält die Farbe, solange die Leiste sichtbar ist. `data-leaving`
-     macht sie beim Wegfahren sofort `visibility: hidden`; Fläche und Inhalt
-     holen sich ihre Sichtbarkeit zurück und fahren weiter sichtbar hinaus.
-     Beim Hereinfahren steht das Attribut nicht — dann wird die Statusleiste
-     gleich zu Beginn wieder dunkel. */
+  /* Die Statusleiste um Uhrzeit und Akku färbt Safari nach der Leiste ein.
+     Mitgleiten kann sie nicht: Safari zeigt dort nur eine feste Farbe oder die
+     Seite, die Leiste selbst zeichnet er nie hinein. Der Wechsel ist also immer
+     ein Sprung, und er beginnt mit der Bewegung, statt ihr nachzuhinken. Safari
+     hält die Farbe, solange die Leiste sichtbar ist. `data-leaving` macht sie
+     beim Wegfahren sofort `visibility: hidden`; Fläche und Inhalt holen sich
+     ihre Sichtbarkeit zurück und fahren weiter sichtbar hinaus. Beim
+     Hereinfahren steht das Attribut nicht, dann wird die Statusleiste gleich zu
+     Beginn wieder dunkel. */
   .nav[data-leaving]:not([data-nav-page='map']) {
     visibility: hidden;
   }

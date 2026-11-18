@@ -2,12 +2,10 @@
  * Bettet die Magazin-Artikel mit Voyage ein und schreibt die Vektoren nach
  * lib/buddy/article-embeddings.json (eingecheckt als statisches Asset).
  *
- * Warum es das braucht: `search_articles` filterte bis zum 06.09.2026 mit
- * einem GROQ-`match` ueber `*<ganze Frage>*`. Das Werkzeug bekommt vom Modell
- * aber eine FORMULIERUNG („Was macht Berliner Kaffee besonders"), kein
- * Stichwort — und ein Wildcard-match darauf trifft nie. Gemessen: die Frage 0
- * Treffer, „kaffee" 3, „doener" 0 (die Artikel schreiben „Döner", `match` ist
- * diakritikablind). Das Werkzeug war fuer die Anfragen, die es bekommt, tot.
+ * Warum es das braucht: `search_articles` bekommt vom Modell eine Formulierung
+ * („Was macht Berliner Kaffee besonders"), kein Stichwort. Ein GROQ-`match`
+ * über `*<ganze Frage>*` trifft darauf nie, und „doener" findet nichts, weil
+ * die Artikel „Döner" schreiben.
  *
  * Run from `nextjs/`:
  *   npm run embed:articles
@@ -47,8 +45,7 @@ const QUERY = `*[${ARTICLE_INDEX.filter}] | order(slug.current asc) {
 /**
  * Wie viel Fliesstext mitgeht. Titel und Teaser tragen das Thema schon; der
  * Anfang des Textes ergaenzt den Einstieg. Mehr waere nicht besser, sondern
- * teurer: der Voyage-Free-Tier begrenzt 10k TOKEN pro Minute, und die 24
- * Artikel haben zusammen rund 40k Token Fliesstext.
+ * teurer, und der Voyage-Tarif begrenzt die Token pro Minute.
  */
 const BODY_CHARS = 1200;
 

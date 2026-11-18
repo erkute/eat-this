@@ -36,9 +36,9 @@ afterEach(() => {
 
 describe('cache-handler: revalidateTag', () => {
   it('setzt den Zeitpunkt bei JEDEM Aufruf neu, nicht nur beim ersten', async () => {
-    // Next 15.5 schreibt nur, wenn der Tag fehlt. Eine Seite, die nach der
-    // ersten Invalidierung neu gebaut wurde, blieb danach für diesen Tag
-    // unberührbar – die zweite Änderung an einem Spot kam nie an.
+    // Next 15.5 schreibt nur, wenn der Tag fehlt: eine nach der ersten
+    // Invalidierung neu gebaute Seite bliebe für diesen Tag unberührbar, die
+    // zweite Änderung an einem Spot käme nie an.
     const handler = newHandler()
     await handler.revalidateTag('restaurant')
     const first = tagsManifest.get('restaurant')
@@ -164,7 +164,7 @@ describe('cache-handler: geteilter Tag-Stand', () => {
 
 describe('cache-handler: Tags aus der Zeit vor dem Build', () => {
   // Im App-Hosting-Image tragen alle vorgebauten Seiten das Dateidatum
-  // 1980-01-01. Ein Tag von vor dem Build machte sie trotzdem ungültig.
+  // 1980-01-01; ein Tag von vor dem Build darf sie nicht ungültig machen.
   const SEED_MTIME = Date.parse('1980-01-01T00:00:01.000Z')
 
   it('übernimmt nur Invalidierungen ab dem Build', async () => {
@@ -196,8 +196,8 @@ describe('cache-handler: Tags aus der Zeit vor dem Build', () => {
 })
 
 describe('cache-handler: Alter vorgebauter Seiten', () => {
-  // Mit dem Dateidatum 1980 war jede vorgebaute Seite für die 24-Stunden-Frist
-  // sofort abgelaufen und wurde auf jeder Instanz im Hintergrund neu gerechnet.
+  // Mit dem Dateidatum 1980 wäre jede vorgebaute Seite für die 24-Stunden-Frist
+  // sofort abgelaufen und würde auf jeder Instanz im Hintergrund neu gerechnet.
   const SEED_MTIME = Date.parse('1980-01-01T00:00:01.000Z')
   const builtAt = Date.parse('2026-10-10T08:00:00.000Z')
 

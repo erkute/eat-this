@@ -45,7 +45,7 @@ describe('warmGooglePopup', () => {
 
   it('lässt nach einem Fehlschlag einen neuen Versuch zu', async () => {
     // Sonst bliebe ein einmaliger Netzaussetzer für die ganze Sitzung hängen,
-    // und der Knopf wäre wieder genau da, wo er vorher war.
+    // und der Knopf öffnete wieder erst beim zweiten Klick.
     const initialize = vi.fn(() => Promise.reject(new Error('offline')));
     resolver._initialize = initialize;
 

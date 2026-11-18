@@ -54,7 +54,7 @@ describe('SpotCardImage', () => {
   });
 
   /* Zu jedem Spot seine Must-Eat-Karte, damit man sieht, dass beides
-     zusammengehoert (Betreiber, 22.09.2026). */
+     zusammengehört. */
   it('legt die Must-Eat-Karte neben den Spot', () => {
     expect(flatten(SpotCardImage({ spot }))).toContain('data:image/png;base64,AAAA');
   });

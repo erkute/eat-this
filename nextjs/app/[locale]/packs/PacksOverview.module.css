@@ -67,9 +67,9 @@
   list-style: none;
 }
 
-/* Eine Zeile pro Pack (Ansage 22.10.2026): gross links, rechts Name,
-   Spectrum-Zeile und Kaufknopf linksbündig auf einer Achse, mittig zum Pack.
-   Am Desktop zwei Zeilen nebeneinander, sonst bliebe rechts eine leere Bahn. */
+/* Eine Zeile pro Pack: groß links, rechts Name, Spectrum-Zeile und Kaufknopf
+   linksbündig auf einer Achse, mittig zum Pack. Am Desktop zwei Zeilen
+   nebeneinander, sonst bliebe rechts eine leere Bahn. */
 .tile {
   color: var(--packs-fg);
   text-decoration: none;

@@ -1,9 +1,6 @@
-/* Profile — the home's page, logged in.
-   Layout only: the element vocabulary (hv-wrap/-section/-head/-title/-rail/
-   -photo/-btn) comes from the homeV2 block in globals.css, so the two pages
-   stay one system instead of two that resemble each other.
-   Public and account pages share a white ground, dark copy and quiet grey
-   control surfaces. The shared deck page also uses these tokens. */
+/* Profile: layout only. The element vocabulary (hv-*) comes from the homeV2
+   block in globals.css, so profile and home stay one system. The shared deck
+   page uses the same tokens. */
 
 .page {
   --profile-ground: var(--et-ground);
@@ -114,9 +111,8 @@ main.page .head {
   color: var(--et-on-accent);
 }
 
-/* Die Kopfzeile der geteilten Deck-Seite hat ihre Regeln in
-   app/[locale]/deck/[uid]/Deck.module.css. `npm run audit:css-modules` sagt,
-   wer eine Klasse hier noch anfasst. */
+/* Die Kopfzeile der geteilten Deck-Seite steht in
+   app/[locale]/deck/[uid]/Deck.module.css. */
 
 /* ── recently revealed ──────────────────────────────────── */
 
@@ -147,23 +143,15 @@ main.page .head {
   width: clamp(132px, 15vw, 176px);
 }
 
-/* Chronologisch waere ein Rail auf Desktop vertretbar, wenn die Liste offen
-   waere - aeltere Reveals sind legitim weniger wichtig. Sie ist es nicht:
-   MAX_CARDS deckelt bei 8, die Menge ist also geschlossen und das
-   Wisch-Versprechen ("da kommt noch was") ab Karte 8 unwahr. Gemessen lagen
-   bei 8 Karten 258 px hinter der ausgeblendeten Scrollbar (1440/1920 px) und
-   350 px bei 900 px - ein bis drei eigene Reveals, fuer eine gesparte Zeile.
-   Ausserdem rechnete overflow-y durch overflow-x:auto auf auto und schnitt den
-   Hover-Lift der Karte oben ab. Ab Tablet deshalb umbrechendes Grid.
-   main.page (0,2,1) schlaegt .homeV2 .hv-rail (0,2,0) unabhaengig von der
-   Ladereihenfolge; Mobile bleibt Rail. */
+/* Ab Tablet ein umbrechendes Grid statt Rail: MAX_CARDS deckelt bei 8, die
+   Menge ist geschlossen, und ein Wischversprechen wäre unwahr. main.page
+   (0,2,1) schlägt .homeV2 .hv-rail (0,2,0) unabhängig von der Ladereihenfolge;
+   Mobile bleibt Rail. */
 @media (min-width: 768px) {
   main.page .recentRail {
     display: grid;
-    /* 160er Spur, nicht 176: bei 176 passen zwischen 768 und ~1100 px nur drei
-       bis vier Spalten, der Rest der Zeile verteilt sich als 63 px Luft
-       zwischen die Karten. Mit 160 fuellen die Spalten die Zeile aus - Karte
-       163-176 px, Abstand bleibt der deklarierte. */
+    /* 160er Spur: mit 176 bliebe zwischen 768 und ~1100 px Luft zwischen den
+       Karten. */
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: clamp(26px, 3vw, 38px) clamp(16px, 2vw, 28px);
     overflow: visible;
@@ -284,7 +272,6 @@ main.page .head {
   background-size: cover;
 }
 
-/* Der rote Strich zwischen Foto und Tafel ist das Rot der Marke. */
 .spotCaption {
   display: grid;
   justify-items: start;
@@ -672,9 +659,8 @@ html[data-theme='dark'] .tab:nth-child(4) {
   color: var(--et-fg);
 }
 
-/* Der Faecher: drei Karten, leicht gedreht, mit Schlagschatten auf der Tafel.
-   Sie ueberlappen wie eine Hand, die man jemandem hinhaelt — das ist die
-   Geste, um die es in dem Kasten geht. */
+/* Der Fächer: drei leicht gedrehte Karten, überlappend wie eine Hand, die man
+   jemandem hinhält. */
 .inviteFan {
   grid-area: fan;
   /* Mittig zu Text UND Knopf, nicht oben an der Ueberschrift — sonst stand
@@ -843,7 +829,6 @@ main.page .tabPanel {
     margin-inline: auto;
   }
 }
-/* Nur für Screenreader: die Hauptüberschrift der Seite. */
 .srOnly {
   position: absolute;
   width: 1px;
@@ -941,7 +926,6 @@ main.page .tabPanel {
   min-width: 0;
   padding-bottom: 6px;
 }
-/* Der Name gross: er ist die Überschrift der Seite. */
 .accountName {
   margin: 0;
   font: 700 clamp(40px, 12vw, 96px) / 0.95 var(--et-font-display);

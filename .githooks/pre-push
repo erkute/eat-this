@@ -1,28 +1,15 @@
 #!/bin/sh
+# Pre-push: run the full nextjs production build before any push. App Hosting
+# deploys on push, and any build failure (lint, prerender, types) fails the
+# rollout. `npm run build:isolated` is the same `next build`, writing to
+# `.next-verify/` so it can run beside a local `next dev`. Lint alone misses
+# prerender and runtime config errors.
 #
-# Pre-push: run the full nextjs production build before any push.
+# Skipped automatically when no nextjs/ files changed in the push. Ein
+# fehlgeschlagener Build muss vor dem Push behoben werden.
 #
-# Why this exists: parallel sessions (e.g. one editing map, one editing auth)
-# both push to main. Firebase App Hosting auto-deploys main, and *any* build
-# failure (lint error, prerender error, type error, etc.) fails the rollout
-# → no deploy for either session's work.
-#
-# We run `npm run build:isolated` — the same `next build` Firebase runs (same
-# config, same errors caught), but writing to `.next-verify/` instead of
-# `.next/` so it can run while a local `next dev` is alive without corrupting
-# the dev server's chunks. Lint alone is not enough — it misses prerender
-# errors (Suspense boundaries, `useSearchParams` issues), runtime config
-# errors, etc.
-#
-# Trade-off: ~30–60s per push. Fix once, push without surprise rollback.
-#
-# Skipped automatically when no nextjs/ files changed in the push.
-# Ein fehlgeschlagener Build muss vor dem Push behoben werden.
-#
-# Inspect the skip/build decision without paying for a build. Run THIS file,
-# not `.git/hooks/pre-push` — `core.hooksPath` points here, so a copy left in
-# `.git/hooks/` is dead weight that git never executes and testing it proves
-# nothing about the hook that actually runs:
+# Inspect the skip/build decision without a build. Run THIS file, not
+# `.git/hooks/pre-push` (`core.hooksPath` points here):
 #   PREPUSH_DRY_RUN=1 .githooks/pre-push origin <<'EOF'
 #   refs/heads/x <local_sha> refs/heads/x 0000000000000000000000000000000000000000
 #   EOF
@@ -36,24 +23,21 @@ if [ ! -d "$NEXTJS_DIR" ]; then
   exit 0
 fi
 
-# Skip when nothing on the push side has touched nextjs/. Common case:
-# pushing only docs, scripts, or pics.
+# Skip when nothing on the push side has touched nextjs/. Common case: pushing
+# only docs, scripts, or pics.
 #
 # What counts as "the push side" depends on the ref:
 #
 #   Updating a branch the remote already has
-#     → diff remote_sha..local_sha. Straightforward.
+#     → diff remote_sha..local_sha.
 #
 #   Creating a branch (remote_sha all-zero)
-#     → the remote has no counterpart to diff against. This used to fall back
-#       to `git diff --name-only <local_sha>`, which compares that commit to the
-#       WORKING TREE — identical right after committing, so it reported no
-#       changes and skipped the build on the FIRST push of every new branch.
-#       Since the repo's workflow is feature branch → PR into staging, that is
-#       the push that matters most, and the hook was silently sitting it out.
-#       Instead: list the commits this push actually introduces (reachable from
-#       the new tip, not from any ref the remote already has) and take the files
-#       they touch. `git log --name-only` also copes with a root commit, which
+#     → the remote has no counterpart to diff against, and
+#       `git diff --name-only <local_sha>` would compare the commit to the
+#       working tree, which is identical right after committing. So list the
+#       commits this push introduces (reachable from the new tip, not from
+#       any ref the remote already has) and take the files they touch.
+#       `git log --name-only` also copes with a root commit, which
 #       `<sha>^..<sha>` cannot.
 #
 #   Deleting a branch (local_sha all-zero)
@@ -61,14 +45,10 @@ fi
 #
 # Every failure path falls through to running the build. Stale remote-tracking
 # refs make more commits look new, which over-reports changed files — erring
-# toward a needless 30s, never toward a silent skip.
-#
-# That claim was false until 2026-08-25. `git diff <sha>..<sha>` exits 128 when
-# the remote's tip is an object this repo does not have — the remote moved and
-# we have not fetched yet — and the old `|| files=` turned that into an empty
-# file list, which is indistinguishable from "nothing under nextjs/ changed".
-# The build was skipped exactly when someone else had pushed, i.e. when a broken
-# build is most likely. A failed listing now means "build", not "skip".
+# toward a needless 30s, never toward a silent skip. A failed listing means
+# "build" as well: `git diff <sha>..<sha>` exits 128 when the remote's tip is an
+# object this repo does not have (the remote moved and we have not fetched yet),
+# and that is exactly when a broken build is most likely.
 
 ZERO=0000000000000000000000000000000000000000
 
@@ -119,7 +99,7 @@ fi
 
 echo "✓ pre-push: build clean."
 
-# Aufraeumen: der Standalone-Build schreibt im Worktree NEBEN sein Ziel.
+# Aufräumen: Der Standalone-Build schreibt im Worktree neben sein Ziel.
 #
 # `output: 'standalone'` kopiert jede getracete Datei nach
 # <distDir>/standalone/<Pfad relativ zu outputFileTracingRoot>. Die Root ist
@@ -127,41 +107,32 @@ echo "✓ pre-push: build clean."
 # also bleibt alles im Build-Verzeichnis.
 #
 # Im Worktree ist `nextjs/node_modules` ein Symlink in den Haupt-Checkout
-# (scripts/worktree.sh). Next loest ihn beim Tracing auf, bekommt einen
-# Realpfad ausserhalb der Root, und der relative Pfad klettert heraus:
+# (scripts/worktree.sh). Next löst ihn beim Tracing auf, bekommt einen Realpfad
+# außerhalb der Root, und der relative Pfad klettert heraus:
 #
 #   ../../../../Eat This Neu/nextjs/node_modules/next/dist/server/next-server.js
 #
 # Auf `<worktree>/nextjs/.next-verify/standalone/` addiert landen rund 300 KB
-# Server-Bundle neben dem Worktree — bei einem Branchnamen mit Schraegstrich
-# (`claude/foo` → `eat-this-worktrees/claude/foo`) sogar eine Ebene darueber,
-# wo `git worktree remove` sie nie wieder anfasst. Zwei solche Halden lagen am
-# 29.08.2026 herum, die aelteste zwei Tage.
+# Server-Bundle neben dem Worktree, bei einem Branchnamen mit Schrägstrich
+# (`claude/foo` → `eat-this-worktrees/claude/foo`) sogar eine Ebene darüber, wo
+# `git worktree remove` sie nie anfasst.
 #
-# Der Build darf das nicht lassen — er soll genau der sein, den Firebase
-# faehrt. Also raeumt der Hook hinterher. Er wirft nur weg, was der Build
-# angelegt hat (siehe die Struktur-Pruefung), und ein Fehlschlag bricht den
-# Push nie ab.
+# Der Build soll genau der sein, den Firebase fährt, also räumt der Hook
+# hinterher. Er wirft nur weg, was der Build angelegt hat (siehe die
+# Struktur-Prüfung), und ein Fehlschlag bricht den Push nie ab.
 #
-# Wie weit der Pfad klettert, haengt davon ab, WO der Worktree liegt — und
-# genau daran ist die Pruefung bis 02.09.2026 gescheitert:
+# Wie weit der Pfad klettert, hängt davon ab, wo der Worktree liegt:
 #
-#   ausserhalb des Repos (scripts/worktree.sh, ../eat-this-worktrees/claude/foo)
-#     → der Pfad steigt ueber die Repo-Wurzel hinaus, erstes echtes Segment
+#   außerhalb des Repos (scripts/worktree.sh, ../eat-this-worktrees/claude/foo)
+#     → der Pfad steigt über die Repo-Wurzel hinaus, erstes echtes Segment
 #       ist deren Verzeichnisname, Halde: <…>/claude/Eat This Neu/nextjs/node_modules
 #
 #   innerhalb des Repos (Harness, .claude/worktrees/<name>)
 #     → der Pfad steigt nur bis zur Repo-Wurzel, erstes echtes Segment ist
 #       schon `nextjs`, Halde: .claude/worktrees/nextjs/node_modules
 #
-# `escaped` zeigt in beiden Faellen korrekt auf die Halden-Wurzel. Die
-# Struktur-Pruefung darunter war aber fix zweistufig auf den ersten Fall
-# geschrieben (erst ["nextjs"], dann ["node_modules"]) und traf im zweiten
-# nie zu: dort liegt unter `escaped` direkt ["node_modules"]. Der Hook stieg
-# also still aus, meldete "build clean" ohne die "aufgeraeumt:"-Zeile, und die
-# Halde blieb liegen — nachgewiesen am 02.09.2026 mit 264 KB in
-# `.claude/worktrees/nextjs`. Die Pruefung laeuft jetzt den Rest des relativen
-# Pfades ab, statt eine feste Tiefe anzunehmen.
+# `escaped` zeigt in beiden Fällen auf die Halden-Wurzel. Die Struktur-Prüfung
+# läuft den Rest des relativen Pfades ab, statt eine feste Tiefe anzunehmen.
 if [ "$(git rev-parse --absolute-git-dir)" != "$(cd "$(git rev-parse --git-common-dir)" && pwd)" ]; then
   node -e '
     const fs = require("fs"), path = require("path");

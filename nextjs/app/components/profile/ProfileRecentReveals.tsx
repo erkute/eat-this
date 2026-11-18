@@ -66,8 +66,8 @@ export default function ProfileRecentReveals({
       <ol className={`hv-rail ${styles.recentRail}`}>
         {recent.map(({ mustEat, when }) => (
           <li key={mustEat._id} className={styles.recentItem}>
-            {/* Das Datum steht jetzt oben, nicht als Anhaengsel hinter dem
-                Lokal: es ist die Achse, an der die Reihe haengt. */}
+            {/* Das Datum steht oben, nicht als Anhaengsel hinter dem Lokal: es
+                ist die Achse, an der die Reihe haengt. */}
             <p className={styles.recentWhen}>{when}</p>
             <MapIntentLink
               href={`/map?r=${encodeURIComponent(mustEat.restaurant.slug)}`}

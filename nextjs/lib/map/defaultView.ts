@@ -1,8 +1,8 @@
-/* Flach und genordet: die Karte steht von oben, wie man einen Stadtplan
-   liest (Betreiber, 30.10.2026). Neigen und drehen lässt sie sich weiter mit
-   zwei Fingern; Kameraflüge setzen nur Mitte und Zoom und behalten das bei.
+/* Flach und genordet: Die Karte steht von oben, wie man einen Stadtplan liest.
+   Neigen und drehen lässt sie sich mit zwei Fingern; Kameraflüge setzen nur
+   Mitte und Zoom und behalten das bei.
 
-   Mitte und Zoom sind nur der Rückfall: normalerweise passt die Karte beim
+   Mitte und Zoom sind nur der Rückfall: Normalerweise passt die Karte beim
    Einhängen den ganzen Bestand ein (useMapCamera.initialCamera). Liegt hier
    statt in MapCanvas, weil der Kamera-Code im Haupt-Bundle rechnet und
    MapCanvas mit maplibre-gl erst im Lazy-Chunk kommt. */

@@ -3,25 +3,23 @@ import { join } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
-/* `not-found.tsx` sits in the tree of EVERY route. One headers() read anywhere
- * in that tree makes every route dynamic — and next-intl's server APIs read
+/*
+ * `not-found.tsx` sits in the tree of every route. One headers() read anywhere
+ * in that tree makes every route dynamic, and next-intl's server APIs read
  * headers() to resolve the active locale.
  *
- * That is not a theoretical risk. It happened: a single `Link` from
- * `@/i18n/navigation` inside the server component NotFoundContent turned the
- * whole site dynamic. `next build --debug` reported "Static generation failed
- * … reason: headers" 791 times, the build wrote ZERO prerendered HTML files,
- * and every page — including the ~690 restaurant pages — was re-rendered per
- * request and answered `Cache-Control: no-store`. The App Hosting CDN stored
- * nothing for months.
+ * A single `Link` from `@/i18n/navigation` inside the server component
+ * NotFoundContent once turned the whole site dynamic: no prerendered HTML,
+ * every page rendered per request with `Cache-Control: no-store`, nothing in
+ * the CDN.
  *
- * The failure is invisible: the build still prints "Generating static pages
- * (811/811)" and still marks the routes `●`. Only the empty
- * `.next/server/app/**` and a three-entry prerender-manifest give it away.
- * Hence this test.
+ * The failure is invisible: the build still prints "Generating static pages"
+ * and still marks the routes `●`. Only an empty `.next/server/app/**` and a
+ * tiny prerender-manifest give it away. Hence this test.
  *
- * Client components in the subtree are fine — their next-intl calls run in the
- * browser. Only server components matter here. */
+ * Client components in the subtree are fine: their next-intl calls run in the
+ * browser. Only server components matter here.
+ */
 
 /* The ROOT not-found and everything it renders. These sit outside `[locale]`,
  * so no layout has called setRequestLocale() — any locale lookup here falls

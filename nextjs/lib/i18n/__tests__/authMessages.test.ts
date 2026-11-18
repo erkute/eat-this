@@ -5,16 +5,15 @@ import { translations, type Lang } from '@/lib/i18n/translations';
 /**
  * Die Anmelde-Fehler kommen aus dem Wurzel-Translator, und der findet einen
  * Text nur über den vollen Pfad. Ohne `auth.`-Präfix wirft next-intl nicht,
- * sondern schreibt dem Leser stillschweigend den SCHLÜSSEL hin: im Panel stand
- * wörtlich „errGooglePopup" statt einer Meldung (Nutzer, 28.08.2026). Genau
- * dieses stille Danebengreifen fängt der Test — ein Aufruf ohne Präfix ist hier
- * nicht von einem funktionierenden zu unterscheiden, ausser am Ergebnis.
+ * sondern schreibt dem Leser stillschweigend den Schlüssel hin: Im Panel stünde
+ * wörtlich „errGooglePopup" statt einer Meldung. Genau dieses stille
+ * Danebengreifen fängt der Test; ein Aufruf ohne Präfix ist hier nicht von
+ * einem funktionierenden zu unterscheiden, außer am Ergebnis.
  *
- * Reichweite, damit niemand mehr erwartet als drin ist: `de` ist ein
+ * Reichweite, damit niemand mehr erwartet, als drin ist: `de` ist ein
  * Deep-Merge von `en`, ein fehlendes DE-Override fällt also still auf den
- * englischen Text zurück — gewolltes Verhalten, und der Test sieht es nicht.
- * Er greift an der Quelle: verschwindet ein Schlüssel aus `en`, fällt er.
- * Gegenprobe am 29.08.2026 in beide Richtungen gemacht.
+ * englischen Text zurück; gewolltes Verhalten, und der Test sieht es nicht. Er
+ * greift an der Quelle: Verschwindet ein Schlüssel aus `en`, fällt er.
  */
 const KEYS = [
   'auth.errGooglePopup',

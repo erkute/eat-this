@@ -1,4 +1,3 @@
-// nextjs/app/components/buddy/BuddyWidget.test.tsx
 import { describe, it, expect, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { NextIntlClientProvider } from 'next-intl';

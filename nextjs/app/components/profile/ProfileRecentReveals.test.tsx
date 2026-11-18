@@ -36,9 +36,8 @@ const ALL = Array.from({ length: 6 }, (_, i) => mustEat(i));
 afterEach(cleanup);
 
 describe('ProfileRecentReveals', () => {
-  /* Die Schwelle von drei Karten liess ausgerechnet die Neuen ohne den einen
-     Abschnitt, der die Seite lebendig macht. Sie ist weg — die Form traegt
-     jetzt auch einen Eintrag: Linie ueber die volle Breite, Datum obenauf. */
+  /* Die Zeitleiste steht schon ab der ersten Aufdeckung: gerade die Neuen
+     sollen den Abschnitt sehen. Linie ueber die volle Breite, Datum obenauf. */
   it('zeigt die Zeitleiste schon ab der ersten Aufdeckung', () => {
     const { container } = render(
       <ProfileRecentReveals mustEats={ALL} unlockedAt={revealedAt(1)} />

@@ -33,15 +33,14 @@ export default function LoginPanel({ onBack }: LoginPanelProps) {
     trackEvent('login_view', { surface: 'modal', context: sceneKind });
   }, [sceneKind]);
 
-  /* Der Kicker sagt, wozu der Griff da war — „Decke deine Must Eats auf",
-     „Speichere deine Spots". Den Bezirk dort wollte der Betreiber nicht
-     (24.09.2026). */
+  /* Der Kicker sagt, wozu der Griff da war: „Decke deine Must Eats auf",
+     „Speichere deine Spots". Nicht den Bezirk. */
   let kicker = t('packKicker');
   let title = t('packTitle');
   let lead = t('packLead');
-  /* Die Einladung nach dem Stoebern auf der Karte ('map-prompt') traegt die
-     Pack-Texte: ein eigener, zweizeiliger Titel mit laengerem Text lief auf
-     dem Telefon ueber und machte das Fenster scrollbar (27.09.2026). */
+  /* Die Einladung nach dem Stöbern auf der Karte ('map-prompt') trägt die
+     Pack-Texte: Ein eigener, zweizeiliger Titel mit längerem Text läuft auf dem
+     Telefon über und macht das Fenster scrollbar. */
   if (reason?.kind === 'card') {
     kicker = t('cardKicker');
     title = t('cardTitle');

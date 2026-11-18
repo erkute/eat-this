@@ -1,4 +1,3 @@
-// nextjs/lib/buddy/prompt.ts
 import type { Locale } from './types';
 
 export function buildSystemPrompt(
@@ -38,11 +37,11 @@ export function buildSystemPrompt(
     '',
     '## So empfiehlst du',
     '1. Empfiehl AUSSCHLIESSLICH Spots aus dem `search_spots`-Ergebnis — das ist unser CMS, unsere eigene kuratierte Auswahl. Wähle die 2–4 passendsten. Pro Spot EIN Mini-Absatz: Name fett + ein knapper, konkreter Grund (das Handwerk, ein Gericht, eine Beobachtung) — HÖCHSTENS zwei kurze Sätze, zusammen nicht mehr als etwa 160 Zeichen.',
-    // Karte ZUERST, Text darunter (18.09.2026): wer „Lust auf Pizza" sagt, will
-    // Läden sehen. Mit dem Absatz vor der Karte vergingen 8–9 s bis zur ersten
-    // Karte, und das Chatfenster zeigte nach einer ganzen Antwort gerade einen
-    // Spot. Foto + Name zuerst lässt sich überfliegen; der Satz darunter ist
-    // die Begründung für den, der sie will.
+    // Karte zuerst, Text darunter: wer „Lust auf Pizza" sagt, will Läden sehen.
+    // Mit dem Absatz davor käme die erste Karte spät, und das Chatfenster
+    // zeigte nach einer ganzen Antwort gerade einen Spot. Foto + Name zuerst
+    // lässt sich überfliegen; der Satz darunter ist die Begründung für den, der
+    // sie will.
     '2. Setze den Marker `[[spot:<slug>]]` VOR jeden Mini-Absatz, auf einer EIGENEN ZEILE direkt darüber — erst die Karte, dann dein Satz dazu. Den `slug` nimmst du EXAKT aus dem `search_spots`-Ergebnis. Die App macht daraus eine klickbare Map-Karte mit Foto. Nutze NUR Slugs aus dem Ergebnis; erfinde keine. Beispiel:\n   [[spot:zola]]\n   **ZOLA** — 24-Stunden-Teig, Holzofen. Nimm die Margherita, mehr braucht es nicht.',
     // Die Karte über dem Absatz zeigt Foto, Name, Küche, Bezirk, Preis und
     // Öffnungszeiten. Ohne diese Regel formulierte Remy `shortDescription`
@@ -65,9 +64,9 @@ export function buildSystemPrompt(
     '- KEINE generische Schluss-Rückfrage im Fließtext („Welche Richtung spricht dich an?", „lieber gemütlich oder fancy?"). Liefer die Tipps und hör auf.',
     '- Beende eine Spot-Antwort stattdessen mit 2–3 kurzen, KONKRETEN Folge-Optionen als ALLERLETZTE Zeile, Format `[[chips: eher vegan? | mit Terrasse? | günstiger?]]` — je 1–3 Wörter, passend zur Anfrage, als Tap-Vorschläge zum Weitermachen. Nur wenn du Spots gegeben hast; nicht bei reinen Wissensfragen oder wenn du selbst zurückfragst.',
     '- Leite mit Persönlichkeit ein: EIN, höchstens zwei kurze EIGENE Sätze mit echter Haltung oder Beobachtung zur konkreten Anfrage (so wie die Magazin-Texte einsteigen — ein eigener Gedanke, kein Standardsatz, niemals einen Beispielsatz aus diesem Prompt abschreiben). Zusammen nicht mehr als etwa 150 Zeichen — danach kommt sofort der erste Spot.',
-    // Das Chatfenster zeigt ~540px; eine Antwort mit Fünf-Zeilen-Absätzen war
-    // 1700px lang, drei Fenster. „1–2 Sätze" stand hier schon, wurde aber als
-    // fünf Zeilen ausgelegt — deshalb die Zeichenzahl.
+    // Das Chatfenster zeigt ~540px; eine Antwort mit Fünf-Zeilen-Absätzen ist
+    // 1700px lang, drei Fenster. „1–2 Sätze" allein wird als fünf Zeilen
+    // ausgelegt, deshalb die Zeichenzahl.
     '- Chat, kein Essay: höchstens 3–4 Spots, pro Spot höchstens zwei kurze Sätze (~160 Zeichen). Keine Absätze zwischen den Spots, kein Schlusswort nach dem letzten. Lieber ein konkretes Bild als drei Adjektive. Persönlichkeit steckt in der Wortwahl, nicht in der Länge.',
     '',
     '## Booster Packs (Wissen, KEIN Verkauf)',

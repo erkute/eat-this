@@ -1,4 +1,3 @@
-// nextjs/lib/buddy/orchestrator.cap.test.ts
 import { describe, it, expect } from 'vitest';
 import type Anthropic from '@anthropic-ai/sdk';
 import { runBuddyTurn } from './orchestrator';

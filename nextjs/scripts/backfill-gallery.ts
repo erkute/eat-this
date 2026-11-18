@@ -1,6 +1,6 @@
 /**
  * Backfills the `gallery` field for existing restaurants from Google Places
- * photos — only the restaurant's own uploads (isOwnerPhoto in
+ * photos: only the restaurant's own uploads (isOwnerPhoto in
  * scripts/lib/photo-curation), at most three.
  *
  * Run from `nextjs/`:
@@ -11,14 +11,13 @@
  *   npx tsx scripts/backfill-gallery.ts --force             # re-import ALL, overwriting existing galleries
  *
  * Without --force, restaurants with a non-empty gallery are skipped. Costs per
- * restaurant: 1 Place-Details call + up to 3 full-size photo calls
- * (~7 USD / 1000 photo calls).
+ * restaurant: 1 Place-Details call + up to 3 full-size photo calls.
  *
  * Required env (nextjs/.env.local):
  *   SANITY_API_WRITE_TOKEN, GOOGLE_API_KEY
  *
  * katalog-ausnahme: Bestandspflege, nicht Empfehlung. Die Galerie hängt an der
- * Detailseite, die ein geschlossener Spot behält (noindex,follow) — und ein Lauf
+ * Detailseite, die ein geschlossener Spot behält (noindex,follow), und ein Lauf
  * wird ohnehin über --slug/--limit gesteuert, nicht über den Katalogschnitt.
  */
 import { config as loadEnv } from 'dotenv';

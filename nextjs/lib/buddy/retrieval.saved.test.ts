@@ -1,4 +1,3 @@
-// nextjs/lib/buddy/retrieval.saved.test.ts
 import { describe, it, expect, vi } from 'vitest';
 import { spotsBySlugs, buildSavedSpotsQuery, SAVED_SPOTS_LIMIT } from './retrieval';
 

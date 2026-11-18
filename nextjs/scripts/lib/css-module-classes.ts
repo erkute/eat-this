@@ -1,13 +1,14 @@
-/* Findet `styles.foo`-Zugriffe, für die es in `foo.module.css` keine Klasse
+/*
+ * Findet `styles.foo`-Zugriffe, für die es in `foo.module.css` keine Klasse
  * gibt. Ein CSS-Modul ist zur Laufzeit ein Objekt; ein Zugriff auf einen
  * fehlenden Schlüssel ist `undefined`, und React lässt `className={undefined}`
- * kommentarlos ganz weg. Kein Fehler, keine Warnung — nur ein Element ohne
- * Stil. So verlor die geteilte Deck-Seite am 04.09.2026 ihr komplettes Layout.
+ * kommentarlos ganz weg. Kein Fehler, keine Warnung, nur ein Element ohne Stil;
+ * so verliert eine Seite ihr komplettes Layout.
  *
- * Bewusst textuell statt über einen echten Parser: die Zugriffe stehen im JSX
+ * Bewusst textuell statt über einen echten Parser: Die Zugriffe stehen im JSX
  * immer als `styles.klasse`, und ein Regex kostet keine Abhängigkeit. Dafür
- * gilt: dynamische Schlüssel (`styles[key]`, Template-Literale) sind hier
- * nicht entscheidbar und werden gemeldet, nicht verschwiegen.
+ * gilt: Dynamische Schlüssel (`styles[key]`, Template-Literale) sind hier nicht
+ * entscheidbar und werden gemeldet, nicht verschwiegen.
  */
 import { readFileSync, readdirSync } from 'node:fs';
 import { dirname, relative, resolve, sep } from 'node:path';
@@ -122,14 +123,13 @@ function posix(path: string): string {
 }
 
 /**
- * Überschreibt jeden Kommentar mit Leerzeichen — gleiche Länge, gleiche
+ * Überschreibt jeden Kommentar mit Leerzeichen, gleiche Länge, gleiche
  * Zeilenumbrüche, also bleiben alle Offsets und Zeilennummern gültig.
  *
- * Nötig, weil ein Kommentar, der einen Fund BESCHREIBT (»`styles.content` gibt
- * es nicht mehr«), sonst selbst als Fund gemeldet wird. Deshalb ein Scanner
- * und kein Regex: `//` in einem String (`'https://…'`) darf keinen
- * Zeilenkommentar öffnen. In Template-Literalen wird `${…}` weiter als Code
- * gelesen — genau dort steht `` `${styles.a} ${styles.b}` ``.
+ * Nötig, weil ein Kommentar, der einen Fund beschreibt, sonst selbst als Fund
+ * gemeldet wird. Ein Scanner statt Regex: `//` in einem String (`'https://…'`)
+ * darf keinen Zeilenkommentar öffnen. In Template-Literalen wird `${…}` weiter
+ * als Code gelesen, genau dort steht `` `${styles.a} ${styles.b}` ``.
  */
 export function stripComments(source: string): string {
   const out = [...source];

@@ -31,9 +31,9 @@ describe('LoginModalContext', () => {
     expect(result.current.intent).toEqual({ starterMustEatId: 'me-9' });
   });
 
-  /* Der zweite Träger neben der Continue-URL: Google meldet im selben
-     Dokument an, der Magic-Link nicht. Bis 30.09.2026 musste jeder Auslöser
-     die Karte selbst merken, bevor er öffnete — drei Stellen. */
+  /* Der zweite Träger neben der Continue-URL: Google meldet im selben Dokument
+     an, der Magic-Link nicht. Das Modal merkt sich die Karte selbst, nicht
+     jeder Auslöser. */
   it('merkt sich die angetippte Karte für die Anmeldung per Google', () => {
     const { result } = mount();
     act(() => result.current.open({ kind: 'card', mustEatId: 'me-7' }));

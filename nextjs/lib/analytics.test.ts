@@ -119,9 +119,10 @@ describe('counting', () => {
     expect(JSON.stringify(body)).not.toContain('cs_live_secret');
   });
 
-  /* document.referrer ist fuer ein Dokument konstant. Ihn bei jedem
-   * Routenwechsel mitzuschicken hat dieselbe Herkunft mehrfach gezaehlt:
-   * 253 gezaehlte Google-Verweise gegen 83 echte Suchklicks (Aug 2026). */
+  /*
+   * document.referrer ist fuer ein Dokument konstant; bei jedem Routenwechsel
+   * mitgeschickt, zaehlte er dieselbe Herkunft mehrfach.
+   */
   it('schickt den Referrer nur beim ersten Aufruf eines Dokuments', async () => {
     Object.defineProperty(document, 'referrer', {
       value: 'https://www.google.com/search?q=beste+pizza+berlin',

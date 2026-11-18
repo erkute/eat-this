@@ -16,8 +16,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
     locale,
     timeZone: 'Europe/Berlin',
     messages: getCatalogMessages(locale, allBerlin.mustEats),
-    // Fall back to key path when a message is missing (matches legacy behaviour
-    // so partially-migrated raw-HTML modals don't explode).
+    // Fall back to the key path when a message is missing, instead of throwing.
     getMessageFallback: ({ key, namespace }) =>
       namespace ? `${namespace}.${key}` : key,
     onError: () => {},

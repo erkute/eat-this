@@ -1,7 +1,7 @@
-/* Category pack hero, public card example and compact All Berlin upgrade.
-   Der Kopf steht randlos auf dem Papier wie die Packs auf /packs (Ansage
-   22.10.2026: ohne Rahmen, frischer Look); Pack-Art freigestellt, ohne
-   Bildkasten. Hier wird gekauft: die rote Pille mit leichten Kratzern. */
+/* Category pack hero, public card example and compact All Berlin upgrade. Der
+   Kopf steht randlos auf dem Papier wie die Packs auf /packs; Pack-Art
+   freigestellt, ohne Bildkasten. Hier wird gekauft: die rote Pille mit leichten
+   Kratzern. */
 
 .page {
   --pack-fg: var(--et-fg);

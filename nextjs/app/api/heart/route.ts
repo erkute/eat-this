@@ -1,16 +1,13 @@
 import { NextResponse } from 'next/server';
+import { envNumber } from '@/lib/env';
 import { FieldValue } from 'firebase-admin/firestore';
-import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/admin';
-import { checkWindowedRateLimit } from '@/lib/rateLimitWindow';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { verifyBearer } from '@/lib/firebase/bearerAuth';
+import { checkWindowedRateLimit } from '@/lib/rateLimit';
 import { getCachedMapData } from '@/lib/map/cached-sanity';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
-
-const num = (v: string | undefined, d: number) => {
-  const n = Number(v);
-  return Number.isFinite(n) && n > 0 ? n : d;
-};
 
 interface HeartBody {
   restaurantId?: unknown;
@@ -24,18 +21,14 @@ interface HeartBody {
 // distinct (user, restaurant) hearts: one account contributes at most +1, and a
 // retried or duplicate toggle can't drift the counter.
 export async function POST(req: Request) {
-  const authHeader = req.headers.get('authorization');
-  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
-  if (!token) {
+  const auth = await verifyBearer(req);
+  if (auth.status === 'missing') {
     return NextResponse.json({ error: 'auth required' }, { status: 401 });
   }
-
-  let uid: string;
-  try {
-    uid = (await getAdminAuth().verifyIdToken(token, true)).uid;
-  } catch {
+  if (auth.status === 'invalid') {
     return NextResponse.json({ error: 'invalid token' }, { status: 401 });
   }
+  const { uid } = auth;
 
   // Per-uid rate limit: a normal user hearts a handful of spots; only a script
   // loops. Generous so it never bites real use.
@@ -44,8 +37,8 @@ export async function POST(req: Request) {
   const limit = await checkWindowedRateLimit(
     `heart:${uid}`,
     {
-      perMinute: num(process.env.HEART_LIMIT_PER_MIN, 30),
-      perDay: num(process.env.HEART_LIMIT_PER_DAY, 300),
+      perMinute: envNumber(process.env.HEART_LIMIT_PER_MIN, 30),
+      perDay: envNumber(process.env.HEART_LIMIT_PER_DAY, 300),
     },
     'allow'
   );

@@ -5,7 +5,7 @@ import { openFirst } from '../listOrder';
 const spot = (name: string, openingHours?: MapRestaurant['openingHours']) =>
   ({ _id: name, name, openingHours }) as MapRestaurant;
 
-// Montag, 20.04.2026, 09:00 — die Stunde aus dem Audit: fast alles zu.
+// Montag, 20.04.2026, 09:00: fast alles zu.
 const MON_9AM = new Date('2026-04-20T09:00:00');
 
 describe('openFirst', () => {

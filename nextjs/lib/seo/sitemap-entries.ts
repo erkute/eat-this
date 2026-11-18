@@ -22,15 +22,10 @@ export interface SitemapEntry {
   alternates?: Record<string, string>;
 }
 
-// `/contact`, `/impressum`, `/datenschutz`, `/agb` are marked
-// `noindex,follow` in [...slug]/page.tsx — listing them in the sitemap
-// would send a conflicting signal, so they're omitted.
-// `''` (root) is the Hub home page — `index,follow`, self-canonical — so it
-// leads the sitemap at top priority.
-// `/map` is the product itself and, seit dem 01.09.2026, indexierbar (vorher
-// `noindex,follow`, deshalb stand es hier nicht). Es steht direkt hinter der
-// Startseite: die beiden sind die einzigen Seiten, die für sich die ganze
-// Stadt beanspruchen.
+// `/contact`, `/impressum`, `/datenschutz`, `/agb` are marked `noindex,follow`
+// in [...slug]/page.tsx; listing them here would send a conflicting signal.
+// `''` (root) is the home page, self-canonical, and leads the sitemap. `/map`
+// follows it: the two are the only pages that claim the whole city.
 const STATIC_PATHS = ['', '/map', '/news', '/bezirk', '/kategorie', '/about'] as const;
 
 function withAlternates(
@@ -87,9 +82,7 @@ export async function sitemapEntries(): Promise<SitemapEntry[]> {
     readSanity<{ slug: string; descriptionEn?: string; createdAt?: string; revised?: string }[]>(
       // `seo.noIndex` ist der Schalter, mit dem die Redaktion eine Seite aus
       // dem Index nimmt (restaurantRobots setzt daraufhin `noindex,nofollow`).
-      // Stünde sie trotzdem in der Sitemap, widersprächen sich zwei Signale —
-      // dieselbe Falle wie bei den geschlossenen Spots. Heute trifft es null
-      // Dokumente; die Regel steht hier, bevor es das erste tut.
+      // Stünde sie trotzdem in der Sitemap, widersprächen sich zwei Signale.
       `*[_type == "restaurant" && defined(slug.current) && !(_id in path("drafts.**")) && ${liveRestaurant()} && seo.noIndex != true] { "slug": slug.current, descriptionEn, "createdAt": _createdAt, revised }`,
       {},
       { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['sitemap-restaurants'] } }
@@ -144,22 +137,15 @@ export async function sitemapEntries(): Promise<SitemapEntry[]> {
   });
 
   // Restaurants/Bezirke/Kategorien have no per-document date worth trusting:
-  // Sanity's `_updatedAt` moves on every batch-script touch (Places
-  // enrichment etc.), so it would claim a change that never reached the page.
-  // They get the template date instead — the last time their rendered output
-  // actually changed, which is a claim we can stand behind.
+  // Sanity's `_updatedAt` moves on every batch-script touch, so it would claim
+  // a change that never reached the page. They get the template date instead.
   //
-  // Except for a spot younger than that date: its page did not exist on the
-  // template date, so it cannot have last changed then. `_createdAt` is the
-  // one Sanity date no batch script moves. On 09.10.2026 the sitemap dated all
-  // 248 spots 2026-08-25, including the 69 created after it — and the URL
-  // Inspection API reported spots from 26.08., 27.09. and 05.10. as
-  // "URL ist Google nicht bekannt".
+  // Except for a spot younger than that date: its page did not exist then.
+  // `_createdAt` is the one Sanity date no batch script moves.
   //
   // And except for a spot whose text the editors revised: `revised` is set by
   // hand, like the article field of the same name, only when the description
-  // really changed. On 16.11.2026 155 spots got new texts while the sitemap
-  // still dated them 2026-08-25, and Google had not come back to any of them.
+  // really changed.
   const restaurantEntries = restaurants
     .filter(({ slug }) => !GONE_SLUGS.has(slug))
     .flatMap(({ slug, descriptionEn, createdAt, revised }) => {
@@ -173,11 +159,9 @@ export async function sitemapEntries(): Promise<SitemapEntry[]> {
     });
 
   // An article's text changed on the day the editors say it did: `revised`,
-  // else the day it appeared. Not `_updatedAt` — that moves with every script
-  // that touches the document: on 13.11.2026 it dated 31 of 39 articles to
-  // 23.10. or 25.10.2026, and Google had last crawled nine German guides in
-  // August all the same. The template changed under the articles too, so the
-  // page changed on whichever came last.
+  // else the day it appeared. Not `_updatedAt`, which moves with every script
+  // that touches the document. The template changed under the articles too, so
+  // the page changed on whichever came last.
   const articleEntries = articles.flatMap((article) => {
     const { slug, date, revised, title, titleDe, hasDeContent, hasEnContent } = article;
     const locales: ('de' | 'en')[] = [];

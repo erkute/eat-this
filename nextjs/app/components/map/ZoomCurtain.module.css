@@ -1,20 +1,20 @@
 /* Der Vorhang hinter jedem Foto-Zoom (Galerie-Foto, Must-Eat-Karte).
 
-   iOS 26 Safari faerbt Status- und URL-Leiste nach dem fixierten Element, das
-   es 4px innerhalb der Kante, auf halber Breite, findet und das mindestens
-   90 % der Breite misst. Ein Vorhang aus Blur und halbdurchsichtigem Schwarz
-   ergibt dabei Systemgrau; durchsichtige Leisten ueber einem Blur ergaben
-   ebenfalls grau (am iPhone, 23.09.2026). Deshalb liegt an beiden Kanten eine
-   deckende Kappe in der Farbe, die der Vorhang ueber Ink hat — Safari faerbt
-   die Leisten damit, und ein Verlauf fuehrt die Kappe in den Vorhang.
+   iOS 26 Safari färbt Status- und URL-Leiste nach dem fixierten Element, das es
+   4px innerhalb der Kante, auf halber Breite, findet und das mindestens 90 %
+   der Breite misst. Ein Vorhang aus Blur und halbdurchsichtigem Schwarz ergibt
+   dabei Systemgrau, durchsichtige Leisten über einem Blur ebenfalls. Deshalb
+   liegt an beiden Kanten eine deckende Kappe in der Farbe, die der Vorhang über
+   Ink hat; Safari färbt die Leisten damit, und ein Verlauf führt die Kappe in
+   den Vorhang.
 
    Die Kappen sind Geschwister des Vorhangs, nicht seine Kinder:
-   `backdrop-filter` macht ein Element zum Bezugsrahmen fuer fixierte
-   Nachfahren. Sie enden genau an der Kante: eine Kappe, die weit darueber
-   hinausragte, erkannte Safari unten nicht als Randelement und zeigte unter
-   der URL-Leiste die Seite (iOS-Simulator, 24.09.2026). In die Leisten selbst
-   zeichnet Safari ohnehin nur die gefundene Farbe, nie das Element.
-   Die Stapelhoehe setzt die jeweilige Lightbox ueber ihre eigene Klasse. */
+   `backdrop-filter` macht ein Element zum Bezugsrahmen für fixierte Nachfahren.
+   Sie enden genau an der Kante: Eine Kappe, die weit darüber hinausragt,
+   erkennt Safari unten nicht als Randelement und zeigt unter der URL-Leiste die
+   Seite. In die Leisten selbst zeichnet Safari ohnehin nur die gefundene Farbe,
+   nie das Element. Die Stapelhöhe setzt die jeweilige Lightbox über ihre eigene
+   Klasse. */
 .curtain,
 .capTop,
 .capBottom {

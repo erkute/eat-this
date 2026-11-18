@@ -21,22 +21,14 @@ export function readSafeAreaBottom(): number {
   return px;
 }
 
-/* Base content heights (above any iOS safe-area). Per-view peek sizes
-   reflect what's actually rendered at the top of the sheet:
-   - detail ("middle stage" / bottom anchor): everything from the sheet's
-     top down to the bottom of the last element visible there — the photo
-     for a restaurant, or the dish-name block for a must-eat (card + name). That bottom edge is measured live
-     via ResizeObservers on the [data-detail-hero] / [data-detail-pager]
-     elements (see effect below). Before the first measurement lands a
-     viewport-width estimate (estimateDetailMidVisiblePx) stands in so the
-     sheet doesn't visibly jump; DETAIL_PEEK_BASE_PX is only the SSR-safe
-     last resort.
-   - list: handle + listHeaderRow + filterChipRow = 120 */
+/* Base content heights (above any iOS safe area). Detail: from the sheet's
+   top to the bottom of the last element visible at the middle stage (the photo
+   for a restaurant, card + name for a must-eat), measured live by the
+   ResizeObservers below. Until then the viewport-width estimate
+   (estimateDetailMidVisiblePx) stands in; DETAIL_PEEK_BASE_PX is the SSR-safe
+   last resort. */
 const DETAIL_PEEK_BASE_PX = 220;
-/* List peek = handle (~24) + filter chip row (padding 24+10 + chip ~24 ≈ 58)
-   ≈ 82, plus a little buffer. After map-v2 the listHeaderRow is gone, so
-   the old 120 left empty sheet-bg between the chip row and the visible
-   bottom of the sheet at peek. */
+/* List peek: handle (~24) + filter chip row (~58), plus a little buffer. */
 const LIST_PEEK_BASE_PX = 90;
 
 /**
@@ -52,14 +44,10 @@ const LIST_PEEK_BASE_PX = 90;
 export function useMapSheet(onDetailDismiss?: () => void, initialView: SheetView = 'list') {
   const sheet = useBottomSheet(initialView === 'detail' ? 'full' : 'mid');
   const [sheetView, setSheetViewState] = useState<SheetView>(initialView);
-  /* Measured bottom-edge offset (relative to the sheet's top) of the last
-     element visible at the detail middle stage — the pager when rendered
-     (restaurant), otherwise the hero/dish-name (must-eat). Measuring the
-     offset instead of summing element heights keeps margins/gaps included,
-     and the same code serves both detail kinds (the rendered DOM differs,
-     the formula doesn't). Initialized null so the first config uses the
-     estimate fallback; flips to the measured value once the ResizeObservers
-     below fire. */
+  /* Measured bottom edge (relative to the sheet's top) of the last element
+     visible at the detail middle stage: the pager for a restaurant, otherwise
+     hero/dish name. Offsets include margins and gaps. null until the
+     ResizeObservers fire; the estimate stands in. */
   const [detailContentBottomPx, setDetailContentBottomPx] = useState<number | null>(null);
 
   /* Per-view config rebuilds whenever the measured hero height changes so the

@@ -1,15 +1,22 @@
 import { NextResponse } from 'next/server';
 import * as Sentry from '@sentry/nextjs';
-import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/admin';
+import { getAdminFirestore } from '@/lib/firebase/admin';
+import { verifyBearer } from '@/lib/firebase/bearerAuth';
 import { getStripe } from '@/lib/stripe';
 import { resolvePriceId } from '@/lib/stripe-price';
 import { getPack } from '@/lib/stripe-catalog';
 import { getPackContents } from '@/lib/sanity.server';
 import { getAppUrl } from '@/lib/constants';
 import { reserveCheckoutAttempt, saveCheckoutAttempt } from '@/lib/stripe-checkout-attempts';
+import { checkRateLimit, clientIp } from '@/lib/rateLimit';
+import { rateLimitKey } from '@/lib/rateLimitKey';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+
+// Someone comparing packs starts a handful of checkouts; only a script starts
+// dozens. Shared addresses (mobile carriers, offices) fit in as well.
+const GUEST_CHECKOUTS_PER_HOUR = 20;
 
 interface Body {
   packId?: string;
@@ -23,20 +30,12 @@ interface Body {
 //              page itself, the webhook later resolves email → uid via
 //              findOrCreateUserByEmail and mails a magic-link.
 export async function POST(req: Request) {
-  const authHeader = req.headers.get('authorization');
-  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
-
-  let uid: string | null = null;
-  let email: string | null = null;
-  if (token) {
-    try {
-      const decoded = await getAdminAuth().verifyIdToken(token, true);
-      uid = decoded.uid;
-      email = decoded.email ?? null;
-    } catch {
-      return NextResponse.json({ error: 'invalid_token' }, { status: 401 });
-    }
+  const auth = await verifyBearer(req);
+  if (auth.status === 'invalid') {
+    return NextResponse.json({ error: 'invalid_token' }, { status: 401 });
   }
+  const uid = auth.status === 'ok' ? auth.uid : null;
+  const email = auth.status === 'ok' ? auth.email : null;
 
   const body = (await req.json().catch(() => ({}))) as Body;
   if (!body.packId) return NextResponse.json({ error: 'missing_packId' }, { status: 400 });
@@ -44,11 +43,25 @@ export async function POST(req: Request) {
   if (!pack) return NextResponse.json({ error: 'unknown_packId' }, { status: 400 });
   const locale: 'de' | 'en' = body.locale === 'en' ? 'en' : 'de';
 
-  /* Ein Pack ohne Karte ist eine leere Schachtel. Seit die Packs Karten
-     verkaufen und nicht mehr Spots, kann eine Kategorie leer sein — Fine
-     Dining stand am 06.09.2026 auf null. /packs blendet den Knopf dort aus;
-     diese Pruefung ist die verbindliche, weil sie auch eine veraltete Seite
-     und einen direkten POST abfaengt. */
+  // Guests have no account to hang a limit on, so every request would open a
+  // new Stripe session. An account needs none: its parallel requests collapse
+  // onto one checkout attempt below. Fails open, because a purchase must not
+  // depend on the limiter being reachable.
+  if (
+    !uid &&
+    !(await checkRateLimit(
+      rateLimitKey('checkout:ip', clientIp(req)),
+      GUEST_CHECKOUTS_PER_HOUR,
+      60 * 60 * 1000
+    ))
+  ) {
+    return NextResponse.json({ error: 'rate_limited' }, { status: 429 });
+  }
+
+  /* Ein Pack ohne Karte ist eine leere Schachtel: Die Packs verkaufen Karten,
+     nicht Spots, also kann eine Kategorie leer sein. /packs blendet den Knopf
+     dort aus; diese Prüfung ist die verbindliche, weil sie auch eine veraltete
+     Seite und einen direkten POST abfängt. */
   if (pack.type === 'category' && pack.slug) {
     const contents = await getPackContents();
     if ((contents.byCategory[pack.slug]?.mustEats ?? 0) === 0) {

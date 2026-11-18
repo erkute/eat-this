@@ -3,11 +3,10 @@
  * kann.
  *
  * Beobachtet auf dem Telefon: Standort-Abfrage bestätigen, und der Finger löst
- * an derselben Stelle einen Klick in der Seite aus — auf der Startseite liegt
- * dort bei 375×812 der Hero-Knopf (gemessen: Oberkante 395px, Bildschirmmitte
- * 406px), also landet man ungewollt auf der Karte.
+ * an derselben Stelle einen Klick in der Seite aus; auf der Startseite liegt
+ * dort der Hero-Knopf, also landet man ungewollt auf der Karte.
  *
- * Die Unterscheidung ist verlässlich, weil ein echter Tap IMMER erst einen
+ * Die Unterscheidung ist verlässlich, weil ein echter Tap immer erst einen
  * `pointerdown` in der Seite auslöst und der Geisterklick nie: der Zeiger war
  * beim Drücken auf dem Dialog, nicht im Dokument. Es wird also nicht „alles für
  * X Millisekunden" geschluckt, sondern nur ein Klick ohne vorausgegangene
@@ -15,7 +14,7 @@
  *
  * Tastaturbedienung bleibt unberührt: `Enter` auf einem fokussierten Knopf
  * erzeugt ebenfalls einen Klick ohne `pointerdown`, aber mit `detail === 0` und
- * ohne Bildschirmkoordinaten — daran ist er zu erkennen und wird durchgelassen.
+ * ohne Bildschirmkoordinaten; daran ist er zu erkennen und wird durchgelassen.
  */
 
 /** Wie lange nach einer echten Geste ein Klick als deren Folge gilt. */

@@ -74,38 +74,29 @@ function firstNameOf(displayName: string | null | undefined): string | null {
  * Das Deck eines fremden Kontos, so weit es oeffentlich sein darf.
  *
  * Jedes nutzerbezogene Dokument ist in `firestore.rules` ausschliesslich fuer
- * seinen Eigentuemer lesbar — diese Funktion greift bewusst mit dem Admin-SDK
- * daran vorbei und ist damit die einzige Stelle, an der Kontodaten an
- * Unangemeldete gehen. Deshalb baut sie ein eigenes, enges Objekt auf, statt
- * irgendetwas durchzureichen: was `PublicDeck` nicht nennt, kann auch nicht
- * versehentlich mitfliegen.
+ * seinen Eigentuemer lesbar; diese Funktion greift mit dem Admin-SDK daran
+ * vorbei und ist die einzige Stelle, an der Kontodaten an Unangemeldete gehen.
+ * Deshalb baut sie ein eigenes, enges Objekt auf: was `PublicDeck` nicht nennt,
+ * kann nicht mitfliegen.
  *
- * Die bezahlten Felder waeren ohnehin nicht zu holen — `hydrateAuthorizedMustEats`
- * wird hier nie aufgerufen, und die Bildstrecke haengt am HttpOnly-Cookie, das
- * ein fremder Browser nicht hat. Die Grenze steht also doppelt.
+ * Die bezahlten Felder waeren ohnehin nicht zu holen:
+ * `hydrateAuthorizedMustEats` wird hier nie aufgerufen, und die Bildstrecke
+ * haengt am HttpOnly-Cookie, das ein fremder Browser nicht hat.
  *
- * `null` heisst „gibt es nicht" und fuehrt zu 404 — dieselbe Antwort fuer eine
- * kaputte uid wie fuer eine, die es nicht gibt, damit die Seite nicht zum
- * Melder wird, welche Konten existieren.
+ * `null` heisst „gibt es nicht" und fuehrt zu 404, fuer eine kaputte uid wie
+ * fuer eine, die es nicht gibt, damit die Seite nicht verraet, welche Konten
+ * existieren.
  *
- * In `cache()` gewickelt, weil die Seite sie ZWEIMAL pro Anfrage braucht:
- * einmal in `generateMetadata` fuer den Titel, einmal beim Rendern. Ohne die
- * Memoisierung kostete jeder Aufruf der Deck-Seite zwei Auth-Abfragen und
- * zwei Firestore-Runden fuer dieselbe Antwort. `cache()` gilt genau eine
- * Anfrage lang — kein Zustand ueber Anfragen hinweg, also auch keine
- * veralteten Zahlen und keine Daten, die zwischen Besuchern lecken koennten.
+ * In `cache()` gewickelt, weil die Seite sie zweimal pro Anfrage braucht
+ * (generateMetadata und Rendern); `cache()` gilt genau eine Anfrage lang.
  */
 export const getPublicDeck = cache(async (uid: string): Promise<PublicDeck | null> => {
   if (!UID_SHAPE.test(uid)) return null;
 
-  /* Achtung beim Lesen des ausgelieferten HTML im Dev-Server: React serialisiert
-     dort JEDEN awaiteten Wert in den Flight-Payload (Async-Debug, `env:"Server"`),
-     also auch diesen kompletten UserRecord — mit E-Mail, Google-Foto-URL und
-     Anmeldezeiten. Das ist eine Dev-Einrichtung, kein Leck: im Produktionsbau
-     ist die Seite 67 statt 244 kB gross und enthaelt von alldem nichts (geprueft
-     am 31.08.2026 gegen `build:isolated`). Wer das hier im Dev-HTML findet,
-     soll es gegen den Produktionsbau nachmessen, bevor er es fuer einen Fund
-     haelt. */
+  /* Im Dev-Server serialisiert React jeden awaiteten Wert in den
+     Flight-Payload, also auch diesen UserRecord. Das ist eine Dev-Einrichtung;
+     der Produktionsbau enthaelt davon nichts (gegen `build:isolated`
+     nachmessen, bevor man es fuer einen Fund haelt). */
   let account;
   try {
     account = await getAdminAuth().getUser(uid);

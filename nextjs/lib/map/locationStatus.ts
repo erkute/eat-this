@@ -7,11 +7,11 @@ interface LocationStatusInput {
   locationError: UserLocationError | null;
   locateLoading: boolean;
   /**
-   * Also report a deliberate re-locate while a fix is already on screen.
-   * The map's locate button asks fresh on every tap; without this the search
-   * and its failure stayed invisible behind the old fix, and the button read
-   * as frozen. Errors only land in state from a deliberate request, so what
-   * shows here is always the answer to the tap just made.
+   * Also report a deliberate re-locate while a fix is already on screen. The
+   * map's locate button asks fresh on every tap; without this the search and
+   * its failure would stay invisible behind the old fix, and the button would
+   * read as frozen. Errors only land in state from a deliberate request, so
+   * what shows here is always the answer to the tap just made.
    */
   whileLocated?: boolean;
 }
@@ -23,12 +23,11 @@ export interface LocationStatus {
 }
 
 /* Thresholds the "searching" notice is gated on (see useDeferredStatus). A
-   cached GPS fix resolves in tens of ms, so binding the copy straight to the
-   loading flag flashed it for ~25 ms — visible, unreadable. Only show it if
-   the wait is actually perceptible, then hold it long enough to read.
-   Die Mindeststandzeit haengt an der zentralen Info-Karte: die faehrt in
-   340 ms auf, bei den frueheren 600 ms war sie fertig aufgeklappt und ging
-   schon wieder zu. */
+   cached GPS fix resolves in tens of ms, so copy bound straight to the loading
+   flag would flash, visible but unreadable. Only show it if the wait is
+   actually perceptible, then hold it long enough to read. Die Mindeststandzeit
+   hängt an der zentralen Info-Karte, die in 340 ms auffährt; kürzer gehalten,
+   ginge sie wieder zu, kaum dass sie steht. */
 export const LOCATING_SHOW_DELAY_MS = 350;
 export const LOCATING_MIN_VISIBLE_MS = 1200;
 

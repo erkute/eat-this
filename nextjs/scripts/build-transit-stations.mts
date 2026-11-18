@@ -1,34 +1,25 @@
-/* Baut `public/basemap/transit-berlin.json` — die U- und S-Bahnhöfe Berlins
- * als GeoJSON, aus OpenStreetMap über die Overpass-API.
+/*
+ * Baut `public/basemap/transit-berlin.json`: die U- und S-Bahnhöfe Berlins als
+ * GeoJSON, aus OpenStreetMap über die Overpass-API.
  *
- * Warum überhaupt eigene Daten: die Grundkarte kann das nicht liefern. Ihre
- * `poi`-Ebene führt zwar Bahnhöfe, aber `build-basemap-style.mts` wirft alle
- * Icons raus (DROP_ICONS) — ohne Sprite bliebe von einem Bahnhof ein nackter
- * Name übrig, und ob der zur U-, S- oder Regionalbahn gehört, stünde nirgends.
- * Genau diese Unterscheidung ist aber die ganze Orientierungshilfe: „das liegt
- * am U Görlitzer Bahnhof" ist eine Ansage, „das liegt an einem Bahnhof" nicht.
- *
- * Deshalb ein eigener, kleiner Datensatz. Er kostet eine Anfrage von ~25 kB
- * (gzip ~7 kB) und wird als Vektorquelle gezeichnet, nicht als DOM — die
- * Plaketten liegen damit automatisch UNTER den Restaurant-Pins, weil das
- * Canvas unter der Marker-Ebene liegt. Das ist die richtige Reihenfolge: die
- * Bahnhöfe sind Hilfe, die Pins sind der Inhalt.
+ * Eigene Daten, weil die Grundkarte das nicht liefern kann: ihre `poi`-Ebene
+ * führt zwar Bahnhöfe, aber `build-basemap-style.mts` wirft alle Icons raus
+ * (DROP_ICONS), und ohne Zeichen stünde nirgends, ob ein Name zur U-, S- oder
+ * Regionalbahn gehört.
  *
  * Was gilt als was:
- *   station=subway      → U (177 Stück)
- *   station=light_rail  → S (137 Stück; so ist die Berliner S-Bahn in OSM
- *                            getaggt, nicht als `station=train`)
- * Alles ohne `station`-Tag ist Regional- und Fernbahn (DB InfraGO) oder eine
- * Parkeisenbahn — beides trägt zur Orientierung im Kiez nichts bei und fliegt
- * raus.
+ *   station=subway      → U
+ *   station=light_rail  → S (so ist die Berliner S-Bahn in OSM getaggt,
+ *                            nicht als `station=train`)
+ * Alles ohne `station`-Tag ist Regional- und Fernbahn oder eine Parkeisenbahn
+ * und fliegt raus.
  *
- * Doppelte Bahnhöfe werden zusammengelegt (siehe MERGE_RADIUS_M): Stadtmitte,
- * Hallesches Tor und Möckernbrücke stehen in OSM je zweimal, weil dort zwei
- * Linien eigene Bahnsteig-Stationen haben. Und wo U und S denselben Namen am
- * selben Ort tragen — 23 Mal, Alexanderplatz bis Zoologischer Garten — wird
- * daraus eine Plakette mit beiden Zeichen, so wie es auch am Eingang steht.
+ * Doppelte Bahnhöfe werden zusammengelegt (MERGE_RADIUS_M): einige stehen in
+ * OSM zweimal, weil dort zwei Linien eigene Bahnsteig-Stationen haben. Wo U und
+ * S denselben Namen am selben Ort tragen, wird daraus eine Plakette mit beiden
+ * Zeichen, wie am Eingang.
  *
- * Aufruf: npm run build:transit-stations  (die erzeugte Datei mitcommitten)
+ * Aufruf: npm run build:transit-stations (die erzeugte Datei mitcommitten)
  */
 import { writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';

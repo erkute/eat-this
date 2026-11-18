@@ -1,9 +1,9 @@
-// Dynamic Open Graph card for a restaurant — a branded 1200×630 share image
+// Dynamic Open Graph card for a restaurant: a branded 1200×630 share image
 // (photo + scrim + name + cuisine/district + Eat This wordmark). Generated on
-// demand and CDN-cached, mirroring the email spot-card route, so there is NO
-// build-time cost for the ~680 restaurant pages. Addressed by Sanity slug only
-// (validated), so there is no SSRF surface — the photo URL is built server-side
-// from Sanity data. Referenced from the restaurant page's generateMetadata.
+// demand and CDN-cached, so there is no build-time cost for the restaurant
+// pages. Addressed by Sanity slug only (validated), so there is no SSRF
+// surface: the photo URL is built server-side from Sanity data. Referenced from
+// the restaurant page's generateMetadata.
 
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -53,10 +53,10 @@ function ogPhotoUrl(photo: string): string {
 export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
   const slug = params.get('slug') ?? '';
-  /* Die Karte trug bisher immer den rohen Sanity-Wert, also „Mexican" auch
-     unter einem deutschen Beitrag. Die Locale kommt aus dem Aufrufer, weil die
-     Route selbst keinen Pfad-Kontext hat; ohne Parameter bleibt es Deutsch,
-     die Standard-Locale der Seite. */
+  /* Die Küche steht in der Sprache des Beitrags, nicht als roher Sanity-Wert
+     („Mexican" unter einem deutschen Beitrag). Die Locale kommt aus dem
+     Aufrufer, weil die Route selbst keinen Pfad-Kontext hat; ohne Parameter
+     bleibt es Deutsch, die Standard-Locale der Seite. */
   const locale = params.get('locale') === 'en' ? 'en' : 'de';
   if (!isValidSlug(slug)) {
     return new Response('invalid slug', { status: 400 });
@@ -64,8 +64,7 @@ export async function GET(request: Request) {
 
   // Dieselbe Query wie die Restaurant-Seite, obwohl hier nur sechs Felder
   // gebraucht werden: der Cache-Eintrag ist damit derselbe, und die OG-Route
-  // kostet keine eigene Sanity-Anfrage mehr. Zwei Queries für dasselbe
-  // Dokument wären zwei Einträge.
+  // kostet keine eigene Sanity-Anfrage.
   const page = await getRestaurantPageData(slug);
   if (!page) {
     return new Response('not found', { status: 404 });
@@ -185,15 +184,12 @@ export async function GET(request: Request) {
   return new Response(new Uint8Array(jpeg), {
     headers: {
       'Content-Type': 'image/jpeg',
-      // Long CDN cache — the card only changes when Sanity content does.
-      // Der Cache greift seit dem 07.09.2026 auch wirklich: bis dahin strich
-      // App Hosting `public`/`s-maxage` auf jedem middleware-gematchten Pfad
-      // und haengte `private` an (gemessen auf prod, 25.08.2026), und diese
-      // Karte rechnete bei jedem Abruf neu — 1 bis 2 s. Das traf ausgerechnet
-      // Endpunkte, deren Publikum ausschliesslich aus fremden Maschinen
-      // besteht, fuer die ein Browser-Cache wertlos ist. `api/og` steht
-      // deshalb jetzt in der Ausnahmeliste des Matchers (siehe middleware.ts);
-      // der Preis ist, dass die drei Bilder auf Staging ohne Basic Auth
+      // Long CDN cache — the card only changes when Sanity content does. Der
+      // Cache greift, weil `api/og` in der Ausnahmeliste des Matchers steht
+      // (siehe middleware.ts): App Hosting streicht `public`/`s-maxage` auf
+      // jedem middleware-gematchten Pfad und hängt `private` an. Das Publikum
+      // dieser Endpunkte sind fremde Maschinen, für die ein Browser-Cache
+      // wertlos ist. Der Preis ist, dass die Bilder auf Staging ohne Basic Auth
       // offenliegen.
       'Cache-Control': 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800',
     },

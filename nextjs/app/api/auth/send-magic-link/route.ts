@@ -30,7 +30,13 @@ function sanitizeContinueUrl(raw: string | undefined, origin: string, fallback: 
     ].filter(Boolean) as string[]
   );
   if (allowedOrigins.has(candidate.origin)) return candidate.toString();
-  if (/^https?:\/\/localhost(:\d+)?$/.test(candidate.origin)) return candidate.toString();
+  // A local dev server may run on any port; a deployed app never returns there.
+  if (
+    process.env.NODE_ENV !== 'production' &&
+    /^https?:\/\/localhost(:\d+)?$/.test(candidate.origin)
+  ) {
+    return candidate.toString();
+  }
   return fallback;
 }
 
@@ -55,23 +61,19 @@ function readCookie(header: string | null, name: string): string | null {
  * Den Einladenden mit in die Continue-URL legen.
  *
  * Der `pending_referrer`-Cookie liegt in dem Browser, der den Einladungslink
- * angeklickt hat. Die Anmeldung schliesst aber routinemaessig in einem
- * ANDEREN ab — die Gmail-App reicht den Link an ihren eigenen Webview weiter.
- * Dort gibt es keinen Cookie, /api/referral/confirm findet keinen Einladenden
- * und legt still auf: die Einladung war weg, ohne dass irgendwo ein Fehler
- * stand. Beide Seiten gingen leer aus, beide ohne Meldung.
+ * angeklickt hat. Die Anmeldung schliesst aber oft in einem anderen ab (die
+ * Gmail-App reicht den Link an ihren eigenen Webview weiter); dort gibt es
+ * keinen Cookie, und /api/referral/confirm faende keinen Einladenden.
  *
- * Die Continue-URL ist der einzige Traeger, der den Posteingang ueberlebt.
- * Der Spot-Claim (loginContinueUrl) fährt ebenfalls dort mit.
- * Die Mailadresse wird dagegen aus Sicherheitsgründen nicht im Link transportiert.
+ * Die Continue-URL ist der einzige Traeger, der den Posteingang ueberlebt. Die
+ * Mailadresse wird aus Sicherheitsgründen nicht im Link transportiert.
  *
  * Der Parameter ist `ref`, derselbe, den die Einladung selbst benutzt: beim
- * Landen greift die Middleware erneut und setzt den Cookie ein zweites Mal,
- * diesmal im richtigen Browser. Alles dahinter bleibt unveraendert.
+ * Landen greift die Middleware erneut und setzt den Cookie im richtigen
+ * Browser.
  *
- * Ein vom Client mitgeschickter `ref` wird verworfen, nicht ergaenzt. Er
- * oeffnete nichts, was ein Aufruf von `/?ref=<uid>` nicht auch oeffnet — aber
- * die Quelle ist hier der Cookie, nicht der Request-Body.
+ * Ein vom Client mitgeschickter `ref` wird verworfen, nicht ergaenzt: die
+ * Quelle ist hier der Cookie, nicht der Request-Body.
  */
 function withReferrer(continueUrl: string, cookieHeader: string | null): string {
   let url: URL;

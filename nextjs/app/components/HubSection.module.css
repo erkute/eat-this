@@ -1,9 +1,8 @@
 .page {
   --home-gutter: clamp(24px, 4.45vw, 80px);
-  /* Die Section-Überschriften so gross und eng wie „Remy." (Ansage
-     21.10.2026) — eine Grösse für alle: Magazin, Must Eats, Fragen,
-     Starter Pack. Am Telefon so, dass ein Wort mit sieben Zeichen
-     („Teller.", „Fragen?") noch in die Spalte passt. */
+  /* Die Section-Überschriften so groß und eng wie „Remy.", eine Größe für alle:
+     Magazin, Must Eats, Fragen, Starter Pack. Am Telefon so, dass ein Wort mit
+     sieben Zeichen („Teller.", „Fragen?") noch in die Spalte passt. */
   --hv-display: clamp(60px, 7.8vw, 124px);
   width: 100%; min-height: 100svh; overflow-x: clip;
   font-family: var(--et-font-body);
@@ -14,10 +13,10 @@
   color: var(--et-fg); text-transform: none; letter-spacing: -.055em;
   font: 700 var(--hv-display)/.92 var(--et-font-body);
 }
-/* Nie breiter als die eigene Spalte: der Kopf ist ein Container, und die
-   Überschrift wird höchstens so gross, dass ein Wort mit sieben Zeichen
-   („Fragen?", „Teller.", „Starter") hineinpasst. Sonst zerlegte der Browser
-   das Wort („Starte / r", 21.10.2026). */
+/* Nie breiter als die eigene Spalte: Der Kopf ist ein Container, und die
+   Überschrift wird höchstens so groß, dass ein Wort mit sieben Zeichen
+   („Fragen?", „Teller.", „Starter") hineinpasst. Sonst zerlegt der Browser das
+   Wort („Starte / r"). */
 .page :global(.hv-head) { container-type: inline-size; }
 .page :global(.hv-head) :global(.hv-title) { font-size: min(var(--hv-display), 26cqi); overflow-wrap: normal; }
 /* Shared hero artwork. Landscape fills the visible viewport; brand spacing
@@ -47,11 +46,11 @@
 }
 :global(html[data-theme='dark']) .hero .heroMark,
 :global(html[data-theme='dark']) .hero .heroSloganMobile { filter: invert(1); }
-/* Die Papierblätter der Startseite (globals.css, `.homeV2 > section`)
-   setzen Grösse, Wiederholung und Lage mit höherer Spezifität. Nur das Bild
-   zu tauschen liess das 1536 × 1024 px grosse Papier in Originalgrösse oben
-   links liegen: ab 1537 px Breite oder 1025 px Höhe blieb rechts bzw. unten
-   ein Streifen ohne Papier (Rückmeldung 27.10.2026). */
+/* Die Papierblätter der Startseite (globals.css, `.homeV2 > section`) setzen
+   Größe, Wiederholung und Lage mit höherer Spezifität. Nur das Bild zu tauschen
+   ließe das 1536 × 1024 px große Papier in Originalgröße oben links liegen: Ab
+   1537 px Breite oder 1025 px Höhe bliebe rechts bzw. unten ein Streifen ohne
+   Papier. */
 :global(html[data-vintage] .homeV2) > .hero {
   background-image: url('/pics/home/silver-hero/hero-paper.webp?v=20261103');
   background-size: cover;

@@ -55,7 +55,7 @@ const { readPremiumSessionUid } = vi.hoisted(() => ({
 const { checkWindowedRateLimit } = vi.hoisted(() => ({
   checkWindowedRateLimit: vi.fn(),
 }))
-vi.mock('@/lib/rateLimitWindow', () => ({
+vi.mock('@/lib/rateLimit', () => ({
   checkWindowedRateLimit: (...args: unknown[]) => checkWindowedRateLimit(...args),
   checkWindowedRateLimitBatch: (...args: unknown[]) => checkWindowedRateLimit(...args),
 }))
@@ -159,8 +159,7 @@ describe('/api/must-eat-image/[id]', () => {
 
   /* Die Reihenfolge, für die es diesen Test gibt: eine Karte, die zugleich
      aufgedeckt und in der Capability des Aufrufers ist, muss öffentlich
-     antworten. Mit der Cookie-Prüfung zuerst landete sie im no-store-Zweig —
-     und damit hing die Cachebarkeit derselben URL am Aufrufer. */
+     antworten; sonst hinge die Cachebarkeit derselben URL am Aufrufer. */
   it('answers public for a card that is both revealed and in the capability', async () => {
     getPublicMustEatIds.mockResolvedValue(new Set(['m1']))
     readPremiumSessionUid.mockResolvedValue('user-1')
@@ -278,10 +277,8 @@ describe('/api/must-eat-image/[id]', () => {
     expect(huge.headers.get('content-type')).toBe('image/png')
   })
 
-  /* `q` rastete nicht: `Math.min(90, Math.max(40, …))` sind 51 Stufen, und `q`
-     steht in Cache-Variante und ETag. 51 Stufen mal sechs Breiten sind ueber
-     600 Cache-Fehlschlaege je Bild, jeder mit Bucket-Download plus sharp-Lauf —
-     genau der Verstaerker, wegen dem die Breite schon eine Leiter hat. */
+  /* `q` rastet auf zwei Sprossen: es steht in Cache-Variante und ETag, und jede
+     freie Stufe waere ein Cache-Fehlschlag mit Bucket-Download plus sharp-Lauf. */
   it('snaps the quality to two rungs', async () => {
     const original = await pngFixture()
     download.mockResolvedValue([original])
@@ -304,8 +301,8 @@ describe('/api/must-eat-image/[id]', () => {
     expect(await etagFor('abc')).toBe('"etag-1-w180-q80-webp"')
   })
 
-  /* Der Riegel steht vor der bezahlten Arbeit — GCS-Download plus sharp-Lauf —
-     und nur davor: was aus dem Prozess-Cache kommt, fragt ihn nicht mehr. */
+  /* Der Riegel steht vor der bezahlten Arbeit (GCS-Download plus sharp-Lauf)
+     und nur davor: Was aus dem Prozess-Cache kommt, fragt ihn nicht. */
   describe('Ratenlimit', () => {
     it('sperrt, bevor irgendetwas aus dem Bucket geholt wird', async () => {
       getPublicMustEatIds.mockResolvedValue(new Set(['m1']))

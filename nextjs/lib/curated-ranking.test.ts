@@ -35,7 +35,8 @@ describe('rankCurated', () => {
   });
 
   it('sorts the directory the way readers read an alphabet', () => {
-    // GROQ sortiert nach Codepunkten: Kleinbuchstaben und Umlaute kamen hinter Z.
+    // GROQ sortiert nach Codepunkten: Kleinbuchstaben und Umlaute stehen dort
+    // hinter Z.
     const groq = [
       r('aviv', 'AVIV 030'),
       r('barra', 'Barra'),

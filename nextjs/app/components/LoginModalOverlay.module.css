@@ -10,11 +10,10 @@
   background: rgb(0 0 0 / 28%);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
-  /* Ausdruecklich, nicht geerbt: bei offenem Remy-Chat steht `body` am
-     Telefon auf `visibility: hidden` (globals.css, `html[data-buddy-open]`),
-     und das Modal haengt per Portal in `body`. Ein Herz auf Remys Spot-Karte
-     oeffnete es deshalb unsichtbar — der Tipp schien ins Leere zu gehen
-     (Betreiber, 26.09.2026). */
+  /* Ausdrücklich, nicht geerbt: Bei offenem Remy-Chat steht `body` am Telefon
+     auf `visibility: hidden` (globals.css, `html[data-buddy-open]`), und das
+     Modal hängt per Portal in `body`. Ein Herz auf Remys Spot-Karte öffnete es
+     sonst unsichtbar. */
   visibility: visible;
 }
 

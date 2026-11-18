@@ -41,19 +41,13 @@ function isOwnOrAutomated(): boolean {
  */
 const COUNT_ENDPOINT = '/api/count';
 
-/* Der User-Agent faehrt im Body mit, obwohl er im Header steht — weil er dort
- * nie ankommt. Die App-Hosting-Edge ersetzt UA und Aufrufer-IP, bevor Cloud
- * Run die Anfrage sieht (belegt 25.08.2026, siehe
- * lib/analytics/botFilter.ts). Der Bot-Filter der Route lief dadurch in
- * Produktion ins Leere: am 01.09.2026 kam rund ein Drittel aller Beacons von
- * Bingbot, Baidu-Render und einem Azure-Crawler mit Lighthouse-Kennung — alle
- * als Besucher gezaehlt. Live-Beweis: `curl -A curl/8.0` mit uebergrossem Body
- * bekam 413 statt 204, der Filter hatte den UA also nie gesehen.
- *
- * Das ist derselbe String, den der Browser ohnehin in jeder Anfrage sendet —
- * kein Zugriff auf Speicher, kein Fingerprint, nichts, was der Header nicht
- * schon traegt. Gekuerzt, damit der Beacon unter dem Groessenlimit der Route
- * bleibt. */
+/*
+ * Der User-Agent fährt im Body mit: die App-Hosting-Edge ersetzt UA und
+ * Aufrufer-IP, bevor Cloud Run die Anfrage sieht (lib/analytics/botFilter.ts),
+ * und der Bot-Filter der Route liefe sonst ins Leere. Derselbe String, den der
+ * Browser ohnehin sendet, kein Fingerprint. Gekürzt, damit der Beacon unter dem
+ * Größenlimit der Route bleibt.
+ */
 const UA_MAX = 300;
 
 function userAgent(): string | undefined {
@@ -83,30 +77,23 @@ function sendCount(payload: Record<string, string | number | string[] | number[]
   }
 }
 
-/* document.referrer ist fuer die Lebensdauer EINES Dokuments konstant — bei
- * jedem Routenwechsel mitzuschicken hat die Herkunft nicht oefter gemessen,
- * sondern dieselbe Herkunft mehrfach gezaehlt. Wer ueber Google auf der Karte
- * landet und zwanzig Spots durchklickt, erzeugte zwanzig "Google-Verweise":
- * 253 gezaehlte Google-Referrer gegen 83 echte Suchklicks in denselben acht
- * Tagen (Aug 2026). Modulweite Variable, weil genau das die Lebensdauer eines
- * Dokuments ist: harte Navigation laedt das Modul neu, Soft-Navigation nicht. */
+/*
+ * document.referrer ist fuer die Lebensdauer eines Dokuments konstant; bei
+ * jedem Routenwechsel mitgeschickt, zaehlte er dieselbe Herkunft mehrfach.
+ * Modulweite Variable, weil das genau die Lebensdauer eines Dokuments ist:
+ * harte Navigation laedt das Modul neu, Soft-Navigation nicht.
+ */
 let referrerSent = false;
 
-/* Die Seite, von der dieser Aufruf kommt — Grundlage der Ausstiegszaehlung.
+/*
+ * Die Seite, von der dieser Aufruf kommt: Grundlage der Ausstiegszaehlung.
  *
- * Jeder Aufruf endet auf genau zwei Arten: es folgt ein weiterer interner
- * Aufruf, oder der Besuch endet hier. Daraus faellt die Ausstiegsseite ohne
- * jede Sitzungsverfolgung heraus:
+ * Ausstiege(P) = Aufrufe(P) - Fortsetzungen(P)
  *
- *     Ausstiege(P) = Aufrufe(P) - Fortsetzungen(P)
- *
- * Genau deshalb NICHT ueber eine Sitzungskennung: visitorHash.ts haelt
- * ausdruecklich fest, dass der Hash "never stored next to the page someone
- * looked at" wird. Ein Sitzungs-Token am analytics_seen-Dokument haette genau
- * das getan. Hier wird nie ein Aufruf mit einer Person verknuepft — was
- * nebenbei das NAT-Problem erledigt: hinter einem Carrier-NAT teilen sich viele
- * Menschen einen visitorHash, und jede hash-basierte Sitzungsbildung wuerde
- * deren Wege zu einem Unsinnspfad verschmelzen. */
+ * Bewusst ohne Sitzungskennung: ein Aufruf wird nie mit einer Person verknuepft
+ * (visitorHash.ts), und hinter einer Carrier-NAT verschmoelzen hash-basierte
+ * Sitzungen viele Menschen zu einem Pfad.
+ */
 let lastCountedPath: string | null = null;
 
 function previousInternalPath(): string | null {
@@ -177,20 +164,14 @@ export function countEvent(name: string): void {
   sendCount({ path: window.location.pathname, event: name });
 }
 
-/* Der Zaehler kennt nur Namen, keine Parameter — und genau darin lag der
- * blinde Fleck des Trichters: `must_eat_reveal_attempt` fasste fuenf
- * verschiedene Ausgaenge in eine Zahl (Gast ohne Konto, zu weit weg, kein
- * Standort, aufgedeckt, gescheitert), und `login_start` sagte nicht, ob
- * jemand Google gedrueckt oder nur eine verdeckte Karte angetippt hat. Fuer
- * die Stufen des Produkts (5 Karten frei → Konto → vor Ort → Pack) ist aber
- * genau dieser Unterschied die Frage.
- *
- * Darum faechert der Zaehler diese Ereignisse EINMAL auf: zusaetzlich zum
- * Grundnamen geht ein zweiter Beacon mit dem qualifizierten Namen raus
- * (`must_eat_reveal_unlocked`, `login_start_google`). Der Grundname bleibt,
- * damit die Reihen vor dem Umbau nicht abreissen. Was zaehlbar ist, steht als
- * Allowlist in app/api/count/route.ts — ein neuer Wert des Parameters landet
- * erst dort, dann hier. */
+/*
+ * Der Zaehler kennt nur Namen, keine Parameter. Diese Ereignisse faechert er
+ * darum einmal auf: neben dem Grundnamen geht ein zweiter Beacon mit dem
+ * qualifizierten Namen raus (`must_eat_reveal_unlocked`, `login_start_google`).
+ * Der Grundname bleibt, damit die Reihen nicht abreissen. Was zaehlbar ist,
+ * steht als Allowlist in app/api/count/route.ts: ein neuer Wert landet erst
+ * dort, dann hier.
+ */
 const QUALIFIED_BY: Record<string, string> = {
   must_eat_reveal_attempt: 'result',
   login_start: 'method',

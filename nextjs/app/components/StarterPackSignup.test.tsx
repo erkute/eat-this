@@ -56,7 +56,7 @@ describe('StarterPackSignup', () => {
     expect(html).toContain('>Starter Pack</h2>');
     expect(html).toContain('Starte deine Sammlung');
     expect(html).toContain('Schon 100 Must Eats in ganz Berlin. Dein Starter Pack zeigt dir die ersten. Den Rest entdeckst du vor Ort.');
-    // Kein „Gratis"-Kicker: Geschenk-Wording will der Betreiber nicht (22.09.2026).
+    // Kein „Gratis"-Kicker: kein Geschenk-Wording.
     expect(html).not.toMatch(/gratis|kostenlos/i);
   });
 
@@ -66,8 +66,8 @@ describe('StarterPackSignup', () => {
     expect(html).toContain('Already 100 Must Eats across Berlin. Your Starter Pack shows you the first ones. Discover the rest at the spots themselves.');
   });
 
-  /* Die Tafel steht auf jeder Startseite; der Cookie-Hinweis verspricht,
-     Google Sign-In lade „nur wenn du es nutzt". */
+  /* Die Tafel steht auf jeder Startseite; Google Sign-In laedt erst, wenn die
+     Hand zum Knopf geht. */
   it('waermt Google nicht an, nur weil die Seite steht', () => {
     render(tafel());
     expect(google.prepare).not.toHaveBeenCalled();

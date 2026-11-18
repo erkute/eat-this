@@ -4,9 +4,7 @@ import postcss, { type AtRule, type Root, type Rule } from 'postcss';
 import { describe, expect, it } from 'vitest';
 
 /* Die beiden Details im Map-Sheet haben je ein eigenes Modul, der Mount um sie
-   herum ein drittes. Bis zum 26.09.2026 war das eine Datei, MapDetails.module.css,
-   in der sich die beiden Hälften mit `.detailV13:not(.detailV13MustEat)`
-   gegeneinander abgrenzten. */
+   herum ein drittes. */
 const MODULES = {
   sheet: 'MapSheetDetail.module.css',
   restaurant: 'RestaurantDetail.module.css',
@@ -128,10 +126,8 @@ describe('Map sheet detail CSS contracts', () => {
     expect(hasAnimationNone(mustEat, '.fdTopCardHint')).toBe(true);
   });
 
-  /* Die Blätter-Winkel stehen ab 768px an den Kartenkanten (absolut im
-     Stapel), auf dem Telefon gibt es sie nicht. Beides war schon einmal
-     anders und wurde je auf Ansage zurückgedreht — hier steht der Stand vom
-     03.09.2026 fest. */
+  /* Die Blätter-Winkel stehen ab 768px an den Kartenkanten (absolut im Stapel),
+     auf dem Telefon gibt es sie nicht. */
   it('pins the Must Eat pager arrows to the card edges from tablet up, hides them on phones', () => {
     for (const arrow of ['fdPagerPrev', 'fdPagerNext']) {
       let absolute = false;
@@ -179,12 +175,14 @@ describe('Map sheet detail CSS contracts', () => {
   });
 
   it('keeps the whole Must Eat panel on the brand display face', () => {
-    /* Das Panel spricht durchgehend in der Markenschrift: Gerichtsname, Zustands-
-     * Headline, der Zustands-Satz darunter UND die Gerichtsbeschreibung. Ein
-     * DM-Sans-Block mittendrin las sich wie ein Fremdkörper.
+    /*
+     * Das Panel spricht durchgehend in der Markenschrift: Gerichtsname,
+     * Zustands-Headline, der Zustands-Satz darunter und die
+     * Gerichtsbeschreibung.
      *
      * Effektive Werte, nicht Einzelblöcke: `.fdText` allein wird in mehreren
-     * Blöcken deklariert, einige davon in Media-Queries. */
+     * Blöcken deklariert, einige davon in Media-Queries.
+     */
     for (const brand of ['fdName', 'fdProximitySub', 'fdText']) {
       const family = effective(mustEat, brand, 'font-family');
       expect(family, `.${brand} hat keine effektive font-family`).toBeDefined();
@@ -212,8 +210,8 @@ describe('Map sheet detail CSS contracts', () => {
       );
     });
 
-    // Kein eigener Namens-Slot mehr für den verdeckten Zustand: er ließ die
-    // Copy beim Aufdecken springen (dort steht der Gerichtsname im Slot).
+    // Kein eigener Namens-Slot für den verdeckten Zustand, sonst spränge die
+    // Copy beim Aufdecken (dort steht der Gerichtsname im Slot).
     expect(declarations.get('.fdMid.fdMidLocked')).toBeUndefined();
     expect(declarations.get('.scroll')).toEqual(
       expect.objectContaining({ '--me-rest-slot': '128px' })
@@ -244,14 +242,11 @@ describe('Map sheet detail CSS contracts', () => {
   });
 
   it('klemmt die x-Achse des Telefon-Spot-Details ab', () => {
-    /* Das Blaettern schiebt den Hero per translateX um eine volle
-       Viewport-Breite. Die Telefonfassung des Spot-Details laeuft bewusst im
-       Dokumentfluss (kein innerer Scrollport) — ohne Klemme in x wird das
-       DOKUMENT waehrend der Bewegung doppelt so breit, iOS Safari zieht die
-       Seite auf Bildschirmbreite zusammen und beim Loslassen wieder auf.
-       Gemessen bei 375px Viewport: scrollWidth und innerWidth sprangen
-       375 -> 750. Eine Kurzform `overflow: visible` hat die Klemme schon
-       einmal mitgerissen — deshalb steht hier der EFFEKTIVE Endwert. */
+    /* Das Blaettern schiebt den Hero um eine volle Viewport-Breite. Die
+       Telefonfassung des Spot-Details laeuft im Dokumentfluss; ohne Klemme in x
+       wuerde das Dokument waehrend der Bewegung doppelt so breit, und iOS
+       Safari zoege die Seite zusammen. Eine Kurzform `overflow: visible` risse
+       die Klemme mit, deshalb steht hier der effektive Endwert. */
     const phone = '(max-width: 767.98px)';
     let x: string | undefined;
     let y: string | undefined;

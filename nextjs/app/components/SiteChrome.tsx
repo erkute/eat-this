@@ -27,11 +27,8 @@ interface ChromeOptions {
 }
 
 /**
- * Die Hülle jeder Seite: Anmeldung, Navigation, Burger, Fuß, Remy.
- *
- * Stand vorher in sieben Layouts, der SPA-Gruppe und der 404 je einmal
- * ausgeschrieben — bis auf ein, zwei Zeilen wortgleich. Die Unterschiede sind
- * jetzt die Schalter oben.
+ * Die Hülle jeder Seite: Anmeldung, Navigation, Burger, Fuß, Remy. Was sich
+ * zwischen den Layouts unterscheidet, sind die Schalter oben.
  */
 export default function SiteChrome({
   children,

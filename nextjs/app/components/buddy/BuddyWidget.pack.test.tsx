@@ -1,5 +1,4 @@
 // @vitest-environment jsdom
-// nextjs/app/components/buddy/BuddyWidget.pack.test.tsx
 // Booster-Pack teaser card: rendered once per conversation under the first
 // matching answer. Ob das Konto das Pack schon hat, entscheidet die Route am
 // verifizierten Token — was hier ankommt, wird gezeigt.
@@ -90,9 +89,8 @@ describe('BuddyWidget pack teaser', () => {
     const card = packCards()[0] as HTMLAnchorElement;
     expect(card).toBeTruthy();
     expect(card.getAttribute('href')).toBe('/pack/pizza');
-    // Hierarchie wie eine Kachel auf /packs: Kicker, dann der NAME als
-    // Überschrift, dann die Spectrum-Zeile. Vorher stand das Spectrum groß
-    // als Name da und der echte Name nur klein im Kicker.
+    // Hierarchie wie eine Kachel auf /packs: Kicker, dann der Name als
+    // Überschrift, dann die Spectrum-Zeile.
     expect(card.textContent).toContain('Booster Pack');
     expect(card.textContent).toContain('Pizza');
     expect(card.textContent).toContain('Holzofen. Pinsa. NY-Slice.');
@@ -126,8 +124,8 @@ describe('BuddyWidget pack teaser', () => {
   });
 
   it('shows a card the server sent even for a signed-in user', () => {
-    // Der Client wartet auf keinen Entitlement-Snapshot mehr: eine Karte, die
-    // das Konto nicht sehen soll, verlässt den Server gar nicht erst.
+    // Der Client wartet auf keinen Entitlement-Snapshot: eine Karte, die das
+    // Konto nicht sehen soll, verlässt den Server gar nicht erst.
     auth.user = { uid: 'u1' };
     chat.messages = [
       { role: 'user', content: 'pizza?' },

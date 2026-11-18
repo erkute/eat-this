@@ -11,18 +11,16 @@
 }
 
 /* Zwei Stapelbänder, weil MapLibre keinen Inline-z-index setzt und die Marker
-   rein nach dem DOM ordnet — und diese Reihenfolge ist NICHT die des
+   rein nach dem DOM ordnet, und diese Reihenfolge ist nicht die des
    React-Baums. Jeder Marker hängt sich beim Mounten an den Canvas-Container,
    ein durch einen Filterwechsel neu erzeugter landet also hinter denen, die
    schon da waren.
 
-   Der z-index gehört an die Marker-WURZEL — der innere .pinLogoActive-z-index
+   Der z-index gehört an die Marker-Wurzel: Der innere .pinLogoActive-z-index
    ordnet nur innerhalb dieses Markers, nicht gegen seine Geschwister.
 
-   .markerRootFree < .markerRootActive. Das dritte Band darunter trugen bis
-   zum 06.09.2026 die gesperrten Punkte; seit die Karte frei ist, gibt es
-   nur noch eine Sorte Pin — .markerRootFree hebt sie gemeinsam über alles,
-   was sonst im Container hängt. */
+   .markerRootFree < .markerRootActive. Es gibt nur eine Sorte Pin;
+   .markerRootFree hebt sie gemeinsam über alles, was sonst im Container hängt. */
 .markerRootFree:global(.maplibregl-marker) {
   z-index: 5;
 }
@@ -55,8 +53,8 @@
      dem Zoom Frame für Frame, statt hinterherzuziehen. Außerhalb der großen
      Map (Startseite) fehlt die Variable, dort bleibt es bei 1. */
   scale: var(--map-pin-zoom, 1);
-  /* transform/filter only: width+height were in here too, so selecting a pin
-     ran a layout animation on every mounted marker at once. */
+  /* transform/filter only: animating width/height would run a layout animation
+     on every mounted marker at once. */
   transition:
     transform 0.16s ease,
     filter 0.24s ease;
@@ -68,11 +66,9 @@
   outline-offset: 4px;
 }
 
-/* First-load drop-in ----------------------------------------------------
-   The pins are DOM and the basemap is WebGL, so the markers used to paint a
-   frame or more before the tiles — yellow on white. MapCanvasLayer now holds
-   them until MapLibre's first complete rendering, which means they have to
-   ARRIVE rather than just be there.
+/* First-load drop-in. The pins are DOM and the basemap is WebGL, so the markers
+   would paint before the tiles. MapCanvasLayer holds them until MapLibre's
+   first complete rendering, so they have to arrive rather than just be there.
 
    Die Bewegung gehört nur an den inneren Marker; MapLibre positioniert die
    Wurzel. `backwards` hält verzögerte Marker vor dem ersten Animationsframe

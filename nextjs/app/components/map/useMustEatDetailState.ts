@@ -80,13 +80,13 @@ export function useMustEatDetailState({
       ? 0.18
       : Math.max(0.18, Math.min(1, 1 - distance / 500));
 
-  /* No fix, and nothing standing in the way of asking for one. This card is
-     not "too far" — the app does not know where the visitor is, and the
-     shake it used to answer with told them nothing. Asking is a deliberate
-     gesture (the card tap or the chip under it): the payoff is on screen and
-     the ask is unmistakable, which is what keeps a first-paint prompt (and
-     the permanent "Don't Allow" it collects) off the map. Null once the
-     browser has said no — re-asking is dead UI then. */
+  /* No fix, and nothing standing in the way of asking for one. This card is not
+     "too far" — the app does not know where the visitor is, and a shake would
+     tell them nothing. Asking is a deliberate gesture (the card tap or the chip
+     under it): the payoff is on screen and the ask is unmistakable, which is
+     what keeps a first-paint prompt (and the permanent "Don't Allow" it
+     collects) off the map. Null once the browser has said no — re-asking is
+     dead UI then. */
   const canRequestLocation = needsLocation && !locationDenied && Boolean(onRequestLocation);
   const requestLocation = useCallback(() => {
     trackEvent('must_eat_reveal_attempt', {
@@ -111,12 +111,10 @@ export function useMustEatDetailState({
   // unlock moment — the inline locked card is hidden so it visually morphs
   // into the overlay instead of duplicating it.
   /* Die Bühne geht mit dem Tipp auf, nicht erst mit der Antwort des Servers:
-     die Wartezeit ist der Moment, in dem die Karte zittert und Licht unter ihr
-     hervorsickert. Vorher stand in dieser Zeit „Kommt in deine Sammlung …" im
-     Namensfeld — so lange wie der Request, also ein Aufblitzen, das man nur in
-     Zeitlupe lesen konnte (Betreiber, 24.09.2026). Die Bühne wartet auf
-     `revealStatus`: 'ok' dreht die Karte um, 'failed' legt sie verdeckt
-     zurück. */
+     Die Wartezeit ist der Moment, in dem die Karte zittert und Licht unter ihr
+     hervorsickert. Ein Text im Namensfeld stünde nur so lange wie der Request,
+     also als Aufblitzen. Die Bühne wartet auf `revealStatus`: 'ok' dreht die
+     Karte um, 'failed' legt sie verdeckt zurück. */
   const [revealOrigin, setRevealOrigin] = useState<DOMRect | null>(null);
   const [revealStatus, setRevealStatus] = useState<RevealStatus>('pending');
 
@@ -127,12 +125,10 @@ export function useMustEatDetailState({
       setRevealOrigin(e.currentTarget.getBoundingClientRect());
       return;
     }
-    /* Ohne Konto ist der Tipp auf einen Ruecken die Frage „was liegt
-       darunter?" — und die Antwort ist die Anmeldung, nicht der Standort.
-       Bis zum 07.09.2026 fragte die Karte einen Gast erst nach seiner
-       Position und schickte ihn nur im 50-m-Radius zum Login; die Ruecken
-       liegen fuer Gaeste aber seither ueberall auf der Map, als Anlass, sich
-       ein Konto zu holen (siehe composeAccountSurface). */
+    /* Ohne Konto ist der Tipp auf einen Rücken die Frage „was liegt darunter?",
+       und die Antwort ist die Anmeldung, nicht der Standort. Die Rücken liegen
+       für Gäste überall auf der Map, als Anlass, sich ein Konto zu holen (siehe
+       composeAccountSurface). */
     if (!isAuthed && onRequireLogin) {
       trackEvent('must_eat_reveal_attempt', {
         must_eat_id: mustEat._id,
@@ -140,13 +136,12 @@ export function useMustEatDetailState({
         result: 'login_required',
         distance_meters: distance === null ? -1 : Math.round(distance),
       });
-      /* Erst zittert die Karte, dann geht das Formular auf (Betreiber,
-         07.09.2026: „Kann sich die Must Eat Karte nicht kurz zittern, bevor
-         Anmelden angeht"). Derselbe Shake wie der vergebliche Tipp mit Konto
-         (.mustEatCardTapping) — die Karte antwortet auf die Beruehrung, bevor
-         das Modal sie verdeckt. Ohne Bewegung (reduced motion) waere die
-         Wartezeit ein toter Moment, also oeffnet das Formular dann sofort.
-         Ein zweiter Tipp waehrend des Zitterns startet nichts doppelt. */
+      /* Erst zittert die Karte, dann geht das Formular auf. Derselbe Shake wie
+         der vergebliche Tipp mit Konto (.mustEatCardTapping): Die Karte
+         antwortet auf die Berührung, bevor das Modal sie verdeckt. Ohne
+         Bewegung (reduced motion) wäre die Wartezeit ein toter Moment, also
+         öffnet das Formular dann sofort. Ein zweiter Tipp während des Zitterns
+         startet nichts doppelt. */
       if (prefersReducedMotion()) {
         onRequireLogin();
         return;

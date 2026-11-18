@@ -1,18 +1,12 @@
 /**
- * Creates a *draft* restaurant document in Sanity from a Google Maps URL.
- * Resolves short links, extracts name + coordinates, queries Google Places
- * for the full record, maps the response onto our Sanity schema, then writes
- * a draft. The user opens the draft in Studio to fill the editorial bits
- * (description, tip, photo, bezirkRef) and publishes from there.
+ * Creates a draft restaurant in Sanity from a Google Maps URL via Google
+ * Places; the editorial fields are filled in Studio.
  *
  * Run from `nextjs/`:
- *   npx tsx scripts/import-from-url.ts <google-maps-url>
- *   npx tsx scripts/import-from-url.ts <google-maps-url> --dry-run
- *   npx tsx scripts/import-from-url.ts <google-maps-url> --no-gallery
+ *   npx tsx scripts/import-from-url.ts <google-maps-url> [--dry-run] [--no-gallery]
  *
- * Required env (in nextjs/.env.local):
- *   SANITY_API_WRITE_TOKEN  (Editor role)
- *   GOOGLE_API_KEY          (Places API v1 enabled)
+ * Required env (nextjs/.env.local): SANITY_API_WRITE_TOKEN (Editor),
+ * GOOGLE_API_KEY (Places API v1).
  */
 import { config as loadEnv } from 'dotenv';
 import { createClient } from '@sanity/client';
@@ -26,10 +20,8 @@ const SANITY_PROJECT_ID = 'ehwjnjr2';
 const SANITY_DATASET = 'production';
 const SANITY_API_VERSION = '2024-01-01';
 
-// Read at module load but DON'T throw — Next.js evaluates this module at
-// build time for page-data collection, where runtime-only secrets are not
-// available. Validation happens inside runImport() / the CLI guard so the
-// build succeeds with envs missing and the actual request fails clearly.
+// Read without throwing: Next evaluates this module at build time, where
+// runtime secrets are missing. runImport() validates.
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 
 const defaultSanity = createClient({
@@ -40,9 +32,6 @@ const defaultSanity = createClient({
   useCdn: false,
 });
 
-// ----- URL resolution + parsing ---------------------------------------------
-
-/** Follows redirects so maps.app.goo.gl/X → canonical /maps/place/... URL. */
 async function resolveUrl(input: string): Promise<string> {
   const res = await fetch(input, { redirect: 'follow' });
   return res.url;
@@ -57,9 +46,8 @@ interface ParsedUrl {
 function parseMapsUrl(url: string): ParsedUrl | null {
   const placeMatch = url.match(/\/place\/([^/?]+)/);
   if (!placeMatch) return null;
-  // Prefer the place coords embedded in `data=...!3d{lat}!4d{lng}` — these
-  // pin the actual restaurant. Fall back to the `@lat,lng,zoom` map-view
-  // center, which can be a country-level overview at low zooms (e.g. 7z).
+  // Prefer the place coords in `data=...!3d{lat}!4d{lng}`; the `@lat,lng,zoom`
+  // view centre can be a country overview.
   const placeCoords = url.match(/!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/);
   const viewCoords = url.match(/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/);
   const coords = placeCoords ?? viewCoords;
@@ -71,7 +59,7 @@ function parseMapsUrl(url: string): ParsedUrl | null {
   };
 }
 
-// ----- Slug — mirrors studio/schemaTypes/restaurant.js ----------------------
+// Slug: mirrors studio/schemaTypes/restaurant.js.
 
 function slugify(input: string): string {
   return input
@@ -87,10 +75,10 @@ function slugify(input: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
-/** Returns a slug guaranteed unique across all `restaurant` docs (drafts and
- *  published). Falls back to `<base>-<ortsteil>` then numeric `-2/-3/...`
- *  when the bare name collides — same brand at different addresses keeps a
- *  human-readable URL instead of going straight to a numeric suffix. */
+/**
+ * Unique across drafts and published; tries `<base>-<ortsteil>` before a
+ * numeric suffix.
+ */
 async function uniqueSlug(
   base: string,
   ortsteil: string | null,
@@ -110,8 +98,6 @@ async function uniqueSlug(
   }
   throw new ImportError(`Could not find unique slug for "${base}" after 100 attempts.`);
 }
-
-// ----- Places API ----------------------------------------------------------
 
 const TYPE_MAP: Record<string, string> = {
   ramen_restaurant: 'Japanese / Ramen',
@@ -159,9 +145,8 @@ function pickCuisine(types: string[] = []): string | null {
   return null;
 }
 
-// Convert Places weekdayDescriptions (localized German) to Sanity daySlot[],
-// grouping consecutive same-hours days into ranges. Einzige Stelle mit dieser
-// Umrechnung — wer sie kopiert, hat zwei Wahrheiten.
+// Places weekdayDescriptions (German) to daySlot[], with same-hours days
+// grouped. The only place with this conversion.
 const DAY_ORDER = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
 const DAY_SHORT: Record<string, string> = {
   Montag: 'Mon',
@@ -240,22 +225,9 @@ interface Place {
 }
 
 async function searchPlace(parsed: ParsedUrl): Promise<Place | null> {
-  // IMPORTANT: do NOT request `places.reviews`. Google user reviews are
-  // off-limits as a source for description / tip / shortDescription:
-  // they're third-party voices and our brand promise is "personally
-  // visited and curated" (see memory: feedback_curator_voice_no_third_party).
-  // If you add a field below, keep `places.reviews` out.
-  //
-  // `editorialSummary` is deliberately absent too. It used to fill
-  // `shortDescription` (and `description`, past 160 chars) verbatim, but
-  // Google returns it in English often enough — despite languageCode 'de' —
-  // that German fields ended up with English text, and the description
-  // generator never fixed them: it only writes fields that are still empty,
-  // and an import-set `description` drops the spot out of its target set
-  // entirely. Both fields belong to generate-de-descriptions.ts, which asks
-  // Places for the summary itself and writes German prose in our voice.
-  // Dropping it also takes the whole request down from Text Search
-  // Enterprise + Atmosphere (40 $/1.000) to Enterprise (35 $/1.000).
+  // Never request `places.reviews`: Google reviews are third-party voices and
+  // no source for our texts. `editorialSummary` stays out too: it often comes
+  // back English, and generate-de-descriptions.ts writes those fields.
   const FIELDS = [
     'places.id',
     'places.displayName',
@@ -281,16 +253,8 @@ async function searchPlace(parsed: ParsedUrl): Promise<Place | null> {
     body: JSON.stringify({
       textQuery: parsed.name,
       languageCode: 'de',
-      // Hard-bound the search to a small box around the pin from the URL.
-      // The URL's !3d!4d coords ARE the venue's location, so the real place
-      // sits essentially at the pin. A soft `locationBias` lets an ambiguous
-      // name outrank the venue with a famous namesake — e.g. textQuery "Bari"
-      // returned the Italian *city*, not the Neukölln restaurant at the pin
-      // (city ranks far above the venue, which then wasn't returned at all).
-      // A hard `locationRestriction` rectangle excludes everything outside the
-      // box, so only the venue at the pin can match. The ±0.02° box is ≈ ±2.2 km
-      // N/S and ±1.4 km E/W at Berlin's latitude — tolerant of coordinate
-      // jitter, far too tight to admit another locality.
+      // A hard rectangle around the pin: a soft locationBias lets a famous
+      // namesake (the city of Bari) outrank the venue. ±0.02° is ≈ ±2 km.
       locationRestriction: {
         rectangle: {
           low: { latitude: parsed.lat - 0.02, longitude: parsed.lng - 0.02 },
@@ -304,27 +268,21 @@ async function searchPlace(parsed: ParsedUrl): Promise<Place | null> {
   return data.places?.[0] ?? null;
 }
 
-// ----- Address-component → Bezirk + Categories + Photo --------------------
-
-/** Berlin postal-code → Ortsteil mapping for the Sanity bezirk docs.
- *  Google's `sublocality_level_1` returns the admin Bezirk ("Bezirk Pankow"),
- *  not the Ortsteil ("Prenzlauer Berg"), so we resolve by PLZ instead. Any
- *  postal code not in this map → no Ortsteil match → bezirkRef stays empty
- *  and the user picks one in Studio. */
+/**
+ * PLZ → Ortsteil: Google's `sublocality_level_1` returns the Bezirk, not the
+ * Ortsteil. An unknown PLZ leaves bezirkRef empty for Studio.
+ */
 const PLZ_TO_ORTSTEIL: Record<string, string> = {
-  // Mitte (Bezirk Mitte)
   '10115': 'Mitte',
   '10117': 'Mitte',
   '10119': 'Mitte',
   '10178': 'Mitte',
   '10179': 'Mitte',
-  // Moabit (Bezirk Mitte)
   '10551': 'Moabit',
   '10553': 'Moabit',
   '10555': 'Moabit',
   '10557': 'Moabit',
   '10559': 'Moabit',
-  // Wedding (Bezirk Mitte)
   '13347': 'Wedding',
   '13349': 'Wedding',
   '13351': 'Wedding',
@@ -332,29 +290,24 @@ const PLZ_TO_ORTSTEIL: Record<string, string> = {
   '13355': 'Wedding',
   '13357': 'Wedding',
   '13359': 'Wedding',
-  // Prenzlauer Berg (Bezirk Pankow)
   '10405': 'Prenzlauer Berg',
   '10407': 'Prenzlauer Berg',
   '10409': 'Prenzlauer Berg',
   '10435': 'Prenzlauer Berg',
   '10437': 'Prenzlauer Berg',
   '10439': 'Prenzlauer Berg',
-  // Pankow (Bezirk Pankow)
   '13156': 'Pankow',
   '13158': 'Pankow',
   '13159': 'Pankow',
   '13187': 'Pankow',
   '13189': 'Pankow',
-  // Weißensee (Bezirk Pankow)
   '13086': 'Weißensee',
   '13088': 'Weißensee',
   '13089': 'Weißensee',
-  // Friedrichshain (Bezirk Friedrichshain-Kreuzberg)
   '10243': 'Friedrichshain',
   '10245': 'Friedrichshain',
   '10247': 'Friedrichshain',
   '10249': 'Friedrichshain',
-  // Kreuzberg (Bezirk Friedrichshain-Kreuzberg)
   '10961': 'Kreuzberg',
   '10963': 'Kreuzberg',
   '10965': 'Kreuzberg',
@@ -362,7 +315,6 @@ const PLZ_TO_ORTSTEIL: Record<string, string> = {
   '10969': 'Kreuzberg',
   '10997': 'Kreuzberg',
   '10999': 'Kreuzberg',
-  // Charlottenburg (Bezirk Charlottenburg-Wilmersdorf)
   '10585': 'Charlottenburg',
   '10587': 'Charlottenburg',
   '10589': 'Charlottenburg',
@@ -373,11 +325,9 @@ const PLZ_TO_ORTSTEIL: Record<string, string> = {
   '10707': 'Charlottenburg',
   '10711': 'Charlottenburg',
   '10719': 'Charlottenburg',
-  // Wilmersdorf (Bezirk Charlottenburg-Wilmersdorf) — added 2026-05-11
   '10713': 'Wilmersdorf',
   '10715': 'Wilmersdorf',
   '10717': 'Wilmersdorf',
-  // Schöneberg (Bezirk Tempelhof-Schöneberg)
   '10777': 'Schöneberg',
   '10779': 'Schöneberg',
   '10781': 'Schöneberg',
@@ -389,9 +339,7 @@ const PLZ_TO_ORTSTEIL: Record<string, string> = {
   '10825': 'Schöneberg',
   '10827': 'Schöneberg',
   '10829': 'Schöneberg',
-  // Friedenau (Bezirk Tempelhof-Schöneberg)
   '12157': 'Friedenau',
-  // Tempelhof (Bezirk Tempelhof-Schöneberg)
   '12099': 'Tempelhof',
   '12101': 'Tempelhof',
   '12103': 'Tempelhof',
@@ -402,7 +350,6 @@ const PLZ_TO_ORTSTEIL: Record<string, string> = {
   '12279': 'Tempelhof',
   '12305': 'Tempelhof',
   '12307': 'Tempelhof',
-  // Neukölln (Bezirk Neukölln)
   '12043': 'Neukölln',
   '12045': 'Neukölln',
   '12047': 'Neukölln',
@@ -412,23 +359,19 @@ const PLZ_TO_ORTSTEIL: Record<string, string> = {
   '12055': 'Neukölln',
   '12057': 'Neukölln',
   '12059': 'Neukölln',
-  // Steglitz (Bezirk Steglitz-Zehlendorf)
   '12159': 'Steglitz',
   '12161': 'Steglitz',
   '12163': 'Steglitz',
   '12165': 'Steglitz',
   '12167': 'Steglitz',
   '12169': 'Steglitz',
-  // Dahlem (Bezirk Steglitz-Zehlendorf)
   '14195': 'Dahlem',
-  // Treptow (Bezirk Treptow-Köpenick)
   '12435': 'Treptow',
   '12437': 'Treptow',
   '12439': 'Treptow',
   '12524': 'Treptow',
   '12526': 'Treptow',
   '12527': 'Treptow',
-  // Köpenick (Bezirk Treptow-Köpenick)
   '12459': 'Köpenick',
   '12487': 'Köpenick',
   '12489': 'Köpenick',
@@ -437,7 +380,6 @@ const PLZ_TO_ORTSTEIL: Record<string, string> = {
   '12559': 'Köpenick',
   '12587': 'Köpenick',
   '12589': 'Köpenick',
-  // Lichtenberg (Bezirk Lichtenberg)
   '10315': 'Lichtenberg',
   '10317': 'Lichtenberg',
   '10318': 'Lichtenberg',
@@ -452,13 +394,11 @@ const PLZ_TO_ORTSTEIL: Record<string, string> = {
   '13059': 'Lichtenberg',
 };
 
-/** Resolves the Ortsteil for a Berlin address by postal code. */
 function findOrtsteil(components: Place['addressComponents'] = []): string | null {
   const plz = components.find((c) => c.types?.includes('postal_code'))?.longText;
   return plz ? (PLZ_TO_ORTSTEIL[plz] ?? null) : null;
 }
 
-/** Looks up an existing bezirk doc by exact name; returns its _id or null. */
 async function findBezirkRef(name: string, sanity: SanityClient): Promise<string | null> {
   const doc = await sanity.fetch<{ _id: string } | null>(
     `*[_type=="bezirk" && name == $name][0]{_id}`,
@@ -467,12 +407,9 @@ async function findBezirkRef(name: string, sanity: SanityClient): Promise<string
   return doc?._id ?? null;
 }
 
-/** Heuristic: Places types → category names matching the canonical EN
- *  identifier on the `category` documents. Returns names; the caller resolves
- *  them into reference objects via `lookupCategoryRefs`. */
-/** True when any shift of any day covers `minutes` past midnight. Handles the
- *  split shifts a kitchen actually keeps ("12:00-15:00,17:30-22:30") and the
- *  after-midnight closings that Berlin is full of ("11:00-04:00"). */
+/**
+ * Handles split shifts and closings after midnight.
+ */
 export function openAtMinute(slots: DaySlot[], minutes: number): boolean {
   return slots.some((slot) =>
     (slot.hours ?? '').split(',').some((span) => {
@@ -480,7 +417,7 @@ export function openAtMinute(slots: DaySlot[], minutes: number): boolean {
       if (!m) return false;
       const from = Number(m[1]) * 60 + Number(m[2]);
       let to = Number(m[3]) * 60 + Number(m[4]);
-      if (to <= from) to += 24 * 60; // closes after midnight
+      if (to <= from) to += 24 * 60;
       return minutes >= from && minutes <= to;
     })
   );
@@ -489,23 +426,14 @@ export function openAtMinute(slots: DaySlot[], minutes: number): boolean {
 const LUNCH_MINUTE = 12 * 60 + 30;
 const DINNER_MINUTE = 19 * 60 + 30;
 
-/** Maps Google Places types onto our nine categories.
- *
- *  Two things this has to get right, both learned the hard way:
- *
- *  A plain `restaurant` type is common — 14 of 16 uncategorised spots from the
- *  Mit-Vergnügen import carried nothing else. `/_restaurant$/` requires a
- *  prefix like `chinese_restaurant` and silently skipped every one of them, so
- *  they landed with no category at all and appeared on no category page.
- *
- *  Lunch and Dinner follow the OPENING HOURS, not the type: a spot is Lunch
- *  when it is open at 12:30 and Dinner when it is open at 19:30 (see memory:
- *  kategorie-regeln, where 65 spots lost a wrong `lunch`). With no hours
- *  available we fall back to assigning both, which is what this did before. */
+/**
+ * Places types → our nine categories. A bare `restaurant` type is common, so it
+ * counts. Lunch and Dinner follow the opening hours (open at 12:30 / 19:30),
+ * not the type; without hours both are assigned.
+ */
 function inferCategories(types: string[] = [], hours: DaySlot[] = []): string[] {
   const out = new Set<string>();
-  // Fine Dining wins outright — the category excludes Lunch + Dinner by
-  // convention (see memory: project-fine-dining-recategorization).
+  // Fine Dining excludes Lunch and Dinner.
   if (types.includes('fine_dining_restaurant')) {
     out.add('Fine Dining');
     return [...out];
@@ -538,7 +466,6 @@ function inferCategories(types: string[] = [], hours: DaySlot[] = []): string[] 
       out.add('Drinks');
       addMealTimes();
     } else if (t === 'meal_takeaway' || t === 'snack_bar' || t === 'fast_food_restaurant') {
-      // Imbiss / streetfood without table service.
       out.add('Fast Food');
       addMealTimes();
     } else if (t === 'restaurant' || t === 'bistro' || /_restaurant$/.test(t)) {
@@ -548,10 +475,9 @@ function inferCategories(types: string[] = [], hours: DaySlot[] = []): string[] 
   return [...out];
 }
 
-/** Resolves category names to `{_type:'reference', _ref:<id>}` array items
- *  by looking up the matching `category` document. Match is case-insensitive
- *  and tolerant of post-migration DE name renames (e.g. "Coffee" still
- *  resolves after the doc's `name` becomes "Café") via `nameEn`. */
+/**
+ * Case-insensitive, and via `nameEn` tolerant of German document names.
+ */
 async function lookupCategoryRefs(
   names: string[],
   sanity: SanityClient
@@ -585,8 +511,6 @@ interface PhotoAsset {
   sourcePhotoName: string;
 }
 
-/** Credit/creditUrl from a photo's authorAttributions, with the Places
- *  placeholder string mapped to a clean "Foto: Google Maps" fallback. */
 function photoAttribution(
   photo: NonNullable<Place['photos']>[number],
   place: Pick<Place, 'googleMapsUri'>
@@ -600,11 +524,10 @@ function photoAttribution(
   };
 }
 
-/** Downloads the best owner-uploaded Places photo (≤1600px wide) and uploads
- *  it to Sanity as the hero image. Guest/community photos are skipped entirely:
- *  owner-uploaded Places photos carry the business name as attribution.
- *  Google Places ToS require attribution, so credit/creditUrl are captured
- *  and applied as image.credit / image.creditUrl in buildDoc. */
+/**
+ * Owner-uploaded photos only; Google's terms require the attribution, kept as
+ * credit/creditUrl.
+ */
 async function importPhoto(
   place: Place,
   restaurantSlug: string,
@@ -652,9 +575,9 @@ export interface GalleryAsset {
 
 const MAX_GALLERY = 3;
 
-/** Uploads up to three owner-uploaded Places photos. The chosen hero photo is
- *  excluded so the gallery never duplicates it. Guest/community photos are
- *  skipped entirely; owner photos are otherwise not quality-filtered. */
+/**
+ * Up to three owner photos, never the hero again.
+ */
 export async function importGalleryPhotos(
   place: Pick<Place, 'photos' | 'googleMapsUri'>,
   restaurantSlug: string,
@@ -698,17 +621,9 @@ export async function importGalleryPhotos(
   return out;
 }
 
-// ----- Doc construction -----------------------------------------------------
-
 /**
- * Places sends its most expensive tier open-ended: `startPrice: 100` with no
- * `endPrice`. Requiring both bounds silently dropped exactly that band, which
- * is why 45 of 51 fine-dining spots had no price at all until 25.08.2026 —
- * the gap looked like sloppy curation and was this line. Open ranges now come
- * through with `max` undefined and render as "ab 100 €".
- *
- * A lone `endPrice` is still rejected: Places does not emit it, and a bare
- * upper bound has no sensible label.
+ * Places sends its top tier open-ended (`startPrice: 100`, no `endPrice`);
+ * requiring both bounds would drop nearly every fine-dining price.
  */
 function buildPriceRange(pr?: Place['priceRange']) {
   if (!pr?.startPrice?.units) return null;
@@ -730,11 +645,10 @@ interface BuildContext {
   slug: string;
 }
 
-/** Google returns the locality either as "Berlin" or as "Berlin-Bezirk
- *  Friedrichshain-Kreuzberg". Only the short form is used across the catalogue
- *  (329 of 330 published spots), and the borough is already carried by
- *  `district` / `bezirkRef` — so collapse the long form rather than let the
- *  addresses drift apart. */
+/**
+ * Google writes the locality as "Berlin" or "Berlin-Bezirk …"; the catalogue
+ * uses the short form.
+ */
 export function normalizeAddress(address: string): string {
   return address.replace(/\bBerlin-Bezirk\s+[^,]+/g, 'Berlin');
 }
@@ -799,16 +713,13 @@ function buildDoc(parsed: ParsedUrl, place: Place, mapsUrl: string, ctx: BuildCo
   return doc;
 }
 
-// ----- Reusable runner ------------------------------------------------------
-
-/** Throws when the URL can't be parsed, no Places match exists, or a published
- *  restaurant with the matched name is already in Sanity. */
 export class ImportError extends Error {
   constructor(
     message: string,
     public hint?: string,
-    /** Set when the failure is a known, terminal outcome rather than a fault.
-     *  Batch callers use this to skip the entry on resume instead of retrying. */
+    /**
+     * A known terminal outcome; batch runs skip it on resume.
+     */
     public code?: 'duplicate'
   ) {
     super(message);
@@ -817,17 +728,13 @@ export class ImportError extends Error {
 }
 
 export interface RunImportOptions {
-  /** When false, skip downloading + uploading the Places photo. Default true. */
   uploadPhoto?: boolean;
-  /** When false, import the hero photo but no gallery photos. Each gallery
-   *  photo is a separate billed Place Photo call, and the gallery only ever
-   *  renders on a published detail page — so bulk imports that will be curated
-   *  down should leave this off and backfill later via backfill-gallery.ts.
-   *  Ignored when uploadPhoto is false. Default true. */
+  /**
+   * Each gallery photo is a billed Place Photo call; bulk imports leave this
+   * off and backfill later (backfill-gallery.ts).
+   */
   uploadGallery?: boolean;
-  /** When false, don't reject on a name collision. Default true. */
   duplicateCheck?: boolean;
-  /** Authenticated client used for queries and asset uploads. Defaults to the CLI write token. */
   sanityClient?: SanityClient;
 }
 
@@ -839,15 +746,9 @@ export interface RunImportResult {
   bezirkRefId: string | null;
   photoAsset: PhotoAsset | null;
   canonicalUrl: string;
-  /** Category names inferred from Places types (EN identifiers like "Coffee",
-   *  "Pizza"). Use these for LLM prompts; `doc.categories` carries the matching
-   *  reference array for Sanity. */
   categoryNames: string[];
 }
 
-/** Resolves a Google Maps URL to a draft-ready restaurant doc shape. Used by
- *  the CLI entrypoints in this directory. The doc carries a generated
- *  `drafts.<uuid>` id which the basic importer passes to sanity.create. */
 export async function runImport(
   url: string,
   opts: RunImportOptions = {}
@@ -863,9 +764,9 @@ export async function runImport(
   return runImportFromParsed(parsed, canonicalUrl, opts);
 }
 
-/** Batch entry: skips URL-parsing when caller already has name + coords (e.g.
- *  cremeguides scrape produced `search/?api=1&query=lat,lng` URLs that don't
- *  parse via parseMapsUrl). Reuses the full doc-building pipeline. */
+/**
+ * Batch entry for callers that already have name and coords.
+ */
 export async function runImportFromParsed(
   parsed: ParsedUrl,
   canonicalUrl: string,
@@ -892,10 +793,8 @@ export async function runImportFromParsed(
 
   const matchedName = place.displayName?.text ?? parsed.name;
 
-  // Dedupe on the canonical Google Place ID — different physical locations of
-  // the same brand (e.g. "Five Elephant Kreuzberg" vs "Five Elephant Schwedter")
-  // share a name but never a place_id. Includes drafts so re-running the same
-  // URL twice while a draft is open doesn't create a second draft.
+  // Dedupe on the Google Place ID: branches share a name, never a place_id.
+  // Includes drafts.
   if (duplicateCheck) {
     const existing = await sanity.fetch<{ _id: string; name: string }[]>(
       `*[_type=="restaurant" && googlePlaceId == $placeId]{_id,name}`,
@@ -922,8 +821,6 @@ export async function runImportFromParsed(
     ? await importGalleryPhotos(place, slug, matchedName, photoAsset?.sourcePhotoName, sanity)
     : [];
 
-  // Parse the hours once here: inferCategories needs them to decide Lunch and
-  // Dinner, and buildDoc writes the same array onto the document.
   const openingHours = place.regularOpeningHours?.weekdayDescriptions?.length
     ? parseWeekdayDescriptions(place.regularOpeningHours.weekdayDescriptions)
     : [];
@@ -950,8 +847,6 @@ export async function runImportFromParsed(
     categoryNames,
   };
 }
-
-// ----- CLI Main ------------------------------------------------------------
 
 async function main() {
   const args = process.argv.slice(2);
@@ -1011,10 +906,8 @@ async function main() {
   console.log(`  add description/tip/photo, then publish.`);
 }
 
-// Only run main when invoked directly via tsx — skipped when this module is
-// imported by the enriched local importer. Symlink-safe via
-// realpath: on macOS /tmp resolves to /private/tmp so a naive URL/path
-// comparison would mis-detect.
+// Run main only when invoked directly. realpath because /tmp is /private/tmp on
+// macOS.
 import { realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 function isCliEntry(): boolean {

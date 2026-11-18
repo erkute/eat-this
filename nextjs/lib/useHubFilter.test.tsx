@@ -23,13 +23,11 @@ describe('useHubFilter', () => {
     scrolled.mockReset();
   });
 
-  /* Ansage 02.10.2026: „bei einem Klick drauf muss man in der Kategorie-Seite
-     ganz oben beginnen". Im Dev-Server lässt Reacts StrictMode Effekte
-     zweimal laufen; der alte Merker übersprang nur den ersten, der zweite
-     scrollte zur Liste. jsdom wiederholt die Effekte hier nicht — gemessen
-     wurde das im Browser (Playwright, /kategorie/pizza: vorher 310px, jetzt
-     0). Dieser Test hält fest, woran es hängt: gescrollt wird nur, wenn sich
-     der Filter ändert. */
+  /* Wer auf der Kategorie-Seite ankommt, beginnt ganz oben. Im Dev-Server lässt
+     Reacts StrictMode Effekte zweimal laufen; ein Merker, der nur den ersten
+     Lauf überspringt, scrollte beim zweiten zur Liste. jsdom wiederholt die
+     Effekte hier nicht. Dieser Test hält fest, woran es hängt: Gescrollt wird
+     nur, wenn sich der Filter ändert. */
   it('scrollt beim Ankommen nicht', () => {
     renderHook(() => useHubFilter({ queryKey: 'cat', slugs: ['coffee'], anchorId: 'liste' }), {
       wrapper: strict,

@@ -51,10 +51,9 @@ function unlockBody(restoreScroll: boolean) {
     document.body.style.top = '';
     document.body.style.width = '';
     /* Same task as lifting the lock, and `instant`: html carries
-       scroll-behavior: smooth, so the two-argument scrollTo was an animation
-       from the top back down — one rAF later, after a painted frame at y=0.
-       On the phone map that read as the page jumping away and gliding back
-       (user, 23.09.2026). */
+       scroll-behavior: smooth, so a two-argument scrollTo would be an animation
+       from the top back down — one rAF later, after a painted frame at y=0. On
+       the phone map that reads as the page jumping away and gliding back. */
     if (restoreScroll) window.scrollTo({ top: storedY, behavior: 'instant' });
   } else if (lockMode === 'overflow') {
     document.body.style.overflow = document.body.dataset.burgerPrevOverflow || '';
@@ -79,14 +78,13 @@ export function openBurgerDrawer() {
   // Record the off-canvas panel state after leaving display:none so adding
   // .active below still animates the opening transform.
   void drawer.offsetWidth;
-  // Bewegung SOFORT: Das Menü startet im Klick-Frame (Nutzer,
-  // 30.08.2026 — jede Verzögerung fühlt sich zäh an). Was diesen Frame
-  // vorher teuer machte, war nicht die Animation, sondern lockBody():
-  // `position: fixed` auf den Body ist ein Reflow der ganzen Seite, dazu
-  // der Canvas-Tint. Das läuft jetzt einen Frame SPÄTER — da läuft das Blatt
-  // schon im Compositor und merkt davon nichts. Ein Frame
-  // ohne Scroll-Sperre ist unkritisch: die Sperre hält die sichtbare
-  // Position ohnehin identisch (top: -scrollY).
+  // Bewegung sofort: Das Menü startet im Klick-Frame, jede Verzögerung fühlt
+  // sich zäh an. Teuer ist in diesem Frame nicht die Animation, sondern
+  // lockBody(): `position: fixed` auf den Body ist ein Reflow der ganzen Seite,
+  // dazu der Canvas-Tint. Das läuft deshalb einen Frame später; da läuft das
+  // Blatt schon im Compositor und merkt davon nichts. Ein Frame ohne
+  // Scroll-Sperre ist unkritisch: Die Sperre hält die sichtbare Position
+  // ohnehin identisch (top: -scrollY).
   drawer.classList.add('active');
   window.requestAnimationFrame(() => {
     if (!drawer.isConnected || !drawer.classList.contains('active')) return;

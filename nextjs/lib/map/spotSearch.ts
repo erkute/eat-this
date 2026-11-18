@@ -7,14 +7,11 @@ import { CUISINE_LABELS_DE } from '@/lib/cuisineLabels';
  * useMapFilters; hier steht nur die Sprache der Suche.
  */
 
-/* Kleinschreibung reicht für eine Suche über Restaurantnamen nicht.
- * „banh mi" fand die beiden „Saveur de Bánh Mì" nicht, weil `includes` Zeichen
- * für Zeichen vergleicht und `a` nicht `á` ist. Dasselbe trifft Döner, Café,
- * Türkisch, Neukölln — also fast alles, was man hier tippt.
- *
- * NFD zerlegt jeden Buchstaben in Grundzeichen plus Akzent, danach fliegen die
- * Akzente raus. Das wirkt auf BEIDEN Seiten: „Türkisch" getippt findet
- * „Turkisch" geschrieben und umgekehrt. */
+/*
+ * Kleinschreibung allein reicht nicht: `includes` vergleicht Zeichen für
+ * Zeichen, und `a` ist nicht `á` (Bánh Mì, Döner, Neukölln). NFD trennt die
+ * Akzente ab, auf beiden Seiten der Suche.
+ */
 export function normalizeForSearch(value: string | null | undefined): string {
   return (
     (value ?? '')
@@ -24,15 +21,11 @@ export function normalizeForSearch(value: string | null | undefined): string {
       .replace(/ß/g, 'ss')
       .normalize('NFD')
       .replace(/\p{Diacritic}/gu, '')
-      /* Apostrophe fliegen mit raus, in allen vier Schreibweisen, die im
-       Bestand vorkommen. „KuchenRausch's", „EIVGI´S" und die Kurzform
-       „P'berg" tippt niemand mit dem richtigen Zeichen — und welches das
-       richtige ist, weiss man dem Namen nicht an. */
+      /* Apostrophe fallen in allen Schreibweisen des Bestands weg; das richtige
+         Zeichen tippt niemand („KuchenRausch's", „P'berg"). */
       .replace(/['’ʼ´`]/g, '')
-      /* Ausgeschriebene Umlaute: „doener", „neukoelln" — so tippt man ohne
-       Umlaut-Taste. Nach dem Akzent-Abstreifen steht „ö" schon als „o", also
-       wird „oe" ebenfalls „o", auf BEIDEN Seiten. Dass dabei auch ein
-       „Blue" zu „blu" wird, schadet nicht: die Anfrage wird genauso gefaltet. */
+      /* Ausgeschriebene Umlaute („doener") falten wie die abgestreiften: „oe"
+         wird „o", auf beiden Seiten. */
       .replace(/ae/g, 'a')
       .replace(/oe/g, 'o')
       .replace(/ue/g, 'u')
@@ -53,16 +46,16 @@ const KIEZ_NAMES: [RegExp, string][] = [
 ];
 
 /* Wörter, die etwas anderes meinen, als am Spot steht. Jeder Eintrag: die
-   getippten Formen, dann was stattdessen auch trifft — am Wortanfang, damit
+   getippten Formen, dann was stattdessen auch trifft, am Wortanfang, damit
    „eis" als Alternative nicht in „Reisbar" landet.
 
-   Jede Zeile ist am echten Katalog gemessen (zuletzt 30.10.2026, 249 Spots)
-   und zeigt nur auf Wörter, die dort vorkommen. Eine Alternative, die mehr
-   Falsches als Richtiges holt, fliegt raus: sushi → Japanisch lieferte Ramen,
-   cocktail → Bar die Bäckerei „barlevain", maki traf „making", döner →
-   Türkisch Osmans Töchter (kein Döner), nudeln → Italienisch und pasta →
-   Italienisch jede Pizzeria, nudeln → spaghetti das „Spaghetti-Eis" einer
-   Eisdiele. Den Rest kennt der Suchindex (search-terms.json). */
+   Jede Zeile ist am echten Katalog gemessen und zeigt nur auf Wörter, die dort
+   vorkommen. Eine Alternative, die mehr Falsches als Richtiges holt, gehört
+   nicht hinein: sushi → Japanisch liefert Ramen, cocktail → Bar die Bäckerei
+   „barlevain", maki trifft „making", döner → Türkisch einen Laden ohne Döner,
+   nudeln → Italienisch und pasta → Italienisch jede Pizzeria, nudeln →
+   spaghetti das „Spaghetti-Eis" einer Eisdiele. Den Rest kennt der Suchindex
+   (search-terms.json). */
 const SYNONYMS: [string[], string[]][] = [
   [['brunch'], ['fruhstuck', 'breakfast']],
   [
@@ -80,9 +73,9 @@ const SYNONYMS: [string[], string[]][] = [
     ['vegan', 'vegetarisch'],
   ],
   [['brot'], ['bakery', 'backerei']],
-  /* Was man isst, nicht wie die Küche heisst — „Nudeln" stand an keinem Spot
-     und fand nichts (Betreiber, 29.09.2026). Jede Zeile zeigt nur auf Küchen
-     und Kategorien, die es im Bestand gibt (cuisineLabels.ts). */
+  /* Was man isst, nicht wie die Küche heißt: „Nudeln" steht an keinem Spot.
+     Jede Zeile zeigt nur auf Küchen und Kategorien, die es im Bestand gibt
+     (cuisineLabels.ts). */
   [
     ['nudeln', 'nudel', 'noodle', 'noodles'],
     [
@@ -152,9 +145,9 @@ const SYNONYMS: [string[], string[]][] = [
   [['eiscafe'], ['ice cream', 'eisdiele', 'gelato']],
   [['mittag', 'mittagessen'], ['lunch']],
   [['abendessen', 'abends'], ['dinner']],
-  /* Dasselbe Essen auf Deutsch und Englisch, in beide Richtungen: die Texte
+  /* Dasselbe Essen auf Deutsch und Englisch, in beide Richtungen: Die Texte
      stehen in beiden Sprachen, aber nicht jeder Spot nennt beide Wörter
-     (Katalog 30.10.2026: „Hähnchen" fand 15, „chicken" 27). */
+     („Hähnchen" und „chicken" finden verschieden viele). */
   [
     ['hahnchen', 'huhn', 'chicken', 'hendl', 'poulet'],
     ['hahnchen', 'huhn', 'chicken', 'hendl', 'poulet', 'geflugel'],
@@ -203,8 +196,7 @@ const SYNONYMS: [string[], string[]][] = [
     ['smoothie', 'smoothies', 'saft', 'juice'],
     ['smoothie', 'saft', 'juice'],
   ],
-  /* Ein Kaffeegetränk meint das Café, nicht nur die Spots, die das Wort
-     zufällig schreiben: „Cappuccino" fand einen einzigen. */
+  /* Ein Kaffeegetränk meint das Café, nicht nur Spots, die das Wort schreiben. */
   [
     ['cappuccino', 'espresso', 'latte', 'kaffee', 'coffee', 'cortado'],
     ['kaffee', 'coffee', 'cafe', 'espresso', 'cappuccino', 'roaster', 'rosterei'],
@@ -271,10 +263,10 @@ const SYNONYMS: [string[], string[]][] = [
     ['vegan', 'plant'],
   ],
 ];
-/* Küchen und Kategorien, wie sie am Spot als Etikett stehen. Zeigt ein
-   Synonym auf eines davon, meint es das Etikett, nicht jede Erwähnung im
-   Text: „Turkish Eggs" bei Father Carpenter und „italienisches Eis" bei
-   Hokey Pokey sind weder Döner noch Nudeln (30.10.2026). */
+/* Küchen und Kategorien, wie sie am Spot als Etikett stehen. Zeigt ein Synonym
+   auf eines davon, meint es das Etikett, nicht jede Erwähnung im Text: „Turkish
+   Eggs" bei Father Carpenter und „italienisches Eis" bei Hokey Pokey sind weder
+   Döner noch Nudeln. */
 const LABELS = new Set(
   [
     ...Object.entries(CUISINE_LABELS_DE).flat(),
@@ -296,7 +288,6 @@ const SYNONYMS_BY_WORD = new Map(
   )
 );
 
-/** Ein Wort der Anfrage und was es noch meinen darf. */
 interface QueryWord {
   text: string;
   alternatives: string[];
@@ -329,13 +320,14 @@ function correctPlace(word: string, places: Set<string>, index: Map<string, Sear
   return near;
 }
 
-/** Die Anfrage als Woerter. Jedes muss irgendwo am Spot stehen — nicht der
- *  ganze Satz in einem Feld: „pizza neukölln" fand sonst nichts.
+/**
+ * Die Anfrage als Wörter. Jedes muss irgendwo am Spot stehen, nicht der ganze
+ * Satz in einem Feld: „pizza neukölln" fände sonst nichts.
  *
- *  Mit `index` werden Bezirke und Kieze erkannt. „Kreuzberg" fand 71 Spots
- *  statt der 50 in Kreuzberg: 21 Beschreibungen anderswo erwähnen den Bezirk
- *  („aus der eigenen Kreuzberger Röstung", Katalog 27.10.2026). Ein Ortswort
- *  meint, wo der Spot liegt. */
+ * Mit `index` werden Bezirke und Kieze erkannt. Ein Ortswort meint, wo der Spot
+ * liegt: Ohne das fände „Kreuzberg" auch Spots anderswo, deren Beschreibung den
+ * Bezirk erwähnt („aus der eigenen Kreuzberger Röstung").
+ */
 export function parseQuery(query: string, index?: Map<string, SearchEntry>): QueryWord[] {
   let q = normalizeForSearch(query.trim());
   /* Der volle Name wird gefaltet wie alles andere — „Prenzlauer" steht im
@@ -357,7 +349,6 @@ export function parseQuery(query: string, index?: Map<string, SearchEntry>): Que
     });
 }
 
-/** Steht `token` in `hay` am Anfang eines Wortes? */
 function startsWord(hay: string, token: string): boolean {
   for (let i = hay.indexOf(token); i !== -1; i = hay.indexOf(token, i + 1)) {
     if (i === 0 || !/[a-z0-9]/.test(hay[i - 1])) return true;
@@ -365,7 +356,6 @@ function startsWord(hay: string, token: string): boolean {
   return false;
 }
 
-/** Steht `token` in `hay` als ganzes Wort? */
 function isWord(hay: string, token: string): boolean {
   for (let i = hay.indexOf(token); i !== -1; i = hay.indexOf(token, i + 1)) {
     const end = i + token.length;
@@ -411,19 +401,15 @@ export function buildSearchIndex(
       r.name,
       r.bezirk?.name,
       r.district,
-      /* Die Strasse. Seit 28.09.2026 wieder im Kartenpayload
-         (mapRestaurantsQuery) — davor stand sie nur hier, und
-         „kastanienallee" fand nichts. */
+      /* Die Straße. Sie steht im Kartenpayload (mapRestaurantsQuery); ohne sie
+         fände „kastanienallee" nichts. */
       /* Ohne das Land: importierte Adressen enden auf „, Deutschland", und
-         „deutsch" fand sonst 174 von 249 Spots. */
+         „deutsch" träfe sonst fast jeden Spot. */
       r.address?.replace(/,\s*(Deutschland|Germany)\s*$/i, ''),
       r.searchText,
       r.cuisineType,
-      /* Die Küche steht in Sanity ENGLISCH („Vietnamese"), auf den
-         deutschen Seiten liest man aber das Label („Vietnamesisch") — und
-         genau das tippt man dann auch. Ohne dieses Feld fand
-         „vietnamesisch" keinen der acht vietnamesischen Spots. Beide Formen
-         zählen, damit die Suche in beiden Sprachen dasselbe findet. */
+      /* Die Küche steht in Sanity englisch, die deutschen Seiten zeigen das
+         Label („Vietnamesisch"), und das wird getippt. Beide Formen zählen. */
       r.cuisineType ? CUISINE_LABELS_DE[r.cuisineType] : null,
       ...(dishes.get(r._id) ?? []),
       ...(r.categories ?? []).flatMap((c) => [c.name, c.nameEn, c.slug]),
@@ -473,7 +459,6 @@ function withinOneEdit(a: string, b: string): boolean {
   return short.slice(i) === long.slice(i + 1);
 }
 
-/** Beginnt ein Wort des Spots mit `token`, bis auf einen Buchstaben? */
 function nearWordStart(words: string[], token: string): boolean {
   if (token.length < FUZZY_MIN_LENGTH) return false;
   return words.some((word) =>
@@ -567,17 +552,16 @@ export function searchRank(entry: SearchEntry, query: QueryWord[]): number {
 }
 
 /**
- * Die Vorschläge unter dem Suchfeld: dieselben Treffer, die ein Abschicken
- * der Anfrage in die Liste holt (useMapFilters), nach Passung und dann nach
- * Namen geordnet — die Entfernung, nach der die Liste sortiert, kennt ein
- * Vorschlag nicht. Tippen filtert die Liste nicht mehr, erst das Abschicken
- * (Betreiber, 29.09.2026).
+ * Die Vorschläge unter dem Suchfeld: dieselben Treffer, die ein Abschicken der
+ * Anfrage in die Liste holt (useMapFilters), nach Passung und dann nach Namen
+ * geordnet; die Entfernung, nach der die Liste sortiert, kennt ein Vorschlag
+ * nicht. Tippen filtert die Liste nicht, erst das Abschicken.
  *
- * Alle Treffer, die Vorschläge scrollen. Bis 27.10.2026 standen dort höchstens
- * sechs, und „Kreuzberg" sah aus, als gäbe es nur sechs Spots (Betreiber).
+ * Alle Treffer, die Vorschläge scrollen. Mit einem Deckel sähe „Kreuzberg" aus,
+ * als gäbe es nur eine Handvoll Spots.
  *
- * Der Tippfehler-Rückfall wie in der Liste (needsFuzzy) — gezählt ohne
- * `keep`, die Chips des Aufrufers.
+ * Der Tippfehler-Rückfall wie in der Liste (needsFuzzy), gezählt ohne `keep`,
+ * die Chips des Aufrufers.
  */
 export function suggestSpots(
   restaurants: MapRestaurant[],

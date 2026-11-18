@@ -1,4 +1,3 @@
-// nextjs/lib/buddy/stream.ts
 import type { BuddyStreamEvent } from './types';
 
 export function encodeBuddyEvent(event: BuddyStreamEvent): string {
@@ -36,16 +35,13 @@ export function extractFollowups(content: string): { chips: string[]; rest: stri
 type AnswerSegment = { type: 'text'; text: string } | { type: 'spot'; slug: string };
 
 /**
- * Zeichen, die ein Spot-Slug tragen darf — die Zeichenklasse, an der Marker
- * und der Index-Waechter haengen.
+ * Zeichen, die ein Spot-Slug tragen darf: die Zeichenklasse, an der Marker und
+ * der Index-Wächter hängen.
  *
- * Sanity erzwingt keine Kleinschreibung, und am 06.09.2026 nutzte genau ein
- * Spot das aus: `Der-weinlobbyist`. Mit dem frueheren `[a-z0-9-]` fiel er
- * durchs Raster — Remy konnte fuer ihn nie eine Karte setzen. Der Slug ist
- * inzwischen begradigt (Redirect in `lib/seo/legacyRedirects.ts`), die
- * Zeichenklasse bleibt trotzdem weit: das Schema laesst den naechsten
- * jederzeit wieder zu, und ein Slug, den Remy nicht darstellen kann, faellt
- * sonst wieder stumm aus.
+ * Sanity erzwingt keine Kleinschreibung, das Schema lässt einen Slug wie
+ * `Der-weinlobbyist` jederzeit zu. Mit einem engen `[a-z0-9-]` fiele er durchs
+ * Raster, und Remy könnte für ihn nie eine Karte setzen. Die Zeichenklasse
+ * bleibt deshalb weit.
  */
 export const SPOT_SLUG_RE = /^[A-Za-z0-9-]+$/;
 

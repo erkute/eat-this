@@ -1,4 +1,3 @@
-// nextjs/lib/buddy/homeStage.ts
 // Window-event bridge between the home hub's "Frag Remy" stage section and the
 // globally mounted BuddyWidget. Plain CustomEvents (not React context) because
 // the section lives inside the hub page tree while the widget hangs off the

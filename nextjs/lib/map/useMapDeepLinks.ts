@@ -64,15 +64,15 @@ export function useMapDeepLinks({
     const target = restaurants.find((r) => r.slug === slug);
     if (!target) return;
     restaurantConsumed.current = true;
-    // The param deliberately STAYS in the URL: the detail-URL-sync effect in
+    // The param deliberately stays in the URL: the detail-URL-sync effect in
     // MapSection keeps it in step with the open detail, so pull-to-refresh
-    // reopens the spot instead of dropping to the list. Same-session
-    // re-trigger is prevented by the consumed guard above.
-    // Open the detail IMMEDIATELY from the SSR'd data — it only sets state and
-    // the sheet/sidebar is already in the SSR shell, so it must NOT wait for the
-    // ~800 KB MapLibre canvas chunk to download (that was the "spot takes long
-    // to open after clicking" delay). The handler's flyTo uses optional
-    // chaining, so it simply no-ops while mapRef is null.
+    // reopens the spot instead of dropping to the list. Same-session re-trigger
+    // is prevented by the consumed guard above.
+    //
+    // Open the detail immediately from the SSR'd data: it only sets state, and
+    // the sheet/sidebar is already in the SSR shell, so it must not wait for
+    // the MapLibre canvas chunk. The handler's flyTo uses optional chaining, so
+    // it no-ops while mapRef is null.
     userInteractedRef.current = true;
     onRestaurantSlugMatchRef.current(target);
     // Move only the camera once the canvas mounts. Keeping
@@ -96,11 +96,10 @@ export function useMapDeepLinks({
   // ?me=<mustEatId> opens the matching Must-Eat detail directly. Used by the
   // inline must-eat cards in news articles. Reuses the in-app tap handler so
   // locked/unlocked behaviour is identical. Mirrors the ?r= polling pattern.
-  // Hold the (frequently re-created) handler in a ref so it's NOT an effect
-  // dependency — otherwise its identity churn (sheetView/snap changes) re-runs
-  // the effect, whose cleanup cancels the in-flight mapRef poll, and the
-  // consumed-guard then blocks a restart → the detail never opens on a cold
-  // article→map navigation.
+  // Hold the handler in a ref so it is not an effect dependency: its identity
+  // churn (sheetView/snap changes) would re-run the effect, whose cleanup
+  // cancels the in-flight mapRef poll, and the consumed guard would then block
+  // a restart.
   const onMustEatIdMatchRef = useRef(onMustEatIdMatch);
   onMustEatIdMatchRef.current = onMustEatIdMatch;
   const mustEatConsumed = useRef(false);

@@ -13,8 +13,7 @@ describe('resolveUserTier', () => {
 
   it('is pending, not anon, while auth is still resolving', () => {
     // Bis Firebase den Nutzer meldet, ist `uid === null` „unbekannt", nicht
-    // „Gast". Vorher stand in diesem Fenster auf jedem Laden das Banner —
-    // für Käufer und Admin gleichermaßen, und das SSR-HTML trug es ohnehin.
+    // „Gast".
     expect(
       resolveUserTier({
         uid: null,
@@ -29,8 +28,8 @@ describe('resolveUserTier', () => {
   it('opens everything for an admin the entitlement listener has never heard of', () => {
     // Das eigene Admin-Konto: null Dokumente unter users/<uid>/entitlements,
     // der Zugang hängt server-only an ADMIN_EMAILS. Der Listener meldet
-    // „besitzt nichts", und die Live-Karte zeigte am 02.09.2026 das
-    // All-Berlin-Banner über 467 offenen Spots. Der Server hat das letzte Wort.
+    // „besitzt nichts", und die Karte zeigte sonst das All-Berlin-Banner über
+    // lauter offenen Spots. Der Server hat das letzte Wort.
     expect(resolveUserTier({ uid: UID, owned: new Set(), ...fullSurface })).toBe('allBerlin');
   });
 
@@ -73,10 +72,9 @@ describe('showsPackPromos', () => {
   });
 
   it('stays quiet while the entitlements are still loading', () => {
-    // Der eigentliche Fehler: `pending` fiel vorher auf 'starter' durch, und ein
-    // bezahltes Konto sah auf jedem Gerät ohne warmen localStorage-Cache erst
-    // einmal die Kaufbanner. Werbung lässt sich später einblenden — nicht
-    // zurücknehmen.
+    // `pending` zeigt keine Werbung: sonst sähe ein bezahltes Konto auf jedem
+    // Gerät ohne warmen localStorage-Cache erst einmal die Kaufbanner. Werbung
+    // lässt sich später einblenden, nicht zurücknehmen.
     expect(showsPackPromos('pending')).toBe(false);
   });
 

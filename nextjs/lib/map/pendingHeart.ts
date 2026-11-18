@@ -4,25 +4,20 @@ import { HEART_PARAM } from '@/lib/auth/loginContinueUrl';
 import { notify } from '@/lib/notice';
 
 /**
- * Das Herz, das jemand vergeben wollte, bevor der Login dazwischenkam.
- *
- * Wer ausgeloggt auf ein Herz tippt, bekommt das Login-Modal — und stand
- * danach vor demselben leeren Herz wie vorher. Der Tap war weg, und mit ihm
- * der Grund, sich ueberhaupt anzumelden. Also wird die Absicht gemerkt und
+ * Das Herz, das jemand vergeben wollte, bevor der Login dazwischenkam: wer
+ * ausgeloggt auf ein Herz tippt, bekommt das Login-Modal, und die Absicht wird
  * eingeloest, sobald ein Konto da ist.
  *
  * Zwei Traeger, weil der Login zwei Wege nimmt:
  *   sessionStorage — Google. Popup bleibt im selben Dokument, der
  *     Redirect-Ausweichweg (siehe AuthContext) kommt in denselben Tab zurueck.
- *   ?heart=<id>    — Magic-Link. Der Link oeffnet routinemaessig in einem
- *     ANDEREN Browser (Gmail-App → Chrome), dort ist der sessionStorage leer;
- *     nur die Continue-URL ueberlebt den Posteingang. Derselbe Weg, den der
- *     Gratis-Spot mit `claim=1` schon geht.
+ *   ?heart=<id>    — Magic-Link. Der Link oeffnet oft in einem anderen
+ *     Browser (Gmail-App → Chrome), dort ist der sessionStorage leer; nur die
+ *     Continue-URL ueberlebt den Posteingang.
  *
- * Der Merker verfaellt: er deckt nur die Sekunden zwischen Tap und Anmeldung
- * im selben Tab ab. Wer das Modal wegklickt und eine halbe Stunde spaeter
- * ueber das Burger-Menue hereinkommt, soll nicht ploetzlich einen Spot geherzt
- * bekommen, an den er nicht mehr denkt.
+ * Der Merker verfaellt: er deckt nur die Sekunden zwischen Tap und Anmeldung im
+ * selben Tab ab. Wer das Modal wegklickt und spaeter ueber das Burger-Menue
+ * hereinkommt, soll nicht ploetzlich einen Spot geherzt bekommen.
  */
 
 const STORAGE_KEY = 'eatthis_pending_heart';

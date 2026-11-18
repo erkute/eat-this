@@ -202,8 +202,8 @@ export default function HubFragRemy({ compact = false }: { compact?: boolean }) 
           </div>
         </div>
         <div className={styles.content}>
-          {/* Auf einen Blick, wer da spricht (Ansage 21.10.2026): der Name
-              gross, darunter in einem Satz, was er kann. */}
+          {/* Auf einen Blick, wer da spricht: der Name groß, darunter in einem
+              Satz, was er kann. */}
           <h2 className={styles.title}>
             <span className={styles.hello}>{en ? 'Hey, I’m' : 'Hey, ich bin'}</span>{' '}
             <span className={styles.name}>Remy.</span>

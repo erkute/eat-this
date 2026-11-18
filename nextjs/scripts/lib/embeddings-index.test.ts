@@ -108,11 +108,10 @@ describe.each(ALL_INDEXES.map((spec) => [spec.label, spec] as const))(
     });
 
     it('traegt einen ernstzunehmenden Bestand — ein Rumpfindex waere schlimmer als keiner', () => {
-      // Kein Abgleich mit Sanity, nur die Untergrenze: fiele eine Datei auf
-      // eine Handvoll Eintraege zusammen, ränge Remy fast alles ans Ende.
-      // Bei den Artikeln entscheidet der Index sogar die Treffermenge.
-      // Spots: nach der Kuration vom 27.09.2026 gut 230 statt rund 470 —
-      // die Grenze laesst Platz fuer weiteres Aussortieren.
+      // Kein Abgleich mit Sanity, nur die Untergrenze: Fiele eine Datei auf
+      // eine Handvoll Einträge zusammen, ränge Remy fast alles ans Ende. Bei
+      // den Artikeln entscheidet der Index sogar die Treffermenge. Die Grenze
+      // für Spots lässt Platz für weiteres Aussortieren.
       const floor = spec.label === 'Spots' ? 150 : 20;
       expect(index.count).toBeGreaterThan(floor);
     });

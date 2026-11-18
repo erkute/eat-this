@@ -19,19 +19,17 @@ interface MarkerButtonProps {
 }
 
 /**
- * One MapLibre marker whose content is a single accessible control — the shell
- * every marker in this folder is built from.
+ * One MapLibre marker whose content is a single accessible control, the shell
+ * every marker in this folder is built from. MapLibre fights React on two
+ * points:
  *
- * It exists because MapLibre fights React on two points, and every marker
- * component had been re-solving both:
- *
- *  - MapLibre stamps `role="button"` + `aria-label="Map marker"` on its own
- *    wrapper (in `Marker.addTo`, i.e. AFTER React has mounted the inner
- *    control), so each pin announced as two nested buttons with the outer one
+ * - MapLibre stamps `role="button"` + `aria-label="Map marker"` on its own
+ *    wrapper (in `Marker.addTo`, after React has mounted the inner control),
+ *    so each pin would announce as two nested buttons with the outer one
  *    namelessly generic. The wrapper is demoted to presentation and the inner
  *    control carries the real name, focus ring and Enter/Space handling.
- *  - A tap on a marker must not also register as a tap on the map, which would
- *    close the sheet the tap just opened.
+ * - A tap on a marker must not also register as a tap on the map, which
+ *    would close the sheet the tap just opened.
  */
 export default function MarkerButton({
   lat,

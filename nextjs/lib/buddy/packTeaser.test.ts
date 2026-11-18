@@ -1,4 +1,3 @@
-// nextjs/lib/buddy/packTeaser.test.ts
 import { describe, it, expect } from 'vitest';
 import { pickPackForSpots, buildPackTeaser } from './packTeaser';
 import { CATALOG } from '@/lib/stripe-catalog';
@@ -115,8 +114,8 @@ describe('pickPackForSpots with user intent', () => {
   });
 
   it('shows nothing when the asked-for topic has no support in the results', () => {
-    // user asked for breakfast, results carry no breakfast ref at all — a
-    // Lunch card here is exactly the reported bug, no card is correct
+    // user asked for breakfast, results carry no breakfast ref at all: a Lunch
+    // card here would be wrong, no card is correct
     const spots = [
       spot('a', ['lunch', 'dinner']),
       spot('b', ['lunch', 'dinner']),

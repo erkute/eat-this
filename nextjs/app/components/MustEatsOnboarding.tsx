@@ -171,7 +171,6 @@ export default function MustEatsOnboarding({
     };
   }, [open]);
 
-  // Escape closes.
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -190,10 +189,9 @@ export default function MustEatsOnboarding({
       data-testid="onb-flipper"
       className={showBack ? `${tour.flipper} ${tour.flipped}` : tour.flipper}
     >
-      {/* 242 px breit — am Retina-Bildschirm dieselbe 720er, die das Raster
-          darunter schon geladen hat, statt eines zweiten Originals. Eigener
-          `key` je Motiv: sonst schreibt React das vorhandene <img> um, und
-          Safari laedt dabei zwei Varianten (siehe ProfileAlbum.tsx). */}
+      {/* 242 px breit: am Retina-Bildschirm dieselbe 720er, die das Raster
+          darunter schon geladen hat. Eigener `key` je Motiv: sonst schreibt
+          React das vorhandene <img> um, und Safari laedt dabei zwei Varianten. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         key={demo?.image ?? 'back'}

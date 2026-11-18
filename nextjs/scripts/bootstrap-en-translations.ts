@@ -145,9 +145,8 @@ async function fetchBezirke(draftsOnly: boolean): Promise<BezirkSource[]> {
   );
 }
 
-// Sonnet 5: newer and cheaper than 4.6 ($2/$10 vs $3/$15 per MTok). Thinking
-// counts against max_tokens on this model, so the budgets below are doubled
-// and effort stays low.
+// Sonnet 5 thinks adaptively, and thinking counts against max_tokens, so the
+// budgets below are doubled and effort stays low.
 const TRANSLATION_MODEL = 'claude-sonnet-5';
 
 const RESTAURANT_PROMPT = `You are translating restaurant content from German to English for "Eat This Berlin", a curated Berlin food guide.
@@ -272,8 +271,8 @@ async function patchRestaurantDraft(
 
   if (Object.keys(topLevelSets).length === 0 && Object.keys(seoSets).length === 0) return false;
 
-  // Two separate awaits — chained transaction.patch(id, fn) silently no-op'd in
-  // a prior version. createIfNotExists then a standalone patch.commit() is the
+  // Two separate awaits: a chained transaction.patch(id, fn) can silently
+  // no-op. createIfNotExists then a standalone patch.commit() is the
   // unambiguous form.
   await sanity.createIfNotExists({
     ...r,

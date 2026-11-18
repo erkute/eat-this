@@ -43,9 +43,9 @@ describe('sameOriginAuthDomain', () => {
 
   it('nimmt sie auch auf Staging — dort lag der Fehler', async () => {
     /* Staging initialisiert aus der App-Hosting-Auto-Config, deren authDomain
-       auf eat-this-staging-8a13b.firebaseapp.com zeigt. Der Popup lief damit
-       cross-origin und schloss sich wieder, ohne jemanden anzumelden (User,
-       26.08.2026) — obwohl der Proxy unter /__/ dort nachweislich antwortet. */
+       auf eat-this-staging-8a13b.firebaseapp.com zeigt. Damit liefe der Popup
+       cross-origin und schlösse sich wieder, ohne jemanden anzumelden, obwohl
+       der Proxy unter /__/ dort antwortet. */
     at('eat-this-staging--eat-this-staging-8a13b.us-central1.hosted.app');
     await expect(sameOriginAuthDomain()).resolves.toBe(
       'eat-this-staging--eat-this-staging-8a13b.us-central1.hosted.app'

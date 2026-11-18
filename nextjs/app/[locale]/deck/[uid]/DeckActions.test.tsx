@@ -56,9 +56,8 @@ describe('DeckActions', () => {
     expect(screen.queryByRole('button', { name: 'signIn' })).toBeNull();
   });
 
-  /* Der „Ansehen"-Link im Profil fuehrt den Besitzer hierher. Bis zum
-     24.09.2026 bat ihn die Seite dann, „zurueck zu deinem eigenen Deck" zu
-     gehen — er stand schon darauf. */
+  /* Der „Ansehen"-Link im Profil führt den Besitzer hierher: Er steht schon auf
+     seinem eigenen Deck und bekommt Teilen statt eines Rückwegs. */
   it('gibt dem Besitzer Teilen, mit ?ref auf sein eigenes Deck', () => {
     authState.user = { uid: DECK_UID };
     render(<DeckActions uid={DECK_UID} />);

@@ -1,17 +1,11 @@
 // @vitest-environment jsdom
-// nextjs/app/components/buddy/BuddyWidget.dismiss.test.tsx
 //
-// Wegtippen darf NIE auf der Ebene darunter ankommen.
-//
-// Remys Panel schloss auf einem `pointerdown` an `document` — ungesichert.
-// Damit war es weg, bevor der Klick kam, und der Klick traf, was darunter lag.
-// Auf dem Telefon ist das die Regel, nicht der Ausnahmefall: touchstart,
-// touchend, und erst danach der Klick. Remy haengt in der SPA-Huelle und auf
-// den Restaurantseiten, das galt also fast ueberall.
-//
-// Jetzt nimmt der Vorhang den Klick selbst an. Diese Tests nageln beide
-// Haelften fest: der Vorhang schliesst auf `click`, und ein blosses
-// `pointerdown` schliesst NICHT — genau das war das Loch.
+// Wegtippen darf nie auf der Ebene darunter ankommen. Schloesse Remys Panel
+// auf einem `pointerdown` an `document`, waere es weg, bevor der Klick kommt,
+// und der Klick traefe, was darunter liegt; auf dem Telefon ist das die Regel
+// (touchstart, touchend, dann der Klick). Der Vorhang nimmt den Klick deshalb
+// selbst an. Diese Tests halten beide Haelften fest: der Vorhang schliesst auf
+// `click`, ein blosses `pointerdown` schliesst nicht.
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import { render, fireEvent, cleanup } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';

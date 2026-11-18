@@ -11,18 +11,16 @@ import { dispatchBuddyAsk } from '@/lib/buddy/homeStage';
 import { ThemeSwitch } from './ThemeSwitch';
 import styles from './BurgerDrawer.module.css';
 
-/* Ein Menü-Link, der erst auf Absicht lädt.
+/*
+ * Ein Menü-Link, der erst auf Absicht lädt.
  *
- * `prefetch={false}` allein war zu teuer erkauft: es nimmt zwar den
- * Prefetch-Sturm beim Öffnen weg (Nexts Viewport-Prefetcher holte alle 13
- * Routen mitten in der Tür-Animation, ~86ms Main-Thread), kostet aber die
- * erste Menü-Navigation spürbar — gemessen am 30.08.2026 unter Slow 4G:
- * 1205ms kalt gegen 637ms warm.
+ * `prefetch={false}` allein nähme den Prefetch-Sturm beim Öffnen weg (Nexts
+ * Viewport-Prefetcher holte sonst alle Routen mitten in der Tür-Animation),
+ * kostet aber die erste Menü-Navigation spürbar.
  *
- * Beides geht: kein Prefetch, solange das Wort nur sichtbar ist, aber einer,
- * sobald der Finger daraufliegt. Derselbe Handgriff wie in MapIntentLink —
- * Pointer-Down kommt gut 100ms vor dem Klick, und der Prefetch läuft dann in
- * einem Frame, in dem nichts animiert.
+ * Deshalb kein Prefetch, solange das Wort nur sichtbar ist, aber einer, sobald
+ * der Finger daraufliegt, wie in MapIntentLink: Pointer-Down kommt vor dem
+ * Klick, und der Prefetch läuft in einem Frame, in dem nichts animiert.
  */
 function DrawerLink({ href, children, ...props }: ComponentProps<typeof Link>) {
   const router = useRouter();
@@ -62,8 +60,7 @@ export default function BurgerDrawer() {
   }, []);
 
   // `restoreScroll` bewusst ohne Vorgabewert: die Antwort ist an jeder
-  // Aufrufstelle eine andere, und ein Default hat hier schon einmal die
-  // falsche gewählt (siehe onPanelClick).
+  // Aufrufstelle eine andere (siehe onPanelClick).
   const closeBurger = useCallback((restoreScroll: boolean) => {
     closeBurgerDrawer(restoreScroll);
   }, []);
@@ -122,18 +119,15 @@ export default function BurgerDrawer() {
   // Event-delegated close: any anchor click bubbles up; we dispatch the close
   // event so same-route navigation also closes the drawer.
   //
-  // Bewusst `false`: ein Link führt weg, die Zielseite beginnt oben. Der
-  // Default `true` schrieb hier die Scrollposition der ALTEN Seite auf die
-  // neue. Unter 768px sperrt der Drawer den Body per `position: fixed` und
-  // führt beim Schließen `window.scrollTo(0, storedY)` nach — mit global
-  // `scroll-behavior: smooth` eine sekundenlange Animation. Nexts eigenes
-  // Scroll-nach-oben prüft genau einmal, ob der Seitenkopf im Viewport
-  // steht; solange die Animation noch bei y=0 steht, sagt die Prüfung ja,
-  // Next steigt aus, und die Animation trug den Leser danach auf die alte
-  // Position. Live gemessen am 04.09.2026: /kategorie (y=1500) → /packs
-  // landete bei 1500, /kategorie → /bezirk dagegen oben — ein Rennen, das
-  // je nach Zielseite anders ausging. Der `pathname`-Effekt oben, der `false`
-  // übergibt, rettet das nicht: da ist der Drawer längst zu und
+  // Bewusst `false`: Ein Link führt weg, die Zielseite beginnt oben. Mit `true`
+  // landete die Scrollposition der alten Seite auf der neuen. Unter 768px
+  // sperrt der Drawer den Body per `position: fixed` und führt beim Schließen
+  // `window.scrollTo(0, storedY)` nach, mit global `scroll-behavior: smooth`
+  // eine sekundenlange Animation. Nexts eigenes Scroll-nach-oben prüft genau
+  // einmal, ob der Seitenkopf im Viewport steht; solange die Animation noch bei
+  // y=0 steht, sagt die Prüfung ja, Next steigt aus, und die Animation trägt
+  // den Leser danach auf die alte Position. Der `pathname`-Effekt oben, der
+  // `false` übergibt, rettet das nicht: Da ist der Drawer längst zu und
   // closeBurgerDrawer steigt sofort wieder aus.
   const onPanelClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {

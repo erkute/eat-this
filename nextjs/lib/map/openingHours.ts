@@ -43,10 +43,9 @@ export const DAY_LABELS = {
 } as const;
 
 /**
- * `days` is free text an editor typed into Sanity ("Mon-Thu", "Mo–So",
- * "Wed,Thu,Sun "), so the German page was showing English abbreviations.
- * Tokens that map to a weekday get the locale's label; anything unrecognised
- * is passed through untouched rather than dropped.
+ * `days` is free text an editor typed into Sanity ("Mon-Thu", "Mo–So"). Tokens
+ * that map to a weekday get the locale's label; anything unrecognised passes
+ * through untouched.
  */
 export function localizeOpeningDays(days: string | undefined, locale: string): string {
   const lang = locale === 'en' ? 'en' : 'de';
@@ -135,10 +134,8 @@ export function slotCoversDay(days: string | undefined, day: number): boolean {
 }
 
 /**
- * All time ranges in one slot. Editors type split shifts as a single string
- * ("12:00-15:00,18:00-23:00"), so reading only the first match dropped the
- * evening service — the badge said "closed" at dinner time and the JSON-LD
- * reported lunch hours only. Returns [] for rest days and unparseable text.
+ * All time ranges in one slot: editors type split shifts as one string
+ * ("12:00-15:00,18:00-23:00"). Returns [] for rest days and unparseable text.
  */
 function parseTimeRanges(str: string): { open: number; close: number }[] {
   if (isClosedSlot(str)) return [];
@@ -215,25 +212,14 @@ export function buildOpeningHoursSpec(
 
 /**
  * Eine Date, deren lokale Zugriffe (getDay/getHours/…) die Berliner Wanduhr
- * zeigen — unabhängig davon, in welcher Zone der Prozess oder das Gerät läuft.
- * Der Server rechnet in UTC, Besucher sitzen irgendwo; der Zustand eines
- * Berliner Ladens folgt aber der Uhr an seiner Tür.
- *
- * Wohnt hier, weil `getOpenStatus` der einzige Konsument ist und beide Aufrufer
- * — die serverseitige Remy-Retrieval und der Öffnungs-Tag im Map-Detail —
- * sonst je eine eigene Kopie hielten, die auseinanderlaufen kann, ohne dass ein
- * Test es merkt.
+ * zeigen, unabhängig von der Zone des Prozesses oder Geräts: der Zustand eines
+ * Berliner Ladens folgt der Uhr an seiner Tür. Hier, damit Remy-Retrieval und
+ * Map-Detail dieselbe Rechnung nutzen.
  */
 /**
- * Die sichtbaren Wörter des Offen-Zustands, an einer Stelle.
- *
- * Drei Aufrufer erzeugen diesen Zustand: das Map-Sheet und die Map-Liste über
- * next-intl (`t('map.open')` …) und die Remy-Retrieval auf dem Server. Die hat
- * keinen next-intl-Kontext und hielt eine eigene Kopie — dabei war sie auf
- * „Offen" stehengeblieben, während überall sonst „Geöffnet" stand. Diese
- * Konstante ist die Quelle für alles ohne i18n-Kontext;
- * `openingHours.labels.test.ts` hält sie mit `lib/i18n/translations.ts`
- * synchron, damit die Fassungen nicht wieder auseinanderlaufen.
+ * Die sichtbaren Wörter des Offen-Zustands für alles ohne next-intl-Kontext
+ * (die Remy-Retrieval auf dem Server). `openingHours.labels.test.ts` hält sie
+ * mit `lib/i18n/translations.ts` synchron.
  */
 export const OPEN_STATUS_LABELS = {
   de: { open: 'Geöffnet', closed: 'Geschlossen', opens: 'Öffnet', closes: 'Schließt' },

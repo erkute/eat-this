@@ -135,7 +135,7 @@ describe('useHandleScrollDrag', () => {
 
   it('moves the sheet once per frame, to where the finger is last', () => {
     /* iOS delivers touches faster than a 60 Hz screen draws; a scrollTo per
-       event landed the sheet in uneven steps. */
+       event would land the sheet in uneven steps. */
     mount();
     handle.dispatchEvent(pointerEvent('pointerdown', 500));
     handle.dispatchEvent(pointerEvent('pointermove', 470));

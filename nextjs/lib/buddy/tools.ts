@@ -1,4 +1,3 @@
-// nextjs/lib/buddy/tools.ts
 import type Anthropic from '@anthropic-ai/sdk';
 
 /**

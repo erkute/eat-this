@@ -140,10 +140,9 @@ export default function RestaurantDetail({
   const { open: openLoginModal } = useLoginModal();
   const { count: heartCount } = useHeartCount(restaurant._id);
 
-  // The map list payload is now trimmed to hero/list fields; the editorial +
-  // contact fields (address, phone, tip, description, …) load on demand when
-  // the sheet opens and merge over the list object. Cached per slug, so paging
-  // back or re-opening is instant. `r` is the merged view used for rendering.
+  // The map list payload carries hero/list fields only; editorial and contact
+  // fields load on demand when the sheet opens and merge over the list object,
+  // cached per slug. `r` is the merged view used for rendering.
   const { detail, loading: detailLoading } = useRestaurantDetail(restaurant.slug);
   const r = useMemo(
     () => (detail ? { ...restaurant, ...detail } : restaurant),
@@ -201,12 +200,9 @@ export default function RestaurantDetail({
       ? berlinNow(new Date(minute * 60_000)).getDay()
       : null;
 
-  // Scale the hero name down for long single words so they fit on one line
-  // (no ugly mid-word break). Upper bound ≈ usableWidth / (longestWord · 0.62).
-  // Budget is the REAL hero text width on desktop (~285px inside the 360px
-  // panel), not the old 360 — that was too optimistic and only survived with
-  // narrow Schoolbell; a wider display font overflowed and the
-  // last letter got clipped by the hero's overflow:hidden (e.g. "Schüsseldienst").
+  // Scale the hero name down for long single words so they fit on one line.
+  // Upper bound ≈ usableWidth / (longestWord · 0.62), with the real hero text
+  // width on desktop (~285px inside the 360px panel).
   const displayName = normalizeName(r.name);
   const nameRef = useRef<HTMLHeadingElement>(null);
   useInkSafeLeading(nameRef, displayName);
@@ -250,18 +246,16 @@ export default function RestaurantDetail({
     igUrl = websiteInfo.url;
   }
 
-  // Single Maps button (mockup). Prefer a name+address Google search — it
-  // always resolves to a result — over a possibly-stale curated mapsUrl.
+  // One Maps button. A name+address Google search always resolves, unlike a
+  // possibly stale curated mapsUrl.
   const mapsHref = r.address
     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${r.name}, ${r.address}`)}`
     : (r.mapsUrl ?? null);
 
   const addressParts = addressLines(r.address);
 
-  // Editorial prose is DE-base with an optional EN override, same convention
-  // as the public /restaurant/[slug] page — without pickLocale the /en map
-  // served German descriptions and tips. (`loc` steht weiter oben, es trägt
-  // jetzt auch das Küchen-Label.)
+  // Editorial prose is DE-base with an optional EN override, same convention as
+  // the public /restaurant/[slug] page (pickLocale).
   const storyText =
     pickLocale(r.description, r.descriptionEn, loc) ??
     pickLocale(r.shortDescription, r.shortDescriptionEn, loc) ??

@@ -24,7 +24,11 @@ for (const motion of ['no-preference', 'reduce'] as const) {
     page.on('pageerror', error => errors.push(error.message));
     for (const index of [0, 1]) {
       await page.goto('/kategorie/sweets');
-      const card = page.locator('[data-spot-card]').nth(index);
+      // Ein Spot ohne Foto zeigt nur seinen Anfangsbuchstaben; geprüft wird der
+      // Weg über ein Foto.
+      const card = page.locator('[data-spot-card]')
+        .filter({ has: page.locator('[data-spot-photo] > img') })
+        .nth(index);
       const path = (await card.locator('h3 a').getAttribute('href'))!;
       const photo = card.locator('[data-spot-photo] > img').first();
       await card.scrollIntoViewIfNeeded();

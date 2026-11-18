@@ -43,8 +43,8 @@ export async function getAllRestaurantSlugs(): Promise<string[]> {
   return results.map((r) => r.slug);
 }
 
-// Lightweight name+slug+bezirk list, used by the legacy-slug resolver to map
-// post-rebuild 404 URLs to their current slug. See lib/seo/legacyRedirects.ts.
+// Lightweight name+slug+bezirk list for the legacy-slug resolver
+// (lib/seo/legacyRedirects.ts).
 export async function getAllRestaurantsLite(): Promise<
   { name: string; slug: string; bezirk: string | null }[]
 > {
@@ -128,17 +128,12 @@ interface RestaurantPageData {
 }
 
 /**
- * Das Datenpaket der Restaurant-Seite in EINER Anfrage.
+ * Das Datenpaket der Restaurant-Seite in einer Anfrage, statt Dokument und zwei
+ * davon abhängigen Folgeabfragen nacheinander.
  *
- * Vorher waren es drei, und zwei davon konnten erst starten, wenn das Dokument
- * da war (sie brauchten `_id` und den Bezirk) — also zwei Roundtrips
- * hintereinander. Bei 932 vorgerenderten Restaurant-Seiten, die täglich
- * revalidieren, sind das rund 930 vermeidbare Sanity-Anfragen pro Zyklus.
- *
- * Die Tags sind die Vereinigung der drei alten Sätze. `bezirk:<slug>` fehlt
- * darin bewusst — den Slug kennt man vor dem Fetch nicht, und der Webhook
- * feuert bei Bezirks-Publishes ohnehin `restaurant-siblings` (siehe
- * api/revalidate/route.ts).
+ * `bezirk:<slug>` fehlt bei den Tags bewusst: den Slug kennt man vor dem Fetch
+ * nicht, und der Webhook feuert bei Bezirks-Publishes ohnehin
+ * `restaurant-siblings` (api/revalidate/route.ts).
  */
 export async function getRestaurantPageData(slug: string): Promise<RestaurantPageData | null> {
   const row = await readSanity<RestaurantPageRow | null>(

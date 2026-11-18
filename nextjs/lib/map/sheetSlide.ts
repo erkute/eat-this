@@ -52,7 +52,6 @@ export function mapStripLine(): number {
 export const SHEET_SETTLED_EVENT = 'et:map-sheet-settled';
 const announceSettled = () => window.dispatchEvent(new Event(SHEET_SETTLED_EVENT));
 
-/* Decelerates into its stop. */
 const SETTLE_MS = 360;
 const SETTLE_EASING = 'cubic-bezier(0.2, 0.8, 0.2, 1)';
 

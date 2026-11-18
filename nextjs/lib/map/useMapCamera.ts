@@ -15,7 +15,6 @@ import { SPOT_SET_MAX_ZOOM } from './cameraFit';
 import { BERLIN_VIEW, MAP_BEARING, MAP_PITCH } from './defaultView';
 import { medianPoint, pitchedCameraForPoints } from './pitchedFit';
 
-/** The camera MapCanvas opens on — same shape as its `initialViewState`. */
 export interface InitialCamera {
   longitude: number;
   latitude: number;
@@ -23,46 +22,29 @@ export interface InitialCamera {
   padding: PaddingOptions;
 }
 
-/* A pin is a 47x47 card anchored bottom-centre on its coordinate, so it spans
-   ~24px either side of the anchor and ~47px above it (MapMarkers.module.css).
-   Camera padding is expressed against the ANCHOR, so it has to carry the pin's
-   own extent plus whatever chrome sits there:
-   - sides: 24px of pin + 10px of air.
-   - top:   47px of pin + the 14px-inset, 44px-tall search/burger row + 10px,
-            with env(safe-area-inset-top) added by the caller. */
+/* A pin is a 47x47 card anchored bottom-centre, and camera padding applies to
+   the anchor: sides carry 24px of pin plus air, the top the pin's height plus
+   the search/burger row (the caller adds the safe area). */
 const PIN_SAFE_SIDE = 34;
 const PIN_SAFE_TOP = 115;
-/* The pin card's height above its anchor (MapMarkers.module.css). */
 const PIN_HEIGHT_PX = 47;
-/* The landscape canvas already ends at the side panel. Balance the pin's
-   upward extent, without reserving space for a bottom sheet or sidebar. */
 const landscapePanelPadding = () => ({ top: PIN_HEIGHT_PX, bottom: 0, left: 20, right: 20 });
 export const getUserLocationZoom = () => typeof window === 'undefined' || isSheetViewport() ? 16 : 16.5;
-/* Phones keep the Kiez in view. Desktop has room to show the street and
-   neighbours at a closer zoom, even beside the open detail panel. */
 const SPOT_ZOOM = 14;
 const desktopSpotZoom = () => typeof window === 'undefined' || isSheetViewport()
   ? SPOT_ZOOM
   : window.innerWidth >= 1920 ? 15.5 : 15;
-/* The map never opens further out than its old fixed view. */
+/* The map never opens further out than city level… */
 const INITIAL_MIN_ZOOM = BERLIN_VIEW.zoom;
-/* …unless the whole catalogue fits within a quarter step of it: a wide
-   desktop needs 11.97, and there showing every spot beats centring. */
+/* …unless the whole catalogue fits within a quarter step of it (wide desktops). */
 const INITIAL_FIT_SLACK = 0.25;
-/* The scroll has stood still this long: the sheet is where the user left it. */
 const SHEET_IDLE_MS = 150;
 
 /**
- * Is the open spot's pin out of sight after the phone detail sheet moved?
- * `anchorY` is the pin's tip and `sheetTop` the sheet's top edge, both in
- * viewport pixels. Out of sight is under the sheet, or up under the
- * search/burger row.
- *
- * Only while there is map to speak of below that row. With the sheet up at the
- * map strip — or scrolled past it, its top edge far above the screen — the
- * strip is scenery around a detail being read, and the camera leaves it alone:
- * otherwise the map would shift inside the strip while reading, at the end of a
- * detail on every further pull.
+ * Is the open spot's pin out of sight (under the sheet or the search row) after
+ * the phone detail sheet moved? Only while there is map below that row; with
+ * the sheet up at the strip, the camera leaves the map alone while the detail
+ * is read.
  */
 export function pinNeedsFollow(anchorY: number, sheetTop: number, safeTop: number): boolean {
   const belowControls = PIN_SAFE_TOP + safeTop;
@@ -76,7 +58,6 @@ type FlyOptions = {
   duration: number;
   padding?: PaddingOptions;
   zoom?: number;
-  /** Handed to MapLibre, which puts it on this flight's move events. */
   eventData?: object;
 };
 
@@ -86,23 +67,16 @@ interface Options {
   snap: SheetSnap;
   sheetView: SheetView;
   sheetElRef: RefObject<HTMLElement | null>;
-  /** Desktop: the results panel is folded away, the whole canvas is map. */
   desktopPanelHiddenRef: RefObject<boolean>;
   selectedRestaurant: MapRestaurant | null;
-  /** The ?r= spot the server already rendered open, if any. */
   initialRestaurantId: string | undefined;
 }
 
 /**
- * The map camera around an open detail: how much of the canvas the sheet or
- * panel covers (fly padding), flying to a spot, and the camera a marker tap
- * interrupted — remembered on open, handed back on close.
- *
- * Its effects follow the open detail. They are layout effects with an order
- * that matters: MapSection calls this hook right after its list-return and
- * detail-snap layout effects, because the phone flight measures the sheet
- * AFTER the detail-snap effect has moved the window (pollUntilMapReady calls
- * back synchronously once the map is there).
+ * The map camera around an open detail: fly padding, flights, and the camera a
+ * marker tap interrupted. Its layout effects must run after MapSection's
+ * list-return and detail-snap effects, because the phone flight measures the
+ * sheet after the window has moved.
  */
 export function useMapCamera({
   isActive,
@@ -118,13 +92,11 @@ export function useMapCamera({
   const selectedRestaurantLng = selectedRestaurant?.lng;
   const selectedRestaurantLat = selectedRestaurant?.lat;
 
-  /* iOS safe-area inset, read once — feeds the pin-tap flyTo padding estimate. */
   const safeAreaBottomRef = useRef<number | null>(null);
   if (safeAreaBottomRef.current === null) {
     safeAreaBottomRef.current = typeof document !== 'undefined' ? readSafeAreaBottom() : 0;
   }
 
-  /* One flight onto one point — every open, page, close and locate lands here. */
   const flyToSpot = useCallback(
     (spot: LngLat, { duration, padding, zoom = desktopSpotZoom(), eventData }: FlyOptions) => {
       if (isLandscapePanelViewport()) mapRef.current?.resize();
@@ -133,32 +105,20 @@ export function useMapCamera({
     [mapRef]
   );
 
-  /* Camera padding for the in-flow phone detail: the visible map is only the
-     part of the detail's map strip the sheet leaves uncovered, so the target
-     must center vertically inside THAT. Shared by getFlyPadding (pager/late
-     flyTos, sheetView already 'detail') and the open-click handlers (whose
-     closures still see sheetView 'list').
-
-     Measured from the sheet's real top edge, not assumed at its resting stop:
-     paging to the next spot keeps the scroll position, and with the sheet
-     pushed halfway up the spot would be centred in the whole strip — under the
-     sheet. */
+  /* Phone detail padding: centre the target in the part of the map the sheet
+     leaves uncovered, measured from the sheet's real top edge (paging keeps the
+     scroll position). */
   const phoneDetailFlyPadding = useCallback(() => {
     if (isLandscapePanelViewport()) return landscapePanelPadding();
-    /* Mirrors --detail-map-peek in MapLayout.module.css. */
     const peek = (DETAIL_PEEK_DVH / 100) * window.innerHeight;
     const canvasH = mapRef.current?.getContainer().clientHeight || peek;
     const sheetTop = document
       .querySelector<HTMLElement>('[data-map-sheet]')
       ?.getBoundingClientRect().top;
-    /* How much map is on screen above the sheet. */
     const visible = Math.min(canvasH, sheetTop != null && sheetTop > 0 ? sheetTop : peek);
-    /* Where the pin's anchor (its bottom tip) should land: at 60% of the
-       visible map, which centres the pin body above it — but never so high
-       that the pin, drawn upwards from its anchor, runs off the top. */
+    /* The pin's tip lands at 60 % of the visible map, but never so high that
+       the pin, drawn upwards, runs off the top. */
     const anchor = Math.min(visible, Math.max(0.6 * visible, PIN_HEIGHT_PX + 8));
-    /* The padded area's centre is the anchor: bottom cuts away what the
-       sheet covers, top balances it. */
     return {
       top: Math.max(0, Math.round(2 * anchor - visible)),
       bottom: Math.max(0, Math.round(canvasH - visible)),
@@ -167,8 +127,7 @@ export function useMapCamera({
     };
   }, [mapRef]);
 
-  /* Camera a marker-opened detail hands back on close — consumed by the
-     effect below once the phone canvas is back to full height. */
+  /* Consumed by the effect below once the phone canvas is back to full height. */
   const pendingCameraRestoreRef = useRef<Camera | null>(null);
   useLayoutEffect(() => {
     if (!isActive || sheetView !== 'list') return;
@@ -178,8 +137,8 @@ export function useMapCamera({
     return pollUntilMapReady({
       mapRef,
       onReady: (map) => {
-        /* Measure the restored 100dvh canvas first, or the flight is planned
-           against the detail strip's transform. */
+        /* Measure the restored canvas first, or the flight is planned against
+           the detail strip's transform. */
         map.resize();
         flyToSpot(camera.center, {
           zoom: camera.zoom,
@@ -205,7 +164,6 @@ export function useMapCamera({
       );
     };
     const cancelReady = pollUntilMapReady({ mapRef, onReady: centerDetail });
-    // Recalculate only on layout changes, not every Safari toolbar resize.
     const landscape = window.matchMedia(
       '(orientation: landscape) and (max-height: 500px) and (min-width: 600px) and (max-width: 1023.98px)'
     );
@@ -231,13 +189,9 @@ export function useMapCamera({
     flyToSpot,
   ]);
 
-  /* The phone detail sheet moves after the flight that opened it — pulled down
-     to the map, up to the strip, to the lowest stop. If the camera stayed where
-     the open left it, a pulled-down sheet would leave the pin at the very top
-     under the search and burger row with nothing but empty streets below it.
-     Once the sheet is at rest, bring the pin back into the uncovered map — only
-     if it is out of sight, and only if the SHEET moved: a map the user panned
-     away on purpose stays where it is. */
+  /* Once the phone detail sheet comes to rest after moving, bring the pin back
+     into the uncovered map, only if it is out of sight and only if the sheet
+     moved (a map the user panned stays put). */
   useEffect(() => {
     if (!isActive || sheetView !== 'detail' || !selectedRestaurantId) return;
     if (selectedRestaurantLng == null || selectedRestaurantLat == null) return;
@@ -256,7 +210,6 @@ export function useMapCamera({
       const tip = map.project([selectedRestaurantLng, selectedRestaurantLat]);
       const canvasTop = map.getContainer().getBoundingClientRect().top;
       if (!pinNeedsFollow(tip.y + canvasTop, top, safeAreaInsetTop())) return;
-      /* easeTo, not flyTo: a short slide at the zoom the user is on. */
       map.easeTo({
         center: [selectedRestaurantLng, selectedRestaurantLat],
         padding: phoneDetailFlyPadding(),
@@ -284,20 +237,16 @@ export function useMapCamera({
     mapRef,
   ]);
 
-  // We derive the mobile bottom from the snap STATE rather than the DOM
-  // CSS variable so flyTo always uses the up-to-date target — reading from
-  // the DOM races the sheet's transform/animation tick.
+  // Bottom padding from the snap state, not the CSS variable, which races the
+  // sheet's transform.
   const getFlyPadding = useCallback(
     (targetSnap?: 'peek' | 'mid' | 'full', visiblePxOverride?: number, canvasHeightOverride?: number) => {
       if (typeof window === 'undefined') return { top: 60, bottom: 60, left: 40, right: 40 };
       if (isLandscapePanelViewport()) return landscapePanelPadding();
       const isMobile = isSheetViewport();
       if (!isMobile) {
-        // Desktop: the canvas runs under the results panel (MapLayout.module.css),
-        // so the panel's strip is padding on the right while it is out — the
-        // marker lands in the middle of the map that shows. The padding also
-        // moves the pitched map's vanishing point there. Room at top (toolbar
-        // + burger stacked beneath it) and bottom (zoom controls + FAB).
+        // Desktop: the canvas runs under the results panel, so the panel's
+        // width is right padding while it is out.
         const panel = desktopPanelHiddenRef.current ? 0 : (sheetElRef.current?.offsetWidth ?? 0);
         return {
           top: PIN_SAFE_TOP,
@@ -306,23 +255,11 @@ export function useMapCamera({
           right: PIN_SAFE_SIDE + panel,
         };
       }
-      // When the caller specifies a target snap, use known pixel heights for
-      // that snap (or an explicit visible-height override — the detail middle
-      // stage is content-sized, not a fixed constant). Otherwise read the
-      // *actual* current sheet height from the CSS var the bottom-sheet hook
-      // sets — the only source of truth that handles drag in-progress AND the
-      // content-fit detail snap.
-      /* In-flow phone list: 'peek' rests at the three-stage sheet's first stop,
-         where the list only peeks in at the bottom (LIST_REST_VISIBLE_DVH, see
-         phoneSheetSnaps.ts) — not the drag-sheet's 28px pip strip. */
       const phoneListPeek = Math.round(window.innerHeight * (LIST_REST_VISIBLE_DVH / 100));
       const phoneInflowList = isPhoneViewport() && sheetView === 'list';
-      /* In-flow phone DETAIL: the only visible map is the top peek strip
-         (--detail-map-peek = 50dvh) — center the spot inside that strip,
-         not in the drag-sheet-era "upper 42%" band. Applies to pager swaps
-         and any flyTo while the detail is open; the open-click itself uses
-         phoneDetailFlyPadding() because sheetView is still 'list' in its
-         closure at that moment. */
+      /* Phone detail: centre inside the top strip (--detail-map-peek). The open
+         handler itself uses phoneDetailFlyPadding(), since its closure still
+         sees sheetView 'list'. */
       if (isPhoneViewport() && sheetView === 'detail') {
         return phoneDetailFlyPadding();
       }
@@ -341,9 +278,7 @@ export function useMapCamera({
                 : 440
               : Math.round(window.innerHeight * 0.58);
       } else if (phoneInflowList && sheetElRef.current) {
-        // Window-scrolled list: the visible strip is whatever part of the
-        // list is on screen — measure it instead of reading the (inert)
-        // --sheet-visible-px var.
+        // The window-scrolled list: measure what is on screen.
         visible = Math.max(
           0,
           Math.round(window.innerHeight - sheetElRef.current.getBoundingClientRect().top)
@@ -360,19 +295,13 @@ export function useMapCamera({
                 ? 440
                 : Math.round(window.innerHeight * 0.58);
       }
-      // The mobile canvas extends (100lvh − 100dvh) + 80px past the visual
-      // viewport (iOS-bar apron, see --map-bar-overhang in MapLayout.module.css).
-      // flyTo padding is in CANVAS coordinates, so without this correction the
-      // centre lands ~overhang/2 too low on screen. Measure the real container
-      // height so lvh/dvh bar states are handled for free.
+      // The phone canvas extends below the visual viewport (iOS bar apron), and
+      // padding is in canvas coordinates; measure the real container height.
       const canvasH =
         canvasHeightOverride ?? mapRef.current?.getContainer().clientHeight ?? window.innerHeight;
       const overhang = Math.max(0, canvasH - window.innerHeight);
-      /* MapLibre applies padding to the marker's ANCHOR COORDINATE, but the pin
-         is a 47px card drawn bottom-anchored ABOVE that point (see
-         MapMarkers.module.css). Padding that only clears the anchor let pins
-         hang off the left/right edge and slide under the burger after a filter
-         refit, so reserve the pin's own extent on top of the chrome. */
+      /* MapLibre pads the anchor, but the pin is drawn above it; reserve the
+         pin's own extent, or pins hang off the edges after a refit. */
       return {
         top: PIN_SAFE_TOP + safeAreaInsetTop(),
         bottom: Math.round(visible + overhang) + 20,
@@ -385,17 +314,10 @@ export function useMapCamera({
   const getFlyPaddingRef = useRef(getFlyPadding);
   getFlyPaddingRef.current = getFlyPadding;
 
-  /* The camera the map opens on: every spot, framed for the canvas as it is
-     laid out right now (the phone list resting at its first stop, the tablet
-     sheet, the desktop panel beside the canvas). Asked by MapCanvas before its
-     first frame, when mapRef is still empty — so the canvas is measured from
-     the map wrap, and the phone's apron below the viewport comes from that
-     height rather than a guess. A fixed opening point would leave the spots
-     running off the edge on desktop and under the sheet on a tablet.
-
-     Never much further out than city level, though. The whole catalogue only
-     fits at zoom 12 on a wide desktop; on a phone it takes 10.4, and there the
-     pins melt into one slab with Brandenburg above it. */
+  /* The opening camera: every spot, framed for the canvas as laid out right
+     now. Asked by MapCanvas before its first frame, so the canvas is measured
+     from the map wrap. Never much further out than city level: on a phone the
+     whole catalogue melts into one slab. */
   const initialCamera = useCallback(
     (spots: LngLat[], canvas: { width: number; height: number }): InitialCamera | null => {
       if (!spots.length || canvas.width <= 0 || canvas.height <= 0) return null;
@@ -407,10 +329,8 @@ export function useMapCamera({
         bearing: MAP_BEARING,
         maxZoom: SPOT_SET_MAX_ZOOM,
       });
-      /* Not everything fits near the floor — then the densest spot, the
-         median, goes into the middle of the uncovered map at the floor zoom.
-         Centring the box instead let one spot in Steglitz pull the view
-         south, and the pins hung at the top edge above an empty Tempelhof. */
+      /* If not everything fits near the floor zoom, centre the median spot, not
+         the box; one outlier would otherwise pull the view. */
       const middle = medianPoint(spots);
       const minZoom = INITIAL_MIN_ZOOM + (canvas.width >= 1920 ? 0.75 : canvas.width >= 1024 ? 0.5 : 0);
       const camera =
@@ -435,10 +355,9 @@ export function useMapCamera({
     if (!initialCameraRestaurantId || selectedRestaurantId !== initialCameraRestaurantId) return;
     if (selectedRestaurantLng == null || selectedRestaurantLat == null) return;
 
-    /* A server-selected ?r= detail is already open before the client
-       deep-link hook runs. Phones are centered by the compact-canvas layout
-       effect above; tablets and desktop still need their own bounded wait for
-       the lazy MapLibre ref because no click handler ran on this reload. */
+    /* A server-selected ?r= detail is open before the deep-link hook runs.
+       Phones are centred by the layout effect above; tablets and desktop wait
+       for the lazy MapLibre ref here. */
     return pollUntilMapReady({
       mapRef,
       onReady: (map) => {
@@ -462,14 +381,11 @@ export function useMapCamera({
     sheetView,
   ]);
 
-  /* The padding an open detail flies with: tablet and phone treat the sheet
-     as fully up, the desktop panel sits beside the canvas. */
   const detailFlyPadding = useCallback(
     () => getFlyPadding(isSheetViewport() ? 'full' : undefined),
     [getFlyPadding]
   );
 
-  /* A pin tap opens the detail at its middle stage: the photo. */
   const pinTapFlyPadding = useCallback(
     () =>
       getFlyPadding(
@@ -479,10 +395,9 @@ export function useMapCamera({
     [getFlyPadding]
   );
 
-  /* The camera a marker tap interrupted, restored when that detail closes. */
   const cameraBeforeDetailRef = useRef<Camera | null>(null);
   /* Padding is part of it: MapLibre's centre is the centre of the padded
-     viewport. Anything but a marker tap forgets the camera. */
+     viewport. */
   const rememberCamera = useCallback(
     (fromMarker: boolean) => {
       const map = fromMarker ? mapRef.current : null;
@@ -493,18 +408,14 @@ export function useMapCamera({
     [mapRef]
   );
 
-  /* Closing a marker-opened detail: fly back to where the tap interrupted the
-     camera. Without the saved camera (map not ready at the tap) the spot itself
-     is the next best centre. */
   const handBackCamera = useCallback(
     (spot: MapRestaurant | null, nextSnap: SheetSnap, isPhone: boolean) => {
       const camera = cameraBeforeDetailRef.current;
       cameraBeforeDetailRef.current = null;
       if (isPhone) {
-        /* The phone canvas is still the 50dvh detail strip at this point —
-           a flight with the full-height padding on it overshoots to a
-           Brandenburg-wide zoom. The layout effect above flies once the
-           canvas has its list height back (same choreography as opening). */
+        /* The phone canvas is still the detail strip here; full-height padding
+           would overshoot. The layout effect above flies once the canvas is
+           back. */
         pendingCameraRestoreRef.current = camera ?? (spot ? { center: spot, zoom: desktopSpotZoom() } : null);
         return;
       }

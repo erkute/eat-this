@@ -4,12 +4,10 @@ runConfig:
   maxInstances: 10
   minInstances: 0
   concurrency: 80
-  # 1 GiB statt der 512-MiB-Vorgabe. Mit 512 reißt jede zweite Instanz das
-  # Limit, mehrmals am Tag, meist 5–30 min nach dem Start, und nimmt laufende
-  # Anfragen mit. Kein einzelner Ausreißer: Prefetch-Stöße (viele
-  # `?_rsc=`-Renders gleichzeitig) plus `/_next/image`-Verkleinerung im selben
-  # Prozess. Kommt es mit 1 GiB wieder, ist es ein Leck; dann den
-  # Standalone-Build lokal unter Last messen.
+  # 1 GiB statt der 512-MiB-Vorgabe: mit 512 riss jede zweite Instanz mehrmals
+  # am Tag das Limit (Prefetch-Stöße plus `/_next/image` im selben Prozess).
+  # Kommt es mit 1 GiB wieder, ist es ein Leck; dann den Standalone-Build lokal
+  # unter Last messen.
   memoryMiB: 1024
   # Längste Anfragen: „Mit AI schreiben“ im Studio (Websuche plus Artikel auf
   # Deutsch und Englisch, rund 4:40 min) und der Spot-Import (Places, Fotos,
@@ -36,21 +34,11 @@ env:
       - BUILD
       - RUNTIME
 
-  # SANITY_USE_CDN steht hier bewusst nicht. Die Vorgabe in `lib/sanity.ts` ist
-  # CDN, und dabei bleibt es für Build und Laufzeit.
-  #
-  # Ein Build zieht rund 950 Anfragen; bei 8 bis 14 Prod-Builds am Tag sind das
-  # 230.000 bis 400.000 im Monat. Auf dem API-Kontingent (250.000) sprengte der
-  # Build allein den Topf, ganz ohne Besucher.
-  #
-  # Beide Zahlen im Vergleich: API 250.000 und 1 $ je 25.000 Überlauf, CDN
-  # 1.000.000 und 1 $ je 250.000. Das CDN ist also viermal größer und zehnmal
-  # billiger; alles, was sich nicht vermeiden lässt, gehört dorthin. Das
-  # API-Kontingent bleibt frei: als Nothebel, wenn das CDN kippt, und für die
-  # schreibenden Skripte.
-  #
-  # Der Build in CI (rund 50 Läufe am Tag) zieht aus dem Fetch-Cache, siehe
-  # .github/workflows/quality.yml.
+  # SANITY_USE_CDN steht hier bewusst nicht: die Vorgabe in `lib/sanity.ts` ist
+  # CDN, für Build und Laufzeit. Ein Build zieht rund 950 Anfragen, und das
+  # API-Kontingent ist viel kleiner und teurer als das des CDN; es bleibt frei
+  # als Nothebel und für die schreibenden Skripte. CI zieht aus dem Fetch-Cache
+  # (.github/workflows/quality.yml).
 
   # Fail-closed guard for App Hosting's injected Admin + browser SDK config.
   - variable: FIREBASE_EXPECTED_PROJECT_ID

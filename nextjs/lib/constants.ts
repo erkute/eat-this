@@ -1,18 +1,13 @@
 export const SITE_URL = 'https://www.eatthisdot.com';
 
-// Cache-bust for the shared category share cards (public/pics/og/og_*.png).
-// Two routes emit the same nine files — guides/[slug] and kategorie/[slug] —
-// and each carried its own version, one of them hardcoded. Social crawlers
-// cache these hard, so a stale copy sticks around for a long time. Single
-// source of truth: BUMP THIS whenever a file in public/pics/og/ changes.
+// Cache-bust for the shared category share cards (public/pics/og/og_*.png),
+// used by guides/[slug] and kategorie/[slug]. Social crawlers cache these hard:
+// bump this whenever a file in public/pics/og/ changes.
 export const OG_PACK_VERSION = 8;
 
-// Cache-bust for the brand share cards (public/pics/og-card.png, 1200×630, and
-// og-card-square.png, 1200×1200). Twelve call sites emit these two files and
-// every one of them carried its own hardcoded `?v=4` — same drift risk
-// OG_PACK_VERSION was introduced to kill. Social crawlers cache share images
-// hard, so a stale copy sticks around for a long time: BUMP THIS whenever
-// either file changes.
+// Cache-bust for the brand share cards (public/pics/og-card.png and
+// og-card-square.png). Social crawlers cache share images hard: bump this
+// whenever either file changes.
 export const OG_CARD_VERSION = 9;
 
 // Brand logo for Google (Organization, article publisher): the "e" on paper, square like Google shows it.

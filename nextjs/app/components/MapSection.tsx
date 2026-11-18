@@ -45,9 +45,10 @@ import { useMapCameraRefit } from '@/lib/map/useMapCameraRefit';
 interface Props {
   isActive?: boolean;
   initialMapData?: InitialMapData;
-  /** When the server rendered the page (epoch ms). The list puts what is open
-   *  at that moment first, on the server and in the browser alike, so the
-   *  rows do not reshuffle on hydration (openFirst). */
+  /**
+   * Server render time (epoch ms): open spots sort first on server and client
+   * alike, so rows do not reshuffle on hydration.
+   */
   renderedAt?: number;
   initialRestaurantSlug?: string | null;
 }
@@ -87,9 +88,8 @@ export default function MapSection({
     trackEvent('map_opened', { tier: userTier });
   }, [isActive, userTier]);
 
-  // Swipe the open detail down past peek → close it (back to the list). The
-  // close logic lives in the handlers below, so route the sheet's dismiss
-  // through a ref we keep pointed at the right handler (restaurant vs must-eat).
+  // The sheet's swipe-down dismiss goes through a ref pointed at the right
+  // close handler (restaurant vs must-eat).
   const dismissDetailRef = useRef<() => void>(() => {});
   const dismissDetail = useCallback(() => {
     dismissDetailRef.current();
@@ -110,28 +110,21 @@ export default function MapSection({
     setSheetRef,
   } = useMapSheet(dismissDetail, initialRestaurant ? 'detail' : 'list');
 
-  // Read by the popstate listener, which is subscribed once per activation and
-  // must not close over a stale sheetView.
+  // Read by the popstate listener, which must not close over a stale sheetView.
   const sheetViewRef = useRef(sheetView);
   sheetViewRef.current = sheetView;
 
   const scrollListToAnchor = useMapListAnchor(sheetElRef);
 
-  /* Die Sheet aus dem Weg räumen — das, was ein Tipp auf die Karte tut.
-     Für die Detailansicht heißt das „auf peek einklappen" (Name plus die drei
-     runden Icons bleiben stehen, die Auswahl auch), für die Telefon-Liste der
-     Rücksprung auf ihre Ruhelage. Steht hier, weil es zwei Aufrufer hat:
-     handleMapClick weiter unten und die Marker-Sperre in
-     handleRestaurantClick / handleMustEatClick. */
+  /* Die Sheet aus dem Weg räumen, wie es ein Tipp auf die Karte tut: das Detail
+     auf peek, die Telefon-Liste auf ihre Ruhelage. */
   const collapseSheetToPeek = useCallback(() => {
     if (isPhoneViewport() && sheetView === 'list') {
       scrollListToAnchor('peek');
       return;
     }
-    /* The phone restaurant detail is window-scrolled like the list, its map
-       stop is scroll 0 (phoneSheetSnaps.ts), and the snap below moves nothing
-       there (useBottomSheet leaves in-flow phone sheets alone). So a tap on the
-       map above a pushed-up detail scrolls the page back to that stop. */
+    /* The phone restaurant detail is window-scrolled; its map stop is scroll 0,
+       and the snap below does not move in-flow sheets. */
     if (isPhoneViewport() && sheetElRef.current?.dataset.detailKind === 'restaurant') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -141,31 +134,19 @@ export default function MapSection({
     }
   }, [sheetView, snap, setSnap, reapplySnap, scrollListToAnchor, sheetElRef]);
 
-  /* Der erste Tipp auf die Karte räumt nur weg. Steht eine Detailansicht offen
-     und liegt sie noch über der Karte, dann wählt ein Tipp auf die Karte keinen
-     Spot aus, egal, ob er zufällig einen Pin trifft. Er klappt nur ein. Erst
-     der zweite Tipp wählt wieder.
-
-     Der Grund: Bei offener Sheet gibt es auf der Karte keinen Vorhang. Die
-     Fläche, auf die man zum Wegtippen zielt, ist die Karte, und dort stehen
-     rund 400 Pins; ein Wegtipp träfe regelmäßig einen davon und öffnete einen
-     fremden Spot.
-
-     Zwei Grenzen, damit die Sperre nicht mehr frisst, als sie soll: nur auf
-     Mobil (auf dem Desktop liegt die Sheet neben der Karte, nicht darüber, und
-     verdeckt nichts), und nur solange die Sheet nicht schon auf peek steht. Ist
-     sie bereits eingeklappt, liegt nichts im Weg und ein Pin-Tipp meint wieder
-     den Pin. Listenzeilen sind nie betroffen, die kommen mit origin === 'list'. */
+  /* Bei offenem Detail über der Karte räumt der erste Tipp auf die Karte nur
+     weg, auch wenn er einen Pin trifft: Es gibt keinen Vorhang, und ein Wegtipp
+     träfe sonst regelmäßig einen fremden Pin. Nur auf Mobil und nur, solange
+     die Sheet nicht schon auf peek steht. */
   const mapTapOnlyDismisses = useCallback(
     (origin: DetailOrigin) =>
       origin === 'map' && sheetView === 'detail' && snap !== 'peek' && isSheetViewport(),
     [sheetView, snap]
   );
 
-  /* Where the map is looking, once the user has moved it — the list sorts by
-     distance to this point from then on (lib/map/listCenter.ts). Null until
-     the first drag, pinch or marker tap, so the first paint keeps the curated
-     order. `listFollowsMapRef` is the "from then on": it never goes back. */
+  /* Where the map is looking once the user has moved it; the list sorts by
+     distance to it from then on (lib/map/listCenter.ts). Null until the first
+     gesture, so the first paint keeps the curated order. */
   const [listCenter, setListCenter] = useState<ListCenter | null>(null);
   const listFollowsMapRef = useRef(false);
 
@@ -189,8 +170,6 @@ export default function MapSection({
   } = useMapFilters({ restaurants, mustEats, location, listCenter, orderedAt });
 
   const [searchOpen, setSearchOpen] = useState(false);
-  /* MapSection's open handlers, for the back/forward gestures that reopen a
-     detail — assigned below, once the handlers exist. */
   const detailOpenersRef = useRef<DetailOpeners>({ restaurant: () => {}, mustEat: () => {} });
   const {
     selectedRestaurant,
@@ -224,18 +203,14 @@ export default function MapSection({
   const { desktopPanelHidden, desktopPanelHiddenRef, setDesktopPanelHidden } =
     useDesktopPanelHidden();
 
-  // Snap the sheet when entering detail view (or switching selections).
   const snapRef = useRef(snap);
   snapRef.current = snap;
-  /* Snap explicitly requested by an open-detail handler (pin-tap → 'peek',
-     list/search/deep-link → 'full'). Consumed once by the layout effect
-     below; null for selection changes that arrive WITHOUT a handler call
-     (prev/next paging), which keep the current position. */
+  /* Snap requested by an open handler (pin tap → 'peek', otherwise 'full').
+     Null for paging, which keeps the current position. */
   const pendingDetailSnapRef = useRef<'full' | 'peek' | null>(null);
-  /* Phones: where the list's top edge stood on screen when a restaurant was
-     opened from it. The detail opens with its own top edge there — the sheet
-     keeps the height the user had pulled it to instead of dropping back to its
-     resting stop. Consumed once by the effect below. */
+  /* Phones: where the list's top edge stood when a restaurant was opened from
+     it; the detail opens at that height instead of dropping to its resting
+     stop. */
   const detailOpenTopRef = useRef<number | null>(null);
 
   useMapViewportVars(isActive);
@@ -244,37 +219,21 @@ export default function MapSection({
     if (sheetView !== 'detail') return;
     if (!isSheetViewport()) return;
     if (isPhoneViewport()) {
-      /* In-flow detail takeover: ein frisch GEÖFFNETES Detail startet oben im
-         fensterscrollenden Dokument. Snap state is meaningless here — the hook
-         is inert (SheetConfig.inflow).
-
-         Ein Blätterschritt (prev/next, geklickt oder gewischt) tut das
-         ausdrücklich nicht: er kommt ohne Snap-Wunsch an, und ein Sprung auf 0
-         parkt den Leser wieder auf der Karte über dem Sheet — nach jedem
-         Nachbarn müsste er sich erst wieder herunterscrollen. Das Fenster
-         bleibt deshalb stehen, wie es die Tablet-Fassung darunter seit jeher
-         hält. */
+      /* Ein frisch geöffnetes Detail startet oben im Dokument; ein
+         Blätterschritt nicht, sonst parkt jeder Nachbar den Leser wieder auf
+         der Karte. */
       const opened = pendingDetailSnapRef.current !== null;
       pendingDetailSnapRef.current = null;
       const keepTop = detailOpenTopRef.current;
       detailOpenTopRef.current = null;
       if (!opened) return;
-      /* A spot opened while the sheet was pulled down to its lowest stop
-         (another pin tapped from a detail): its photo, name and district
-         belong on screen, not 24px of it. The jump below cannot do that
-         alone — at scroll 0 already, it fires no scroll. */
+      /* A spot opened from the lowest stop must show its photo, name and
+         district, and at scroll 0 the jump below fires no scroll. */
       dropLowered();
-      /* A restaurant opened from the list starts at the list's height; its
-         top edge can not sit lower than at scroll 0, its resting stop. The
-         must-eat takeover has no map behind it and always starts at 0. The
-         phone fly below measures the sheet after this jump. */
       const sheet = selectedMustEat?._id ? null : sheetElRef.current;
       if (keepTop == null || !sheet) {
-        /* Instant: html scrolls smooth, and a spot picked in the search from
-           deep inside another detail closes the search in the same render — its
-           keyboard hold (MapSectionBody) reads scrollY right after this and
-           would put the old depth back while a smooth scroll had barely
-           started, opening the new spot in the middle of its text. */
+        /* Instant, not smooth: the search's keyboard hold reads scrollY right
+           after this and would put the old depth back mid-scroll. */
         window.scrollTo({ top: 0, behavior: 'instant' });
         return;
       }
@@ -284,10 +243,8 @@ export default function MapSection({
     }
     const requested = pendingDetailSnapRef.current;
     pendingDetailSnapRef.current = null;
-    /* No explicit request = pager-driven selection swap → keep the user's
-       position: stay at the middle stage when paging from there, stay at
-       full when paging from full. ('mid' can only be a transient leftover
-       from the list view — normalize it to full like before.) */
+    /* Paging keeps the user's position ('mid' is a list leftover and becomes
+       'full'). */
     const target = requested ?? (snapRef.current === 'peek' ? 'peek' : 'full');
     setSnap(target);
     reapplySnap(target);
@@ -315,7 +272,6 @@ export default function MapSection({
     [mustEats, unlockedIds]
   );
 
-  /* ---------- Handlers ---------- */
   const {
     flyToSpot,
     getFlyPadding,
@@ -345,14 +301,9 @@ export default function MapSection({
     camera: { flyToSpot, getFlyPadding, getFlyPaddingRef },
   });
 
-  /* A detail opening over the list: note where it came from, so closing it
-     can hand back exactly that — the list at the tapped row (its scroll
-     offset, and where on screen the row sat), or the map with the camera the
-     marker tap interrupted, and the desktop panel folded as it was. Read
-     before the view switches and the list's content element unmounts. Phones
-     scroll the window (in-flow list), tablets and desktop the panel's port.
-     `rowId` is the row the detail belongs to; null when there is none to come
-     back to (a marker tap). */
+  /* Note where the detail came from (the tapped row, or the map and its camera,
+     and the desktop panel state), so closing hands back exactly that. Read
+     before the list unmounts. */
   const rememberListOrigin = useCallback(
     (origin: DetailOrigin, rowId: string | null) => {
       panelHiddenBeforeDetailRef.current = desktopPanelHidden;
@@ -369,14 +320,10 @@ export default function MapSection({
         return false;
       }
       userInteractedRef.current = true;
-      /* A marker tap is the user pointing at the map: from here on the list
-         follows it, and the camera's return flight on close is the move that
-         first sorts it around the spot (see handleMapMoveEnd). */
+      /* A marker tap points at the map: from here on the list follows it. */
       if (origin === 'map') listFollowsMapRef.current = true;
       if (sheetView === 'list') {
         rememberListOrigin(origin, origin === 'list' ? r._id : null);
-        /* Deep in the list its top edge is far above the screen; the sticky
-           bar then stands at the strip line, and so shall the detail's. */
         const sheet = sheetElRef.current;
         detailOpenTopRef.current =
           sheet && isPhoneViewport()
@@ -389,35 +336,28 @@ export default function MapSection({
         restaurant_slug: r.slug,
         origin,
       });
-      // Kick off the detail-field fetch now so it's usually cached by the time
-      // the sheet finishes opening (the map payload does not carry them).
-      // Locked spots need it too: their sheet opens with the spot's own
-      // shortDescription above the offer.
+      // Fetch the detail fields now, so they are usually cached when the sheet
+      // has opened.
       prefetchRestaurantDetail(r.slug);
       const isMobile = isSheetViewport();
       const isPhone = isPhoneViewport();
-      // Selecting a search result implicitly accepts it — clear the query so
-      // when the user later goes back to "alle Must Eats" or the list, they
-      // see the full data set, not the still-filtered subset.
+      // Picking a result accepts it; clear the query so the list shows
+      // everything again later.
       setSearch('');
       setSearchOpen(false);
       setSelectedRestaurant(r);
       setSelectedMustEat(null);
-      /* Apply the detail's padding before the detail renders, so MapLibre
-         never eases from the list padding into it. */
+      /* Set the detail padding before render so MapLibre never eases into it. */
       if (isPhone) mapRef.current?.jumpTo({ padding: phoneDetailFlyPadding() });
-      // Both mobile sheet AND desktop sidebar render the detail inline; a
-      // centered floating modal on desktop would hide the marker.
       setSheetView('detail');
-      // List/search/deep-link → open fully (the user clicked to read content).
-      // Pin-tap on the map → open at the middle stage (the photo) so the
-      // map context stays visible; pull up for the full detail.
+      // A pin tap opens at the middle stage so the map stays in view;
+      // everything else opens fully.
       const openAtPeek = isMobile && origin === 'map';
       const target = openAtPeek ? 'peek' : 'full';
       pendingDetailSnapRef.current = target;
       setSnap(target);
-      /* Phones fly in the layout effect above, after the canvas has its real
-         compact height. Larger viewports do not resize the map on open. */
+      /* Phones fly in the layout effect, once the canvas has its compact
+         height. */
       if (!isPhone) {
         flyToSpot(r, {
           duration: 500,
@@ -431,8 +371,6 @@ export default function MapSection({
     [mapTapOnlyDismisses, userInteractedRef, sheetView, setDesktopPanelHidden, setSearch, setSelectedRestaurant, setSelectedMustEat, phoneDetailFlyPadding, setSheetView, setSnap, collapseSheetToPeek, rememberListOrigin, sheetElRef, flyToSpot, pinTapFlyPadding, getFlyPadding]
   );
 
-  /* In welche Richtung zuletzt geblättert wurde — dorthin lädt der Effekt
-     unter den Pager-Handlern die nächste Kachel vor. */
   const pageDirRef = useRef<'prev' | 'next'>('next');
 
   const handlePageMustEat = useCallback(
@@ -456,11 +394,9 @@ export default function MapSection({
     [mustEatPagerAdjacent.prev, mustEatPagerAdjacent.next, userInteractedRef, unlockedIds, setSelectedMustEat, flyToSpot, detailFlyPadding]
   );
 
-  /* Solange ein Must-Eat-Detail offen ist, liegt die Kachel des nächsten
-     Spots in Blätterrichtung schon im Cache, wenn die Kamera dort ankommt
-     (lib/map/tilePreload.ts). Erst wenn die Karte ruht: sonst stünde das
-     Vorladen in der Leitung neben den Kacheln, auf die gerade jemand wartet.
-     Gepollt wird, weil die Karte beim Öffnen per Link noch nicht steht. */
+  /* Lädt die Kachel des nächsten Spots in Blätterrichtung vor
+     (lib/map/tilePreload.ts), erst wenn die Karte ruht, um laufende Kacheln
+     nicht zu bremsen. */
   useEffect(() => {
     const ahead = <T,>(adj: { prev: T | null; next: T | null }) =>
       pageDirRef.current === 'prev' ? adj.prev : adj.next;
@@ -494,20 +430,12 @@ export default function MapSection({
         unlocked: unlockedIds.has(m._id),
       });
       const isMobile = isSheetViewport();
-      /* A must-eat opens from a list row's peek — closing it lands on the
-         row of the restaurant the dish belongs to. */
       if (sheetView === 'list') rememberListOrigin('list', m.restaurant._id);
-      // Selecting a search result accepts it — clear the query so the list
-      // shows the full result set again when the user returns to it.
       setSearch('');
       setSearchOpen(false);
-      // Coming from a restaurant detail (mobile sheet OR desktop panel), the
-      // must-eat detail takes its place; otherwise it opens over the list.
-      // Either way: open it and fly to the must-eat.
       if (selectedRestaurant) setSelectedRestaurant(null);
       setSelectedMustEat(m);
       setSheetView('detail');
-      // Must-Eat-Detail Mobile = viewport-füllend → immer full snap.
       pendingDetailSnapRef.current = 'full';
       if (isMobile) setSnap('full');
       flyToSpot(m.restaurant, { duration: 500, padding: detailFlyPadding() });
@@ -518,19 +446,13 @@ export default function MapSection({
   const handleRestaurantClose = useCallback(() => {
     const r = selectedRestaurant;
     setSelectedRestaurant(null);
-    /* Where the list should come back to: the row of the spot being closed —
-       when it was opened FROM a row. A marker tap hands the map back instead,
-       and a focus row there only made the list render every row down to the
-       spot (88 of 88 for a Kreuzberg pin) without ever scrolling to it. */
+    /* Back to the row only when the detail was opened from one; a marker tap
+       hands the map back instead. */
     returnToRow(r?._id ?? null);
     setSheetView('list');
     if (getDetailOrigin() === 'map') {
-      /* Opened from a marker: hand the MAP back, as it was. The list drops to
-         its resting peek (tablet snap; phones scroll to the map stop in the
-         layout effect above), a desktop panel that was folded away folds
-         away again, and the camera flies back to where the tap interrupted
-         it. Without the saved camera (map not ready at the tap) the spot
-         itself is the next best centre. */
+      /* Opened from a marker: hand the map back as it was (resting peek, panel
+         fold, camera). Without a saved camera the spot is the centre. */
       const isPhone = isPhoneViewport();
       const nextSnap: typeof snap = isPhone ? 'mid' : 'peek';
       if (nextSnap !== snap) setSnap(nextSnap);
@@ -539,13 +461,9 @@ export default function MapSection({
       handBackCamera(r, nextSnap, isPhone);
       return;
     }
-    // If the user pushed the detail down to peek before tapping X, snap the
-    // list back to 'mid' so the result set is actually readable. 'full' and
-    // 'mid' are preserved as deliberate user positions. PHONES: the snap
-    // state is meaningless in the window-scrolled list — reset it to 'mid'
-    // so a stale 'full' from the detail can't leave the full-snap UI state active
-    // (it slides the burger/search off and pins the status toast to the
-    // viewport bottom over the rows).
+    // A detail pushed down to peek returns the list at 'mid' so it is readable.
+    // Phones always reset to 'mid': a stale 'full' would keep the full-snap UI
+    // state over the window-scrolled list.
     const nextSnap: typeof snap = isPhoneViewport() ? 'mid' : snap === 'peek' ? 'mid' : snap;
     if (nextSnap !== snap) setSnap(nextSnap);
     if (r) {
@@ -568,34 +486,25 @@ export default function MapSection({
   const handleMustEatClose = useCallback(() => {
     const m = selectedMustEat;
     setSelectedMustEat(null);
-    // If we were stacked on a restaurant detail, fall back to it instead of the list.
     if (selectedRestaurant) {
       flyToSpot(selectedRestaurant, { duration: 400, padding: getFlyPadding() });
       return;
     }
-    // Closing a must-eat detail (reached from a restaurant detail or deep
-    // link) puts the user back on the restaurants list — at the row of the
-    // restaurant the dish belongs to, which is the only spot on screen the
-    // must-eat was ever about. Unless the chain began at a marker: then the
-    // map comes back and no row is the target (see handleRestaurantClose).
+    // Back on the list at the row of the dish's restaurant, unless the chain
+    // began at a marker.
     returnToRow(m?.restaurant._id ?? null);
     setSheetView('list');
-    // Same nudge as handleRestaurantClose: peek → mid so the list is usable;
-    // phones always reset (stale 'full' would keep the full-snap UI state active).
     const nextSnap: typeof snap = isPhoneViewport() ? 'mid' : snap === 'peek' ? 'mid' : snap;
     if (nextSnap !== snap) setSnap(nextSnap);
     if (m) {
       flyToSpot(m.restaurant, {
         duration: 350,
         padding: getFlyPadding(nextSnap),
-        // Back at a row, the list keeps its order; a marker chain hands the map back.
         eventData: getDetailOrigin() === 'map' ? undefined : ROW_RETURN_FLIGHT,
       });
     }
   }, [selectedMustEat, setSelectedMustEat, selectedRestaurant, returnToRow, setSheetView, snap, setSnap, flyToSpot, getFlyPadding, getDetailOrigin]);
 
-  // Point the sheet's swipe-down-dismiss at the right close handler for
-  // whichever detail is open (must-eat stacked on a restaurant, or plain).
   useEffect(() => {
     dismissDetailRef.current = () => {
       if (selectedMustEat) handleMustEatClose();
@@ -608,11 +517,9 @@ export default function MapSection({
     mustEat: handleMustEatClick,
   };
 
-  /* The camera came to rest. Decide whether the list re-anchors to where the
-     map now looks — a user gesture always does, a flight only once the list
-     follows and only while the list is what the sheet shows. The same centre
-     twice is not a change: MapLibre reports the last frame of a flight with
-     float noise, and every new centre costs a list render. */
+  /* Re-anchor the list where the map now looks: always after a user gesture,
+     after a flight only once the list follows. MapLibre ends flights with float
+     noise, so the same centre twice is not a change. */
   const handleMapMoveEnd = useCallback((e: ViewStateChangeEvent) => {
     const userGesture = e.originalEvent != null;
     if (userGesture) {
@@ -634,22 +541,12 @@ export default function MapSection({
   const handleMapClick = useCallback(() => {
     const isMobile = isSheetViewport();
     if (!isMobile) return;
-    /* Tap on the map = collapse whatever sheet is currently open to peek so
-       the map gets the focus. For a detail view, peek shows name + 3 round
-       icons; for the list, peek shows the count + filter strip. The detail
-       selection itself is preserved — the user can drag the sheet back up
-       to keep reading without re-opening anything. */
     collapseSheetToPeek();
   }, [collapseSheetToPeek]);
 
-  /* Opening search moves NOTHING: no window scroll on phones, no snap on
-     tablets, and no scrolling per keystroke. The search field stays in the
-     viewport (see --map-visual-offset-top), and a jump there reads as the page
-     lurching under your thumb.
-
-     The desktop panel is the one thing revealed: it IS the result list there,
-     so searching with it collapsed would filter into something the user cannot
-     see at all. That is not the list moving. */
+  /* Opening search moves nothing; a jump reads as the page lurching under the
+     thumb. Only the collapsed desktop panel is revealed, since it is the result
+     list there. */
   const revealPanelForSearch = useCallback(() => {
     if (sheetView !== 'list') return;
     setDesktopPanelHidden(false);
@@ -658,20 +555,14 @@ export default function MapSection({
   const handleSearchChange = useCallback(
     (v: string) => {
       setSearch(v);
-      /* Suchen heißt "zeig mir Treffer". Stand eine Detailansicht offen, blieb
-         sie stehen und die gefilterte Liste lag unsichtbar darunter: wer im
-         Restaurant-Detail auf Suchen tippte und "Pizza" eingab, sah weiter
-         dasselbe Restaurant. Das Suchfeld sitzt im Kopf der Sheet und ist auch
-         im Detail bedienbar — also muss die Eingabe die Sheet zurückholen.
-         Leeren lässt die Ansicht in Ruhe: das ist Aufräumen, keine Suche. */
+      /* Tippen im Detail holt die Liste zurück, sonst läge das Ergebnis
+         unsichtbar darunter. Leeren lässt die Ansicht in Ruhe. */
       if (!v.trim() || sheetView === 'list') return;
       detailClosedBySearchRef.current = true;
       setSelectedMustEat(null);
       setSelectedRestaurant(null);
       setSheetView('list');
       setDesktopPanelHidden(false);
-      // Wie beim Schließen des Details: eine heruntergezogene Sheet zurück auf
-      // 'mid', sonst liegt das Ergebnis unter der Kante.
       const nextSnap: typeof snap = isPhoneViewport() ? 'mid' : snap === 'peek' ? 'mid' : snap;
       if (nextSnap !== snap) setSnap(nextSnap);
     },
@@ -693,16 +584,9 @@ export default function MapSection({
     revealPanelForSearch();
   }, [revealPanelForSearch]);
 
-  /* Bezirk is a chip like the others: it sets state and lifts a collapsed list
-     so the results are actually in view. It does not fly the camera itself:
-     setting the state re-runs the filter-refit effect one commit later, and its
-     `fitBounds` would cancel whatever is in the air. One camera owner is
-     enough, and fitting the actual matches beats an average of them. */
-  /* A picked filter shows its result set: the list comes up to 'mid' if it is
-     resting lower than that. Otherwise the map flies to the matches while the
-     list stays peeking at the bottom with one cropped row, and nothing says how
-     many there are. A list already higher than 'mid' stays where the user put
-     it. */
+  /* Bezirk does not fly the camera itself: the filter-refit effect fits the
+     actual matches one commit later and would cancel any flight in the air. */
+  /* A picked filter brings the list up to 'mid', so the result set is in view. */
   const revealListForFilter = useCallback(() => {
     if (sheetView !== 'list') return;
     if (isPhoneViewport()) {
@@ -730,7 +614,6 @@ export default function MapSection({
     (c: MapCategory) => {
       userInteractedRef.current = true;
       setCategory(c);
-      /* 'All' is a reset, not a result set worth surfacing. */
       if (c !== 'All') revealListForFilter();
     },
     [userInteractedRef, setCategory, revealListForFilter]
@@ -772,10 +655,6 @@ export default function MapSection({
 
   useMapWindowScrollKeeper(isActive);
 
-  // Deep-links: ?r=<slug> opens a restaurant detail; ?bezirk=<slug> also moves
-  // the camera onto that district. Both poll mapRef so the camera moves don't
-  // no-op before the canvas finishes mounting. The filters themselves belong
-  // to useMapFilterUrl below.
   useMapDeepLinks({
     mapRef,
     restaurants,
@@ -796,8 +675,6 @@ export default function MapSection({
     fitCameraToSpots,
   });
 
-  // The five filters live in the query string, both directions — so a filtered
-  // map is shareable, survives a reload, and the back gesture undoes it.
   useMapFilterUrl({
     isActive,
     restaurants,
@@ -815,7 +692,6 @@ export default function MapSection({
     setSnap,
   });
 
-  /* ---------- Render ---------- */
   return (
     <MapSectionBody
       isActive={isActive}

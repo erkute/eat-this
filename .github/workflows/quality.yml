@@ -106,24 +106,19 @@ jobs:
       - run: npm run check:embeddings
         if: steps.scope.outputs.code == 'true'
 
-      # Der teuerste Schritt dieses Workflows ist nicht CPU, sondern Sanity.
+      # Der teuerste Schritt dieses Workflows ist Sanity, nicht CPU.
       #
       # Ein kalter `next build` zieht rund 950 Anfragen aus dem
       # Produktions-Dataset (hier ist kein SANITY_PROJECT_ID gesetzt,
-      # `lib/sanity.ts` fällt also auf `ehwjnjr2`/`production` zurück): über
-      # 1.000 vorgerenderte Seiten plus die Doppelabrufe der parallelen
-      # Prerender-Worker.
+      # `lib/sanity.ts` fällt auf `ehwjnjr2`/`production` zurück). Bei vielen
+      # Läufen am Tag sprengte das die Sanity-Kontingente.
       #
-      # Bei rund 50 grünen Läufen am Tag wären das ~1,5 Mio. Anfragen im Monat,
-      # gegen eine Quote von 250.000 (API) bzw. 1.000.000 (CDN).
-      #
-      # Next legt jede dieser Antworten in `.next-verify/cache/fetch-cache` ab
-      # (24 h Frist, `SANITY_REVALIDATE_SECONDS`). Nimmt man nur dieses
-      # Verzeichnis zwischen den Läufen mit, baut CI vollständig durch, ohne
-      # Sanity anzufassen, und erzeugt dieselben Seiten.
+      # Next legt jede Antwort in `.next-verify/cache/fetch-cache` ab (24 h
+      # Frist, `SANITY_REVALIDATE_SECONDS`). Nimmt man dieses Verzeichnis
+      # zwischen den Läufen mit, baut CI durch, ohne Sanity anzufassen.
       #
       # Der Cache darf hier veralten: Dieser Build ist ein Code-Gate. Der Build,
-      # der wirklich ausliefert, läuft bei App Hosting und immer kalt.
+      # der ausliefert, läuft bei App Hosting und immer kalt.
       - name: Sanity-Fetch-Cache holen
         if: steps.scope.outputs.code == 'true'
         uses: actions/cache/restore@v4
@@ -152,12 +147,11 @@ jobs:
         working-directory: .
         run: echo "run=${{ github.event_name == 'pull_request' && github.base_ref == 'staging' }}" >> "$GITHUB_OUTPUT"
 
-      # Der Build für die Jobs `e2e` und `lighthouse` unten. Sie bauen nicht
-      # selbst: sechs weitere Builds kosteten je gut zwei Minuten, und jeder
-      # Fehlgriff beim Fetch-Cache zöge 952 Anfragen aus dem Sanity-Kontingent
+      # Der Build für die Jobs `e2e` und `lighthouse` unten; sie bauen nicht
+      # selbst, weil jeder weitere Build Zeit und Sanity-Kontingent kostet
       # (siehe oben). Mit kommt nur, was `next start` braucht, plus der
-      # Fetch-Cache für Seiten, die erst zur Laufzeit rendern; ohne den
-      # Webpack-Cache (1,5 GB) und das Standalone-Bundle.
+      # Fetch-Cache für Seiten, die erst zur Laufzeit rendern; ohne
+      # Webpack-Cache und Standalone-Bundle.
       - name: Build für die Browser-Prüfung packen
         if: steps.browser.outputs.run == 'true'
         run: tar --zstd -cf /tmp/next-verify.tar.zst --exclude=.next-verify/cache/webpack --exclude=.next-verify/standalone --exclude=.next-verify/trace --exclude=.next-verify/types .next-verify
@@ -189,8 +183,7 @@ jobs:
   # Browser-Abläufe und Barrierefreiheit. Jedes Playwright-Projekt bekommt einen
   # eigenen Rechner mit eigenem Server und eigenen Emulatoren. Nicht `--shard`:
   # Das teilt nach Testanzahl und legt das langsame `mobile-safari` komplett auf
-  # einen Rechner, zusammen mit Resten der beiden anderen. Je Projekt sind es
-  # 11–20 min. Innerhalb eines Rechners bleibt es bei einem Worker
+  # einen Rechner. Innerhalb eines Rechners bleibt es bei einem Worker
   # (playwright.config.ts): Die Tests teilen Server und Emulator-Daten.
   e2e:
     needs: nextjs
@@ -219,10 +212,10 @@ jobs:
           path: /tmp
       - run: tar --zstd -xf /tmp/next-verify.tar.zst
 
-      # apt uses the main archive: the runner's Azure mirror list can crawl (one
-      # package took 90s) while the main archive answers at once. A timed-out
-      # try leaves apt-get holding the dpkg lock (timeout only stops npx), so a
-      # retry first clears the stuck processes and locks.
+      # apt uses the main archive: the runner's Azure mirror list can crawl
+      # while the main archive answers at once. A timed-out try leaves apt-get
+      # holding the dpkg lock (timeout only stops npx), so a retry first clears
+      # the stuck processes and locks.
       - name: Install Chromium and WebKit
         timeout-minutes: 18
         run: |

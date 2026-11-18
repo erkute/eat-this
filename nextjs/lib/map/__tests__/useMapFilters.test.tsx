@@ -6,15 +6,9 @@ import { useMapFilters } from '../useMapFilters';
 import { MUST_EATS_CATEGORY } from '../mapFilterParams';
 
 /**
- * The picker counts. Before them both lists were built from the whole
- * catalogue with nothing said about what any row would return: a Bezirk
- * holding five spots still offered every cuisine in Berlin, and eighteen of
- * those rows were guaranteed zeroes you only discovered by tapping.
- *
- * What has to hold: each row is counted against the OTHER chips, and its own
- * chip is lifted while counting — otherwise picking "Neukölln" would make
- * every district but Neukölln read 0 and the picker would be useless for
- * switching.
+ * The picker counts: each row is counted against the OTHER chips, with its own
+ * chip lifted, or picking "Neukölln" would make every other district read 0 and
+ * the picker useless for switching.
  */
 
 let nextId = 0;
@@ -110,8 +104,7 @@ describe('useMapFilters option counts', () => {
     act(() => result.current.setBezirk('Mitte'));
 
     const { byValue, withoutDimension } = result.current.optionCounts;
-    // Mitte hält vier 20-€-Spots und einen 10-€-Spot, und gar nichts unter 10 —
-    // die Zeile, die früher aussah wie jede andere.
+    // Mitte hält vier 20-€-Spots und einen 10-€-Spot, und nichts unter 10.
     expect(byValue.price.get('20')).toBe(4);
     expect(byValue.price.get('10')).toBe(1);
     expect(byValue.price.get('u10')).toBeUndefined();
@@ -223,10 +216,9 @@ describe('useMapFilters Suche mit Chips', () => {
 });
 
 /**
- * The paywalled half of the catalogue. It used to be invisible up here: the
- * pickers were built and counted from the free set alone, so a cuisine only
- * locked spots carry had no row at all, and a row whose every hit was locked
- * read 0 while the map underneath showed its dots.
+ * The paywalled half of the catalogue counts in the pickers too: otherwise a
+ * cuisine only locked spots carry would have no row, and a row of locked hits
+ * would read 0 over visible dots.
  */
 describe('useMapFilters with the paywalled spots in', () => {
   it('offers a price step that only locked spots carry', () => {
@@ -255,11 +247,7 @@ describe('useMapFilters with the paywalled spots in', () => {
 });
 
 /**
- * The order of the list itself. It used to have none: it inherited the order
- * the map payload was assembled in — curated spots, the round-robin district
- * fill, and then whatever the home page surfaces, appended at the end. Tapping
- * a dish on the home page therefore landed you on the very last row of 340
- * when you closed it again.
+ * The order of the list itself, not the order the map payload was assembled in.
  */
 describe('useMapFilters list order', () => {
   const ROW_ZOLA = spot({ name: 'Zola', mustEatCount: 0 });
@@ -309,7 +297,7 @@ describe('useMapFilters list order', () => {
     expect(result.current.listRestaurants.map((r) => r.name)).toEqual(['Zola', 'Mustafa']);
   });
 
-  /* Montag 09:00: im Audit waren zehn der ersten zwölf Zeilen geschlossen. */
+  /* Montag 09:00, viele Spots noch geschlossen. */
   const MON_9AM = new Date('2026-04-20T09:00:00');
   const MORNING = [{ days: 'Mo–Sa', hours: '07:00–18:00' }];
   const EVENING = [{ days: 'Mo–Sa', hours: '18:00–23:00' }];
@@ -413,14 +401,8 @@ describe('useMapFilters, gekürzte Auswahllisten', () => {
 });
 
 /**
- * Was man tippt, ist nicht, was in Sanity steht.
- *
- * Zwei gemeldete Fehlschlaege, zwei verschiedene Ursachen:
- * - „banh mi" fand „Saveur de Bánh Mì" nicht. `includes` vergleicht Zeichen
- *   fuer Zeichen, und `a` ist nicht `á`.
- * - „vietnamesisch" fand keinen der acht vietnamesischen Spots. Der
- *   `cuisineType` steht ENGLISCH in Sanity; das deutsche Label, das man auf
- *   der Karte liest und deshalb auch eintippt, kannte die Suche nicht.
+ * Was man tippt, ist nicht, was in Sanity steht: Akzente („banh mi" für „Bánh
+ * Mì") und das deutsche Küchen-Label („vietnamesisch" für `Vietnamese`).
  */
 describe('useMapFilters Suche', () => {
   const SUCHZEILEN: MapRestaurant[] = [

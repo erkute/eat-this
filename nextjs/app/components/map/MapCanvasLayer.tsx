@@ -10,14 +10,14 @@ import RestaurantMarker from './RestaurantMarker';
 import UserLocationMarker from './UserLocationMarker';
 import TransitLayer from './TransitLayer';
 
-/* The pins are DOM, the basemap is WebGL, and the DOM wins the first frame —
-   so on a cold load the yellow markers hung on white until the vector tiles
-   arrived, longer still over mobile data. Hold them until MapLibre reports its
-   first visually complete rendering, then drop them in.
+/* The pins are DOM, the basemap is WebGL, and the DOM wins the first frame: on
+   a cold load the markers would hang on blank paper until the vector tiles
+   arrive. Hold them until MapLibre reports its first visually complete
+   rendering, then drop them in.
 
-   Never trust that report to arrive, though: a dead CDN would otherwise leave
-   a permanently empty map, which is worse than the thing being fixed. This is
-   the ceiling after which the pins show regardless. */
+   Never trust that report to arrive: a dead CDN would otherwise leave a
+   permanently empty map. This is the ceiling after which the pins show
+   regardless. */
 const FIRST_PAINT_FALLBACK_MS = 2500;
 
 /* Entry stagger. Capped so a large unlocked set (premium is ~700 spots) does
@@ -172,11 +172,9 @@ export default function MapCanvasLayer({
     };
   }, [mapRef, painted]);
 
-  /* Every spot is its own marker — no grouping — but only the ones near the
-     viewport get a DOM node. Production carried 169 markers at the default
-     camera before ungrouping; without this the same camera would mount 340.
-     The focused spot is filtered out here and re-added below, so it always
-     paints last and over whatever sits beneath it. */
+  /* Every spot is its own marker, no grouping, but only the ones near the
+     viewport get a DOM node. The focused spot is filtered out here and re-added
+     below, so it always paints last and over whatever sits beneath it. */
   const inView = useCallback(
     (r: MapRestaurant) =>
       !bounds ||

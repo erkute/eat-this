@@ -1,4 +1,3 @@
-// nextjs/lib/buddy/retrieval.ts
 import { client as sanityClient } from '@/lib/sanity';
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
 import { OPEN_STATUS_LABELS, DAY_LABELS, berlinNow, getOpenStatus } from '@/lib/map/openingHours';
@@ -109,10 +108,9 @@ interface NameIndexRow {
   folded: string;
 }
 
-// GROQ `match` is case-insensitive but diacritic-blind: a user typing "amato"
-// never finds "amatō", "kureme" never finds "Kuréme" — exactly the spellings
-// real searchers use (see GSC). 340 names fit comfortably in memory, so we
-// resolve the model's `name` input against a folded index instead.
+// GROQ `match` is case-insensitive but diacritic-blind ("amato" never finds
+// "amatō"). The catalogue's names fit in memory, so the model's `name` input
+// resolves against a folded index instead.
 const NAME_INDEX_TTL = 10 * 60_000;
 let nameIndexCache: { at: number; rows: NameIndexRow[] } | null = null;
 
@@ -228,14 +226,11 @@ export function vibeTokens(vibe: string): (string | null)[] {
   ];
 }
 
-// Map the user-facing "€"/"€€"/"€€€" level to a band on priceRange.min (the
-// entry price per person in €). Sanity stores priceRange as a {min,max} object,
-// so the old `priceRange == "€€"` comparison never matched — any price filter
-// silently returned zero spots. Bands are derived from the live data, where min
-// clusters at 1/10/20/30/40+: € = cheap eats, €€ = mid, €€€ = upscale. Counting
-// € signs (rather than exact-matching the string) tolerates stray whitespace and
-// €€€€; an unparseable value yields null so the filter is dropped (fail open)
-// rather than returning nothing.
+// Map the "€"/"€€"/"€€€" level to a band on priceRange.min (entry price per
+// person in €; Sanity stores priceRange as {min,max}). Bands follow the live
+// data, where min clusters at 1/10/20/30/40+. Counting € signs tolerates stray
+// whitespace and €€€€; an unparseable value yields null, so the filter is
+// dropped (fail open).
 export function priceBand(raw?: string): { min: number; maxExcl: number | null } | null {
   const level = (raw ?? '').split('').filter((c) => c === '€').length;
   if (level <= 0) return null;
@@ -280,12 +275,8 @@ interface RetrievalDeps {
 
 const SPOTS_LIMIT = 30;
 /**
- * Drei. Die Treffer sind nach Punkten sortiert, der Schwanz ist also der
- * schwächste Teil: Bei „Was macht Berliner Kaffee besonders" stünde auf Platz
- * fünf ein Schöneberg-Guide (0,48: über der Schwelle, aber kein Kaffee-Text).
- * Unter einer Chat-Antwort sind drei Karten ohnehin genug. Die Schwelle bleibt,
- * wo sie gemessen wurde: Sie liegt mittig in der Lücke zwischen passend und
- * fremd, ein höherer Wert nähme die schwächeren echten Treffer mit.
+ * Drei: die Treffer sind nach Punkten sortiert, der Schwanz ist der schwächste
+ * Teil, und unter einer Chat-Antwort reichen drei Karten.
  */
 const ARTICLES_LIMIT = 3;
 export const MIN_SEMANTIC_CANDIDATES = 8;
@@ -326,8 +317,8 @@ function hydrateSpots(
   const berlin = berlinNow(now ?? new Date());
   const labels = { ...OPEN_STATUS_LABELS[locale], days: DAY_LABELS[locale] };
   return (rows ?? []).map(({ openingHours, priceRange: rawPrice, lat, lng, ...rest }) => {
-    // priceRange is a {min,max,currency} object in Sanity — format it to the
-    // same "10–20 €" label the rest of the app uses (was rendering [object Object]).
+    // priceRange is a {min,max,currency} object in Sanity; format it to the
+    // same "10–20 €" label as the rest of the app.
     const priceRange = formatPriceLabel({ priceRange: rawPrice ?? undefined }, locale);
     // Compute "open now" (Berlin time) so Remy can prioritise open spots and
     // the card can show a status badge. Null when there's no hours data.
@@ -451,13 +442,12 @@ const ARTICLE_PROJECTION = `{
 }`;
 
 /**
- * Rückfallweg, wenn die semantische Suche nicht verfügbar ist: kein Key, kein
- * Index, oder Voyage bremst (der Free-Tier lässt 3 Anfragen pro Minute).
+ * Rückfallweg, wenn die semantische Suche nicht verfügbar ist (kein Key, kein
+ * Index, Voyage bremst).
  *
- * Er sucht bewusst nach einzelnen Wortstämmen, nicht nach der ganzen Frage: Ein
- * `match "*Was macht Berliner Kaffee besonders*"` trifft nie. Mit bis zu drei
- * Tokens aus der Frage bleibt wenigstens ein grober Treffer möglich, wenn das
- * Ranking gerade ausfällt.
+ * Er sucht nach einzelnen Wortstämmen, nicht nach der ganzen Frage: ein `match
+ * "*Was macht Berliner Kaffee besonders*"` trifft nie. Mit bis zu drei Tokens
+ * aus der Frage bleibt ein grober Treffer möglich.
  */
 const ARTICLES_KEYWORD_QUERY = `*[
   _type == "newsArticle"
@@ -474,12 +464,9 @@ const ARTICLES_BY_SLUG_QUERY = `*[
 ] ${ARTICLE_PROJECTION}`;
 
 /**
- * Ab hier zählt ein Artikel als Treffer. An echten Anfragen kalibriert:
- * Thematisch passende Fragen landen bei 0,52–0,67, fremde ("Wie repariere ich
- * mein Fahrrad", "Wetter morgen in Hamburg") bei höchstens 0,28. Ohne Schwelle
- * liefe jede Frage in fünf Karten, auch die, zu der wir nichts geschrieben
- * haben, und Remy verwiese dann im Text auf einen Guide, der nicht zur Frage
- * passt.
+ * Ab hier zählt ein Artikel als Treffer, an echten Anfragen kalibriert:
+ * passende Fragen landen bei 0,52–0,67, fremde bei höchstens 0,28. Ohne
+ * Schwelle verwiese Remy auf Guides, die nicht zur Frage passen.
  */
 export const ARTICLE_MIN_SCORE = 0.45;
 

@@ -1,14 +1,10 @@
-/* Im Aufbau von Kaleidoscope (manifesto.kaleidoscope.media): alles mittig,
-   Schlagzeile, Kapitel und Fazit groß, das Foto über die ganze Breite, Fotos
-   eckig. Schrift und Farben bleiben die eigenen, dieselbe Sprache wie die
-   Startseite (`.homeV2` in globals.css): weißer Grund, Ink für Text,
-   Überschriften in Rot wie `.hv-title`, Gelb als Akzent; Neue Haas Grotesk Text
-   für Plakatives, Labels und Lesetext. Keine neuen Farben.
+/* Aufbau nach Kaleidoscope: alles mittig, Schlagzeile, Kapitel und Fazit groß,
+   Fotos eckig. Schrift und Farben wie die Startseite, keine neuen.
 
    `--article-ground` ist der Grund, `--article-fg` die Schrift darauf,
    `--article-head` die Farbe der Überschriften. Gelbe Flächen
-   (`--article-accent`: Knöpfe, Etiketten, Schlusszeichen) tragen Ink
-   (`--article-on-accent`). Fokusrahmen sind Ink, Gelb auf Weiß sähe man nicht. */
+   (`--article-accent`) tragen Ink (`--article-on-accent`). Fokusrahmen sind
+   Ink, Gelb auf Weiß sähe man nicht. */
 .page {
   --et-sheet: none;
   --article-ground: var(--et-ground);
@@ -37,11 +33,10 @@
 }
 
 /* `.app-page` (globals.css) pairs overflow-x:hidden with overflow-y:visible
-   from 768px up — a combination CSS computes to overflow-y:auto, i.e. a
-   scrollport that never scrolls. That silently kills `position: sticky` — once
-   in the chapter rail, now in the reading progress (`.progress`). `clip` contains the same horizontal overflow without creating a
-   scroll container. Qualified with the element (0,1,1) so it outranks
-   `.app-page` regardless of load order. */
+   from 768px up, which computes to overflow-y:auto: a scrollport that never
+   scrolls and breaks `position: sticky` (`.progress`). `clip` contains the
+   overflow without a scroll container. Qualified with the element (0,1,1) so it
+   outranks `.app-page` regardless of load order. */
 div.page {
   background: var(--et-ground);
   overflow-x: clip;
@@ -273,7 +268,6 @@ div.page {
 .content {
   color: var(--article-fg);
   font-family: var(--et-font-body);
-  /* 032c-Referenzen: 18px / 25.2px auf Telefon und Desktop. */
   font-size: 18px;
   font-weight: 400;
   line-height: 1.4;
@@ -295,11 +289,9 @@ div.page {
   text-wrap: pretty;
 }
 
-/* Schlusswort in Leseschrift, mit einer eigenen Überschrift. */
 .content [data-block='conclusion'] {
-  /* Mehr Luft als vor einer Kapitelueberschrift (clamp(38px, 5vw, 66px)): der
-     Block beendet den Text, er reiht sich nicht ein. Mit dem gleichen Abstand
-     las er sich wie ein dreizehntes Kapitel, das zufaellig anders aussieht. */
+  /* Mehr Luft als vor einem Kapitel: der Block beendet den Text, er reiht sich
+     nicht ein. */
   margin: clamp(58px, 7.5vw, 100px) 0 0;
   text-align: center;
   hyphens: auto;
@@ -514,9 +506,8 @@ div.page {
 
 /* ------------------------------------------------------- inline spot ---- */
 
-/* Inline editorial photo — square corners like every photo in the article,
-   a small quiet caption. The img keeps its intrinsic ratio; next/image
-   ships width/height so the column doesn't jump while it loads. */
+/* next/image ships width/height, so the column doesn't jump while a photo
+   loads. */
 /* Jedes Foto so breit wie die Spot-Karten, also die Spalte, der Aufmacher
    eingeschlossen. Damit Hochformate nicht über den Bildschirm wachsen, werden
    sie höchstens 4:5 gezeigt (Höhe ≤ 125 % der Breite, mittig beschnitten);
@@ -537,7 +528,6 @@ div.page {
   object-fit: cover;
 }
 
-/* Bildunterschriften stehen im gemeinsamen, kleineren Caption-Satz. */
 .inlineImage figcaption {
   margin-top: 6px;
   color: var(--article-muted);
@@ -930,10 +920,9 @@ div.page {
     padding-inline: 6px;
   }
 
-  /* Lange Komposita („Mitternachtshunger") sind in Versalien breiter als
-     die Spalte. Statt zu trennen wird die Schlagzeile so weit kleiner, dass
-     ihr längstes Wort passt: Versalien liefen in der früheren Titelschrift
-     0,60–0,68em pro Zeichen, 0,7 lässt Luft. `anywhere` fängt den Rest ab (MMMM, WWWW). */
+  /* Lange Komposita („Mitternachtshunger") sind in Versalien breiter als die
+     Spalte. Statt zu trennen wird die Schlagzeile so klein, dass ihr längstes
+     Wort passt (0,7em je Zeichen); `anywhere` fängt den Rest ab. */
   .introCopy {
     container-type: inline-size;
   }

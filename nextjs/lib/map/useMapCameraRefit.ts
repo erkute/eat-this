@@ -57,19 +57,8 @@ export function useMapCameraRefit({
   );
 
   /* Refit the map whenever a structured filter narrows or widens the visible
-     set. Without this the user picks "Pizza" → 3 spots in the list but the
-     map stays parked on Mitte and they have to manually zoom out to find the
-     other two. Search is handled by its own debounced effect below — refitting
-     on every keystroke feels jittery. Skip during a detail view so the
-     selected pin's centering isn't overridden.
-
-     Free set first: that is what the list renders for a chip filter. But when
-     it is EMPTY the locked matches are the only thing drawn, and framing
-     nothing would leave the camera on the previous district while the sheet
-     says "Keine Spots" — so fall back to them. This is also what makes
-     handleBezirkChange safe to strip: a district with no free spots still
-     flies somewhere, and it now flies to its actual (locked) spots rather than
-     to an averaged centroid. */
+     set, so a filter never leaves its matches off screen. Search has its own
+     debounced effect below; an open detail keeps its pin centred. */
   const displayedRestaurantsRef = useRef(displayedRestaurants);
   displayedRestaurantsRef.current = displayedRestaurants;
 
@@ -98,25 +87,18 @@ export function useMapCameraRefit({
     fitCameraToSpots(displayedRestaurantsRef.current);
   }, [filterKey, detailOpen, fitCameraToSpots]);
 
-  /* Search refit — ohne ihn stand die Karte still, während die Liste schon die
-     Treffer zeigte. Einen DOM-Knoten bekommen nur Pins nahe der aktuellen
-     Kamera; wer aus einer Mitte-Ansicht einen Spot in Spandau suchte, sah eine
-     leere Karte zu einer gefüllten Liste — der Treffer existierte und war
-     unsichtbar.
+  /* Search refit: pins get a DOM node only near the current camera, so a match
+     far from the view would sit invisible next to a filled list.
 
      Dropping the query refits too, immediately: the camera is parked on
-     whatever the search flew to, so without this the map keeps showing one
-     corner of the city while the list is back to every spot. Same target the
-     structured filters use — die Treffer unter den übrigen Filtern, ohne
-     weitere Filter also ganz Berlin.
+     whatever the search flew to. Same target the structured filters use: the
+     matches under the other filters, without filters all of Berlin.
 
      Debounced on the way in, not on the way out: typing is a stream of
-     intermediate states (the jitter the structured-filter effect avoids by
-     excluding search), clearing is one deliberate act and waiting on it just
-     reads as lag.
+     intermediate states, clearing is one deliberate act.
 
-     `hadSearchQueryRef` is what keeps the clear branch from firing on mount,
-     where the query is empty because nothing was ever typed. */
+     `hadSearchQueryRef` keeps the clear branch from firing on mount, where the
+     query is empty because nothing was ever typed. */
   const hadSearchQueryRef = useRef(false);
   useEffect(() => {
     const query = search.trim();

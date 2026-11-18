@@ -1,49 +1,26 @@
-// nextjs/lib/buddy/reveal.ts
 /**
  * Wie schnell Remys Antwort aufgedeckt wird.
  *
- * Der Anthropic-Strom liefert in Schüben: mal ein halber Satz auf einmal, dann
- * 200 ms nichts. Wer den Rohstrom direkt rendert, sieht die Antwort ruckweise
- * einrasten. Deshalb kommt der Text nicht aus dem Netz auf den Schirm, sondern
- * aus einem Puffer, den ein Takt gleichmäßig leert.
+ * Der Anthropic-Strom kommt in Schüben (Häppchen alle ~45 ms, Aussetzer bis 500
+ * ms). Damit die Antwort nicht ruckweise einrastet, leert ein Takt einen Puffer
+ * gleichmäßig. Der Schritt hängt an der verstrichenen Zeit, nicht an der
+ * Bildanzahl, sonst kröche die Antwort bei 2 fps (Vorhang-Blur,
+ * Hintergrund-Tab) weit über das Stromende hinaus.
  *
- * Der Schritt hängt an der verstrichenen Zeit, nicht an der Bildanzahl. Mit
- * Zeichen pro Bild kröche dieselbe Antwort in einer Sitzung mit 2 fps (der
- * Vorhang blurt die ganze Seite) fast eine Minute über den Schirm, während der
- * Server nach 12 s fertig ist. Ein altes Telefon oder ein Hintergrund-Tab
- * trifft dasselbe, nur milder.
+ * Zwei Tiefpässe hintereinander:
+ * - Zieltempo = Rückstand / τ (400 ms): der Puffer überbrückt die üblichen
+ *   Aussetzer, großer Rückstand holt proportional auf.
+ * - Das gefahrene Tempo folgt dem Zieltempo mit τ = 200 ms, damit ein
+ *   Häppchen das Tempo nur sacht ändert.
+ * - Boden 25 Zeichen/s, damit der Rest nicht asymptotisch kriecht.
+ * - Nach Stromende (`ended`) τ = 160 ms und der höhere Deckel.
  *
- * Das Tempo ist eine geglättete Geschwindigkeit, kein Anteil des Rückstands.
- * Der Strom kommt in Häppchen von 2–25 Zeichen alle ~45 ms, mit Aussetzern von
- * 100–500 ms dazwischen; als Anteil des Rückstands verdoppelte ein einzelnes
- * Häppchen das Tempo, und jeder Aussetzer leerte den Puffer. Das ist Ruckeln.
+ * Ein langer Takt holt in einem Schritt alles nach; der Schritt ist auf den
+ * Rückstand gedeckelt, nicht auf die Zeit.
  *
- * Deshalb zwei Tiefpässe hintereinander:
- * - Zieltempo = Rückstand / τ, mit τ = 400 ms. Der Puffer pendelt sich bei
- *   ~60 Zeichen ein (zwei Drittel einer Zeile) und überbrückt die üblichen
- *   Aussetzer; großer Rückstand holt weiter proportional auf, ohne Deckel.
- *   Ein Schub von 1500 Zeichen wäre sonst ein Nachlauf, der nach dem Ende des
- *   Stroms weitertippt.
- * - Das gefahrene Tempo läuft dem Zieltempo mit τ = 200 ms nach. Ein Häppchen
- *   ändert das Tempo damit nur sacht, der Text fährt an und bremst, statt
- *   zu springen.
- * - Boden: 25 Zeichen/s, damit der letzte Rest nicht asymptotisch kriecht.
- * - Ist der Strom zu (`ended`), gilt τ = 160 ms und der höhere Deckel: Der
- *   Rest kommt zügig, aber als Fluss, kein Absatz, der auf einen Schlag
- *   dasteht.
- *
- * Ein langer Takt (Tab war im Hintergrund, 2 fps) holt in einem Schritt alles
- * nach; der Schritt ist auf den Rückstand gedeckelt, nicht auf die Zeit.
- *
- * Deckel: Der Strom kommt mit ~160 Zeichen/s, das sind 25 Wörter pro Sekunde,
- * sechsmal schneller, als man liest, und mit dem Einblenden pro Wort ein
- * Geflimmer. Im Fluss gilt höchstens 100 Zeichen/s (~16 Wörter/s), nach
- * Stromende 140; mehr liest sich als plötzliches Rennen. Remy läuft damit dem
- * Netz hinterher; damit daraus kein langer Nachlauf wird, hebt jeder Rückstand
- * über 300 Zeichen den Deckel wieder an (0,5 Zeichen/s je Zeichen). Bei einer
- * üblichen Antwort (1300–1700 Zeichen) pendelt sich der Rückstand bei ~400 ein
- * und ist 2–3 s nach Stromende aufgeholt; die Werkzeugpause mitten in der
- * Antwort leert ihn ohnehin. Ein 4000-Zeichen-Schub fährt mit ~2000 los.
+ * Deckel: höchstens 100 Zeichen/s im Fluss (~16 Wörter/s), 140 nach Stromende;
+ * schneller liest sich als Rennen. Jeder Rückstand über 300 Zeichen hebt den
+ * Deckel an (0,5 Zeichen/s je Zeichen), damit kein langer Nachlauf entsteht.
  */
 const REVEAL_MAX_CPS = 100;
 const REVEAL_END_MAX_CPS = 140;
@@ -104,19 +81,14 @@ export function revealStep(
 }
 
 /**
- * Die Aufdeck-Grenze um Remys App-Marker herumführen.
+ * Die Aufdeck-Grenze um Remys App-Marker (`[[spot:<slug>]]`, `[[chips: …]]`)
+ * herumführen. Sie stehen nie auf dem Schirm; zeichenweise aufgedeckt stünde
+ * der Text vor jeder Karte still, und ein einzelnes `[` blitzte auf.
  *
- * `[[spot:<slug>]]` und `[[chips: a | b | c]]` sind Anweisungen an die App, auf
- * dem Schirm stehen sie nie. Deckte der Takt sie Zeichen für Zeichen auf,
- * stünde der Text vor jeder Karte still (200–300 ms ohne ein neues Zeichen, vor
- * den Chips am Ende bis zu 0,8 s), und ein einzelnes `[` blitzte für ein Bild
- * als eigener Absatz auf, bevor das zweite käme und der Renderer den Anfang
- * wieder versteckte.
- *
- * Deshalb: Landet die Grenze in einem Marker, springt sie kostenlos hinter ihn;
- * ist er noch nicht ganz angekommen, wartet sie davor. `final` (Strom zu Ende)
- * lässt einen abgerissenen Marker durch, sonst liefe der Takt nie leer; den
- * hängenden Anfang versteckt `splitAnswerSegments`.
+ * Landet die Grenze in einem Marker, springt sie hinter ihn; ist er
+ * unvollständig, wartet sie davor. `final` lässt einen abgerissenen Marker
+ * durch, sonst liefe der Takt nie leer; den hängenden Anfang versteckt
+ * `splitAnswerSegments`.
  */
 export function skipMarker(raw: string, pos: number, final = false): number {
   if (pos <= 0) return 0;
@@ -133,16 +105,12 @@ export function skipMarker(raw: string, pos: number, final = false): number {
 const MAX_WORD = 32;
 
 /**
- * Die sichtbare Grenze auf eine Wortgrenze zurückziehen.
+ * Die sichtbare Grenze auf eine Wortgrenze zurückziehen, damit kein halbes Wort
+ * am Zeilenende wächst und dann umbricht. Das Tempo bleibt das von
+ * `revealStep`.
  *
- * Zeichenweise getippt wächst das letzte Wort der Zeile, bis es nicht mehr
- * passt, und hüpft dann als Ganzes in die nächste — das Auge liest den Anfang
- * des Wortes zweimal an zwei Orten. Chat-Oberflächen, wie man sie kennt,
- * setzen ganze Wörter. Das Tempo bleibt das von `revealStep`; nur die Stelle,
- * an der geschnitten wird, rastet ein.
- *
- * Am Ende des Puffers gilt das letzte Wort als unfertig (der Schub kann mitten
- * im Wort enden), außer der Strom ist zu (`final`).
+ * Am Pufferende gilt das letzte Wort als unfertig, außer der Strom ist zu
+ * (`final`).
  */
 export function snapToWord(raw: string, pos: number, final = false): number {
   if (pos >= raw.length) {
@@ -160,16 +128,11 @@ export function snapToWord(raw: string, pos: number, final = false): number {
 }
 
 /**
- * Halbfertige Hervorhebung für die Anzeige schließen.
- *
- * `**Standard Pizza**` kommt über mehrere Wörter an. Bis das schließende `**`
- * da war, standen die Sternchen roh im Text, dann kippte die Zeile auf fett
- * und rückte um zwei Zeichen nach links. Jetzt ist das Wort vom ersten
- * Zeichen an fett: ein hängender Sternchen-Rest am Ende fällt weg (ein
- * Öffner ohne Inhalt oder ein halb angekommener Schließer), eine offene
- * Spanne wird geschlossen. Nur die letzte Zeile — Hervorhebung reicht bei
- * Remy nie über einen Zeilenwechsel, und `inlineMarkup` läse sie so auch
- * nicht. Ein Listenpunkt (`* `) am Zeilenanfang zählt nicht mit.
+ * Halbfertige Hervorhebung für die Anzeige schließen, damit `**Wort**` vom
+ * ersten Zeichen an fett steht und die Zeile nicht springt. Ein hängender
+ * Sternchen-Rest am Ende fällt weg, eine offene Spanne wird geschlossen. Nur
+ * die letzte Zeile: Hervorhebung reicht bei Remy nie über einen Zeilenwechsel.
+ * Ein Listenpunkt (`* `) zählt nicht mit.
  */
 export function closeOpenEmphasis(text: string): string {
   const nl = text.lastIndexOf('\n') + 1;
@@ -186,18 +149,14 @@ export function closeOpenEmphasis(text: string): string {
 
 /**
  * Wie weit der Log in diesem Takt nachrückt: die Feder aus
- * `use-stick-to-bottom` (StackBlitz; bolt.new, Vercel AI Elements), dem
- * De-facto-Standard fürs Mitscrollen in Chat-Oberflächen. Werte und Formel sind
- * übernommen, nicht nachempfunden:
+ * `use-stick-to-bottom`, Werte und Formel übernommen:
  *
  *   velocity = (damping · velocity + stiffness · distance) / mass
  *   scrollTop += velocity · (dt / 16,67 ms)
  *
- * Die Feder startet mit Tempo null und nimmt Fahrt auf. Ein Abklingen führe im
- * ersten Bild mit vollem Tempo los, bei einer Spot-Karte (250 px) über 2000
- * px/s aus dem Stand, und das liest sich als plötzlicher Sprung. Eingeschwungen
- * legt sie ~9 % des Abstands pro 60-fps-Bild zurück; weil der Weg an der
- * verstrichenen Zeit hängt, gilt das bei jeder Framerate.
+ * Sie startet mit Tempo null; ein Abklingen spränge bei einer Spot-Karte aus
+ * dem Stand los. Der Weg hängt an der verstrichenen Zeit, gilt also bei jeder
+ * Framerate.
  */
 const STICK_SPRING = { damping: 0.7, stiffness: 0.05, mass: 1.25 } as const;
 
@@ -214,7 +173,6 @@ export function stickStep(
   return { velocity: v, move };
 }
 
-/** `prefers-reduced-motion: reduce` — dann wird nicht getaktet. */
 export function prefersReducedMotion(): boolean {
   if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return false;
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;

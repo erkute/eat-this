@@ -142,11 +142,11 @@ describe('Map CSS architecture', () => {
   });
 
   it('reveals the markers with movement, never with an opacity fade', () => {
-    /* CLAUDE.md, repeatedly: entry motion on a brand surface translates (and
-     * may rotate); it does not fade. A fade reads as "appearing" rather than as
-     * motion and washes out the brand presence. The pins are held back until
-     * the basemap has painted (MapCanvasLayer), so they genuinely have to
-     * arrive — which is exactly the moment someone reaches for `opacity`.
+    /*
+     * Entry motion on a brand surface translates (and may rotate); it does not
+     * fade. The pins are held back until the basemap has painted
+     * (MapCanvasLayer), so they have to arrive, which is when someone reaches
+     * for `opacity`.
      */
     const root = postcss.parse(readFileSync(modulePath('MapMarkers.module.css'), 'utf8'));
     const frames: string[] = [];
@@ -194,9 +194,9 @@ describe('Map CSS architecture', () => {
     const phoneList = declarationsInMedia('MapSheet.module.css', '.list', '(max-width: 767.98px)');
     expect(phoneList).toEqual([expect.objectContaining({ position: 'relative' })]);
     expect(mustEatRules[0]).not.toHaveProperty('position');
-    /* The takeover lies over the map's frame by exactly the frame's height.
-       The map moved from 100dvh to 100lvh and the margin stayed behind: on the
-       iPhone the takeover sat a toolbar height low and the page scrolled. */
+    /* The takeover lies over the map's frame by exactly the frame's height
+       (100lvh); with 100dvh it would sit a toolbar height low on the iPhone and
+       the page would scroll. */
     const mapHeight = declarationsInMedia(
       'MapLayout.module.css',
       '.mapFrame',
@@ -386,11 +386,8 @@ describe('Map CSS architecture', () => {
     }
   });
 
-  /* Der verdeckte Zustand hatte einen eigenen, kompakten Namens-Slot, damit
-     die Proximity-Copy mehr Platz bekommt. Das verschob sie beim Aufdecken:
-     in genau diesem Slot steht dann der Gerichtsname. Verdeckt erbt den Wert
-     jetzt überall vom aufgedeckten Zustand — kein Override mehr, auf keiner
-     Breite. */
+  /* The covered state inherits the name slot from the revealed one at every
+     width, so the proximity copy does not shift when the card is revealed. */
   it('gives the locked Must Eat no name slot of its own', () => {
     for (const media of [
       '(max-width: 1023.98px)',

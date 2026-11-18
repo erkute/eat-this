@@ -1,12 +1,10 @@
 // Single source of truth for the Sanity-CDN transform params baked into GROQ
-// image projections. GROQ can't import JS, so queries interpolate the snippet
-// these helpers return — change a width/quality here instead of grepping eight
-// projections across three files.
+// image projections; GROQ can't import JS, so queries interpolate these
+// snippets.
 //
-// next/image schickt Sanity-URLs über lib/imageLoader.ts direkt an die
-// Sanity-CDN (Breite pro srcset-Stufe, Zuschnitt mitskaliert). Raw Sanity
-// <img> call sites use `sanityImageLoader`/`sanitySrcSet`; these presets
-// define the initial URL a projection ships.
+// next/image sends Sanity URLs straight to the Sanity CDN via
+// lib/imageLoader.ts. Raw <img> call sites use `sanityImageLoader` /
+// `sanitySrcSet`; these presets define the initial URL a projection ships.
 
 interface Preset {
   w: number;
@@ -16,13 +14,10 @@ interface Preset {
 }
 
 const IMAGE_PRESETS = {
-  // Restaurant + article hero (detail pages) und die Galerie-Vollansicht.
-  // 1600 statt 1200, weil die Bildspalte der Detailseite 900px breit ist —
-  // auf einem 2x-Schirm also 1800 Geraetepixel. 1200 hiess dort ein Viertel
-  // Aufloesung zu wenig, und 1600 ist ohnehin die Obergrenze, mit der die
-  // Import-Skripte Fotos ziehen: mehr liegt bei den Bestandsfotos nicht.
-  // Kostet mobil nichts — was ausgeliefert wird, entscheidet next/image
-  // anhand von `sizes`, nicht die Breite der Quelle.
+  // Restaurant + article hero (detail pages) und die Galerie-Vollansicht. 1600,
+  // weil die Bildspalte der Detailseite 900px breit ist (2x: 1800 Geraetepixel)
+  // und die Import-Skripte Fotos mit hoechstens 1600 ziehen. Mobil entscheidet
+  // next/image ueber `sizes`.
   detailHero: { w: 1600, q: 85 },
   // Der Hero des Map-Sheets. Bleibt bei 1200, obwohl das Sheet dieselbe
   // Restaurant-Abfrage fuettert wie die Detailseite: dort haengt das Bild in
@@ -30,7 +25,6 @@ const IMAGE_PRESETS = {
   // auch auf dem Handy, wo das Sheet keine 500px breit ist. `detailHero` darf
   // deshalb nicht fuer beide gelten.
   sheetHero: { w: 1200, q: 85 },
-  // Bezirk hero (wider crop)
   // Standard restaurant / article card photo
   card: { w: 800, q: 80 },
   // Map list/marker thumbnail
@@ -51,8 +45,10 @@ const IMAGE_PRESETS = {
 
 type ImagePresetName = keyof typeof IMAGE_PRESETS;
 
-/** The `?w=…&auto=format&q=…` query string for a preset (param order matches
- *  the hand-written projections this replaced — keep it stable). */
+/**
+ * The `?w=…&auto=format&q=…` query string for a preset. Keep the param order
+ * stable.
+ */
 export function presetQuery(preset: ImagePresetName): string {
   const p: Preset = IMAGE_PRESETS[preset];
   let qs = `?w=${p.w}`;
@@ -79,17 +75,10 @@ export function groqImageUrl(path: string, preset: ImagePresetName): string {
 }
 
 /**
- * Eigene Fotos. Sie tragen keine `creditUrl`, weil es nichts zu verlinken gibt;
- * die Bedingung unten verlangt Credit und URL aber nur *gemeinsam*, und ohne
- * diese Liste fiele ein selbst fotografierter Spot durchs Raster.
- *
- * `sardinen-bar`: `image.credit` sagt dort „Foto: Eat This", `creditUrl` und
- * `instagramHandle` sind leer; ohne den Eintrag rutschte die Karte auf
- * /kategorie/dinner und /bezirk/mitte ohne Bild aus der Zeile.
- *
- * `bar-basta` käme mit `instagramHandle: basta.berlin` auch über den
- * Instagram-Zweig durch, bleibt aber drin: Das Foto ist unabhängig vom Handle
- * unseres, und das Handle kann im Studio verschwinden.
+ * Eigene Fotos: sie tragen keine `creditUrl`, und die Bedingung unten verlangt
+ * Credit und URL nur gemeinsam. `bar-basta` käme auch über den Instagram-Zweig
+ * durch, bleibt aber drin: das Foto ist unabhängig vom Handle unseres, und das
+ * Handle kann im Studio verschwinden.
  */
 export const FIRST_PARTY_RESTAURANT_PHOTO_SLUGS = ['bar-basta', 'sardinen-bar'] as const;
 
@@ -131,16 +120,10 @@ export function restaurantPhotoCreditUrl(
 }
 
 /**
- * Re-points a Sanity CDN URL at the `schemaImage` preset for structured data.
- *
- * Google only serves a large preview (`max-image-preview:large`) for images
- * from 1200 px wide, and the list projections bake `card` — 800 px. That is the
- * right size for the card the visitor downloads and too small for the
- * thumbnail, so the JSON-LD hands Google its own wider URL instead of making
- * every card on the page heavier. Sanity does upscale to the requested width (a
- * 1072 px source comes back 1200×994), so every entry clears the threshold —
- * for the few sources under 1200 px at the cost of a mild stretch, which a
- * thumbnail survives.
+ * Re-points a Sanity CDN URL at the `schemaImage` preset for structured data:
+ * Google shows a large preview only for images from 1200 px wide, and list
+ * projections bake `card` (800 px). Sanity upscales to the requested width, so
+ * every entry clears the threshold.
  *
  * Returns undefined for null/non-Sanity URLs so callers can pass an optional
  * field straight through.

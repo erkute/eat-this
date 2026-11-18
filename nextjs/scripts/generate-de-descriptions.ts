@@ -34,12 +34,9 @@ const usage = newUsage();
 const SANITY_PROJECT_ID = 'ehwjnjr2';
 const SANITY_DATASET = 'production';
 const SANITY_API_VERSION = '2024-01-01';
-// Sonnet 5 is both newer and cheaper than Sonnet 4.6 ($2/$10 per MTok vs
-// $3/$15). It runs adaptive thinking by default, and thinking tokens count
-// against max_tokens — so the budgets below are raised to keep reasoning from
-// starving the JSON payload, which is exactly how the "No JSON text block"
-// failures happen. Effort stays low: this is structured extraction from
-// supplied facts, not a reasoning problem.
+// Sonnet 5 runs adaptive thinking, and thinking tokens count against
+// max_tokens, so the budgets below leave room for the JSON payload. Effort
+// stays low: structured extraction from supplied facts, not reasoning.
 const TRANSLATION_MODEL = 'claude-sonnet-5';
 
 type DocType = 'restaurant' | 'bezirk';
@@ -142,25 +139,19 @@ interface BezirkSource {
   description?: string;
 }
 
-// Project all fields with {...} wildcard. The script needs the full doc to clone
-// into a draft via createIfNotExists; projecting only the prompt-input fields
-// produced incomplete drafts (missing image, slug, openingHours, etc.). Repaired
-// after the fact via repair-draft-fields.ts.
+// The full doc ({...}): it is cloned into a draft via createIfNotExists, and a
+// narrow projection leaves drafts incomplete.
 //
-// Filter is idempotent on BOTH published and draft state: a restaurant qualifies
-// only if neither the published doc NOR its draft already has a description.
-// Without the draft check, re-runs would re-translate every restaurant whose
-// description lives only in the draft (because publish hasn't happened yet).
+// A restaurant qualifies only if neither the published doc nor its draft has a
+// description; otherwise re-runs would re-translate drafts awaiting publish.
 async function fetchRestaurants(opts: {
   draftsOnly: boolean;
   force: boolean;
   onlyWithPhoto?: boolean;
 }): Promise<RestaurantSource[]> {
   const descClause = opts.force ? '' : ' && !defined(description)';
-  // A spot without an image can't be published anyway — the publish gate in
-  // lib/sanity-image-presets.ts closes and the detail page renders the empty
-  // hero. Generating prose for it now is work on stock, and every document
-  // costs a billed research cycle.
+  // A spot without an image can't be published (lib/sanity-image-presets.ts),
+  // and every document costs a billed research cycle.
   const photoClause = opts.onlyWithPhoto ? ' && defined(image.asset)' : '';
   if (opts.draftsOnly) {
     return sanity.fetch(
@@ -215,19 +206,12 @@ export interface PlaceContext {
 }
 
 /**
- * Holt die Places-Fakten über `places/{id}` statt über `places:searchText`.
+ * Places-Fakten über `places/{id}` statt `places:searchText`: Place Details ist
+ * bei dieser Field-Mask günstiger, und die Suche im 300-m-Radius traf in
+ * dichten Kiezen das Nachbarlokal.
  *
- * Zwei Gründe. Erstens Geld: Google rechnet jeden Request nach dem teuersten
- * Feld seiner Field-Mask ab, und `editorialSummary` ist Enterprise+Atmosphere.
- * Als Text Search kostet das 40 $/1.000 bei 1.000 Freiaufrufen im Monat — ein
- * Lauf über den Katalog schöpft die fast aus. Dieselbe Auskunft als Place
- * Details kostet 25 $/1.000. Zweitens Treffsicherheit: die Suche nahm den
- * besten Treffer im 300-m-Radius um die Koordinaten, was in dichten Kiezen
- * das Nachbarlokal sein kann. Die `googlePlaceId` steht ohnehin im Dokument.
- *
- * Ohne `googlePlaceId` gibt es keinen Places-Kontext — der Generator kommt
- * damit klar, `null` ist ein regulärer Rückgabewert. Auf eine Suche
- * zurückzufallen wäre genau der teure Pfad, den diese Änderung abstellt.
+ * Ohne `googlePlaceId` gibt es keinen Places-Kontext (`null`), bewusst ohne
+ * Rückfall auf die teure Suche.
  */
 export async function fetchPlaceContext(r: RestaurantSource): Promise<PlaceContext | null> {
   if (!r.googlePlaceId) {
@@ -239,13 +223,10 @@ export async function fetchPlaceContext(r: RestaurantSource): Promise<PlaceConte
     {
       headers: {
         'X-Goog-Api-Key': GOOGLE_API_KEY,
-        // IMPORTANT: do NOT request `reviews`. Google user reviews are
-        // off-limits as a source for description / tip / shortDescription:
-        // they're third-party voices and our brand promise is "personally
-        // visited and curated" (see memory: feedback_curator_voice_no_third_party).
+        // Never request `reviews`: Google user reviews are third-party voices,
+        // and the brand promise is "personally visited and curated".
         //
-        // Place Details nutzt die blanken Feldnamen, nicht das `places.`-Präfix
-        // der Suche.
+        // Place Details nutzt die blanken Feldnamen, ohne `places.`-Präfix.
         'X-Goog-FieldMask': [
           'id',
           'displayName',
@@ -437,11 +418,9 @@ function extractJsonText(content: Anthropic.ContentBlock[], docId: string): stri
   return extractJsonObjectTextFromBlocks(content, docId);
 }
 
-// Curated, editorial Berlin food sources the model may research for grounding
-// the long-form description. The web_search server tool is HARD-restricted to
-// these domains via `allowed_domains` — random blogspam / aggregators are
-// excluded, which keeps the distilled facts on-brand. Edit this list to add or
-// drop sources; keep it to quality editorial outlets, not user-review sites.
+// Editorial Berlin food sources the model may research. web_search is
+// restricted to them via `allowed_domains`; keep the list to editorial outlets,
+// not user-review sites.
 const RESEARCH_DOMAINS = [
   'tip-berlin.de',
   'berlinfoodstories.com',
@@ -453,10 +432,8 @@ const RESEARCH_DOMAINS = [
   'theberliner.com',
 ];
 
-// Server tool — Anthropic runs the search on its infra and returns results
-// inline. `allowed_domains` hard-bounds it to RESEARCH_DOMAINS; `max_uses` caps
-// cost/latency (each search ≈ a few cents). Typed loosely because the exact
-// web_search tool literal isn't in every @anthropic-ai/sdk type version.
+// Server tool: Anthropic runs the search and returns results inline. Typed
+// loosely because the web_search literal isn't in every SDK type version.
 const RESEARCH_TOOLS = [
   {
     type: 'web_search_20260209',
@@ -484,8 +461,6 @@ export async function generateRestaurant(
     existingShortDescription: r.shortDescription ?? null,
     existingTip: r.tip ?? null,
   };
-  // Note: Google user reviews intentionally excluded — they're third-party
-  // voices and would undermine the "personally visited & curated" promise.
   const placesFacts = places
     ? {
         formattedAddress: places.formattedAddress ?? null,
@@ -507,11 +482,9 @@ export async function generateRestaurant(
       model: TRANSLATION_MODEL,
       max_tokens: 4096,
       output_config: { effort: 'low' },
-      // The system prompt is identical for every restaurant and the loop below
-      // re-sends the whole accumulated turn — including every search result —
-      // on each `pause_turn`. Without a breakpoint all of that is billed at
-      // full input price every time, which is what made a run over the catalogue
-      // cost multiples of the naive per-document estimate.
+      // The system prompt is the same for every restaurant, and each
+      // `pause_turn` re-sends the whole turn with its search results; without a
+      // breakpoint all of it is billed at full input price every time.
       cache_control: { type: 'ephemeral' },
       system: RESTAURANT_PROMPT,
       tools: RESEARCH_TOOLS,
@@ -669,7 +642,7 @@ async function main(): Promise<void> {
                 : `    (skipped: nothing to set)`
             );
           }
-          // Rate-limit gentle: 200ms between docs (~5 req/s, well under Places + Anthropic limits)
+          // 200 ms between docs, well under the Places and Anthropic limits.
           await new Promise((resolve) => setTimeout(resolve, 200));
         } catch (e) {
           noteFailure(stats, `${r.name} (${r._id})`, e);
@@ -710,8 +683,8 @@ async function main(): Promise<void> {
   }
 }
 
-// Only run main when invoked directly via tsx; skipped when imported by the
-// another local script. Symlink-safe via realpath (macOS /tmp → /private/tmp).
+// Only run main when invoked directly via tsx, not when imported by another
+// script. realpath keeps it symlink-safe (macOS /tmp → /private/tmp).
 import { realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 function isCliEntry(): boolean {

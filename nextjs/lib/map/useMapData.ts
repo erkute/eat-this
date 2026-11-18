@@ -66,13 +66,9 @@ interface MapData {
 const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
 export function useMapData({ uid, authLoading, firebaseUid, initialMapData }: UseMapDataArgs): MapData {
-  // First paint MUST match the SSR output (the anon `initialMapData`). The
-  // server cannot read the per-uid localStorage cache, so seeding it during
-  // render would diverge from the server HTML and trip a hydration mismatch
-  // (e.g. the booster divider lands at a different list index). We initialise
-  // from the SSR view, then swap in the signed-in cache in a layout effect
-  // right after hydration — before paint — so the anon→signed tier seed still
-  // happens without a visible flash AND without a mismatch. The live
+  // First paint must match the SSR output (the anon `initialMapData`): the
+  // server cannot read the per-uid localStorage cache. The signed-in cache is
+  // swapped in by a layout effect right after hydration, before paint; the live
   // /api/map-data fetch reconciles afterwards.
   const [restaurants, setRestaurants] = useState<MapRestaurant[]>(
     initialMapData?.restaurants ?? []
@@ -214,19 +210,15 @@ export function useMapData({ uid, authLoading, firebaseUid, initialMapData }: Us
     settledUidRef.current = uid;
   }, [authLoading, uid, refetch]);
 
-  /* Nachladen, sobald dem Konto Karten zufallen: Kauf, Starter Pack,
-     Einladungsbonus. Alle drei schreiben in eine der beiden Collections unten,
-     und der Server rechnet die Oberfläche daraus.
+  /* Nachladen, sobald dem Konto Karten zufallen (Kauf, Starter Pack,
+     Einladungsbonus); alle drei schreiben in eine der Collections unten.
 
-     Hier im Hook und nicht im Aufrufer: Auch das Profil holt diese Nutzlast
-     über diesen Hook, und genau dort landet, wer sich über den Profil-Guard
-     anmeldet. Das Starter Pack wird nach der Anmeldung im Hintergrund eingelöst
-     (ReferralToastListener), während der erste Fetch hier schon läuft: Ohne
-     Listener zeigte das Deck dann zu wenige Karten, bis jemand neu lädt, und
-     der Cache unten hielte den Stand fest.
+     Im Hook, nicht im Aufrufer: auch das Profil holt die Nutzlast hierüber, und
+     dort löst ReferralToastListener das Starter Pack ein, während der erste
+     Fetch schon läuft.
 
-     Firestore ist code-gesplittet (siehe getDb) und wird erst hier geladen,
-     damit es aus dem ersten Bundle der Startseite herausbleibt. */
+     Firestore ist code-gesplittet (getDb) und wird erst hier geladen, damit es
+     aus dem ersten Bundle der Startseite bleibt. */
   useEffect(() => {
     if (!uid) return;
     let active = true;

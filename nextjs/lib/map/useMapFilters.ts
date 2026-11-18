@@ -13,8 +13,9 @@ import {
   suggestSpots,
 } from './spotSearch';
 
-/** Ab wie vielen Spots ein Bezirk im Filter erscheint. Zehn der zwanzig
- *  Bezirke lagen darunter, die Hälfte davon bei ein oder zwei Treffern. */
+/**
+ * Ab wie vielen Spots ein Bezirk im Filter erscheint.
+ */
 const BEZIRK_MIN_SPOTS = 5;
 import { haversineDistance } from './distance';
 
@@ -198,13 +199,8 @@ export function useMapFilters({
   );
 
   /* What every picker row would actually yield, counted against the OTHER
-     chips. Both lists are built from the whole catalogue, so a Bezirk with
-     five spots still offered all 23 cuisines and eighteen of them were
-     guaranteed zeroes with nothing saying so — you found out by tapping and
-     landing on "Keine Spots".
-
-     The query counts too: it narrows the list like any chip, so a row that
-     reads 12 under "pizza" has to yield 12 pizza spots. */
+     chips, so a row never promises spots it does not have. The query counts
+     too: a row that reads 12 under "pizza" has to yield 12 pizza spots. */
   const optionCounts = useMemo<MapOptionCounts>(
     () => countOptions(catalogue, { category, bezirk, price, openOnly }, matchesQuery),
     [catalogue, category, bezirk, price, openOnly, matchesQuery]

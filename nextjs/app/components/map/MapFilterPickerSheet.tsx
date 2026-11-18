@@ -74,31 +74,20 @@ export default function MapFilterPickerSheet({
   }, [onClose]);
 
   /*
-   * Außenklick, nur für die eingeklappte Desktop-Variante.
+   * Außenklick, nur für die eingeklappte Desktop-Variante. Als Bottom-Sheet
+   * schließt der Backdrop über seinen eigenen `onClick`; der Klick ist damit
+   * verbraucht und trifft nichts darunter. Nicht über `touchstart`/`mousedown`:
+   * dann wäre das Sheet weg, bevor der Klick kommt, und der schlüge auf die
+   * Karte durch.
    *
-   * Als Bottom-Sheet liegt ein Backdrop über allem, und der schließt über
-   * seinen eigenen `onClick` (siehe unten im Markup). Das ist der ganze Trick:
-   * Der wegtippende Klick landet auf dem Backdrop und ist damit verbraucht, er
-   * kann nichts darunter treffen.
+   * Die Desktop-Variante (ab 1024px) hat keinen Backdrop und braucht diesen
+   * Wächter, ebenfalls auf `click`: beim Zuklappen fließt die Leiste um, und
+   * `mousedown` schickte den Klick an das Element, das danach dort liegt.
    *
-   * Nicht über `touchstart`/`mousedown`: Damit wäre das Sheet schon weg, bevor
-   * der Klick kommt, und der schlüge auf die Karte durch und öffnete einen
-   * Spot. Ein Abfänger mit Frist hilft nicht, ein bedächtiger Tipp dauert
-   * länger als jede Frist. Ein Down-Ereignis ist hier grundsätzlich das falsche
-   * Signal.
-   *
-   * Die eingeklappte Variante (ab 1024px) hat keinen Backdrop, sie braucht
-   * deshalb einen Wächter. `click` statt `mousedown` aus demselben Grund: Beim
-   * Zuklappen fließt die Leiste um, und ein auf `mousedown` geschlossener
-   * Picker schickt den Klick an das Element, das nach dem Umfließen dort liegt.
-   *
-   * Die ganze Chip-Zeile bleibt ausgenommen, nicht nur der eigene Chip: Jeder
-   * Chip entscheidet in seinem eigenen `onClick` selbst, was offen sein soll
-   * (nochmal derselbe = zu, ein anderer = umschalten). Käme hier zuerst ein
-   * `onClose`, zöge der Klick danach denselben Chip wieder auf; die Leiste
-   * ginge beim zweiten Tippen nicht zu. Das deckt zugleich den Klick ab, der
-   * den Picker gerade geöffnet hat: React hängt diesen Wächter noch während
-   * dessen Lauf ein, er sähe ihn also selbst.
+   * Die ganze Chip-Zeile bleibt ausgenommen: jeder Chip entscheidet in seinem
+   * `onClick` selbst, was offen sein soll, und ein `onClose` vorher zöge
+   * denselben Chip wieder auf. Das deckt auch den Klick ab, der den Picker
+   * gerade geöffnet hat.
    */
   useEffect(() => {
     if (!inline) return;

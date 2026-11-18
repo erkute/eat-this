@@ -58,18 +58,12 @@ const FONT_STACKS: Record<string, string> = {
   'Montserrat Regular Italic': 'Noto Sans Italic',
 };
 
-/* Die Vorlage kennt genau ein Icon: einen Punkt hinter Städtenamen, in fünf
-   Layern zwischen Zoom 4 und 8. Auf einer Berliner Karte ist das der Zoom, auf
-   dem halb Europa im Bild steht — der Punkt neben „Hamburg" ist dort Zierde.
-   Er fliegt deshalb ganz raus, statt ein eigenes Sprite dafür zu hosten.
-   Der eigentliche Auslöser war MapLibre: sein `parseUrl` verlangt für `sprite`
-   eine Adresse MIT Protokoll, eine wurzelrelative wie `/basemap/sprite` wirft
-   intern und wird still verschluckt — die Karte lädt, das Sprite nie. Eine
-   absolute Adresse kennen wir zur Bauzeit nicht (lokal, Staging und Produktion
-   sind drei), also müsste sie zur Laufzeit gesetzt werden. Für fünf Punkte auf
-   Kontinent-Zoom ist das zu viel Apparat.
-   Achtung, falls hier je ein Icon zurückkommt: dann gilt genau dieses Problem
-   wieder, und ein Test „lädt die Karte?" beantwortet es NICHT. */
+/* Die Vorlage kennt genau ein Icon: einen Punkt hinter Städtenamen zwischen
+   Zoom 4 und 8, auf einer Berliner Karte Zierde. Er fliegt raus, statt ein
+   eigenes Sprite zu hosten: MapLibres `parseUrl` verlangt für `sprite` eine
+   absolute Adresse (eine wurzelrelative scheitert still), und die kennen wir
+   zur Bauzeit nicht. Kommt je ein Icon zurück, gilt genau dieses Problem
+   wieder; ein Test „lädt die Karte?" findet es nicht. */
 const DROP_ICONS = true;
 
 // ---------------------------------------------------------------- Farbmathe

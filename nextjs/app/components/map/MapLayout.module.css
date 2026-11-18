@@ -1,10 +1,5 @@
-/* Map page geometry, canvas host and MapLibre attribution. */
 
-/* Light surfaces use roles; ink and white keep their literal meaning for
-   photos, markers and primary actions. Map geometry is unchanged. */
 .shell {
-  /* Die Map ist clean wie 032c: Knöpfe, Etiketten und Flächen ohne Kratzer und
-     ohne angestoßene Kanten. */
   --et-wear: none;
   --map-action: #a82b2e;
   --et-offer-red: #a82b2e;
@@ -16,36 +11,32 @@
   height: 100%;
   overflow: hidden;
   /* How far the page extends below the visual viewport. Phones set
-     --map-runtime-bar-overhang from visualViewport because iOS Safari's
-     toolbar math is not reliably represented by lvh/dvh alone. */
+     --map-runtime-bar-overhang from visualViewport; lvh/dvh alone do not match
+     iOS Safari's toolbar. */
   --map-bar-overhang: var(--map-runtime-bar-overhang, calc(100lvh - 100dvh + 80px));
-  /* Block page-level pinch-zoom on the map page — only vertical pan/scroll
-     is allowed on UI surfaces. The MapLibre canvas overrides this with
-     touch-action: none so the actual map still pinches & rotates. */
+  /* No page pinch-zoom on UI surfaces; the MapLibre canvas sets touch-action:
+     none so the map itself pinches and rotates. */
   touch-action: pan-y;
 }
 
 .body {
   flex: 1;
   display: grid;
-  grid-template-rows: minmax(0, 1fr); /* mobile: single row, sheet floats on top */
+  grid-template-rows: minmax(0, 1fr);
   grid-template-columns: 1fr;
   min-height: 0;
   position: relative;
   overflow: hidden;
 }
 
-/* Desktop: no column for the results panel. The map runs under it at full width
-   and the panel lies over its right edge (MapSheet), sliding out and back in. A
-   grid column of its own would squeeze the rows while it animates, and every
-   new canvas width moves the pitched map's vanishing point, so the picture
-   shears. The camera leaves the covered strip out through its padding instead
-   (useMapCamera, getFlyPadding). */
+/* Desktop: no grid column for the panel. The map runs under it at full width; a
+   column would squeeze the rows while it animates and shear the pitched map.
+   The camera pads the covered strip instead. */
 @media (min-width: 1024px) {
   .shell {
     --map-desktop-panel-width: clamp(380px, 25vw, 420px);
-    /* The panel's slide. The tab, burger and locate button at its edge ride
-       along with exactly this — one value, or they part company mid-slide. */
+    /* The panel's slide; tab, burger and locate button ride with exactly this
+       value. */
     --map-panel-slide: var(--motion-slow) var(--ease-standard);
   }
 }
@@ -55,8 +46,6 @@
   touch-action: none;
 }
 
-/* The map's frame: a box on the phone only (see "The map frame" below);
-   elsewhere map and locate dock are the body's own children. */
 .mapFrame {
   display: contents;
 }
@@ -65,11 +54,8 @@
   position: relative;
   min-height: 0;
   min-width: 0;
-  /* Isolate the map's stacking context so the user-location marker's
-     z-index 1000 (needed to beat fanned must-eat markers, max ~100)
-     stays contained inside the map. Without this the marker escapes
-     and renders over the bottom-sheet (.list, z-index 4) and the
-     detail panels. */
+  /* Contains the user marker's z-index 1000, which would otherwise render over
+     the sheet and the detail panels. */
   isolation: isolate;
 }
 
@@ -86,21 +72,10 @@
   background-image: none;
 }
 
-/* Auf dem dunklen Basemap-Grund. Die Nennung von OpenStreetMap und den
-   Kachel-Anbietern ist die Gegenleistung fuer die freie Nutzung und muss
-   lesbar bleiben — deshalb umgefaerbt statt abgedunkelt.
- *
- * Die zweite Zeile im Selektor ist kein Zierrat: MapLibre setzt in seinem
- * eigenen Stylesheet `@media screen { .maplibregl-ctrl-attrib.maplibregl-compact
- * { color: #000 } }`. Das sind zwei Klassen — (0,2,0) —, genau so viel wie
- * `.mapWrap .maplibregl-ctrl-attrib`, und maplibre-gl.css laedt spaeter. Bei
- * Gleichstand gewinnt also SEIN Schwarz, und der Fliesstext ZWISCHEN den Links
- * stand unsichtbar auf dem Ink-Grund (gemessen Kontrast 1,09). Die Links
- * selbst waren nie betroffen, die haben ihre eigene Regel — deshalb ist es nie
- * jemandem aufgefallen: sichtbar blieben „OpenFreeMap" und „OpenStreetMap",
- * weg war das „Data from" dazwischen (und bei CARTO davor das
- * „contributors"). Mit der Compact-Klasse im Selektor sind wir bei (0,3,0)
- * und gewinnen. */
+/* Die Attribution muss lesbar bleiben (Gegenleistung für die freie Nutzung).
+   Die Compact-Klasse im Selektor hebt die Spezifität auf (0,3,0); mit (0,2,0)
+   gewänne MapLibres später geladenes Schwarz, und der Text zwischen den Links
+   stünde unsichtbar auf Ink. */
 .mapWrap :global(.maplibregl-ctrl-attrib),
 .mapWrap :global(.maplibregl-ctrl-attrib.maplibregl-compact) {
   font-size: 10px;
@@ -156,7 +131,6 @@
   backdrop-filter: blur(14px) saturate(1.4);
   border: 0;
   border-radius: 999px;
-  /* Same height as collapsed pill (20px), wider for text. */
   padding: 0 10px 0 24px;
   min-height: 20px;
   min-width: 0;
@@ -212,23 +186,15 @@
 
 @media (max-width: 767.98px) {
   .shell {
-    /* Resting stop of the three-stage sheet ("map"), mirrored in JS by
-       LIST_REST_VISIBLE_DVH in phoneSheetSnaps.ts — keep the two in step. */
+    /* Mirrored in JS by LIST_REST_VISIBLE_DVH (phoneSheetSnaps.ts); keep in
+       step. */
     --phone-list-sheet-visible: 28dvh;
-    /* The detail's map strip. Sized so the sheet has the same three stops as
-       the list — a live, pannable map behind the sliding detail sheet. In lvh
-       for the same reason as the list's map: a dvh strip resizes with every
-       step of Safari's collapsing toolbar and the map slides about while the
-       detail scrolls. */
+    /* The detail's map strip, in lvh: a dvh strip resizes with each step of
+       Safari's collapsing toolbar. */
     --detail-map-peek: 50lvh;
-    /* Map left showing above the sheet when it is all the way up. The sticky
-       bar stops below it. Mirrored in JS by MAP_STRIP_PX in
-       lib/map/sheetSlide.ts. */
+    /* Mirrored in JS by MAP_STRIP_PX (lib/map/sheetSlide.ts). */
     --map-strip: calc(env(safe-area-inset-top, 0px) + 72px);
-    /* How far the map's wrapper stands off the top edge — see .mapWrap. */
     --map-top-gap: 1px;
-    /* Where the sheet's top edge rests over the map: the list at 100dvh −
-       its visible share, a restaurant at --detail-map-peek. */
     --frame-edge: calc(100dvh - var(--phone-list-sheet-visible));
     height: auto;
     overflow: visible;
@@ -237,22 +203,14 @@
     display: block;
     height: auto;
     overflow: visible;
-    /* The map frame lies over the sheet (7), the sheet's bars over both
-       (8). A stacking context of its own keeps the map's -1 above this
-       body's background where the frame is no stacking context (must-eat). */
+    /* Own stacking context keeps the map's -1 above this body's background
+       where the frame is none (must-eat). */
     isolation: isolate;
-    /* The line the edge controls stand on — map credit left, locate button
-       right (MapControls.module.css), 44px tall, 14px above the sheet's resting
-       edge — and how far they ride up with the sheet before it slides over
-       them: to the middle stop (phoneSheetSnaps.ts: the list rests at 72dvh of
-       map, the middle stop leaves 50dvh), never past 104px below the safe area,
-       where search and burger begin. Like Google Maps.
-
-       Measured from the TOP, in the same terms as the sheet's resting edge.
-       Anchored to the bottom (100dvh − the edge), the button would hang on the
-       layout viewport's lower edge, which iOS Safari moves frame by frame while
-       its toolbar unfolds — and 100dvh follows only in steps, so the button
-       would jump by up to 20px at the end of every scroll back to the map. */
+    /* The line the edge controls (credit, locate) stand on, 14px above the
+       sheet's resting edge, riding up to the middle stop. Measured from the
+       top: anchored to the bottom, the button would hang on the layout
+       viewport's lower edge, which iOS Safari moves frame by frame while its
+       toolbar unfolds. */
     --edge-top: calc(var(--frame-edge) - 58px);
     --edge-ride: max(
       0px,
@@ -264,8 +222,6 @@
       )
     );
   }
-  /* The restaurant detail rests lower, its top edge at --detail-map-peek; its
-     middle stop leaves 27 of its 50 parts of map (46 % of the way up). */
   .body[data-map-view='detail'] {
     --frame-edge: var(--detail-map-peek);
     --edge-ride: max(
@@ -276,39 +232,22 @@
       )
     );
   }
-  /* The map frame. All the way up, --map-strip of the real map stays above the
-     sheet, and no row may show in it. The frame holds the map and lies OVER the
-     sheet; its lower edge is the sheet's top edge (the sheet starts 12px above
-     it, MapSheet.module.css) until that edge reaches the strip line, where the
-     frame sticks. So the map shows down to the sheet, and over the rows in the
-     strip — the sheet's bars stick on that line above the frame (8).
+  /* The map frame lies over the sheet; its lower edge is the sheet's top edge
+     until that reaches the strip line, where the frame sticks. So the map shows
+     down to the sheet and no row shows in the strip.
 
-     Everything here is layout the browser scrolls itself — sticky boxes and a
-     clip that travels with its box. Do not draw the line from the scroll
-     position: a copy of the map redrawn per frame, a clip-path on a scroll
-     timeline (WebKit runs only transforms in step) and a window of two
-     counter-running transforms on a scroll timeline all lag. On a flick in iOS
-     Safari the timeline runs up to ~150px ahead of the page it scrolls, and
-     rows come through the strip.
+     All of it is layout the browser scrolls itself (sticky boxes, a clip that
+     travels with its box). Do not draw the line from the scroll position: on a
+     flick iOS Safari runs scroll timelines ahead of the page, and rows come
+     through the strip.
 
-     - The frame starts at the top of the page and ends 12px below the
-       resting edge (--frame-edge): the bars' rounded top corners are clear,
-       and the map shows in them rather than the rows. It sticks once its
-       lower edge reaches the strip line + 12px.
-     - The map inside is FIXED, and the frame cuts it with a clip-path (which,
-       unlike overflow, cuts fixed children too). A sticky map in a clipping
-       sticky frame loses its pins in WebKit for stretches of a flick — the
-       canvas stays, the marker layers go.
-     - While a grip gesture moves the sheet by a transform
-       (`data-following`, lib/map/sheetSlide.ts followSheet), the frame steps
-       behind the sheet and cuts nothing: the moved sheet uncovers map below
-       its resting edge, and it cuts its own rows at the strip line then.
-
-     The must-eat takeover has no map in view: the frame is a plain 100lvh box
-     there, and the sheet lies over it by that much. */
+     - The map inside is FIXED and cut by a clip-path (which, unlike overflow,
+       cuts fixed children); a sticky map in a clipping sticky frame loses its
+       pins in WebKit mid-flick.
+     - During a grip gesture (`data-following`) the frame steps behind the sheet
+       and cuts nothing. */
   .mapFrame {
-    /* Its only child in flow is the locate dock, whose top margin must not
-       leak out through the frame's top. */
+    /* The locate dock's top margin must not leak out through the frame's top. */
     display: flow-root;
     height: 100lvh;
   }
@@ -325,8 +264,6 @@
     z-index: auto;
     clip-path: none;
   }
-  /* A promoted sheet is a stacking context; keep the map behind its grip
-     for the full touch gesture, just like a translated deep-list slab. */
   .body[data-map-view='list'][data-sheet-touch-dragging] .mapFrame,
   .body[data-map-view='detail'][data-detail-kind='restaurant'][data-sheet-touch-dragging]
     .mapFrame {
@@ -337,40 +274,26 @@
     position: fixed;
     left: 0;
     right: 0;
-    /* One pixel off the top edge (dc72ab92). iOS 26 Safari fills its status
-       bar with the background of a fixed or sticky element that TOUCHES the
-       top edge — this wrapper's ink was a dark band there. Standing clear,
-       Safari shows the page under the status bar instead (the user saw the
-       list there). The bottom edge it still touches, so the URL bar keeps
-       the ink (below). */
+    /* One pixel off the top edge: iOS 26 Safari fills its status bar with a
+       fixed or sticky element touching it. The bottom edge still touches, so
+       the URL bar keeps the ink. */
     top: var(--map-top-gap, 0px);
-    /* MapSection pins the canvas height per device width. Browser-toolbar
-       changes leave its projection stable; rotation measures it again.
-       The list's resting edge follows its own dynamic viewport. */
+    /* MapSection pins the canvas height per device width, so toolbar changes
+       leave the projection stable. */
     height: var(--map-canvas-height, 100lvh);
     z-index: -1;
-    /* Deckend, nicht transparent: iOS 26 Safari ignoriert theme-color und färbt
-       seine Leisten nach der background-color des obersten fixierten oder
-       sticky Elements, das eine Viewport-Kante berührt; auf dem Telefon ist das
-       dieser Wrapper, an beiden Kanten. Transparent hieße Systemgrau über Karte
-       und Liste. Der Ink der Liste, damit die Leisten dunkel sind. Sichtbar ist
-       die Farbe nie, die Karte deckt den Wrapper; sie färbt ausschließlich die
-       Safari-Leisten. */
+    /* Deckend: iOS 26 Safari färbt seine Leisten nach diesem Wrapper (er
+       berührt beide Kanten), transparent hieße Systemgrau. Sichtbar ist die
+       Farbe nie. */
     background-color: var(--map-collage-paper, #fff);
   }
-  /* The canvas — not the fixed wrapper, which must not touch the edge — closes
-     the wrapper's gap: rows running under the map's frame would show through
-     that pixel. Reaching further up, under the status bar, shows nothing there:
-     Safari paints no page under it. */
+  /* The canvas, not the wrapper (which must not touch the edge), closes the
+     wrapper's 1px gap. */
   .liveMapLayer {
     top: calc(-1 * var(--map-top-gap, 0px));
   }
-  /* The map credit stands on the edge line, centred on the locate button's
-     44px: the credit stays (ODbL wants it on the map), the two just agree.
-     The map's canvas is fixed at the viewport's top. It rides up
-     and stops with the button (same timeline, same range) and follows a
-     sheet pulled below its rest through its child (lib/map/sheetSlide.ts
-     followSheet — this element's translate belongs to the ride). */
+  /* The map credit stays (ODbL wants it on the map) and rides with the locate
+     button. */
   .mapWrap :global(.maplibregl-ctrl-bottom-left) {
     left: 14px;
     top: var(--edge-top);
@@ -397,17 +320,12 @@
   .body[data-map-view='detail'][data-detail-kind='must-eat'] .mapWrap {
     visibility: hidden;
   }
-  /* The takeover is 100dvh and lies over the map by the map's 100lvh
-     (MapSheet.module.css), so this body is 100dvh tall — but the sticky map
-     inside it stays 100lvh and sticks out below by a Safari-toolbar height.
-     That overflow would make the page scroll by that much: a sideways swipe
-     through the must-eats would move it too, and map would show under the
-     takeover. `clip`, not `hidden`: no scroll container, the map stays sticky. */
+  /* `clip`, not `hidden`: the 100lvh sticky map overflows the 100dvh takeover
+     and would make the page scroll, without opening a scroll container. */
   .body[data-map-view='detail'][data-detail-kind='must-eat'] {
     overflow: clip;
   }
 
-  /* The detail's page ground is ink, up to html and body. */
   .shell[data-map-view='detail'],
   .shell[data-map-view='detail'] .body[data-map-view='detail'] {
     background: var(--map-collage-paper, #fff);
@@ -421,7 +339,6 @@
   }
 }
 
-/* The edge controls' ride up with the sheet (phone; see --edge-ride). */
 @keyframes edgeRide {
   from {
     translate: 0 0;
@@ -441,8 +358,8 @@
   .body[data-map-view]:is([data-map-view='list'], [data-detail-kind='restaurant']) .mapWrap { position: absolute; inset: 0; height: 100%; min-height: 0; z-index: 0; clip-path: none; }
 }
 
-/* Die sticky Karte beruehrt am Telefon die Oberkante; solange die Foto-Galerie
-   offen ist, faerbte Safari die Statusleiste danach grau. Der Platz bleibt. */
+/* Die sticky Karte berührt am Telefon die Oberkante; bei offener Galerie färbte
+   Safari die Statusleiste danach grau. */
 @media (max-width: 767.98px) {
   :global(html[data-photo-gallery]) .mapFrame {
     visibility: hidden;

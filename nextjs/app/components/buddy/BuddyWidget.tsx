@@ -239,17 +239,12 @@ export default function BuddyWidget() {
 
   /* Die Frage nach oben, die Antwort darunter, und dann steht die Ansicht.
 
-     Der Log fährt dem Text nicht hinterher: Eine Spot-Antwort ist ~1700px lang,
-     das Fenster zeigt ~540. Remy schreibt mit 100 Zeichen/s, gelesen wird mit
-     25; die Ansicht führe einem unter den Augen weg, und am Ende stünde man bei
-     Pack und Chips, die erste Empfehlung 1000px weiter oben.
-
-     Stehen bleiben, wo sie war, darf die Ansicht auch nicht: Dann stünde die
-     Frage unten am Rand, und Remy schriebe unsichtbar unter der Kante weiter.
-     Deshalb gleitet die eben gestellte Frage an den oberen Rand (die Feder aus
-     `stickStep`), die Antwort füllt das Fenster darunter, und gescrollt wird
-     von da an nur noch vom Leser. Damit die Frage auch bei einer kurzen Antwort
-     oben stehen kann, hält die Antwort darunter eine Mindesthöhe
+     Der Log fährt dem Text nicht hinterher: Remy schreibt schneller, als man
+     liest, und am Ende stünde man weit unter der ersten Empfehlung. Stehen
+     bleiben darf die Ansicht auch nicht, sonst schriebe Remy unsichtbar unter
+     der Kante. Deshalb gleitet die eben gestellte Frage an den oberen Rand
+     (`stickStep`), danach scrollt nur der Leser. Damit das auch bei einer
+     kurzen Antwort geht, hält die Antwort eine Mindesthöhe
      (`--buddy-anchor-min`). Beim Öffnen steht ein wiedergefundener Faden am
      Ende. */
   const lastTopRef = useRef(0);
@@ -437,7 +432,6 @@ export default function BuddyWidget() {
     return () => { observer.disconnect(); log.removeEventListener('scroll', remember); };
   }, [open]);
 
-  // Escape closes the panel.
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -447,15 +441,10 @@ export default function BuddyWidget() {
     return () => window.removeEventListener('keydown', onKey);
   }, [open, closePanel]);
 
-  /* Wegtippen schließt; das macht der Vorhang selbst, siehe `onClick` am
-     `.scrim` im Markup. Er liegt `fixed; inset: 0` über der ganzen Seite, der
-     Klick landet also auf ihm und ist damit verbraucht.
-
-     Nicht über ein `pointerdown` auf `document`: Damit wäre das Panel weg,
-     bevor der Klick kommt, und der träfe, was darunter liegt, auf jeder Seite,
-     denn Remy ist überall. Ein `click` auf dem Vorhang lässt auch eine
-     Wischgeste in Ruhe, die innen beginnt und außen endet: Sie erzeugt keinen
-     Klick auf dem Vorhang und schließt deshalb nicht. */
+  /* Wegtippen schließt über `onClick` am `.scrim` (fixed, inset 0), nicht über
+     `pointerdown` auf `document`: sonst wäre das Panel weg, bevor der Klick
+     kommt, und der träfe, was darunter liegt. Eine Wischgeste, die innen
+     beginnt und außen endet, erzeugt keinen Klick auf dem Vorhang. */
 
   // Stage chips / CTA hand-off: open the panel and (optionally) ask right away.
   // `send` self-guards against empty text and concurrent streams.

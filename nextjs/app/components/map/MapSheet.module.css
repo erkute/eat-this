@@ -194,15 +194,12 @@
   }
 
   /* The end of the page stands still when Safari unfolds its bar. Scrolling
-     down, Safari shrinks the bar (viewport 714 → 754px on an iPhone 17); at the
-     end it unfolds it again. A plain page runs into its rubber band there and
-     settles at the new end; the map has none (overscroll-behavior-y in
-     globals.css), so the last 40px would slide under the bar and could be
-     pushed up once more. Moving the page along with the bar looks wrong, too.
-     This pad is exactly what the bar takes back — `100dvh` follows the
-     viewport, `100svh` is its unfolded height — so the end of the scroll stays
-     where it was and the bar covers ink. Not the must-eat takeover, which must
-     not scroll at all. */
+     down, Safari shrinks the bar; at the end it unfolds it again. A plain page
+     runs into its rubber band there; the map has none (overscroll-behavior-y in
+     globals.css), so the last rows would slide under the bar. This pad is
+     exactly what the bar takes back (`100dvh` follows the viewport, `100svh` is
+     its unfolded height), so the end of the scroll stays where it was. Not the
+     must-eat takeover, which must not scroll at all. */
   .list:not([data-detail-kind='must-eat'])::after {
     content: '';
     display: block;

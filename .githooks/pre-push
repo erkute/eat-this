@@ -1,28 +1,15 @@
 #!/bin/sh
+# Pre-push: run the full nextjs production build before any push. App Hosting
+# deploys on push, and any build failure (lint, prerender, types) fails the
+# rollout. `npm run build:isolated` is the same `next build`, writing to
+# `.next-verify/` so it can run beside a local `next dev`. Lint alone misses
+# prerender and runtime config errors.
 #
-# Pre-push: run the full nextjs production build before any push.
+# Skipped automatically when no nextjs/ files changed in the push. Ein
+# fehlgeschlagener Build muss vor dem Push behoben werden.
 #
-# Why this exists: parallel sessions (e.g. one editing map, one editing auth)
-# both push to main. Firebase App Hosting auto-deploys main, and *any* build
-# failure (lint error, prerender error, type error, etc.) fails the rollout
-# → no deploy for either session's work.
-#
-# We run `npm run build:isolated` — the same `next build` Firebase runs (same
-# config, same errors caught), but writing to `.next-verify/` instead of
-# `.next/` so it can run while a local `next dev` is alive without corrupting
-# the dev server's chunks. Lint alone is not enough — it misses prerender
-# errors (Suspense boundaries, `useSearchParams` issues), runtime config
-# errors, etc.
-#
-# Trade-off: ~30–60s per push. Fix once, push without surprise rollback.
-#
-# Skipped automatically when no nextjs/ files changed in the push.
-# Ein fehlgeschlagener Build muss vor dem Push behoben werden.
-#
-# Inspect the skip/build decision without paying for a build. Run THIS file,
-# not `.git/hooks/pre-push` — `core.hooksPath` points here, so a copy left in
-# `.git/hooks/` is dead weight that git never executes and testing it proves
-# nothing about the hook that actually runs:
+# Inspect the skip/build decision without a build. Run THIS file, not
+# `.git/hooks/pre-push` (`core.hooksPath` points here):
 #   PREPUSH_DRY_RUN=1 .githooks/pre-push origin <<'EOF'
 #   refs/heads/x <local_sha> refs/heads/x 0000000000000000000000000000000000000000
 #   EOF

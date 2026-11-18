@@ -39,14 +39,8 @@ export function snapOffsets(
   view: 'list' | 'detail',
   viewportH: number,
   /**
-   * Measured document offset of the sheet's top edge — exactly how far to
-   * scroll for it to sit flush with the viewport top.
-   *
-   * Strongly preferred over the dvh estimate: on iOS the CSS sizes the map in
-   * `dvh` while JS reads `window.innerHeight`, and the two disagree while the
-   * URL bar collapses. Deriving the last stop from the estimate stranded the
-   * sheet — and with it the handle — roughly a safe-area below the top, so it
-   * never travelled under the status bar.
+   * Measured top edge of the sheet (measureSheetTop), preferred over the dvh
+   * estimate.
    */
   sheetTopPx?: number
 ): number[] {

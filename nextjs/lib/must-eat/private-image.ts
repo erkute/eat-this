@@ -5,34 +5,25 @@ import sharp from 'sharp';
 import { getAdminStorage } from '@/lib/firebase/admin';
 import { getPrivateMustEatContent, type PrivateMustEatContent } from './private-store';
 
-/* Ohne Gedächtnis holte die Bild-Route für jede Anfrage das Original aus dem
-   Bucket, läse das Firestore-Dokument neu und rechnete die Variante mit sharp
-   neu: im Median fast eine Sekunde, einzelne Bilder mehrere Sekunden. Die Bytes
-   sind es nicht, die Originale sind 47–159 kB.
+/* Der Prozess behält, was sich nicht ändert; sonst holte die Bild-Route je
+   Anfrage das Original, läse das Firestore-Dokument und rechnete mit sharp neu.
 
-   Deshalb behält der Prozess, was sich nicht ändert:
+   - Das Original, adressiert über seinen Objektpfad. Der trägt den Inhalts-Hash
+     (`premium/must-eats/<id>/<sha256>.webp`,
+     scripts/replace-must-eat-cards.ts): dieselbe Adresse heißt dieselben Bytes,
+     also ohne Verfallszeit.
+   - Jede gerechnete Variante (Breite, Qualität, Format), ebenso
+     inhaltsadressiert.
+   - Das Firestore-Dokument fünf Minuten; eine ersetzte Karte kommt also bis zu
+     fünf Minuten alt heraus, dieselbe Frist wie das max-age des öffentlichen
+     Zweigs.
 
-   - Das Original, adressiert über seinen Objektpfad. Der trägt den
-     Inhalts-Hash (`premium/must-eats/<id>/<sha256>.webp`, siehe
-     scripts/replace-must-eat-cards.ts): Dieselbe Adresse heißt dieselben
-     Bytes, also ohne Verfallszeit.
-   - Jede gerechnete Variante (Breite, Qualität, Format), unter demselben
-     Pfad, auch inhaltsadressiert.
-   - Das Firestore-Dokument fünf Minuten. Es zeigt auf den Pfad; eine
-     ersetzte Karte kommt also bis zu fünf Minuten alt heraus, dieselbe
-     Frist, die der öffentliche Zweig der Route ohnehin als max-age nennt.
+   Der Prozess-Cache endet mit der Instanz. Darum liegt jede gerechnete Variante
+   zusätzlich im Bucket, unter einem Pfad aus Original und Variante: eine
+   frische Instanz lädt dann die fertige Variante, statt das Original zu holen
+   und neu zu rechnen.
 
-   Der Prozess-Cache endet mit der Instanz, und die startet mehrmals am Tag neu.
-   Auf einer frischen Instanz brauchen die ersten Bilder im Median fast eine
-   Sekunde, jedes zehnte mehrere; ein Profil mit zwölf Karten in 720 px wartete
-   20 s auf sharp. Darum liegt jede gerechnete Variante zusätzlich im Bucket,
-   unter einem Pfad aus Original und Variante: Eine frische Instanz lädt dann 30
-   kB, statt 300 kB zu holen und neu zu rechnen.
-
-   Gleichzeitige Anfragen nach demselben Ding teilen sich einen Ladevorgang:
-   Sechs Karten auf einem Startbild-Teaser heißen einen Download, nicht sechs.
-   Der Speicher pro Instanz bleibt klein: Die Originale sind zusammen rund 5 MB,
-   die Varianten dazu ein Vielfaches davon in Kilobyte, nicht Megabyte; die
+   Gleichzeitige Anfragen nach demselben Ding teilen sich einen Ladevorgang. Die
    Deckel unten sind Sicherheitsnetz, kein Arbeitsmaß. */
 
 const CONTENT_TTL_MS = 5 * 60_000;

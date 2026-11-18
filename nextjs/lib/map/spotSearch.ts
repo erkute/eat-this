@@ -7,14 +7,11 @@ import { CUISINE_LABELS_DE } from '@/lib/cuisineLabels';
  * useMapFilters; hier steht nur die Sprache der Suche.
  */
 
-/* Kleinschreibung reicht für eine Suche über Restaurantnamen nicht.
- * „banh mi" fand die beiden „Saveur de Bánh Mì" nicht, weil `includes` Zeichen
- * für Zeichen vergleicht und `a` nicht `á` ist. Dasselbe trifft Döner, Café,
- * Türkisch, Neukölln — also fast alles, was man hier tippt.
- *
- * NFD zerlegt jeden Buchstaben in Grundzeichen plus Akzent, danach fliegen die
- * Akzente raus. Das wirkt auf BEIDEN Seiten: „Türkisch" getippt findet
- * „Turkisch" geschrieben und umgekehrt. */
+/*
+ * Kleinschreibung allein reicht nicht: `includes` vergleicht Zeichen für
+ * Zeichen, und `a` ist nicht `á` (Bánh Mì, Döner, Neukölln). NFD trennt die
+ * Akzente ab, auf beiden Seiten der Suche.
+ */
 export function normalizeForSearch(value: string | null | undefined): string {
   return (
     (value ?? '')
@@ -24,15 +21,11 @@ export function normalizeForSearch(value: string | null | undefined): string {
       .replace(/ß/g, 'ss')
       .normalize('NFD')
       .replace(/\p{Diacritic}/gu, '')
-      /* Apostrophe fliegen mit raus, in allen vier Schreibweisen, die im
-       Bestand vorkommen. „KuchenRausch's", „EIVGI´S" und die Kurzform
-       „P'berg" tippt niemand mit dem richtigen Zeichen — und welches das
-       richtige ist, weiss man dem Namen nicht an. */
+      /* Apostrophe fallen in allen Schreibweisen des Bestands weg; das richtige
+         Zeichen tippt niemand („KuchenRausch's", „P'berg"). */
       .replace(/['’ʼ´`]/g, '')
-      /* Ausgeschriebene Umlaute: „doener", „neukoelln" — so tippt man ohne
-       Umlaut-Taste. Nach dem Akzent-Abstreifen steht „ö" schon als „o", also
-       wird „oe" ebenfalls „o", auf BEIDEN Seiten. Dass dabei auch ein
-       „Blue" zu „blu" wird, schadet nicht: die Anfrage wird genauso gefaltet. */
+      /* Ausgeschriebene Umlaute („doener") falten wie die abgestreiften: „oe"
+         wird „o", auf beiden Seiten. */
       .replace(/ae/g, 'a')
       .replace(/oe/g, 'o')
       .replace(/ue/g, 'u')
@@ -203,8 +196,7 @@ const SYNONYMS: [string[], string[]][] = [
     ['smoothie', 'smoothies', 'saft', 'juice'],
     ['smoothie', 'saft', 'juice'],
   ],
-  /* Ein Kaffeegetränk meint das Café, nicht nur die Spots, die das Wort
-     zufällig schreiben: „Cappuccino" fand einen einzigen. */
+  /* Ein Kaffeegetränk meint das Café, nicht nur Spots, die das Wort schreiben. */
   [
     ['cappuccino', 'espresso', 'latte', 'kaffee', 'coffee', 'cortado'],
     ['kaffee', 'coffee', 'cafe', 'espresso', 'cappuccino', 'roaster', 'rosterei'],
@@ -296,7 +288,6 @@ const SYNONYMS_BY_WORD = new Map(
   )
 );
 
-/** Ein Wort der Anfrage und was es noch meinen darf. */
 interface QueryWord {
   text: string;
   alternatives: string[];
@@ -358,7 +349,6 @@ export function parseQuery(query: string, index?: Map<string, SearchEntry>): Que
     });
 }
 
-/** Steht `token` in `hay` am Anfang eines Wortes? */
 function startsWord(hay: string, token: string): boolean {
   for (let i = hay.indexOf(token); i !== -1; i = hay.indexOf(token, i + 1)) {
     if (i === 0 || !/[a-z0-9]/.test(hay[i - 1])) return true;
@@ -366,7 +356,6 @@ function startsWord(hay: string, token: string): boolean {
   return false;
 }
 
-/** Steht `token` in `hay` als ganzes Wort? */
 function isWord(hay: string, token: string): boolean {
   for (let i = hay.indexOf(token); i !== -1; i = hay.indexOf(token, i + 1)) {
     const end = i + token.length;
@@ -415,15 +404,12 @@ export function buildSearchIndex(
       /* Die Straße. Sie steht im Kartenpayload (mapRestaurantsQuery); ohne sie
          fände „kastanienallee" nichts. */
       /* Ohne das Land: importierte Adressen enden auf „, Deutschland", und
-         „deutsch" fand sonst 174 von 249 Spots. */
+         „deutsch" träfe sonst fast jeden Spot. */
       r.address?.replace(/,\s*(Deutschland|Germany)\s*$/i, ''),
       r.searchText,
       r.cuisineType,
-      /* Die Küche steht in Sanity ENGLISCH („Vietnamese"), auf den
-         deutschen Seiten liest man aber das Label („Vietnamesisch") — und
-         genau das tippt man dann auch. Ohne dieses Feld fand
-         „vietnamesisch" keinen der acht vietnamesischen Spots. Beide Formen
-         zählen, damit die Suche in beiden Sprachen dasselbe findet. */
+      /* Die Küche steht in Sanity englisch, die deutschen Seiten zeigen das
+         Label („Vietnamesisch"), und das wird getippt. Beide Formen zählen. */
       r.cuisineType ? CUISINE_LABELS_DE[r.cuisineType] : null,
       ...(dishes.get(r._id) ?? []),
       ...(r.categories ?? []).flatMap((c) => [c.name, c.nameEn, c.slug]),
@@ -473,7 +459,6 @@ function withinOneEdit(a: string, b: string): boolean {
   return short.slice(i) === long.slice(i + 1);
 }
 
-/** Beginnt ein Wort des Spots mit `token`, bis auf einen Buchstaben? */
 function nearWordStart(words: string[], token: string): boolean {
   if (token.length < FUZZY_MIN_LENGTH) return false;
   return words.some((word) =>

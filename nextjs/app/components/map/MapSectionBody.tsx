@@ -29,8 +29,6 @@ import sheetStyles from './MapSheet.module.css';
 // Deep links still render on the server; the initial list HTML does not preload detail-only CSS.
 const MapSheetDetail = dynamic(() => import('./MapSheetDetail'));
 
-/* Refs (mutable + callback) wired up by `useMapSheet` / `useBottomSheet`. */
-
 /* How long iOS takes to bring the keyboard up or put it away — the window in
    which a scroll without a finger on the screen is the keyboard's, not the
    user's. */
@@ -242,11 +240,10 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
      die Seite wäre kürzer als die Position, auf die zurückgesprungen wird.
      Ein neuer Filter ist dagegen eine neue Liste und fängt oben an. */
   const [listRows, setListRows] = useState(INITIAL_LIST_ROWS);
-  /* Keyed on the FILTER, not on the list array: that array is also rebuilt
-     when a position fix re-sorts it or the catalogue refetches after sign-in —
-     both happen with a detail open. Falling back to 12 rows then made the
-     list shorter than the position it was about to return to, and the row the
-     user came from ended up clamped to the bottom of the screen. */
+  /* Keyed on the filter, not on the list array: that array is also rebuilt when
+     a position fix re-sorts it or the catalogue refetches after sign-in, both
+     with a detail open, and a reset then would make the list shorter than the
+     position it returns to. */
   useEffect(() => {
     setListRows(INITIAL_LIST_ROWS);
   }, [listFilterKey]);
@@ -599,9 +596,8 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 map, so it has to stay on screen. */}
             {sheetView === 'detail' && sheetHandle}
 
-            {/* Restaurant detail's chrome now lives on the photo hero (back
-                pill + save bookmark, per the Chewy mockup) — no handle-bar
-                icons here. */}
+            {/* The restaurant detail's chrome (back pill, save) lives on the
+                photo hero, not in the handle bar. */}
 
             {/* Must-Eat detail has no handle-bar X/back chrome — the sheet is
                 dismissed by dragging it down; "Zum Spot" + the pager are the
@@ -694,8 +690,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
           />
 
           {/* Die Standort-Meldung selbst haengt in der zentralen Info-Karte
-              (NotificationToast) — hier steht nur noch der Automat, der sie
-              fuettert (siehe oben). */}
+              (NotificationToast); hier steht der Automat, der sie fuettert. */}
         </div>
       </div>
     </main>

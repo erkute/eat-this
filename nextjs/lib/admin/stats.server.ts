@@ -4,19 +4,9 @@ import {
   type InsightSummary,
 } from '@/lib/analytics/engagement';
 /**
- * Aggregation für /admin/stats — die Leseseite des einwilligungsfreien
- * Zählers aus app/api/count/route.ts, plus Konten, Karten und Umsatz aus
- * Firebase Auth und Firestore.
- *
- * Bewusst frei von Firestore: die Route holt die Rohdaten, diese Datei
- * rechnet. Damit ist die einzige Stelle, an der aus Rohzahlen Aussagen werden,
- * ohne Emulator testbar — und genau dort sitzen die Fallen (Ausstiege, die es
- * vor dem 28.08.2026 nicht gibt; Referrer-Hosts mit ersetzten Punkten; ein
- * Trichter, der Ereignisse zählt und keine Personen).
- *
- * Produktbereiche: entdecken, Konto und Starter Pack, vor Ort aufdecken,
- * Booster Packs. Aufdecken und Kaufen sind alternative Wege zur Sammlung.
- * Ereignisverhältnisse sind keine verknüpften Personen-Conversions.
+ * Aggregation für /admin/stats: der eigene Zähler (app/api/count/route.ts) plus
+ * Konten, Karten und Umsatz. Frei von Firestore, damit die Regeln ohne Emulator
+ * testbar sind. Ereignisse zählen keine Personen.
  */
 
 import { measureDay, type MeasurementDay } from '@/lib/admin/pageStats';
@@ -25,8 +15,6 @@ import { REVEALED_TARGET } from '@/lib/map/revealed-must-eats';
 import { STARTER_PACK_CARDS } from '@/lib/starter-pack';
 import { CATALOG } from '@/lib/stripe-catalog';
 
-/** Ein Tagesdokument, so wie der Zähler es schreibt. Alle Zählfelder sind
- *  optional: ein Tag, an dem nur Ereignisse ankamen, trägt keine `pageviews`. */
 export interface DailyDoc {
   day: string;
   pageviews?: number;
@@ -45,8 +33,6 @@ interface DayPoint {
   visitors: number;
 }
 
-/** Alle Ereignisse eines Tages — damit das Brett jede Reihe zeichnen kann,
- *  nicht nur die, die beim Bauen wichtig schienen. */
 interface EventDay {
   day: string;
   counts: Record<string, number>;
@@ -59,9 +45,7 @@ interface Entry {
 
 export interface ExitEntry {
   key: string;
-  /** Aufrufe der Seite in den auswertbaren Tagen. */
   views: number;
-  /** Aufrufe, nach denen es intern weiterging. */
   continued: number;
   /** views − continued, nie negativ. */
   exits: number;
@@ -69,11 +53,9 @@ export interface ExitEntry {
   rate: number;
 }
 
-/** Ein Wert im Vergleich zur gleich langen Periode davor. */
 export interface Delta {
   now: number;
   before: number;
-  /** Relative Veraenderung; null, wenn es vorher nichts gab (keine Division). */
   change: number | null;
 }
 
@@ -95,15 +77,9 @@ interface Weekday {
 interface FunnelStep {
   key: string;
   count: number;
-  /** Anteil an den Besuchern des Zeitraums (0–1) — der einzige Nenner, der
-   *  auf jeder Stufe stimmt. */
   share: number;
 }
 
-/**
- * Eine Stufe des Produkts. `offer` ist das, was die Stufe dem Menschen gibt —
- * damit auf dem Brett steht, WOFÜR die Zahlen darunter stehen.
- */
 export interface FunnelStage {
   key: 'free' | 'account' | 'onsite' | 'packs';
   title: string;
@@ -112,10 +88,8 @@ export interface FunnelStage {
 }
 
 /**
- * Eine Quote zwischen zwei Stufen, die wirklich aufeinander folgen. Bewusst
- * eine kurze, handverlesene Liste: die Reise ist keine strenge Kette, und
- * eine Quote „je Vorstufe" für jeden Schritt hätte Werte wie 4.500 %
- * produziert (siehe `view_item`, das je Pack-Angebot feuert).
+ * Eine Quote zwischen zwei Stufen, die wirklich aufeinander folgen;
+ * handverlesen, weil die Reise keine strenge Kette ist.
  */
 interface FunnelRate {
   key: string;
@@ -129,37 +103,26 @@ interface FunnelRate {
 
 export interface Funnel {
   /**
-   * Alles Ereignisse, keine Personen: wer die Karte dreimal öffnet, zählt
-   * dreimal. Der Zähler kennt bewusst keine Person (visitorHash.ts), ein
-   * echter Personen-Trichter ist damit nicht messbar — den liefert
-   * `Accounts.people` aus Firestore, für die Konten.
+   * Ereignisse, keine Personen: Wer dreimal öffnet, zählt dreimal. Personen
+   * liefert `Accounts.people`.
    */
   stages: FunnelStage[];
   rates: FunnelRate[];
 }
 
-/** Ein Konto, wie Firebase Auth es kennt — ohne Adresse, ohne uid — plus
- *  das, was Firestore über es weiß. */
 export interface AccountRecord {
-  /** Kalendertag der Anlage (Berlin). */
   createdDay: string;
   /**
-   * Der letzte Tag, an dem das Konto ein ID-Token erneuert hat — `lastRefreshTime`
-   * in Firebase Auth. Eine bessere Naeherung fuer „hat die App benutzt" als
-   * `lastSignInTime`: die Anmeldung haelt Monate, das Token laeuft stuendlich
-   * ab und wird nur erneuert, solange die Seite offen ist.
+   * `lastRefreshTime` aus Firebase Auth: Das Token wird nur erneuert, solange
+   * die Seite offen ist, also eine bessere Näherung für Nutzung als die
+   * monatelang gültige Anmeldung.
    */
   lastActiveDay: string | null;
   provider: 'google' | 'email';
-  /** Gespeicherte Spots. */
   favorites: number;
-  /** Hat sein Starter Pack (entitlements/starter). */
   starterPack: boolean;
-  /** Karten vor Ort aufgedeckt (users/<uid>/unlockedMustEats). */
   reveals: number;
-  /** Erfolgreiche Einladungen als Einladender (referralBonuses, source `invited`). */
   referrals: number;
-  /** Bezahlte Packs. */
   purchases: number;
 }
 
@@ -167,10 +130,7 @@ export interface PurchaseRecord {
   day: string;
   /** stripe = bezahlt; signup = Starter Pack; manual = von Hand. */
   source: string;
-  /** Das Starter Pack der Anmeldung (`type: 'starter'` am Entitlement) —
-   *  die Route entscheidet das, hier wird es nur gelesen. */
   starter: boolean;
-  /** Die Doc-ID des Entitlements — `category-pizza`, `all-berlin`, `starter`. */
   packId: string;
 }
 
@@ -200,7 +160,6 @@ export interface AccountsInput {
   checkouts: CheckoutRecord[];
 }
 
-/** Personen statt Ereignisse: wie viele Konten haben welche Stufe erreicht. */
 export interface PeopleFunnel {
   accounts: number;
   withStarterPack: number;
@@ -214,7 +173,6 @@ interface AccountsDay {
   newAccounts: number;
   starterPacks: number;
   reveals: number;
-  /** Erfolgreiche Einladungen (Eingeladene). */
   referrals: number;
   purchases: number;
   revenueCents: number;
@@ -230,33 +188,23 @@ interface PackSales {
 export interface Accounts {
   total: number;
   newInWindow: number;
-  /** Konten mit Token-Erneuerung im Zeitraum, siehe AccountRecord.lastActiveDay. */
   activeInWindow: number;
   /**
-   * Aktive Nutzer in festen Fenstern, unabhaengig vom gewaehlten Zeitraum —
-   * heute, die letzten 7 und die letzten 30 Tage, jeweils einschliesslich
-   * heute. „Aktiv" heisst wie oben: die App hat ein Token erneuert. Feste
-   * Fenster, damit die Zahl beim Umschalten von 7 auf 90 Tage nicht mitwandert
-   * und sich mit dem letzten Blick vergleichen laesst.
+   * Aktive Konten in festen Fenstern (heute, 7 und 30 Tage), unabhängig vom
+   * gewählten Zeitraum.
    */
   active: { day: number; week: number; month: number };
   google: number;
   email: number;
   withFavorites: number;
-  /** Eingelöste Starter Packs (je 20 Karten). */
   starterPacks: { total: number; inWindow: number };
-  /** Karten, die vor Ort umgedreht wurden. */
   reveals: { total: number; inWindow: number };
-  /** Erfolgreiche Einladungen. */
   referrals: { total: number; inWindow: number };
-  /** Bezahlte Kaeufe (Stripe). */
   purchases: { total: number; inWindow: number; byPack: PackSales[] };
   /** Brutto, aus dem Katalogpreis des gekauften Packs. */
   revenue: { totalCents: number; inWindowCents: number };
-  /** Angelegte Stripe-Sitzungen im Zeitraum, davon nie abgeschlossen. */
   checkouts: { inWindow: number; open: number; completed: number };
   people: PeopleFunnel;
-  /** Ein Eintrag je Kalendertag des Zeitraums, auch ohne Bewegung. */
   byDay: AccountsDay[];
 }
 
@@ -270,31 +218,20 @@ interface DeckCategory {
   sellable: boolean;
 }
 
-/** Der Stapel, wie er heute im Katalog liegt — die Ware, um die es geht. */
 export interface Deck {
   cards: number;
-  /** Ohne Konto offen (revealedForAnon). */
   publicCards: number;
   spots: number;
-  /** Die Sollzahl des Schaufensters. */
   freeCards: number;
   starterCards: number;
   byCategory: DeckCategory[];
 }
 
-/**
- * Ein einzelner Tag, ausgebreitet — für „heute" und „gestern". Dieselben
- * Ranglisten wie fürs ganze Fenster, nur über ein Dokument, plus die zwei
- * Vergleiche, die einen Tag einordnen.
- */
 export interface DaySummary {
   day: string;
   pageviews: number;
   visitors: number;
-  /** Gegen den Tag davor. */
   vsPrevDay: { visitors: Delta; pageviews: Delta } | null;
-  /** Gegen denselben Wochentag der Vorwoche — der ehrlichere Vergleich,
-   *  weil der Verkehr einem Wochenrhythmus folgt. */
   vsSameWeekday: { visitors: Delta; pageviews: Delta } | null;
   paths: Entry[];
   entryPaths: Entry[];
@@ -304,19 +241,15 @@ export interface DaySummary {
   /** Ob der Tag `continuations` trägt — sonst sind `exits` leer, nicht null. */
   hasExits: boolean;
   funnel: Funnel;
-  /** Konten, Aufdeckungen, Käufe dieses Tages aus Firestore. */
   people: AccountsDay | null;
 }
 
 /**
- * Der erste Tag, an dem `entryPaths` und `continuations` den GANZEN Tag
- * gezaehlt wurden. Der Rollout kam am Abend des 28.08.2026: der Tag traegt 19
- * Fortsetzungen auf 874 Aufrufe. Halb gezaehlt macht er jeden Aufruf des
- * Vormittags zum Ausstieg — darum faellt er raus, obwohl er die Felder traegt.
+ * Ab diesem Tag zählen `entryPaths` und `continuations` den ganzen Tag; davor
+ * wäre jeder Aufruf ein Ausstieg.
  */
 export const FULL_DAY_FIELDS_SINCE = '2026-08-29';
 
-/** Besucher mit einem Beacon in den letzten `minutes` Minuten, Stand `at`. */
 export interface Live {
   activeNow: number;
   minutes: number;
@@ -324,85 +257,54 @@ export interface Live {
 }
 
 export interface StatsSummary {
-  /** Das gewählte Fenster. `includesToday` sagt, ob der laufende Tag drinliegt. */
   range: { start: string; end: string; days: number; today: string; includesToday: boolean };
-  /** Chronologisch aufsteigend — so wird der Verlauf gezeichnet. */
   days: DayPoint[];
-  /** Die Vorperiode, für die gestrichelte Linie dahinter. */
   previousDays: DayPoint[];
   eventsByDay: EventDay[];
   measurement: MeasurementDay[];
   entryChannels: Entry[];
   engagement: InsightSummary;
-  /**
-   * Die Google-Suche, aus der Search Console — oder der Grund, warum sie
-   * fehlt (lib/admin/searchConsole.ts). null, wenn die Route sie nicht
-   * angefragt hat.
-   */
   search: SearchResult | null;
   /** `closedDays` laesst den laufenden Tag weg — fuer alles, was „je Tag" rechnet. */
   totals: { pageviews: number; visitors: number; days: number; closedDays: number };
-  /** Aus Firebase Auth und Firestore, nicht aus dem Zaehler; ohne Admin-Konten. */
   accounts: Accounts | null;
-  /** Der Katalog — null, wenn Sanity nicht antwortete. */
   deck: Deck | null;
-  /** „Gerade aktiv" — unabhaengig vom Zeitraum; null, wenn die Abfrage scheiterte. */
   live: Live | null;
   /**
-   * Der jüngste abgeschlossene Tag — beim Morgenkaffee die Zahl, die zählt.
-   * `today` steht getrennt daneben, weil ein laufender Tag naturgemäß niedrig
-   * aussieht und sonst wie ein Einbruch gelesen wird.
+   * Der jüngste abgeschlossene Tag. `today` steht getrennt, weil ein laufender
+   * Tag sonst wie ein Einbruch aussieht.
    */
   latest: {
     day: DayPoint | null;
     vsPrevDay: { visitors: Delta; pageviews: Delta } | null;
     vsSameWeekday: { visitors: Delta; pageviews: Delta } | null;
   };
-  /** Der laufende Tag, falls er im Fenster liegt. Unvollständig. */
   today: DayPoint | null;
   /**
-   * Der gewählte Zeitraum gegen die Periode davor — **je Tag**, nicht in
-   * Summen.
-   *
-   * Der Grund ist keine Feinheit: das Fenster ist kalendarisch gleich lang,
-   * die Zahl der Tage MIT Daten ist es nicht. Der Zähler läuft erst seit dem
-   * 21.08.2026, also standen bei „7 Tage" sieben gemessene Tage gegen vier —
-   * und alles stieg um rund zwei Drittel, ohne dass irgendetwas gestiegen
-   * wäre. Auf Tagesdurchschnitt gerechnet stimmt der Vergleich in jedem Fall,
-   * auch wenn ein Tag in der Mitte fehlt.
+   * Zeitraum gegen Vorperiode je Tag, nicht in Summen: Gleich lange Fenster
+   * haben nicht gleich viele Tage mit Daten.
    */
   period: {
     visitors: Delta;
     pageviews: Delta;
-    /** Tage mit Daten in der Vorperiode. */
     days: number;
-    /** Tage mit Daten im gewählten Zeitraum — zum Einordnen des Vergleichs. */
     daysNow: number;
   } | null;
-  /** Durchschnitt je Wochentag — zeigt, wann Menschen wirklich kommen. */
   weekdays: Weekday[];
-  /** Was gegenüber der Vorperiode am stärksten gewonnen und verloren hat. */
   movers: { paths: Mover[]; referrers: Mover[]; events: Mover[] };
   paths: Entry[];
   entryPaths: Entry[];
-  /** Alle Seitenaufrufe mit externem Referrer, vor der Top-Liste. */
   referrerPageviews: number;
   referrers: Entry[];
   events: Entry[];
   exits: ExitEntry[];
   /**
-   * Wie viele der `totals.days` Tage überhaupt `continuations` tragen. Die
-   * Ausstiegsrechnung läuft NUR über diese; vor dem 28.08.2026 hat der Zähler
-   * das Feld nicht geschrieben, und ohne diesen Zuschnitt sähe jeder Aufruf
-   * von damals wie ein Ausstieg aus.
+   * Nur Tage mit `continuations` gehen in die Ausstiegsrechnung.
    */
   exitDays: number;
   funnel: Funnel;
-  /** Heute (falls im Fenster) und der jüngste abgeschlossene Tag, ausgebreitet. */
   dayDetails: { today: DaySummary | null; latest: DaySummary | null };
 }
-
-/* ── Kalender ─────────────────────────────────────────────────────────── */
 
 export interface Range {
   start: string;
@@ -422,11 +324,9 @@ function parseDays(raw: string | null): number {
 }
 
 /**
- * Der Zeitraum aus der Anfrage: `?days=7` (endet gestern) oder
- * `?from=…&to=…`. `from`/`to` schlagen `days`; ein Fenster, das in der
- * Zukunft endet, wird auf heute gekappt, eins, das länger als ein Jahr ist,
- * am Anfang. Liegt hier und nicht in der Route, weil Next aus einer
- * Route-Datei nur die Handler exportiert sehen will.
+ * `?days=7` (endet gestern) oder `?from=…&to=…`; höchstens ein Jahr, nicht über
+ * heute hinaus. Hier statt in der Route, weil eine Route-Datei nur Handler
+ * exportieren darf.
  */
 export function parseRange(params: URLSearchParams, today: string): Range {
   if (params.get('today') === '1') return { start: today, end: today, days: 1 };
@@ -452,21 +352,16 @@ export function parseRange(params: URLSearchParams, today: string): Range {
 }
 
 /**
- * Der erste Tag eines Fensters von `days` Tagen, das mit `end` endet — als
- * YYYY-MM-DD, also im Format der Dokument-IDs.
- *
- * Der Zeitraum wird über das Datum geschnitten, nicht über die Anzahl
- * vorhandener Dokumente: an einem Tag ohne einen einzigen Aufruf legt der
- * Zähler kein Dokument an, und ein blosses `limit(30)` griffe dann weiter
- * zurück als 30 Tage, ohne dass es jemand sähe.
+ * Über das Datum geschnitten, nicht über die Zahl der Dokumente: Tage ohne
+ * Aufruf haben kein Dokument.
  */
 export function sinceDay(days: number, end: string): string {
   return dayBefore(end, days - 1);
 }
 
-/** Der Tag davor, als YYYY-MM-DD. UTC-Mittag als Anker: die Rechnung soll nie
- *  über eine Zeitumstellung stolpern, das Ergebnis ist ohnehin nur ein
- *  Kalendertag. */
+/**
+ * UTC-Mittag als Anker, damit keine Zeitumstellung den Tag kippt.
+ */
 export function dayBefore(day: string, back = 1): string {
   const [year, month, date] = day.split('-').map(Number);
   return new Date(Date.UTC(year, month - 1, date, 12) - back * 86_400_000)
@@ -474,7 +369,6 @@ export function dayBefore(day: string, back = 1): string {
     .slice(0, 10);
 }
 
-/** Kalendertage von `start` bis `end`, beide einschließlich. */
 export function daysBetween(start: string, end: string): number {
   const at = (day: string) => {
     const [year, month, date] = day.split('-').map(Number);
@@ -483,21 +377,16 @@ export function daysBetween(start: string, end: string): number {
   return Math.round((at(end) - at(start)) / 86_400_000) + 1;
 }
 
-/** Alle Kalendertage eines Fensters, aufsteigend. */
 export function eachDay(start: string, end: string): string[] {
   const count = daysBetween(start, end);
   if (count < 1) return [];
   return Array.from({ length: count }, (_, i) => dayBefore(end, count - 1 - i));
 }
 
-/** Wochentag eines YYYY-MM-DD, 0 = Sonntag. UTC-Mittag als Anker, damit keine
- *  Zeitzone den Tag kippt. */
 export function weekdayOf(day: string): number {
   const [year, month, date] = day.split('-').map(Number);
   return new Date(Date.UTC(year, month - 1, date, 12)).getUTCDay();
 }
-
-/* ── Rechenhilfen ─────────────────────────────────────────────────────── */
 
 const TOP_N = 15;
 
@@ -516,9 +405,10 @@ function topEntries(counts: Map<string, number>, limit = TOP_N): Entry[] {
     .slice(0, limit);
 }
 
-/** Firestore-Map-Schlüssel dürfen keine Punkte enthalten, der Zähler ersetzt
- *  sie beim Schreiben. Für die Anzeige zurückdrehen — `www_google_com` ist
- *  kein Hostname, den jemand lesen will. */
+/**
+ * Der Zähler ersetzt Punkte in Map-Schlüsseln (Firestore erlaubt keine); für
+ * die Anzeige zurückdrehen.
+ */
 function restoreHost(key: string): string {
   return key.replace(/_/g, '.');
 }
@@ -527,10 +417,9 @@ function num(value: unknown): number {
   return typeof value === 'number' && Number.isFinite(value) ? value : 0;
 }
 
-/** Relative Veraenderung gegen die Vorperiode. `change` bleibt null, wenn es
- *  vorher nichts gab — 0 auf 5 ist kein "+500 %", sondern ein Neuanfang.
- *  Auch die Berichte rechnen damit (Search Console gegen die Vorperiode);
- *  diese Datei ist frei von Firestore und darf in den Client. */
+/**
+ * `change` bleibt null ohne Vorperiode: 0 auf 5 ist kein „+500 %".
+ */
 export function delta(now: number, before: number): Delta {
   return { now, before, change: before > 0 ? (now - before) / before : null };
 }
@@ -543,8 +432,6 @@ function pointOf(doc: DailyDoc): DayPoint {
   return { day: doc.day, pageviews: num(doc.pageviews), visitors: num(doc.visitors) };
 }
 
-/** Die groessten Zugewinne und Verluste gegenueber der Vorperiode. Beides
- *  zusammen, weil ein Wegbruch genauso interessant ist wie ein Anstieg. */
 function movers(now: Map<string, number>, before: Map<string, number>, limit = 8): Mover[] {
   const keys = new Set([...now.keys(), ...before.keys()]);
   return [...keys]
@@ -563,10 +450,6 @@ function exitsOf(views: Map<string, number>, continued: Map<string, number>): Ex
     [...views.entries()]
       .map(([key, count]) => {
         const went = continued.get(key) ?? 0;
-        // Ein Reload behält den ursprünglichen Referrer und zählt nicht als
-        // Fortsetzung — Ausstiege sind darum eher über- als unterschätzt. Die
-        // Klemme auf 0 fängt zusätzlich den Fall, dass eine Fortsetzung am
-        // Folgetag verbucht wurde, ihr Aufruf aber vor dem Fenster liegt.
         const raw = count - went;
         return {
           key,
@@ -576,18 +459,14 @@ function exitsOf(views: Map<string, number>, continued: Map<string, number>): Ex
           rate: count > 0 ? Math.max(0, raw) / count : 0,
         };
       })
-      // Seiten mit einer Handvoll Aufrufen erzeugen Quoten wie 100 %, die nichts
-      // bedeuten. Die Sortierung geht darum über absolute Ausstiege.
+      // Sortiert nach absoluten Ausstiegen; Quoten kleiner Seiten bedeuten
+      // nichts.
       .sort((a, b) => b.exits - a.exits || a.key.localeCompare(b.key))
       .slice(0, TOP_N)
   );
 }
 
-/* ── Der Trichter ─────────────────────────────────────────────────────── */
-
-/** /packs und /en/packs — die Übersicht aller Packs. */
 const PACKS_PAGE = /^(?:\/en)?\/packs$/;
-/** /pack/<slug> — die Seite eines Packs mit dem Kaufknopf. */
 const PACK_PAGE = /^(?:\/en)?\/pack\/[^/]+$/;
 
 function pathsMatching(paths: Map<string, number>, pattern: RegExp): number {
@@ -597,12 +476,8 @@ function pathsMatching(paths: Map<string, number>, pattern: RegExp): number {
 }
 
 /**
- * Die vier Stufen des Produkts, als Ereignisse je Besucher.
- *
- * Zwei Schritte kommen aus den Seitenaufrufen statt aus Ereignissen:
- * `packs_page` und `pack_page`. Die Pack-Seiten feuern selbst nichts, bevor
- * `view_item` den Kaufknopf sieht — und der Weg dorthin gehört in den
- * Trichter.
+ * Die Pack-Seiten feuern selbst kein Ereignis, bevor `view_item` den Kaufknopf
+ * sieht; ihre Stufen kommen deshalb aus den Seitenaufrufen.
  */
 export function buildFunnel(
   events: Map<string, number>,
@@ -699,10 +574,8 @@ export function buildFunnel(
         count('must_eat_reveal_login_required')
       ),
       rate('login_view_signed', 'login_view', count('login_view'), 'signed_in', signedIn),
-      // Keine Quote sign_up → starter_pack_granted: das Pack bekommt auch
-      // jedes Konto von vor dem 06.09.2026 bei seiner naechsten Anmeldung
-      // (ReferralToastListener), also mehr Vergaben als Neuanmeldungen —
-      // die Quote stuende ueber 100 %, bis alle Altkonten einmal da waren.
+      // Keine Quote sign_up → starter_pack_granted: Bestehende Konten bekommen
+      // das Pack bei ihrer nächsten Anmeldung, die Quote läge über 100 %.
       rate(
         'pack_checkout',
         'pack_visits',
@@ -721,8 +594,6 @@ export function buildFunnel(
     ],
   };
 }
-
-/* ── Ein Tag ──────────────────────────────────────────────────────────── */
 
 function summarizeDay(
   doc: DailyDoc,
@@ -767,13 +638,8 @@ function summarizeDay(
   };
 }
 
-/* ── Das Fenster ──────────────────────────────────────────────────────── */
-
 interface SummarizeOptions {
-  /** Heutiger Kalendertag in Berlin. Trennt den laufenden Tag vom juengsten
-   *  abgeschlossenen, damit ein halber Tag nicht wie ein Einbruch aussieht. */
   today?: string;
-  /** Das gewählte Fenster. Fehlt es, spannt es sich über die Dokumente. */
   range?: { start: string; end: string };
   accounts?: Accounts | null;
   search?: SearchResult | null;
@@ -782,11 +648,6 @@ interface SummarizeOptions {
   insights?: InsightDoc[];
 }
 
-/**
- * @param docs   Die Tage des gewaehlten Zeitraums.
- * @param before Die gleich lange Periode davor — fuer die Vergleiche. Leer
- *               lassen, wenn es sie nicht gibt; dann entfaellt `period`.
- */
 export function summarize(
   docs: DailyDoc[],
   before: DailyDoc[] = [],
@@ -817,8 +678,7 @@ export function summarize(
   const referrers = new Map<string, number>();
   const events = new Map<string, number>();
 
-  // Getrennte Töpfe für die Ausstiegsrechnung: nur Tage, die BEIDE Seiten der
-  // Subtraktion tragen, dürfen hinein.
+  // Nur Tage, die beide Seiten der Subtraktion tragen.
   const exitViews = new Map<string, number>();
   const exitContinued = new Map<string, number>();
   let exitDays = 0;
@@ -854,8 +714,6 @@ export function summarize(
     }
   }
 
-  // Dieselben Toepfe fuer die Vorperiode — nur, was fuer Vergleiche gebraucht
-  // wird, nicht die ganze Auswertung doppelt.
   const beforePaths = new Map<string, number>();
   const beforeReferrers = new Map<string, number>();
   const beforeEvents = new Map<string, number>();
@@ -865,14 +723,12 @@ export function summarize(
     addInto(beforeEvents, doc.events);
   }
 
-  // Der laufende Tag zaehlt fuer Verlauf und Summen mit, aber nie als
-  // Vergleichsgroesse: er ist per Definition unvollstaendig.
+  // Der laufende Tag zählt für Verlauf und Summen, nie als Vergleichsgröße.
   const todayDoc = today ? sorted.find((d) => d.day === today) : undefined;
   const todayPoint = todayDoc ? pointOf(todayDoc) : null;
   const closed = days.filter((d) => d.day !== today);
   const latestDay = closed.at(-1) ?? null;
-  // Auch in der Vorperiode suchen: bei „7 Tage" liegt derselbe Wochentag der
-  // Vorwoche immer ausserhalb des Fensters, und der Vergleich fiel still weg.
+  // Derselbe Wochentag der Vorwoche liegt bei „7 Tage" außerhalb des Fensters.
   const docAt = (day: string): DailyDoc | undefined =>
     sorted.find((d) => d.day === day) ?? sortedBefore.find((d) => d.day === day);
   const compare = (point: DayPoint | null, other: DailyDoc | undefined) =>
@@ -921,9 +777,6 @@ export function summarize(
     period:
       sortedBefore.length && closed.length
         ? {
-            // Je Tag, nicht in Summen — siehe die Begruendung am Typ. Und nur
-            // abgeschlossene Tage: der laufende zog den Schnitt morgens um
-            // ein Zehntel nach unten, als waere er ein ganzer Tag gewesen.
             visitors: delta(
               closedVisitors / closed.length,
               sumField(sortedBefore, 'visitors') / sortedBefore.length
@@ -952,9 +805,6 @@ export function summarize(
       key: restoreHost(entry.key),
       count: entry.count,
     })),
-    // Ereignisse werden vollständig gezeigt, nicht nur die Spitze: die Liste
-    // ist durch die Allowlist in count/route.ts ohnehin begrenzt, und die
-    // interessanten Fälle stehen unten (purchase, sign_up).
     events: topEntries(events, Number.MAX_SAFE_INTEGER),
     exits: exitsOf(exitViews, exitContinued),
     exitDays,
@@ -966,10 +816,9 @@ export function summarize(
   };
 }
 
-/* ── Konten, Karten, Umsatz ───────────────────────────────────────────── */
-
-/** Der Katalogpreis eines Packs — der Umsatz wird daraus gerechnet, nicht aus
- *  Stripe gelesen; die vier Käufe seit Mai stehen alle im Katalog. */
+/**
+ * Umsatz aus dem Katalogpreis, nicht aus Stripe gelesen.
+ */
 export function packPriceCents(packId: string): number {
   return CATALOG[packId]?.amountCents ?? 0;
 }
@@ -979,13 +828,8 @@ function packName(packId: string): string {
 }
 
 /**
- * Konten, Karten, Kaeufe und Checkout-Versuche im Zeitraum. Die Rohdaten holt
- * die Route (Firebase Auth, Firestore); hier wird nur gezaehlt, damit die
- * Regeln — was „aktiv" heisst, was ein Kauf ist — ohne Emulator testbar
- * bleiben.
- *
- * Admin-Konten muessen schon draussen sein: der Betreiber ist sonst jeden Tag
- * das „aktive" Konto.
+ * Admin-Konten müssen schon draußen sein, sonst ist der Betreiber jeden Tag das
+ * aktive Konto.
  */
 export function summarizeAccounts(
   input: AccountsInput,
@@ -1104,11 +948,8 @@ interface DeckInput {
 }
 
 /**
- * Der Stapel nach Kategorien — die Stellschraube für die Packs: ein Pack
- * verkauft die Karten seiner Kategorie, und eine Kategorie ohne Karte ist
- * nicht käuflich. Karten sind mehrfachkategorisiert (ein Lunch-Spot, der
- * auch Breakfast trägt, liegt in beiden Packs), die Spalten summieren sich
- * darum nicht zur Stapelgröße.
+ * Karten sind mehrfach kategorisiert, die Spalten summieren sich nicht zur
+ * Stapelgröße.
  */
 export function summarizeDeck(input: DeckInput): Deck {
   const categoryOfSpot = new Map<string, string[]>();

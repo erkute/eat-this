@@ -25,12 +25,9 @@ import ZoomCurtain from './ZoomCurtain';
 export interface MustEatImageLightboxProps {
   imageUrl: string | null;
   alt: string;
-  /* Was die Karte im Raster gerade zeigt (`currentSrc` des Slot-Bilds). Ein
-     Raster aus Daumennaegeln hat das grosse `imageUrl` nie geladen — ohne
-     Platzhalter flog die Karte leer heraus und fuellte sich erst nach dem
-     Download. Mit ihm fliegt der Daumennagel, und das grosse Bild loest ihn
-     ab, sobald es dekodiert ist. Gilt nur fuer die erste Karte, nicht fuers
-     Blaettern. */
+  /* Was die Karte im Raster gerade zeigt (`currentSrc` des Slot-Bilds): der
+     Daumennagel fliegt heraus, das grosse Bild loest ihn ab, sobald es
+     dekodiert ist. Nur fuer die erste Karte, nicht beim Blaettern. */
   placeholderUrl?: string | null;
   // null = closed; setting it to a DOMRect opens the lightbox and the
   // card flies out from that rect. Reverting to null triggers exit which
@@ -87,11 +84,9 @@ const SWIPE_PX = 60;
 /** Neigung der Karte unter dem Finger, Grad je Pixel. */
 const DRAG_TILT = 0.04;
 
-// Open from origin → settle in centre with Apple-style ease-out,
-// pointer-driven 3D-tilt, body scroll/touch locked. Click anywhere closes.
-// Kein Glanz-Overlay auf der Karte: ein weisser Verlauf im Overlay-Modus hat
-// das Foto beim Kippen stellenweise ausgebleicht — die Farben bleiben, wie
-// sie sind, nur die Karte bewegt sich.
+// Open from origin, settle in centre with ease-out, pointer-driven 3D tilt,
+// body scroll/touch locked. Click anywhere closes. Kein Glanz-Overlay: ein
+// weisser Verlauf bleichte das Foto beim Kippen aus.
 const Inner = memo(function Inner({
   imageUrl,
   alt,
@@ -200,10 +195,8 @@ const Inner = memo(function Inner({
      Vorhang auf, ein Handler für beides. */
   const downRef = useRef<{ x: number; y: number } | null>(null);
   const swipedRef = useRef(false);
-  /* Waagerecht gezogen folgt die Karte dem Finger und neigt sich mit — wie
-     eine Karte, die man vom Tisch zieht. Solange gezogen wird, ruht das
-     3D-Kippen: es nahm den Wisch als Kippgeste und warf die Karte schief
-     hinaus (gemessen bis 14° um die Hochachse). */
+  /* Waagerecht gezogen folgt die Karte dem Finger und neigt sich mit. Solange
+     gezogen wird, ruht das 3D-Kippen, sonst flöge die Karte schief hinaus. */
   const draggingRef = useRef(false);
   const dealX = useMotionValue(0);
   const dealRotate = useMotionValue(0);
@@ -383,11 +376,9 @@ const Inner = memo(function Inner({
   useLayoutEffect(() => {
     if (pageKey === shown.key) return;
     const token = ++dealTokenRef.current;
-    /* Der globale `prefers-reduced-motion`-Reset in globals.css setzt nur
-       CSS-Transitions und -Animationen still; eine framer-motion-Sequenz
-       läuft davon unbeirrt weiter. Wer keine Bewegung will, bekommt den
-       Kartentausch deshalb ohne Flug — sobald das neue Bild zeichenbar ist,
-       sonst stünde dort kurz eine leere Karte. */
+    /* Der Reduced-Motion-Reset in globals.css stoppt nur CSS; framer-motion
+       läuft weiter. Ohne Bewegung tauscht die Karte darum ohne Flug, sobald das
+       neue Bild zeichenbar ist. */
     if (reducedMotion) {
       void whenImageReady(imageUrl).then(() => {
         if (token !== dealTokenRef.current) return;

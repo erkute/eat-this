@@ -1,4 +1,3 @@
-// nextjs/lib/buddy/orchestrator.ts
 import Anthropic from '@anthropic-ai/sdk';
 import type { Locale, ChatMessage, BuddyStreamEvent, SpotCandidate, ArticleResult } from './types';
 import { buddyTools } from './tools';
@@ -16,13 +15,9 @@ export interface OwnedPacks {
 }
 
 /**
- * Zwei Empfänger, zwei Zuschnitte.
- *
- * Der Client braucht `_id` (Herzen), `image` (Kartenfoto) und `mapsUrl`. Das
- * Modell braucht nichts davon — und bekam es trotzdem: bei einer breiten Frage
- * (30 Treffer) waren das 5.555 von 10.564 Token der Trefferliste, also gut die
- * Hälfte, davon 4.721 reine URLs. Ausgerechnet URLs, die der Prompt ihm im
- * selben Atemzug verbietet auszugeben.
+ * Zwei Empfänger, zwei Zuschnitte. Der Client braucht `_id` (Herzen), `image`
+ * (Kartenfoto) und `mapsUrl`; das Modell nichts davon, und die URLs allein
+ * machten einen Großteil der Token der Trefferliste aus.
  *
  * `categorySlugs` fällt für beide weg: die Kategorie-Refs entscheiden
  * server-intern über den Pack-Teaser.
@@ -43,12 +38,10 @@ function forModel(spot: SpotCandidate): Omit<SpotCandidate, '_id' | 'image' | 'm
 }
 
 /**
- * Hier entschieden, nicht im Widget: Dessen Entitlement-Listener kennt den
- * Admin-Zugang nicht (ADMIN_EMAILS plus verifizierte Adresse, server-only, null
- * Dokumente unter users/<uid>/entitlements), Remy böte dem Admin-Konto sonst
- * Packs an, die ihm längst offenstehen. Hier, wo das Token verifiziert ist, ist
- * die Frage in einer Zeile beantwortet, und eine Karte, die nie gesendet wird,
- * muss der Client auch nicht verstecken.
+ * Hier entschieden, nicht im Widget: dessen Entitlement-Listener kennt den
+ * Admin-Zugang nicht (ADMIN_EMAILS, server-only). Hier ist das Token
+ * verifiziert, und eine Karte, die nie gesendet wird, muss der Client nicht
+ * verstecken.
  */
 function ownsPack(owned: OwnedPacks | undefined, pack: PackDef): boolean {
   if (!owned) return false;
@@ -102,8 +95,7 @@ const MAX_SPOT_SEARCHES_PER_ROUND = 3;
 const MAX_TOKENS = 2048;
 /* Sonnet statt Haiku. Grund ist die Sprache, nicht das Denken: Haiku schreibt
    regelmäßig schiefes Deutsch, und auf einer Seite, deren Produkt die Stimme
-   ist, ist das der teuerste Fehler. Der Preis: ~1,4 statt ~0,7 Cent pro
-   Antwort. */
+   ist, ist das der teuerste Fehler. */
 const MODEL = process.env.BUDDY_MODEL ?? 'claude-sonnet-5';
 
 function throwIfAborted(signal?: AbortSignal): void {
@@ -258,12 +250,9 @@ export function createAnthropicLlmClient(client: Anthropic = new Anthropic()): L
         {
           model: MODEL,
           max_tokens: MAX_TOKENS,
-          /* Ausdrücklich AUS. Auf Sonnet 5 heißt ein fehlendes `thinking`
-             nicht „kein Denken" (wie auf Haiku 4.5), sondern adaptives Denken —
-             das hätte zwei Dinge gebrochen, die hier zählen: die Denk-Token
-             gehen von denselben 2048 ab und hätten lange Antworten abgeschnitten,
-             und vor dem ersten sichtbaren Zeichen stünde eine Pause. Remy
-             sucht und erzählt, er löst keine Rätsel. */
+          /* Ausdrücklich aus: auf Sonnet 5 heißt ein fehlendes `thinking`
+             adaptives Denken. Die Denk-Token gingen von denselben 2048 ab, und
+             vor dem ersten sichtbaren Zeichen stünde eine Pause. */
           thinking: { type: 'disabled' },
           system,
           tools,

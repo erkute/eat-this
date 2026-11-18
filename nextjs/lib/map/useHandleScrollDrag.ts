@@ -242,7 +242,6 @@ export function useHandleScrollDrag(
       begin(e.pointerId, e.clientY, e.pointerType === 'touch');
     };
 
-    /* Put the sheet at the latest input position. */
     const apply = () => {
       frame = 0;
       const sheet = sheetEl();

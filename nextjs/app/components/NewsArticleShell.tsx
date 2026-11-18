@@ -132,15 +132,12 @@ function ledeDuplicatesOpening(excerpt: string, blocks: PortableTextBlock[]): bo
   if (ledeSentence.length >= 4) {
     if (orderedOverlap(ledeSentence, openingSentence) >= SENTENCE_OVERLAP) return true;
   }
-  // The same question from the article's side. Pizza opens on a short sentence
-  // and its lede welds that sentence to the next one — "Berlin hat kein
-  // Pizza-Problem. Berlin hat inzwischen eher das gegenteilige Problem …"
-  // became "Berlin hat kein Pizza-Problem, sondern das gegenteilige …". Measured
-  // from the lede's long sentence the overlap is small; measured from the
-  // article's short one it is complete. Only the lede's start is searched, at
-  // most half again as long as the sentence looked for: Fine Dining's lede
-  // *closes* on the article's opening sentence after a colon of its own, and
-  // that lede opens on its own words.
+  // The same question from the article's side: a lede may weld the article's
+  // short opening sentence to the next one. Measured from the lede's long
+  // sentence the overlap is small, from the article's short one complete. Only
+  // the lede's start is searched, at most half again as long as the sentence
+  // looked for, so a lede that merely closes on that sentence keeps its own
+  // opening.
   if (openingSentence.length >= 4) {
     const ledeStart = ledeSentence.slice(0, Math.ceil(openingSentence.length * OPENING_REACH));
     if (orderedOverlap(openingSentence, ledeStart) >= SENTENCE_OVERLAP) return true;
@@ -185,13 +182,10 @@ function articleReadingOrder(blocks: PortableTextBlock[]): PortableTextBlock[] {
   return ordered;
 }
 
-// Article detail — magazine feature, the inside of the issue: a tap on a cover
-// opens the magazine and lands here (MagazineLink), so the cover itself does
-// not appear again. On desktop the header splits like Highsnobiety's: title,
-// byline and lede on the left, the lead photo on the right; below, the piece
-// runs as a reading column with a sticky chapter rail beside it. Nothing in
-// the reading column moves. Inline must-eat and spot cards are driven by
-// mustEatCard / spotCard reference blocks in the body.
+// Article detail, the inside of the issue: a tap on a cover opens the magazine
+// and lands here (MagazineLink), so the cover does not appear again. Inline
+// must-eat and spot cards come from mustEatCard / spotCard reference blocks in
+// the body.
 export default function NewsArticleShell({
   article,
   relatedArticles = [],
@@ -292,7 +286,6 @@ export default function NewsArticleShell({
       .filter(Boolean)
       .join(' · ');
 
-    // Foto und gerade Etiketten bilden eine gemeinsame Spot-Karte.
     return (
       <span className={styles.inlineSpot}>
         {block.restaurantPhoto && (
@@ -468,13 +461,9 @@ export default function NewsArticleShell({
               das Foto randlos mit schmalem Rahmen, dann der Vorspann als
               Auftakt. */}
           <header className={styles.header} data-insight-header="">
-            {/* Keine Brotkrume: der Artikeltitel ist zu lang für eine Zeile und
-                brach als dritte Krume um. Sie trug ohnehin keinen eigenen Link
-                — „/" und „/news" stehen im Burger, der auf jeder Seite
-                gerendert wird. Das BreadcrumbList-JSON-LD in
-                `news/[slug]/page.tsx` bleibt davon unberührt, die SERP-Krume
-                also auch. Eater und Mit Vergnügen führen ihre Guides ebenfalls
-                ohne. */}
+            {/* Keine Brotkrume: der Artikeltitel brach als dritte Krume um, und
+                „/" und „/news" stehen im Burger. Das BreadcrumbList-JSON-LD in
+                `news/[slug]/page.tsx` bleibt. */}
             <div className={styles.introCopy}>
               <h1
                 className={styles.heroTitle}

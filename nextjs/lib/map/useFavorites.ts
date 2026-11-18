@@ -314,8 +314,7 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
       // writer of both the favorite doc and the public restaurants/{id}.heartCount
       // aggregate — the two move in one transaction so the count can't drift.
       /* Optimistisch: das Herz fuellt sich beim Tippen, nicht erst nach
-         /api/heart — in der Map stand es sonst bis zur Antwort leer da.
-         Scheitert der Aufruf, springt es zurueck. */
+         /api/heart. Scheitert der Aufruf, springt es zurueck. */
       if (inFlight.current.has(r._id)) return false;
       const latest = store.getSnapshot();
       const adding = !latest.favoriteIds.has(r._id);

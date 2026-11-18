@@ -411,8 +411,9 @@ describe('POST /api/count', () => {
     });
   });
 
-  /* Das Zahlenbrett zaehlte seinen einzigen Leser: /admin/stats stand mit 67
-   * Aufrufen in der eigenen Ausstiegstabelle. */
+  /*
+   * Das Zahlenbrett zaehlt seinen einzigen Leser nicht.
+   */
   it.each(['/admin/stats', '/en/admin/stats', '/admin'])(
     'zählt interne Werkzeuge nicht: %s',
     async (path) => {
@@ -572,10 +573,10 @@ describe('POST /api/count', () => {
     expect(mocks.set).not.toHaveBeenCalled();
   });
 
-  /* Der Riegel am Besucher-Hash war umgehbar: in den Hash geht `body.ua` ein,
-   * und den bestimmt der Aufrufer. Ein neuer UA-String je Anfrage hiess ein
-   * frischer Schluessel — und damit je Anfrage ein Dokument in
-   * `analytics_seen` und ein beliebig aufblasbarer `visitors`-Stand. */
+  /*
+   * Der Riegel am Besucher-Hash allein waere umgehbar: in den Hash geht
+   * `body.ua` ein, und den bestimmt der Aufrufer.
+   */
   describe('Riegel an der Adresse', () => {
     it('haengt nicht am User-Agent, den der Aufrufer schickt', async () => {
       await POST(request({ path: '/', ua: 'Mozilla/5.0 (iPhone) Safari' }));
@@ -609,10 +610,12 @@ describe('POST /api/count', () => {
     });
   });
 
-  /* `paths`, `entryPaths`, `continuations` und `referrers` waren freie
-   * Map-Schluessel in EINEM Dokument. Firestore deckelt es bei 1 MB und 20.000
-   * Indexeintraegen — ist die Grenze gerissen, schlagen ALLE Schreibvorgaenge
-   * des Tages fehl, nicht nur der, der sie gerissen hat. */
+  /*
+   * `paths`, `entryPaths`, `continuations` und `referrers` sind freie
+   * Map-Schluessel in einem Dokument. Firestore deckelt es bei 1 MB und 20.000
+   * Indexeintraegen; ist die Grenze gerissen, schlagen alle Schreibvorgaenge
+   * des Tages fehl.
+   */
   describe('Schluesselbudget des Tagesdokuments', () => {
     function fullMap(prefix: string) {
       return Object.fromEntries(

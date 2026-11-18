@@ -51,9 +51,8 @@ function imageAssetKey(url: string | undefined): string {
 
 /**
  * Obergrenze für den Titelgrad aus dem längsten Wort des Namens, in `cqi` der
- * Kopfspalte. Versalien laufen rund 0,62em breit (gemessen an der früheren
- * Titelschrift); ein Wort mit n
- * Zeichen passt also bis 100cqi / (0,62·n) in eine Zeile.
+ * Kopfspalte. Versalien laufen rund 0,62em breit; ein Wort mit n Zeichen passt
+ * also bis 100cqi / (0,62·n) in eine Zeile.
  */
 function titleFitStyle(name: string): CSSProperties {
   const longest = Math.max(...name.split(/\s+/).map((w) => w.length), 1);
@@ -146,9 +145,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     : null;
   const title = menuTitle ?? editorialTitle;
 
-  // Branded share card — the dynamic OG route overlays name + cuisine + district
-  // on the restaurant photo (and falls back to a brand card when there is none),
-  // which previews far stronger on social than the bare photo did.
+  // Branded share card: the dynamic OG route overlays name + cuisine + district
+  // on the restaurant photo, with a brand card when there is none.
   const ogImage = `${SITE_URL}/api/og/restaurant?slug=${slug}&locale=${loc}`;
 
   const alternates = buildHreflangAlternates(`/restaurant/${slug}`, loc, {
@@ -227,8 +225,8 @@ export default async function RestaurantPage({ params }: PageProps) {
   setRequestLocale(locale);
   const page = await getRestaurantPageData(slug);
   if (!page) {
-    // Post-rebuild slug migration: try to 301 an old/404 slug to its current
-    // page before giving up. See lib/seo/legacyRedirects.ts.
+    // An old slug 301s to its current page before giving up
+    // (lib/seo/legacyRedirects.ts).
     const dest = resolveLegacyRestaurantSlug(slug, await getAllRestaurantsLite());
     if (dest && dest !== slug) {
       permanentRedirect(locale === 'de' ? `/restaurant/${dest}` : `/${locale}/restaurant/${dest}`);
@@ -274,7 +272,7 @@ export default async function RestaurantPage({ params }: PageProps) {
   const categoryLinks = (r.categories ?? []).filter(
     (c): c is typeof c & { slug: string; name: string } => Boolean(c?.slug && c?.name)
   );
-  // Zur Map führt auf UNSERE Map (Nutzer-Entscheidung 28.08.), nie zu Google.
+  // Zur Map führt auf unsere Map, nie zu Google.
   const mapHref = `/map?r=${slug}`;
   // Vorübergehend geschlossen: die Map lässt den Spot weg, `?r=` liefe dort
   // ins Leere — also kein Map-Knopf, dafür der Hinweis bei den Angaben.
@@ -305,9 +303,8 @@ export default async function RestaurantPage({ params }: PageProps) {
   const galleryAlt = (i: number) =>
     galleryImages[i].alt || `${displayName} ${de ? 'Foto' : 'photo'} ${i + 2}`;
   // Jedes Foto braucht seinen Nachweis. Stammen alle von derselben Quelle,
-  // steht er einmal in der Mehrzahl unter dem Aufmacher („Fotos: AVIV 030") —
-  // fünfmal dieselbe Zeile war Rauschen, „Foto:" in der Einzahl las sich, als
-  // gelte er nur fürs erste Bild. Sonst steht er unter jedem Bild.
+  // steht er einmal in der Mehrzahl unter dem Aufmacher („Fotos: AVIV 030");
+  // sonst unter jedem Bild.
   const sharedCredit =
     galleryImages.length > 0 &&
     Boolean(r.photoCredit) &&

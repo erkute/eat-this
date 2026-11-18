@@ -51,16 +51,12 @@ async function composeInitialAnonMapMetadata(): Promise<InitialMapData> {
 }
 
 /**
- * The face-up set below is the curated shop window — the same cards for
- * every visitor, and the same cards whose premium fields ship
- * in the anonymous HTML. So this read has no per-viewer component and caching
- * it publishes nothing that isn't published already. The per-viewer path
- * (/api/map-data, entitlements + on-site unlocks + purchases) keeps the
- * uncached default reader.
- *
- * Uncached it was 192-583ms per request, measured against a production build —
- * roughly 95% of the server time on the four surfaces that call this, with
- * Sanity already served from the Data Cache in single-digit milliseconds.
+ * The face-up set below is the curated shop window: the same cards for every
+ * visitor, and the same cards whose premium fields ship in the anonymous HTML.
+ * So this read has no per-viewer component, and caching it publishes nothing
+ * that isn't published already. The per-viewer path (/api/map-data,
+ * entitlements + on-site unlocks + purchases) keeps the uncached default
+ * reader.
  *
  * Publishing a card selects an immutable content key in Sanity. That key is
  * part of the cache arguments; the `mustEat` webhook also invalidates the tag.
@@ -77,12 +73,10 @@ let publicMustEatIdsInFlight: Promise<Set<string>> | null = null;
 /**
  * Welche Karten offen liegen, für die Bild-Route vor jedem einzelnen Bild.
  *
- * Liest nur die Karten (45 kB) statt des ganzen Spot-Katalogs (680 kB), und
- * gleichzeitige Aufrufe teilen sich eine Anfrage: Nexts Data Cache fasst nichts
- * über Anfragen hinweg zusammen, solange sein Eintrag noch leer ist. Schlagen
- * ~80 Bilder auf einer frischen Instanz auf, holte sonst jedes selbst den
- * Katalog, das 10-s-Limit des Clients liefe reihenweise ab, und die Bilder
- * endeten als 500.
+ * Liest nur die Karten statt des ganzen Spot-Katalogs, und gleichzeitige
+ * Aufrufe teilen sich eine Anfrage: Nexts Data Cache legt nichts zusammen,
+ * solange sein Eintrag leer ist, und viele Bilder auf einer frischen Instanz
+ * liefen sonst ins Zeitlimit des Clients.
  */
 export function getPublicMustEatIds(): Promise<Set<string>> {
   publicMustEatIdsInFlight ??= getCachedMustEats()

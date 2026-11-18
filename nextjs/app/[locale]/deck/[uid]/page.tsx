@@ -126,9 +126,8 @@ export default async function DeckPage({ params }: PageProps) {
   const { locale, uid } = await params;
   setRequestLocale(locale);
 
-  /* Derselbe 404 wie fuer eine kaputte oder unbekannte uid. Die Seite
-     unterscheidet die Faelle bewusst nicht — sie soll nicht melden, welche
-     Konten es gibt, und jetzt auch nicht, wo ein Deckel greift. */
+  /* Derselbe 404 wie fuer eine kaputte oder unbekannte uid: die Seite soll
+     nicht melden, welche Konten es gibt, und auch nicht, wo ein Deckel greift. */
   if (await tooManyViews()) notFound();
 
   const data = await getPublicDeck(uid);

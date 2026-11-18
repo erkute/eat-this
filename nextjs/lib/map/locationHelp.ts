@@ -168,9 +168,8 @@ export function locationBlockedOptions(
       label: locale === 'en' ? 'How to' : 'So geht’s',
       onClick: () => {
         /* Wo der Browser die Freigabe sofort wirken laesst (Chrome, auch auf
-           Android), holt die Map den Standort selbst (useUserLocation) — dann
-           hat sich die Anleitung erledigt und geht mit. Gemessen in echtem
-           Chrome: ohne das blieb sie ueber der schon geortenen Karte stehen. */
+           Android), holt die Map den Standort selbst (useUserLocation); dann
+           hat sich die Anleitung erledigt und geht mit. */
         let stopWatching = () => {};
         const release = notify('locationHowTo', locale, {
           steps: locationHowToSteps(currentPlatform(), locale),

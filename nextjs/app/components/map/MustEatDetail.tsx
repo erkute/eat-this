@@ -128,13 +128,11 @@ export default function MustEatDetail({
       return false;
     }
   });
-  /* Vorgespielt wird nur eine Karte, die schon offen ist. Eine verdeckte kommt
-     ohne Bild und Gericht vom Server (stripCoveredMustEats); die Demo drehte
-     sie um und zeigte wieder den Rücken, mit leerem Namen darunter. Eine
-     verdeckte Karte verhält sich deshalb auch mit ?revealdemo wie immer. */
+  /* Vorgespielt wird nur eine Karte, die schon offen ist: eine verdeckte kommt
+     ohne Bild und Gericht vom Server (stripCoveredMustEats) und verhält sich
+     auch mit ?revealdemo wie immer. */
   const demo = demoSession && isUnlocked && Boolean(mustEat.image);
-  // Keep the map in place and use the shared login layer. The previous
-  // standalone route made this reveal flow leave the map entirely.
+  // Keep the map in place and use the shared login layer.
   const { open: openLoginModal } = useLoginModal();
   /* Ein Gast tippt auf den Rücken: sofort das Anmeldeformular, im
      Starter-Pack-Modus, ohne Tafel dazwischen. Die angetippte Karte reist als

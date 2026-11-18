@@ -540,7 +540,6 @@ a.quiet {
     transform 180ms ease,
     background-color 140ms ease;
 }
-/* Die Auswahl hebt sich durch Fläche und Position ab. */
 .avatarActive {
   transform: translateY(-4px);
   background: var(--et-quiet);
@@ -576,7 +575,6 @@ a.quiet {
   font-size: 13px;
   color: var(--et-copy);
 }
-/* Die getönte Fläche kennzeichnet das Eingabefeld. */
 .nameInput {
   width: 100%;
   box-sizing: border-box;
@@ -586,7 +584,6 @@ a.quiet {
   border-radius: var(--et-radius-control);
   background: var(--et-quiet);
   color: var(--et-fg);
-  /* The input uses the same typeface as the login form. */
   font-family: var(--et-font-body);
   font-size: 17px;
   outline: none;

@@ -5,9 +5,8 @@ import {
   restaurantPhotoCreditUrl,
 } from './sanity-image-presets';
 import { liveRestaurant } from './sanity-filters';
-// Category projection. All entries are references. The `defined(@->_id)` filter
-// guards against dangling refs (category doc deleted while restaurants still point at it) —
-// without it those would surface as null rows in the projected array.
+// `defined(@->_id)` drops dangling refs, which would otherwise project as null
+// rows.
 const CATEGORY_PROJECTION = `categories[defined(@->_id)]->{
   "slug": slug.current,
   name,
@@ -16,9 +15,7 @@ const CATEGORY_PROJECTION = `categories[defined(@->_id)]->{
   descriptionEn
 }`;
 
-/* The full detail projection. Shared so the restaurant page and the OG-image
-   route cannot drift apart, and so the page query below can wrap it without
-   restating 40 fields. */
+/* Shared so the restaurant page and the OG-image route cannot drift apart. */
 const RESTAURANT_DETAIL_FIELDS = `
     _id,
     name,
@@ -66,10 +63,8 @@ const RESTAURANT_DETAIL_FIELDS = `
     }
 `;
 
-// katalog-ausnahme: Das ist generateStaticParams für /restaurant/[slug]. Ein
-// geschlossener Laden behält seine Detailseite — sie sagt, dass er zu hat, und
-// steht auf `noindex,follow` (restaurantRobots). Fiele er hier raus, liefe die
-// Seite in notFound() und der Besucher bekäme statt der Auskunft einen 404.
+// katalog-ausnahme: generateStaticParams. Ein geschlossener Laden behält seine
+// Seite (noindex,follow), die sagt, dass er zu hat, statt eines 404.
 export const allRestaurantSlugsQuery = `
   *[_type == "restaurant" && defined(slug.current)] {
     "slug": slug.current
@@ -77,10 +72,7 @@ export const allRestaurantSlugsQuery = `
 `;
 
 // Public article payloads resolve only the restaurant side of a Must-Eat
-// reference. Dish text and images live in the private premium store and must
-// never be projected into an indexed article response.
-// Das Etikett über einem Artikel folgt aus seiner Kategorie; eigene Felder
-// dafür gibt es nicht mehr.
+// reference; dish text and images must never reach an indexed response.
 const ARTICLE_LABEL_DE = `select(category == "openings" => "Eröffnungen", category == "culture" => "Kultur", "Guides")`;
 const ARTICLE_LABEL_EN = `select(category == "openings" => "Openings", category == "culture" => "Culture", "Guides")`;
 const ARTICLE_LABELS = `"categoryLabel": ${ARTICLE_LABEL_EN}, "categoryLabelDe": ${ARTICLE_LABEL_DE}`;
@@ -151,9 +143,8 @@ export const articleBySlugQuery = `
   *[_type == "newsArticle" && slug.current == $slug][0] ${articleProjection}
 `;
 
-// Die Studio-Vorschau: nach Dokument-ID, weil ein Entwurf noch keinen Slug
-// haben muss. Gelesen mit der `drafts`-Perspektive — die legt den Entwurf
-// über die veröffentlichte Fassung.
+// Studio-Vorschau nach Dokument-ID (ein Entwurf hat noch keinen Slug), mit der
+// `drafts`-Perspektive.
 export const articleByIdQuery = `
   *[_type == "newsArticle" && _id == $id][0] ${articleProjection}
 `;
@@ -164,7 +155,6 @@ export const allArticleSlugsQuery = `
   }
 `;
 
-// Restaurants filtered by Bezirk slug
 export const restaurantsByBezirkQuery = `
   *[_type == "restaurant" && ${liveRestaurant()} && bezirkRef->slug.current == $bezirkSlug] | order(name asc) {
     _id,
@@ -185,7 +175,6 @@ export const restaurantsByBezirkQuery = `
   }
 `;
 
-// Restaurants filtered by category slug (reference match).
 export const restaurantsByCategoryQuery = `
   *[_type == "restaurant" && ${liveRestaurant()}
     && $categorySlug in categories[]->slug.current
@@ -220,17 +209,9 @@ const RESTAURANT_SIBLING_CARD_PROJECTION = `{
 }`;
 
 /**
- * Ein Fenster der alphabetischen Nachbarschaft im selben Bezirk — `'>'` liefert
- * den Schwanz hinter dem aktuellen Restaurant, `'<'` den Umlauf davor.
- *
- * Bewusst begrenzt statt „ganzen Bezirk laden und im Code schneiden": ein Bezirk
- * hat bis zu 60 Spots, angezeigt werden vier. Zwei Fenster zu je vier holen im
- * schlechtesten Fall acht Dokumente statt sechzig.
- *
- * Als Funktion, nicht zweimal ausgeschrieben: die beiden unterscheiden sich in
- * genau einem Zeichen. Nebeneinandergestellt kann jemand den einen Filter
- * ändern und den anderen vergessen — und kein Test fängt das, weil erst beide
- * zusammen ein vollständiges Fenster ergeben.
+ * Ein Fenster der alphabetischen Nachbarschaft im Bezirk: höchstens vier
+ * Dokumente statt des ganzen Bezirks. Als Funktion, weil sich die beiden
+ * Fenster in genau einem Zeichen unterscheiden.
  */
 const siblingWindow = (cmp: '>' | '<') => `*[
       _type == "restaurant" && ${liveRestaurant()}
@@ -239,44 +220,17 @@ const siblingWindow = (cmp: '>' | '<') => `*[
       && (name ${cmp} ^.name || (name == ^.name && slug.current ${cmp} ^.slug.current))
     ] | order(name asc, slug.current asc)[0...$siblingLimit] ${RESTAURANT_SIBLING_CARD_PROJECTION}`;
 
-/**
- * Everything the restaurant page needs, in ONE round trip.
- *
- * It used to be three: the document, then — once its _id and bezirk were
- * known — Must-Eats and siblings in parallel. That is two sequential
- * round trips and three billed Sanity requests per slug. With 932
- * prerendered restaurant pages revalidating daily, those two extra
- * requests were ~930 avoidable calls per cycle, which is the single
- * largest block of our quota.
- *
- * The sub-queries reach the parent document through `^`, so nothing has to
- * be threaded in as a parameter. The sibling filter also compares
- * `bezirkRef._ref` directly instead of joining through `bezirkRef->slug`,
- * which drops a dereference per candidate.
- *
- * `generateMetadata` and the page body must BOTH use this query — Next
- * dedupes identical fetches within a render, so two call sites of the same
- * query cost one request, whereas two different queries for the same
- * document would cost two.
- */
-// Drei reichen: darüber wiederholen sich die Hub-Guides, in denen der Spot nur
-// einer von vielen ist — siehe die Sortierung in `articlesAboutRestaurant`.
-// Geht als GROQ-Variable `$articleLimit` in die Query.
+// Drei: Darüber kommen nur Hub-Guides, in denen der Spot einer von vielen ist.
 export const RESTAURANT_ARTICLE_LIMIT = 3;
 
-// Jeder Artikel ist ein Heft, gezählt ab dem ältesten (Issue 1): auf der
-// Startseite, im Magazin-Index und im Artikelkopf. Dafür brauchen alle drei
-// dieselbe Menge und eine feste Reihenfolge: Viele Artikel teilen sich ein
-// Datum, und ohne zweiten Schlüssel ist die Reihenfolge innerhalb eines Tages
-// nicht zugesagt; dasselbe Heft trüge sonst je nach Seite eine andere Nummer.
-// `_id` ist der zweite Schlüssel.
+// Jeder Artikel ist ein Heft mit Nummer ab dem ältesten; alle Seiten brauchen
+// dieselbe Menge und Reihenfolge, `_id` bricht Gleichstände am selben Tag.
 const publishedNews = `_type == "newsArticle" && defined(slug.current)`;
 const newsOrder = `date desc, _id asc`;
 
-// Das Heft-Cover (lib/magazineCover.ts): gewählter Look, ob ein Gericht
-// erkannt ist, der Freisteller samt Rahmen und Pixelmassen — die braucht
-// „Vor dem Logo“, um Foto und Freisteller deckungsgleich zu legen — und die
-// Farben des Aufmacher-Bilds, aus denen „Nach LOVE“ sein Logo tönt.
+// Das Heft-Cover (lib/magazineCover.ts): Look, Gerichtserkennung, Freisteller
+// samt Rahmen und Pixelmaßen (für „Vor dem Logo“) und die Bildfarben (für „Nach
+// LOVE“).
 const newsCoverProjection = `"cover": {
     "look": cover.look,
     "dish": cover.dish,
@@ -292,25 +246,10 @@ const newsCoverProjection = `"cover": {
   }`;
 
 /**
- * Die Artikel, in denen dieser Spot vorkommt, für den „Im Magazin"-Block auf
- * der Restaurant-Seite und im Map-Sheet.
- *
- * Die Verbindung liegt schon in den Daten und braucht kein neues Feld: Ein
- * `spotCard`-Block im Artikel trägt eine `restaurantRef`. Deshalb wird sie
- * rückwärts gelesen statt am Restaurant gepflegt; ein gepflegtes Feld müsste
- * bei jedem neuen Artikel nachgezogen werden und wäre sofort veraltet.
- *
- * `mustEatCard` bleibt außen vor: Kein Restaurant wird ausschließlich darüber
- * erwähnt, der Fall existiert nur in der Theorie.
- *
- * Sortiert nach Spezifität, nicht nach Datum: Je weniger Spots ein Artikel
- * nennt, desto mehr handelt er von diesem hier. Für Kolo heißt das Porträt (1
- * Spot) vor Mitte-Guide (10) vor Café-Guide (17); nach Datum stünde der Guide
- * oben, der den Laden in einer Liste von siebzehn abhandelt.
- *
- * Zwei Leser: die Restaurant-Seite und das Detail-Sheet der Map
- * (restaurantMapDetailQuery). Beide zeigen denselben Block, also dieselbe
- * Auswahl in derselben Reihenfolge.
+ * Die Artikel, in denen dieser Spot vorkommt, rückwärts über die
+ * `restaurantRef` ihrer spotCards gelesen statt am Restaurant gepflegt.
+ * Sortiert nach Spezifität: Je weniger Spots ein Artikel nennt, desto mehr
+ * handelt er von diesem.
  */
 export const articlesAboutRestaurant = `"articles": *[_type == "newsArticle" && defined(slug.current)
     && (^._id in content[].restaurantRef._ref || ^._id in contentDe[].restaurantRef._ref)]
@@ -328,9 +267,9 @@ export const articlesAboutRestaurant = `"articles": *[_type == "newsArticle" && 
       ${newsCoverProjection}
     }`;
 
-// katalog-ausnahme: Die Detailseite eines einzelnen Spots, per Slug geholt.
-// Sie muss auch geschlossene Läden laden — siehe allRestaurantSlugsQuery.
-// Der Katalogfilter gehört in die LISTEN, die hierher verlinken.
+// katalog-ausnahme: die Detailseite eines Spots, auch geschlossen (siehe
+// allRestaurantSlugsQuery). Alles in einer Abfrage; `generateMetadata` und die
+// Seite nutzen dieselbe, damit Next sie dedupliziert.
 export const restaurantPageQuery = `
   *[_type == "restaurant" && slug.current == $slug][0] {${RESTAURANT_DETAIL_FIELDS},
     "mustEats": *[_type == "mustEat" && restaurantRef._ref == ^._id] | order(order asc) {
@@ -343,11 +282,9 @@ export const restaurantPageQuery = `
   }
 `;
 
-// Die Beispiel-Spots der Anmelde-Mail: jeder mit seiner Must-Eat-Karte.
-// Gelesen wird der ganze Stapel, damit scripts/build-email-spots.mts daraus
-// dasselbe Schaufenster rechnen kann wie die Seite (composeRevealedMustEats) —
-// in die Mail kommen nur Karten, die ohnehin jeder ohne Konto offen sieht, nie
-// eine verdeckte. Kein $limit: die Auswahl passiert erst nach dem Schaufenster.
+// Die Beispiel-Spots der Anmelde-Mail: Gelesen wird der ganze Stapel, damit
+// scripts/build-email-spots.mts dasselbe Schaufenster rechnet wie die Seite; in
+// die Mail kommen nur offene Karten.
 export const emailMustEatsQuery = `
   *[_type == "mustEat" && ${liveRestaurant('restaurantRef->')}] | order(_id asc) {
     _id,
@@ -363,7 +300,6 @@ export const emailMustEatsQuery = `
   }
 `;
 
-// District names and open-spot counts for overview and neighbouring-district links.
 export const allBezirkeWithStatsQuery = `
   *[_type == "bezirk"] | order(name asc) {
     _id,
@@ -373,7 +309,6 @@ export const allBezirkeWithStatsQuery = `
   }
 `;
 
-// One Bezirk by slug — for the detail landing page
 export const bezirkBySlugQuery = `
   *[_type == "bezirk" && slug.current == $slug][0] {
     _id,
@@ -392,9 +327,7 @@ export const bezirkBySlugQuery = `
   }
 `;
 
-// All categories for navigation/listing — pulled directly from the category
-// document type (single source of truth). Sorted by EN name (falls back to DE)
-// so the order is stable across locales.
+// Sorted by EN name so the order is stable across locales.
 export const allCategoriesQuery = `
   *[_type == "category"] | order(coalesce(nameEn, name) asc) {
     _id,
@@ -406,14 +339,8 @@ export const allCategoriesQuery = `
   }
 `;
 
-// Kategorien für den /kategorie-Index — mit Anzahl und ein paar Beispiel-Spots.
-// Bewusst getrennt von `allCategoriesQuery`: die schlanke Variante speist die
-// Sitemap, llms.txt und die Nachbar-Chips der Detailseite, und die brauchen
-// keine vier Restaurantkarten pro Kategorie.
-//
-// Der Rückwärtsbezug läuft über `^._id in categories[]._ref` — dieselbe
-// Referenz-Beziehung wie in `restaurantsByCategoryQuery`, nur von der anderen
-// Seite gelesen.
+// Mit Anzahl und Beispiel-Spots für den /kategorie-Index; getrennt von der
+// schlanken `allCategoriesQuery` für Sitemap und Chips.
 export const allCategoriesWithStatsQuery = `
   *[_type == "category"] | order(coalesce(nameEn, name) asc) {
     _id,
@@ -424,15 +351,8 @@ export const allCategoriesWithStatsQuery = `
   }
 `;
 
-// One category by slug — detail / hub page.
-//
-// `topSpots` is the editorially ordered best-of list (see
-// AGENTS.md (Gewollte Produktlogik)). Only the slugs are projected:
-// the page already loads every restaurant of the category, so the slug is
-// enough to reorder them, and the full card payload would ship twice.
-// `defined(@->slug.current)` guards dangling refs the same way
-// CATEGORY_PROJECTION does — without it a deleted restaurant would land as a
-// null hole in the array.
+// Only the `topSpots` slugs: the page already loads every restaurant of the
+// category.
 export const categoryBySlugQuery = `
   *[_type == "category" && slug.current == $slug][0] {
     _id,
@@ -444,8 +364,6 @@ export const categoryBySlugQuery = `
     "topSpots": topSpots[defined(@->slug.current)]->slug.current
   }
 `;
-
-// All news articles — newest first
 
 export const allNewsArticlesQuery = `
   *[${publishedNews}] | order(${newsOrder}) {
@@ -463,10 +381,8 @@ export const allNewsArticlesQuery = `
   }
 `;
 
-// Die neuesten Artikel für die Startseite und die Zahl aller: dort ist jeder
-// Artikel ein Heft, gezählt ab dem ältesten (Issue 1), die neuesten tragen die
-// höchsten Nummern. Liste und Zählung teilen sich Filter und Reihenfolge mit
-// allNewsArticlesQuery, damit die Nummer nie andere Artikel sieht als die Liste.
+// Teilt Filter und Reihenfolge mit allNewsArticlesQuery, damit die Heftnummer
+// dieselben Artikel sieht wie die Liste.
 export const latestNewsArticlesQuery = `{
   "total": count(*[${publishedNews}]),
   "articles": *[${publishedNews}] | order(${newsOrder})[0...$limit] {
@@ -481,12 +397,8 @@ export const latestNewsArticlesQuery = `{
   }
 }`;
 
-// Ein Guide als Teaser — für den Querverweis von der Kategorieseite auf den
-// gleichnamigen Magazin-Artikel (siehe categoryGuideSlug in lib/seo/crossLinks).
-// Bewusst OHNE content/contentDe: articleBySlugQuery zieht den kompletten
-// Portable Text beider Sprachen, und der Hub braucht davon nichts als die
-// Überschrift. Die Sprache wird wie in staticPageBySlugQuery schon in GROQ
-// gewählt, damit die andere gar nicht erst in der RSC-Payload landet.
+// Ohne content: Der Hub braucht nur die Überschrift. Die Sprache wird in GROQ
+// gewählt, damit die andere nicht in der RSC-Payload landet.
 export const guideTeaserBySlugQuery = `
   *[_type == "newsArticle" && slug.current == $slug][0] {
     "slug": slug.current,
@@ -512,12 +424,8 @@ export const guideTeaserBySlugQuery = `
   }
 `;
 
-// Must Eat cards for a specific restaurant — card-back teaser only.
-// Deliberately NO dish/photo: the teaser renders covered cards, and any
-// extra field would ship to every anon in the RSC payload of the public,
-// indexed /restaurant/[slug] page (same leak class as the P1 map leak).
-// One localized static page. Selecting the active language in GROQ keeps the
-// other page documents and translation fields out of the RSC payload.
+// The language is selected in GROQ so the other page documents and translation
+// fields stay out of the RSC payload.
 export const staticPageBySlugQuery = `
   *[_type == "staticPage" && slug.current == $slug][0] {
     "slug": slug.current,
@@ -533,14 +441,9 @@ export const staticPageBySlugQuery = `
 `;
 
 /**
- * How much a Booster Pack actually contains, for every pack at once.
- *
- * Der Katalogfilter kommt aus `liveRestaurant()`, dieselbe Quelle wie
- * `mapRestaurantsQuery`, damit die Zahl auf der Pack-Karte keine Spots
- * verspricht, die die Karte nie zeigt. Dazu `ownsCategoryOf`: Ein
- * Kategorie-Pack nimmt jedes Restaurant mit dieser Kategorie mit, ein
- * gemeinsames Tag reicht. Must Eats hängen an ihrem Restaurant, also folgen sie
- * derselben Zuordnung.
+ * How much a Booster Pack contains. The catalogue filter is `liveRestaurant()`,
+ * as in `mapRestaurantsQuery`, so the number never counts spots the map does
+ * not show; one shared category tag is enough (`ownsCategoryOf`).
  */
 export const packContentsQuery = `
   {
@@ -558,9 +461,8 @@ export const packContentsQuery = `
   }
 `;
 
-// Für den Sanity-Webhook: an welchem Spot hängt eine Must-Eat-Karte? Die
-// Webhook-Projektion schickt nur `_type`, `_id` und `slug`, und eine Karte hat
-// keinen Slug.
+// Für den Sanity-Webhook: Eine Karte hat keinen Slug, ihre Seite ist die ihres
+// Spots.
 export const mustEatRestaurantSlugQuery = `
   *[_type == "mustEat" && _id == $id][0].restaurantRef->slug.current
 `;

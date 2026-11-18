@@ -1,5 +1,10 @@
+import type { NextConfig } from 'next';
 import { describe, expect, it } from 'vitest';
-import nextConfig from '../../next.config';
+import * as configModule from '../../next.config';
+
+// App Hosting ersetzt next.config.ts für den Build durch eine Datei mit
+// `module.exports`. Mit einem Default-Import scheiterte dort Nexts Typprüfung.
+const nextConfig = (configModule as { default: NextConfig }).default;
 
 /**
  * Der Waechter fuer die Metadaten im `<head>`.

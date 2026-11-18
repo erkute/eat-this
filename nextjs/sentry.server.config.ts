@@ -2,6 +2,7 @@
 // Node). Loaded by instrumentation.ts at server boot.
 import * as Sentry from '@sentry/nextjs';
 
+import { SENTRY_DATA_COLLECTION } from '@/lib/sentry/dataCollection';
 import { sentryEnabled, sentryEnvironment } from '@/lib/sentry/environment';
 
 Sentry.init({
@@ -12,6 +13,6 @@ Sentry.init({
   // the server and edge bundles too (Next runs the webpack config for all
   // three runtimes), so this would be inert.
   environment: sentryEnvironment(),
-  // Keine IP, keine Cookies (siehe instrumentation-client.ts).
-  sendDefaultPii: false,
+  // Keine IP, keine Cookies, keine Bodies (lib/sentry/dataCollection.ts).
+  dataCollection: SENTRY_DATA_COLLECTION,
 });

@@ -311,11 +311,11 @@ export default withSentryConfig(withNextIntl(nextConfig), {
   suppressOnRouterTransitionStartWarning: true,
   // Tree-shake code we never run.
   //
-  // These are the `webpack.treeshake` keys, NOT `bundleSizeOptimizations`.
-  // In @sentry/nextjs 10.57.0 only this shape reaches the DefinePlugin that
+  // These are the `webpack.treeshake` keys, which reach the DefinePlugin that
   // actually drops the code — see setupTreeshakingFromConfig in
-  // node_modules/@sentry/nextjs/build/cjs/config/webpack.js:549. The names
-  // differ too (`removeTracing`, not `excludeTracing`).
+  // node_modules/@sentry/nextjs/build/cjs/config/webpack.js:454 (11.14). The
+  // names differ from `bundleSizeOptimizations` (`removeTracing`, not
+  // `excludeTracing`).
   //
   // `removeTracing` is the big one: measured 188 kB → 136 kB "First Load JS
   // shared by all", i.e. 52 kB gzip off EVERY page. What goes with it is

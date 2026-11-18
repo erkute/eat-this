@@ -1,6 +1,7 @@
 import * as Sentry from '@sentry/nextjs';
 
 import { filterBrowserErrors } from '@/lib/sentry/beforeSend';
+import { SENTRY_DATA_COLLECTION } from '@/lib/sentry/dataCollection';
 import { sentryEnabled, sentryEnvironment } from '@/lib/sentry/environment';
 
 Sentry.init({
@@ -33,10 +34,8 @@ Sentry.init({
   replaysSessionSampleRate: 0,
   replaysOnErrorSampleRate: 0,
 
-  // Keine IP (Betreiber, 02.10.2026). Mit `false` schickt das SDK
-  // `infer_ip: "never"`, Sentry leitet dann keine IP mehr ab. Browser und
-  // Betriebssystem kommen weiter über den User-Agent an.
-  sendDefaultPii: false,
+  // Keine IP, keine Cookies, keine Bodies (lib/sentry/dataCollection.ts).
+  dataCollection: SENTRY_DATA_COLLECTION,
 });
 
 export const captureException = Sentry.captureException;

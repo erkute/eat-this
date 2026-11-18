@@ -231,8 +231,8 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
               src="/pics/founder-cutout.webp"
               alt={
                 de
-                  ? 'Ersan als Cartoon im braunen Anzug mit Sonnenbrille: zurückgelehnt auf einem Holzstuhl, ein Glas in der Hand, zwei Teller auf dem Tisch daneben'
-                  : 'A cartoon of Ersan in a brown suit and sunglasses, leaning back on a wooden chair with a glass in hand and two plates on the table beside him'
+                  ? 'Der Gründer von Eat This als Cartoon im braunen Anzug mit Sonnenbrille: zurückgelehnt auf einem Holzstuhl, ein Glas in der Hand, zwei Teller auf dem Tisch daneben'
+                  : 'A cartoon of the Eat This founder in a brown suit and sunglasses, leaning back on a wooden chair with a glass in hand and two plates on the table beside him'
               }
               width={1040}
               height={1228}

@@ -115,6 +115,10 @@ env:
     secret: ADMIN_EMAILS_STAGING
     availability:
       - RUNTIME
+  - variable: STATS_EXCLUDE_EMAILS
+    secret: STATS_EXCLUDE_EMAILS_STAGING
+    availability:
+      - RUNTIME
   - variable: NEXT_PUBLIC_SENTRY_DSN
     secret: NEXT_PUBLIC_SENTRY_DSN_STAGING
     availability:

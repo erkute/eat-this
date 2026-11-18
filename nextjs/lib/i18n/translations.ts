@@ -185,7 +185,7 @@ const en = {
     challengeAnon:
       '{done, plural, =0 {This deck is just getting started.} other {# of {total} Must Eats flipped.}}',
     /* Der sichtbare Stand, um die grosse Zahl herum gelesen ein Satz:
-       „Ersan has flipped / 14 / of 100 Must Eats." */
+       „Alex has flipped / 14 / of 100 Must Eats." */
     scoreLead: '{name} has flipped',
     scoreOf: 'of {total} Must Eats.',
     scoreOfAnon: 'of {total} Must Eats flipped.',
@@ -529,8 +529,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       '{done} von {total} Karten umgedreht. \u00dcber hundert Spots in Berlin, und weil Entdecken mehr Spa\u00df macht als Suchen, ist jedes Must Eat eine Karte.',
     metaDescriptionNamed:
       '{name} hat {done} von {total} Karten umgedreht. \u00dcber hundert Spots in Berlin, und weil Entdecken mehr Spa\u00df macht als Suchen, ist jedes Must Eat eine Karte.',
-    /* Der Stand als Herausforderung (Nutzer, 24.09.2026: „es muss wie eine
-       Challenge klingen, so: Ersan hat 14 von … Must Eats"). */
+    /* Der Stand als Herausforderung. */
     challenge:
       '{done, plural, =0 {{name} f\u00e4ngt gerade an.} one {{name} hat 1 von {total} Must Eats.} other {{name} hat # von {total} Must Eats.}}',
     challengeFull: '{name} hat alle {total} Must Eats.',

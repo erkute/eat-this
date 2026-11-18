@@ -90,11 +90,6 @@ const HUB_BY_ARTICLE: Record<string, ArticleHubLink> = {
     'Alle Fast-Food-Spots in Berlin',
     'All fast food spots in Berlin'
   ),
-  'drei-doener-berlin': CATEGORY(
-    'fast-food',
-    'Alle Fast-Food-Spots in Berlin',
-    'All fast food spots in Berlin'
-  ),
   'restaurants-mitte': BEZIRK('mitte', 'Mitte'),
   'restaurants-kreuzberg': BEZIRK('kreuzberg', 'Kreuzberg'),
   'restaurants-neukoelln': BEZIRK('neukoelln', 'Neukölln'),

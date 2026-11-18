@@ -53,7 +53,7 @@ await render(1200, 630, 'public/pics/og-card.png', async (mark, line) => {
   ];
 }, 470);
 
-// Square (search thumbnail): Ersan's photo (empty plate, fork, red wine), kept locally under design/ like the other originals.
+// Square (search thumbnail): the original photo (empty plate, fork, red wine), kept locally under design/ like the other originals.
 // Crop from the top so the face and the plate fill the square.
 await sharp('../design/google/square-photo.webp').extract({ left: 0, top: 60, width: 1122, height: 1122 })
   .resize(1200, 1200).png({ compressionLevel: 9 }).toFile('public/pics/og-card-square.png');

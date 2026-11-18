@@ -105,7 +105,7 @@ const CATEGORY_GUIDES: Record<string, readonly string[]> = {
   breakfast: ['bester-brunch-berlin'],
   drinks: ['beste-cocktailbars-berlin', 'beste-weinbars-berlin'],
   sweets: ['beste-eisdielen-berlin', 'donuts-berlin', 'beste-baeckereien-berlin'],
-  'fast-food': ['beste-burger-berlin', 'drei-doener-berlin'],
+  'fast-food': ['beste-burger-berlin'],
 };
 
 /**

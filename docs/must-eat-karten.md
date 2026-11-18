@@ -29,10 +29,10 @@ Alles andere auf einer Karte zu ändern, bricht die Vererbung für genau diese E
 
 ## Neue Karte anlegen
 
-1. **Foto freistellen.** Das macht Ersan selbst in Figma mit „Hintergrund entfernen“. Das ist besser als automatische Freisteller wie `nextjs/scripts/cover-cutout/cutout.swift` (Apple Vision) und lässt sich über die Schnittstelle nicht auslösen. Ablauf: Originalfotos in eine Section legen, Ersan stellt sie frei, danach übernimmt Claude das freigestellte Rohbild in voller Auflösung (`download_assets` → `rawImages`). Es wird die Bildfüllung des Fotorahmens.
+1. **Foto freistellen.** Die Projektleitung macht das in Figma mit „Hintergrund entfernen“. Das ist besser als automatische Freisteller wie `nextjs/scripts/cover-cutout/cutout.swift` (Apple Vision) und lässt sich über die Schnittstelle nicht auslösen. Ablauf: Originalfotos in eine Section legen, die Projektleitung stellt sie frei, danach übernimmt Claude das freigestellte Rohbild in voller Auflösung (`download_assets` → `rawImages`). Es wird die Bildfüllung des Fotorahmens.
 2. **Karte als Instanz von Main anlegen.** Eine bestehende Karte duplizieren (⌘D) oder eine Instanz aus Main ziehen. **Nie „Detach instance“.** Neue Karten kommen ans Ende der untersten Reihe.
 3. **Inhalt setzen:** die fünf Texte, das Foto, beide Farben. Keine Schrift, keine Größe, keine Position.
-4. **Texte tippt Ersan in Figma Desktop.** Claude kann über die Figma-Schnittstelle Karten duplizieren, Fotos und Farben setzen, aber keine Texte: Dort fehlen die Adobe-Markenschriften. Texte, die Claude setzen soll, gehen nur über ein lokales Entwickler-Plugin, das Ersan in Figma startet.
+4. **Die Projektleitung tippt die Texte in Figma Desktop.** Claude kann über die Figma-Schnittstelle Karten duplizieren, Fotos und Farben setzen, aber keine Texte: Dort fehlen die Adobe-Markenschriften. Texte, die Claude setzen soll, gehen nur über ein lokales Entwickler-Plugin, das die Projektleitung in Figma startet.
 
 ## Prüfen, ob die Vererbung intakt ist
 
@@ -50,9 +50,9 @@ Die App zeigt nicht die Figma-Datei, sondern exportierte Bilder. **Jede Änderun
 
 1. **Export:** PNG in doppelter Größe (1026 × 1410), die Export-Einstellung steht auf jeder Karte. Ein Ordner, Dateiname = Kartennummer: `001.png`, `002.png`, …
    **Transparenz prüfen:** Außerhalb der runden Kartenkanten muss der Alphakanal 0 sein. Der MCP-Export kann die graue Figma-Section mitrendern, auch als PNG. In diesem Fall den SVG-Export auf die eigentliche Kartengruppe samt `defs` beschränken und daraus das transparente PNG rendern; keine Seiten- oder Section-Flächen übernehmen. Vor dem Einspielen auf hellem und farbigem Hintergrund prüfen.
-   Ohne Ersan exportiert Claude so: temporäre, doppelt große Kopien auf einer Hilfsseite, davon Screenshots in voller Größe, danach die Hilfsseite löschen. Der Screenshot der Schnittstelle liefert höchstens die einfache Größe.
+   Wenn die Projektleitung nicht selbst exportiert, legt Claude doppelt große Kopien auf einer Hilfsseite an, exportiert Screenshots in voller Größe und löscht die Hilfsseite. Der Screenshot der Schnittstelle liefert höchstens die einfache Größe.
 2. **Zuordnung:** `nextjs/scripts/data/must-eat-cards.json` hält pro Karte `order`, `file`, `spot`, `dish`, `descriptionEn` (Wortlaut der Karte) und `description` (deutsche Übersetzung).
-3. **Neue Karte** (Sanity-Dokument und Firestore-Datensatz gibt es noch nicht): `scripts/curate-must-eats.ts --spec <json> --cards <ordner>`, erst `--dry-run`, dann `--apply`. Das legt Firestore, Storage und einen **Sanity-Draft** an. Publiziert wird nur auf Ersans „setz das live“.
+3. **Neue Karte** (Sanity-Dokument und Firestore-Datensatz gibt es noch nicht): `scripts/curate-must-eats.ts --spec <json> --cards <ordner>`, erst `--dry-run`, dann `--apply`. Das legt Firestore, Storage und einen **Sanity-Draft** an. Publiziert wird nur, wenn die Projektleitung „setz das live“ sagt.
 4. **Geänderte Bilder oder Texte** bestehender Karten: aus `nextjs/`
    ```
    npx tsx scripts/replace-must-eat-cards.ts --cards <ordner> --dry-run

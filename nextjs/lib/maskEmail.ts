@@ -4,7 +4,7 @@
 // session. Anyone holding that session URL (referrer logs, shared screenshots,
 // browser history) could otherwise read the full address. Masking keeps the UX
 // signal without echoing recoverable PII:
-// `dirtyersan@gmail.com` → `di•••@gmail.com`.
+// `sample@example.com` → `sa•••@example.com`.
 export function maskEmail(email: string): string {
   const at = email.indexOf('@');
   if (at <= 0) return '•••';

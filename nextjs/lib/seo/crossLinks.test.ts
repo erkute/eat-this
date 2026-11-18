@@ -93,7 +93,7 @@ describe('categoryGuideSlugs', () => {
       'donuts-berlin',
       'beste-baeckereien-berlin',
     ]);
-    expect(categoryGuideSlugs('fast-food')).toHaveLength(2);
+    expect(categoryGuideSlugs('fast-food')).toEqual(['beste-burger-berlin']);
     expect(categoryGuideSlugs('drinks')).toHaveLength(2);
   });
 

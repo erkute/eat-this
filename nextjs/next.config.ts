@@ -51,6 +51,15 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: path.resolve(__dirname),
   // Teilt Tag-Invalidierungen zwischen den Instanzen (siehe cache-handler.cjs).
   cacheHandler: path.resolve(__dirname, 'cache-handler.cjs'),
+  // Next bündelt den Cache-Handler auch in die Edge-Middleware, wo sich
+  // Firestore nicht übersetzen lässt. Dort bleibt es leer; der Node-Server lädt
+  // den Handler ungebündelt und mit Firestore.
+  webpack(config, { nextRuntime }) {
+    if (nextRuntime === 'edge') {
+      config.resolve.alias = { ...config.resolve.alias, '@google-cloud/firestore': false };
+    }
+    return config;
+  },
   // Only the two public OG fonts belong in the server bundle; local brand fonts
   // stay on this machine.
   outputFileTracingExcludes: {

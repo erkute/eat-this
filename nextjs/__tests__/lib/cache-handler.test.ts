@@ -6,7 +6,10 @@ import { tmpdir } from 'node:os'
 
 const require = createRequire(import.meta.url)
 const handlerModule = require(path.resolve(__dirname, '../../cache-handler.cjs'))
-const { tagsManifest, isStale } = require('next/dist/server/lib/incremental-cache/tags-manifest.external')
+const { tagsManifest, areTagsExpired } = require('next/dist/server/lib/incremental-cache/tags-manifest.external')
+
+type TagEntry = { stale?: number; expired?: number }
+const expiredAt = (manifest: Map<string, TagEntry>, tag: string) => manifest.get(tag)?.expired
 
 const {
   createSharedTags,
@@ -36,19 +39,24 @@ afterEach(() => {
 
 describe('cache-handler: revalidateTag', () => {
   it('setzt den Zeitpunkt bei JEDEM Aufruf neu, nicht nur beim ersten', async () => {
-    // Next 15.5 schreibt nur, wenn der Tag fehlt: eine nach der ersten
-    // Invalidierung neu gebaute Seite bliebe für diesen Tag unberührbar, die
-    // zweite Änderung an einem Spot käme nie an.
+    // Eine nach der ersten Invalidierung neu gebaute Seite muss auch die
+    // zweite Änderung an einem Spot bekommen.
     const handler = newHandler()
     await handler.revalidateTag('restaurant')
-    const first = tagsManifest.get('restaurant')
+    const first = expiredAt(tagsManifest, 'restaurant')!
 
     vi.setSystemTime(new Date('2026-10-10T10:05:00.000Z'))
     const rebuiltAt = Date.now() - 1000
     await handler.revalidateTag(['restaurant'])
 
-    expect(tagsManifest.get('restaurant')).toBeGreaterThan(first)
-    expect(isStale(['restaurant'], rebuiltAt)).toBe(true)
+    expect(expiredAt(tagsManifest, 'restaurant')).toBeGreaterThan(first)
+    expect(areTagsExpired(['restaurant'], rebuiltAt)).toBe(true)
+  })
+
+  it('lässt eine Seite sofort ablaufen, auch mit cacheLife-Dauer', async () => {
+    const builtAt = Date.now() - 1000
+    await newHandler().revalidateTag('news', { expire: 3600 })
+    expect(areTagsExpired(['news'], builtAt)).toBe(true)
   })
 
   it('teilt lokal nichts nach außen, solange es nicht auf Cloud Run läuft', async () => {
@@ -79,20 +87,20 @@ describe('cache-handler: geteilter Tag-Stand', () => {
     await instanceA.publish(['restaurant:comedor', '_N_T_/de/restaurant/comedor'], ts)
 
     // Instanz B: eigene Map, ohne eigenen Webhook.
-    const manifestB = new Map<string, number>()
+    const manifestB = new Map<string, TagEntry>()
     const instanceB = createSharedTags(store, { manifest: manifestB })
     await instanceB.sync()
 
-    expect(manifestB.get('restaurant:comedor')).toBe(ts)
-    expect(manifestB.get('_N_T_/de/restaurant/comedor')).toBe(ts)
+    expect(expiredAt(manifestB, 'restaurant:comedor')).toBe(ts)
+    expect(expiredAt(manifestB, '_N_T_/de/restaurant/comedor')).toBe(ts)
   })
 
   it('überschreibt keinen neueren lokalen Stand mit einem älteren', () => {
     const t = Date.now()
-    const manifest = new Map<string, number>([['news', t]])
+    const manifest = new Map<string, TagEntry>([['news', { stale: t, expired: t }]])
     createSharedTags(fakeStore(), { manifest }).apply({ news: t - 1000, bezirk: t - 500 })
-    expect(manifest.get('news')).toBe(t)
-    expect(manifest.get('bezirk')).toBe(t - 500)
+    expect(expiredAt(manifest, 'news')).toBe(t)
+    expect(expiredAt(manifest, 'bezirk')).toBe(t - 500)
   })
 
   it('übernimmt auch die Nachläufe einer fremden Invalidierung', async () => {
@@ -102,9 +110,9 @@ describe('cache-handler: geteilter Tag-Stand', () => {
 
     // Instanz B gleicht erst ab, als der erste Nachlauf schon vorbei ist.
     vi.setSystemTime(ts + FOLLOW_UP_MS[0] + 5_000)
-    const manifestB = new Map<string, number>()
+    const manifestB = new Map<string, TagEntry>()
     await createSharedTags(store, { manifest: manifestB }).sync()
-    expect(manifestB.get('category-list')).toBe(ts + FOLLOW_UP_MS[0])
+    expect(expiredAt(manifestB, 'category-list')).toBe(ts + FOLLOW_UP_MS[0])
   })
 
   it('liest höchstens einmal pro Intervall', async () => {
@@ -179,8 +187,8 @@ describe('cache-handler: Tags aus der Zeit vor dem Build', () => {
     await shared.sync()
 
     expect(tagsManifest.has('restaurant')).toBe(false)
-    expect(isStale(['restaurant'], SEED_MTIME)).toBe(false)
-    expect(isStale(['news'], SEED_MTIME)).toBe(true)
+    expect(areTagsExpired(['restaurant'], SEED_MTIME)).toBe(false)
+    expect(areTagsExpired(['news'], SEED_MTIME)).toBe(true)
   })
 
   it('liest den Build-Zeitpunkt aus der BUILD_ID', () => {
@@ -244,7 +252,7 @@ describe('cache-handler: Nachläufe', () => {
   // alte Antworten. Eine Seite, die in dieser Zeit neu gebaut wurde, muss nach
   // jedem Nachlauf wieder als veraltet gelten.
   it('macht eine kurz nach der Invalidierung gebaute Seite nach jedem Nachlauf wieder veraltet', () => {
-    const manifest = new Map<string, number>()
+    const manifest = new Map<string, TagEntry>()
     const clock = createTagClock({ manifest })
     const ts = Date.now()
     clock.record('category-list', ts)
@@ -252,20 +260,20 @@ describe('cache-handler: Nachläufe', () => {
     const builtAt = ts + 1_000
     vi.setSystemTime(builtAt + 1)
     clock.tick()
-    expect(manifest.get('category-list')).toBeLessThan(builtAt)
+    expect(expiredAt(manifest, 'category-list')).toBeLessThan(builtAt)
 
     vi.setSystemTime(ts + FOLLOW_UP_MS[0])
     clock.tick()
-    expect(manifest.get('category-list')).toBeGreaterThanOrEqual(builtAt)
+    expect(expiredAt(manifest, 'category-list')).toBeGreaterThanOrEqual(builtAt)
 
     const rebuiltAt = ts + FOLLOW_UP_MS[0] + 1_000
     vi.setSystemTime(ts + FOLLOW_UP_MS[1])
     clock.tick()
-    expect(manifest.get('category-list')).toBeGreaterThanOrEqual(rebuiltAt)
+    expect(expiredAt(manifest, 'category-list')).toBeGreaterThanOrEqual(rebuiltAt)
   })
 
   it('lässt eine nach dem letzten Nachlauf gebaute Seite stehen und vergisst den Tag', () => {
-    const manifest = new Map<string, number>()
+    const manifest = new Map<string, TagEntry>()
     const clock = createTagClock({ manifest })
     const ts = Date.now()
     clock.record('restaurant', ts)
@@ -276,12 +284,12 @@ describe('cache-handler: Nachläufe', () => {
     const builtAt = Date.now()
     vi.setSystemTime(builtAt + 60 * 60 * 1000)
     clock.tick()
-    expect(manifest.get('restaurant')).toBeLessThan(builtAt)
+    expect(expiredAt(manifest, 'restaurant')).toBeLessThan(builtAt)
     expect(clock.pending.size).toBe(0)
   })
 
   it('rechnet die Nachläufe ab der jüngsten Invalidierung', () => {
-    const manifest = new Map<string, number>()
+    const manifest = new Map<string, TagEntry>()
     const clock = createTagClock({ manifest })
     const first = Date.now()
     clock.record('news', first)
@@ -291,18 +299,18 @@ describe('cache-handler: Nachläufe', () => {
 
     vi.setSystemTime(second + FOLLOW_UP_MS[0])
     clock.tick()
-    expect(manifest.get('news')).toBe(second + FOLLOW_UP_MS[0])
+    expect(expiredAt(manifest, 'news')).toBe(second + FOLLOW_UP_MS[0])
   })
 
   it('rückt die Nachläufe beim Cache-Zugriff des Handlers nach', async () => {
     const handler = newHandler()
     await handler.revalidateTag('bezirk')
-    const ts = tagsManifest.get('bezirk')
+    const ts = expiredAt(tagsManifest, 'bezirk')!
     const builtAt = ts + 1_000
-    expect(isStale(['bezirk'], builtAt)).toBe(false)
+    expect(areTagsExpired(['bezirk'], builtAt)).toBe(false)
 
     vi.setSystemTime(ts + FOLLOW_UP_MS[0])
     await handler.get('kein-eintrag', { kind: 'FETCH', tags: [], softTags: [] }).catch(() => null)
-    expect(isStale(['bezirk'], builtAt)).toBe(true)
+    expect(areTagsExpired(['bezirk'], builtAt)).toBe(true)
   })
 })

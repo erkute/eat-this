@@ -6,8 +6,8 @@
 //
 // middleware.ts answers these before any page renders, in both locales, so a
 // spot that comes back has to leave this map. Not in the page: a redirect while
-// Next renders on demand sends `location` twice on EN (Next 15.5), which App
-// Hosting joins into a 404.
+// Next renders on demand sent `location` twice on EN (seen on Next 15.5),
+// which App Hosting joins into a 404.
 export const DELISTED_RESTAURANT_REDIRECTS: Readonly<Record<string, string>> = {
   '100-brote': '/bezirk/prenzlauer-berg',
   '136-berlin-restaurant': '/bezirk/mitte',

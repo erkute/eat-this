@@ -7,8 +7,12 @@ import { waitForFreshCdn } from '@/lib/sanity.server';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+// Sofort ablaufen statt veraltet ausliefern: eine Änderung aus Sanity soll beim
+// nächsten Aufruf zu sehen sein.
+const EXPIRE_NOW = { expire: 0 };
+
 function revalidateMapSurface(revalidated: string[]): void {
-  revalidateTag('map-data');
+  revalidateTag('map-data', EXPIRE_NOW);
   revalidatePath('/map');
   revalidatePath('/en/map');
   revalidated.push('tag:map-data', 'path:/map', 'path:/en/map');
@@ -24,7 +28,7 @@ function revalidateMustEatSurface(revalidated: string[]): void {
 // packContentsQuery, das restaurant, mustEat und category zaehlt. Ohne diesen
 // Aufruf haengen sie am eigenen 24-Stunden-Timer.
 function revalidatePackContents(revalidated: string[]): void {
-  revalidateTag('pack-contents');
+  revalidateTag('pack-contents', EXPIRE_NOW);
   revalidatePath('/packs');
   revalidatePath('/en/packs');
   revalidated.push('tag:pack-contents', 'path:/packs', 'path:/en/packs');
@@ -131,12 +135,12 @@ export async function POST(req: NextRequest) {
 
   switch (type) {
     case 'newsArticle':
-      revalidateTag('news');
-      revalidateTag('sitemap-articles');
+      revalidateTag('news', EXPIRE_NOW);
+      revalidateTag('sitemap-articles', EXPIRE_NOW);
       revalidatePath('/sitemap.xml');
       revalidated.push('tag:news', 'tag:sitemap-articles', 'path:/sitemap.xml');
       if (slug) {
-        revalidateTag(`article:${slug}`);
+        revalidateTag(`article:${slug}`, EXPIRE_NOW);
         revalidatePath(`/news/${slug}`);
         revalidatePath(`/en/news/${slug}`);
         revalidated.push(`tag:article:${slug}`, `path:/news/${slug}`);
@@ -145,28 +149,28 @@ export async function POST(req: NextRequest) {
       revalidateMustEatSurface(revalidated);
       break;
     case 'restaurant':
-      revalidateTag('sitemap-restaurants');
+      revalidateTag('sitemap-restaurants', EXPIRE_NOW);
       revalidatePath('/sitemap.xml');
       revalidated.push('tag:sitemap-restaurants', 'path:/sitemap.xml');
       if (slug) {
-        revalidateTag(`restaurant:${slug}`);
+        revalidateTag(`restaurant:${slug}`, EXPIRE_NOW);
         revalidatePath(`/restaurant/${slug}`);
         revalidatePath(`/en/restaurant/${slug}`);
         revalidated.push(`tag:restaurant:${slug}`, `path:/restaurant/${slug}`);
       }
       // Restaurant changes can shift bezirk and category membership/order
       // — flush both aggregation tag groups.
-      revalidateTag('bezirk');
-      revalidateTag('category-list');
-      revalidateTag('restaurant-siblings');
+      revalidateTag('bezirk', EXPIRE_NOW);
+      revalidateTag('category-list', EXPIRE_NOW);
+      revalidateTag('restaurant-siblings', EXPIRE_NOW);
       // Und was über alle Restaurants liest: Jede Spot-Seite trägt den blanken
       // Tag `restaurant` (lib/sanity.server.ts). Ohne ihn stünde eine Änderung
       // bis zu einen Tag lang nicht auf den übrigen Spot-Seiten.
-      revalidateTag('restaurant');
+      revalidateTag('restaurant', EXPIRE_NOW);
       // Die Slug-Tabelle des Legacy-Redirects (getAllRestaurantsLite) hängt an
       // einem eigenen Tag: Ohne ihn liefe ein umbenannter Slug bis zu 24
       // Stunden ins 404 statt in seinen Redirect.
-      revalidateTag('restaurants-lite');
+      revalidateTag('restaurants-lite', EXPIRE_NOW);
       revalidated.push(
         'tag:bezirk',
         'tag:category-list',
@@ -179,9 +183,9 @@ export async function POST(req: NextRequest) {
       revalidatePackContents(revalidated);
       break;
     case 'bezirk':
-      revalidateTag('bezirk');
-      revalidateTag('restaurant-siblings');
-      revalidateTag('sitemap-bezirke');
+      revalidateTag('bezirk', EXPIRE_NOW);
+      revalidateTag('restaurant-siblings', EXPIRE_NOW);
+      revalidateTag('sitemap-bezirke', EXPIRE_NOW);
       revalidatePath('/bezirk');
       revalidatePath('/en/bezirk');
       revalidatePath('/sitemap.xml');
@@ -193,7 +197,7 @@ export async function POST(req: NextRequest) {
         'path:/sitemap.xml'
       );
       if (slug) {
-        revalidateTag(`bezirk:${slug}`);
+        revalidateTag(`bezirk:${slug}`, EXPIRE_NOW);
         revalidatePath(`/bezirk/${slug}`);
         revalidatePath(`/en/bezirk/${slug}`);
         revalidated.push(`tag:bezirk:${slug}`, `path:/bezirk/${slug}`);
@@ -201,9 +205,9 @@ export async function POST(req: NextRequest) {
       revalidateMapSurface(revalidated);
       break;
     case 'category':
-      revalidateTag('category');
-      revalidateTag('category-list');
-      revalidateTag('restaurant-siblings');
+      revalidateTag('category', EXPIRE_NOW);
+      revalidateTag('category-list', EXPIRE_NOW);
+      revalidateTag('restaurant-siblings', EXPIRE_NOW);
       revalidatePath('/');
       revalidatePath('/en');
       revalidatePath('/kategorie');
@@ -222,7 +226,7 @@ export async function POST(req: NextRequest) {
         'path:/sitemap.xml'
       );
       if (slug) {
-        revalidateTag(`category:${slug}`);
+        revalidateTag(`category:${slug}`, EXPIRE_NOW);
         revalidatePath(`/kategorie/${slug}`);
         revalidatePath(`/en/kategorie/${slug}`);
         revalidated.push(`tag:category:${slug}`, `path:/kategorie/${slug}`);
@@ -231,14 +235,14 @@ export async function POST(req: NextRequest) {
       revalidatePackContents(revalidated);
       break;
     case 'mustEat':
-      revalidateTag('mustEat');
+      revalidateTag('mustEat', EXPIRE_NOW);
       revalidated.push('tag:mustEat');
       revalidateMapSurface(revalidated);
       revalidateMustEatSurface(revalidated);
       revalidatePackContents(revalidated);
       break;
     case 'staticPage':
-      revalidateTag('staticPage');
+      revalidateTag('staticPage', EXPIRE_NOW);
       revalidated.push('tag:staticPage');
       break;
   }

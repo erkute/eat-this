@@ -12,9 +12,9 @@ const path = require('path');
 // Cache-Zugriff ab, höchstens alle SYNC_INTERVAL_MS. Geteilt wird nur die
 // Tabelle Tag → Zeitpunkt; Seiten und Daten bleiben im Cache der Instanz.
 //
-// Zweitens setzt Next 15.5 einen Tag nur, wenn er noch nicht in der Map steht;
-// pro Instanz griffe nur die erste Invalidierung eines Tags. Hier wird der
-// Zeitpunkt bei jedem Aufruf neu gesetzt.
+// Zweitens läuft jede Invalidierung sofort ab (`expired`), auch wenn ein
+// Aufrufer eine cacheLife-Dauer mitgibt: die Seite wird beim nächsten Aufruf
+// blockierend neu gebaut, nie veraltet ausgeliefert.
 //
 // Drittens zählen Tags aus der Zeit vor dem Build nicht. App Hosting setzt das
 // Dateidatum im Image auf 1980-01-01, und Next nimmt es als Alter einer
@@ -64,9 +64,9 @@ const FOLLOW_UP_MS = [2 * 60 * 1000, 10 * 60 * 1000];
 
 /**
  * Trägt Invalidierungen in Nexts Tag-Tabelle ein, samt ihren Nachläufen.
- * Next hält eine Seite für veraltet, wenn einer ihrer Tags einen Zeitpunkt
- * >= ihrer Entstehung trägt. Eingetragen wird darum der letzte Nachlauf, der
- * schon erreicht ist; `tick` rückt nach, solange einer aussteht.
+ * Next verwirft eine Seite, wenn einer ihrer Tags ein `expired` nach ihrer
+ * Entstehung und nicht nach jetzt trägt. Eingetragen wird darum der letzte
+ * Nachlauf, der schon erreicht ist; `tick` rückt nach, solange einer aussteht.
  */
 function createTagClock({ now = () => Date.now(), manifest = tagsManifest, followUps = FOLLOW_UP_MS } = {}) {
   const lastFollowUp = Math.max(0, ...followUps);
@@ -80,8 +80,8 @@ function createTagClock({ now = () => Date.now(), manifest = tagsManifest, follo
   }
 
   function raise(tag, at) {
-    const local = manifest.get(tag);
-    if (local === undefined || at > local) manifest.set(tag, at);
+    const entry = manifest.get(tag);
+    if (!(entry?.expired >= at)) manifest.set(tag, { ...entry, stale: at, expired: at });
   }
 
   function record(tag, ts) {
@@ -226,10 +226,11 @@ function withBuildAge(entry, builtAt) {
 
 // Nur auf Cloud Run (K_SERVICE), nicht im Build und nicht lokal: ein lokaler
 // Produktionslauf mit den Admin-Schlüsseln aus .env.local schriebe sonst in
-// die Prod-Datenbank.
+// die Prod-Datenbank. Nie in der Edge-Middleware, die kein Firestore kennt.
 function sharedEnabled() {
   return (
     Boolean(process.env.K_SERVICE) &&
+    process.env.NEXT_RUNTIME !== 'edge' &&
     process.env.NEXT_PHASE !== 'phase-production-build' &&
     process.env.REVALIDATE_SHARED_TAGS !== 'off'
   );
@@ -257,8 +258,7 @@ function getShared(serverDistDir) {
 }
 
 class CacheHandler extends FileSystemCache {
-  async revalidateTag(...args) {
-    let [tags] = args;
+  async revalidateTag(tags) {
     tags = typeof tags === 'string' ? [tags] : tags || [];
     if (tags.length === 0) return;
     const ts = Date.now();

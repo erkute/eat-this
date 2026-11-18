@@ -1,5 +1,15 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Locator } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+
+/** WebKit's IntersectionObserver keeps the device's initial viewport after
+ * `setViewportSize`, so `toBeInViewport` misreports there. Compare the box
+ * with the viewport the test set instead. */
+async function expectFullyInside(locator: Locator, viewport: { width: number; height: number }) {
+  await expect.poll(async () => {
+    const box = await locator.boundingBox();
+    return !!box && box.x >= 0 && box.y >= 0 && box.x + box.width <= viewport.width && box.y + box.height <= viewport.height;
+  }).toBe(true);
+}
 
 for (const english of [false, true]) {
   test(`login window keeps its form and keyboard navigation usable (${english ? 'EN' : 'DE'})`, async ({ page, isMobile }, info) => {
@@ -36,12 +46,12 @@ for (const english of [false, true]) {
       }, viewport)).toBe(true);
       if (isMobile) {
         await expect.poll(() => dialog.evaluate(el => el.scrollHeight - el.clientHeight)).toBeLessThanOrEqual(1);
-        await expect(dialog.getByRole('link').last()).toBeInViewport({ ratio: 1 });
+        await expectFullyInside(dialog.getByRole('link').last(), viewport);
       }
       const submit = dialog.locator('button[type="submit"]');
       await submit.scrollIntoViewIfNeeded();
-      await expect(submit).toBeInViewport({ ratio: 1 });
-      if (!isMobile) await expect(close).toBeInViewport({ ratio: 1 });
+      await expectFullyInside(submit, viewport);
+      if (!isMobile) await expectFullyInside(close, viewport);
     }
     await page.setViewportSize(sizes[0]);
     const email = dialog.getByRole('textbox');

@@ -36,7 +36,13 @@ for (const english of [false, true]) {
       }, viewport)).toBe(true);
       if (isMobile) {
         await expect.poll(() => dialog.evaluate(el => el.scrollHeight - el.clientHeight)).toBeLessThanOrEqual(1);
-        await expect(dialog.getByRole('link').last()).toBeInViewport({ ratio: 1 });
+        // Measured, not toBeInViewport: after setViewportSize grows the page
+        // past the iPhone's own height, WebKit's IntersectionObserver keeps
+        // the old viewport and reports a fully visible link as ratio 0.
+        await expect.poll(() => dialog.getByRole('link').last().evaluate((element, size) => {
+          const bounds = element.getBoundingClientRect();
+          return bounds.height > 0 && bounds.top >= 0 && bounds.bottom <= size.height;
+        }, viewport)).toBe(true);
       }
       const submit = dialog.locator('button[type="submit"]');
       await submit.scrollIntoViewIfNeeded();

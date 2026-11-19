@@ -129,7 +129,7 @@ export interface ArticleImageBlock {
   _key?: string;
   alt?: string;
   caption?: string;
-  /** Foto-Nachweis, z. B. „Foto: Eat This“. */
+  /** Foto-Nachweis, z. B. „Foto: Eat This“ (eigene Fotos zeigt die Seite ohne Nachweis). */
   credit?: string;
   creditUrl?: string;
   imageUrl?: string;

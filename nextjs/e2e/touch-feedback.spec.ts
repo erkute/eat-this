@@ -15,7 +15,8 @@ function nativeTapHighlights(controls: Locator) {
 
 test('map list photos stay opaque when a swipe starts', async ({ page }) => {
   await page.goto('/map');
-  const card = page.locator('[data-list-row] [role="button"]').first();
+  // Open spots lead the list, so its top changes with the time of day.
+  const card = page.locator('[data-list-row] [role="button"]').filter({ has: page.locator('img') }).first();
   await card.scrollIntoViewIfNeeded();
   const photo = card.locator('img').first();
   for (const reducedMotion of ['reduce', 'no-preference'] as const) {

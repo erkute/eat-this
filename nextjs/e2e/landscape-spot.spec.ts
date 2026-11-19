@@ -4,7 +4,9 @@ for(const width of [667,844]) test(`spot return preserves landscape map controls
  await page.setViewportSize({width,height:390});
  await page.goto('/map',{waitUntil:'domcontentloaded'});
  await expect(page.locator('.maplibregl-marker').first()).toBeVisible({timeout:30000});
- await page.locator('#map-results-panel [data-list-row] [role="button"]').first().click();
+ // Open spots lead the list, so its top changes with the time of day; take
+ // the first card with a photo because the hero below needs one.
+ await page.locator('#map-results-panel [data-list-row] [role="button"]').filter({has:page.locator('img')}).first().click();
  const detail=page.locator('[data-detail-root="restaurant"]');
  await expect(detail).toBeVisible({timeout:45000});
  const hero=detail.locator('[data-detail-hero]');

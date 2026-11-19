@@ -108,6 +108,8 @@ const articleContentProjection = `{
       _key,
       alt,
       caption,
+      credit,
+      creditUrl,
       "imageUrl": ${groqImageUrl('@', 'articleImage')},
       "imageWidth": @.asset->metadata.dimensions.width,
       "imageHeight": @.asset->metadata.dimensions.height
@@ -126,6 +128,8 @@ const articleProjection = `{
     revised,
     "imageUrl": ${groqImageUrl('image', 'detailHero')},
     "alt": image.alt,
+    "credit": image.credit,
+    "creditUrl": image.creditUrl,
     excerpt, excerptDe,
     content[] ${articleContentProjection},
     contentDe[] ${articleContentProjection},

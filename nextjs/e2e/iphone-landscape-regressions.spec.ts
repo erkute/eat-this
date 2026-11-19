@@ -36,9 +36,9 @@ test('landscape signup keeps the artwork and copy readable', async ({ page }) =>
 });
 
 test('gallery credit sits below and aligns with the right edge of the photo, clear of the filmstrip', async ({ page }) => {
-  await page.goto('/map?r=gazzo');
-  await page.getByRole('button', { name: 'Gazzo: Fotos 1/2', exact: true }).click();
-  const gallery = page.getByRole('dialog', { name: 'Gazzo – Fotogalerie' });
+  await page.goto('/map?r=bar-basta');
+  await page.getByRole('button', { name: 'Bar Basta: Fotos 1/2', exact: true }).click();
+  const gallery = page.getByRole('dialog', { name: 'Bar Basta – Fotogalerie' });
   await expect(gallery.getByRole('button', { name: 'Galerie schließen' })).toBeVisible();
   for (const index of [1, 2]) {
     await gallery.getByRole('button', { name: `Foto ${index} von 2`, exact: true }).click();

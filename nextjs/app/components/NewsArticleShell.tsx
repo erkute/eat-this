@@ -23,7 +23,9 @@ import { articleHubLink, articleHubLabel } from '@/lib/seo/articleHubLinks';
 import { chapterShortLabel } from '@/lib/headingDeck';
 import { sanityImageSize, coverImageScale, sanitySrcSet } from '@/lib/sanity-image-presets';
 import { scaleSizes } from '@/lib/magazineCover';
+import { safeHttpUrl } from '@/lib/safeHttpUrl';
 import styles from './NewsArticleShell.module.css';
+import { PhotoCredit } from './PhotoCredit';
 import ArticleMustEatArtwork from './ArticleMustEatArtwork';
 
 const SPOT_PHOTO_WIDTHS = [600, 900, 1200, 1600, 2080];
@@ -338,6 +340,20 @@ export default function NewsArticleShell({
     );
   };
 
+  // Bildunterschrift und Foto-Nachweis teilen sich die figcaption; der
+  // Nachweis steht als eigene Zeile darunter.
+  const renderCaption = (block: ArticleImageBlock) => {
+    if (!block.caption && !block.credit) return null;
+    return (
+      <figcaption>
+        {block.caption}
+        {block.credit && (
+          <PhotoCredit text={block.credit} href={safeHttpUrl(block.creditUrl)} className={styles.imageCredit} />
+        )}
+      </figcaption>
+    );
+  };
+
   // Inline editorial photo. The projection only resolves URL + dimensions for
   // blocks that actually carry an asset, so a half-filled Studio block drops
   // out here instead of rendering an empty frame.
@@ -355,7 +371,7 @@ export default function NewsArticleShell({
           height={height}
           sizes="(max-width: 767.98px) 100vw, 768px"
         />
-        {block.caption && <figcaption>{block.caption}</figcaption>}
+        {renderCaption(block)}
       </figure>
     );
   };
@@ -381,7 +397,7 @@ export default function NewsArticleShell({
               <Image src={block.imageUrl!} alt={block.alt || ''}
                 width={width} height={height}
                 sizes="(max-width: 767.98px) 100vw, (max-width: 1023.98px) 50vw, 70vw" />
-              {block.caption && <figcaption>{block.caption}</figcaption>}
+              {renderCaption(block)}
             </figure>
           ); })}
         </div>
@@ -487,6 +503,11 @@ export default function NewsArticleShell({
                   className={styles.hero}
                 />
               </div>
+            )}
+            {article.imageUrl && article.credit && (
+              <p className={styles.heroCredit}>
+                <PhotoCredit text={article.credit} href={safeHttpUrl(article.creditUrl)} />
+              </p>
             )}
             {showLede && <p className={styles.lede}>{excerpt}</p>}
             {/* Die Spots als eine Zeile unter dem Kopf, wie die Namenslisten

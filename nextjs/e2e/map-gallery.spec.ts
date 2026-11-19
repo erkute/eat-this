@@ -8,8 +8,8 @@ for (const locale of ['de', 'en'] as const) {
       const errors: string[] = [];
       page.on('pageerror', (error) => errors.push(error.message));
       await page.emulateMedia({ reducedMotion: reduced ? 'reduce' : 'no-preference' });
-      await page.goto(`${english ? '/en' : ''}/map?r=gazzo`, { waitUntil: 'domcontentloaded' });
-      const opener = page.getByRole('button', { name: `Gazzo: ${english ? 'Photos' : 'Fotos'} 1/2`, exact: true });
+      await page.goto(`${english ? '/en' : ''}/map?r=bar-basta`, { waitUntil: 'domcontentloaded' });
+      const opener = page.getByRole('button', { name: `Bar Basta: ${english ? 'Photos' : 'Fotos'} 1/2`, exact: true });
       const browserGround = () => page.evaluate(() => ({
         html: ['background-color', 'color-scheme'].map(prop => [document.documentElement.style.getPropertyValue(prop), document.documentElement.style.getPropertyPriority(prop)]),
         body: ['background-color', 'color-scheme'].map(prop => [document.body.style.getPropertyValue(prop), document.body.style.getPropertyPriority(prop)]),
@@ -17,7 +17,7 @@ for (const locale of ['de', 'en'] as const) {
       }));
       const beforeGallery = await browserGround();
       await opener.click();
-      const gallery = page.getByRole('dialog', { name: `Gazzo – ${english ? 'Photo gallery' : 'Fotogalerie'}`, exact: true });
+      const gallery = page.getByRole('dialog', { name: `Bar Basta – ${english ? 'Photo gallery' : 'Fotogalerie'}`, exact: true });
       const close = gallery.getByRole('button', { name: english ? 'Close gallery' : 'Galerie schließen' });
       const photoRegion = gallery.getByRole('region', { name: english ? 'Browse photos' : 'Fotos durchblättern' });
       await expect(close).toBeVisible();
@@ -31,13 +31,13 @@ for (const locale of ['de', 'en'] as const) {
       await expect(first).toHaveAttribute('aria-pressed', 'true');
       await expect(previous).toHaveCount(0);
       await expect(next).toHaveCount(0);
-      const photo = gallery.getByRole('img', { name: 'Gazzo', exact: true });
+      const photo = gallery.getByRole('img', { name: 'Bar Basta', exact: true });
       await expect(photo).toBeVisible();
       await expect.poll(() => photo.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
-      await expect(gallery.getByRole('link')).toHaveAttribute('href', /^https:\/\/(www\.)?instagram\.com\/gazzopizza\/?$/);
+      await expect(gallery.getByRole('link')).toHaveAttribute('href', /^https:\/\/www\.eatthisdot\.com\/?$/);
       const firstCredit = await gallery.getByRole('link').getAttribute('href');
       expect(await gallery.getByRole('link').evaluate(el => getComputedStyle(el).fontFamily)).toContain('neue-haas-grotesk');
-      await expect(gallery.locator('span').filter({ hasText: /^Gazzo$/ })).toHaveCount(0);
+      await expect(gallery.locator('span').filter({ hasText: /^Bar Basta$/ })).toHaveCount(0);
       const creditBox = (await gallery.getByRole('link').boundingBox())!;
       expect(creditBox.x).toBeGreaterThan(page.viewportSize()!.width / 2);
       // Wait for the initial photo to settle in the track.
@@ -125,7 +125,7 @@ for (const locale of ['de', 'en'] as const) {
       await expect.poll(browserGround).toEqual(beforeGallery);
       await expect(opener).toBeFocused();
       const secondOpener = page.getByRole('button', {
-        name: `Gazzo: ${english ? 'Photos' : 'Fotos'} 2/2`, exact: true,
+        name: `Bar Basta: ${english ? 'Photos' : 'Fotos'} 2/2`, exact: true,
       });
       await secondOpener.click();
       await expect(second).toHaveAttribute('aria-pressed', 'true');
@@ -172,12 +172,12 @@ test('gallery reserves the photo and credit layout while the full image loads', 
   try {
     // The viewer can reuse a responsive photo already loaded by the sheet.
     // Delay from navigation onward to exercise a genuinely unloaded image.
-    await page.goto('/map?r=gazzo', { waitUntil: 'domcontentloaded' });
-    const opener = page.getByRole('button', { name: 'Gazzo: Fotos 1/2', exact: true });
+    await page.goto('/map?r=bar-basta', { waitUntil: 'domcontentloaded' });
+    const opener = page.getByRole('button', { name: 'Bar Basta: Fotos 1/2', exact: true });
     await expect(opener).toBeVisible();
     await opener.click();
-    const gallery = page.getByRole('dialog', { name: 'Gazzo – Fotogalerie', exact: true });
-    const photo = gallery.getByRole('img', { name: 'Gazzo', exact: true });
+    const gallery = page.getByRole('dialog', { name: 'Bar Basta – Fotogalerie', exact: true });
+    const photo = gallery.getByRole('img', { name: 'Bar Basta', exact: true });
     await expect(photo).toBeAttached();
     expect(await photo.evaluate((img: HTMLImageElement) => img.complete)).toBe(false);
     const credit = gallery.getByRole('link');

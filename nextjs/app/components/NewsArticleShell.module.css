@@ -538,6 +538,35 @@ div.page {
   text-align: left;
 }
 
+/* Foto-Nachweis: eine eigene, leise Zeile unter der Bildunterschrift. Der
+   Link trägt keine Unterstreichung, nur die Farbe des Textes. */
+.imageCredit {
+  display: block;
+}
+
+.imageCredit a,
+.heroCredit a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.imageCredit a:hover,
+.imageCredit a:focus-visible,
+.heroCredit a:hover,
+.heroCredit a:focus-visible {
+  color: var(--article-fg);
+}
+
+.heroCredit {
+  width: min(100%, var(--article-measure));
+  margin: 6px 0 0;
+  color: var(--article-muted);
+  font-family: var(--et-font-body);
+  font-size: var(--et-type-caption);
+  line-height: 1.4;
+  text-align: right;
+}
+
 /* Die Spot-Karte: Das Foto füllt die Karte und bleibt klar, ohne Verlauf.
    Darauf kleben Etiketten wie im Menü: der Name als Ink-Etikett mit gelber
    Schrift und den Kratzern der Knöpfe, leicht schief, darunter Bezirk · Küche

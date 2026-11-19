@@ -517,6 +517,34 @@ describe('NewsArticleShell', () => {
   });
 });
 
+describe('photo credits', () => {
+  it('shows the lead image credit as a link under the photo', () => {
+    const html = render([para('Text.')], {
+      imageUrl: 'https://cdn.sanity.io/lead.jpg',
+      credit: 'Foto: Bostich',
+      creditUrl: 'https://maps.google.com/maps/contrib/1',
+    });
+    const container = document.createElement('div');
+    container.innerHTML = html;
+    const link = container.querySelector('a[href="https://maps.google.com/maps/contrib/1"]')!;
+    expect(link.textContent).toBe('Foto: Bostich');
+    expect(link.getAttribute('rel')).toBe('noopener noreferrer');
+  });
+
+  it('puts an inline credit under the caption and shows it without a caption too', () => {
+    const image = (key: string, caption?: string): PortableTextBlock => ({
+      _type: 'image', _key: key, imageUrl: `https://cdn.sanity.io/${key}.jpg`,
+      imageWidth: 900, imageHeight: 600, alt: key, caption, credit: 'Foto: Eat This',
+    }) as unknown as PortableTextBlock;
+    const html = render([image('mit', 'Tatar.'), para('Zwischen.'), image('ohne')]);
+    const container = document.createElement('div');
+    container.innerHTML = html;
+    const captions = [...container.querySelectorAll('figcaption')].map((c) => c.textContent);
+    expect(captions).toEqual(['Tatar.Foto: Eat This', 'Foto: Eat This']);
+    expect(container.querySelector('figcaption a')).toBeNull();
+  });
+});
+
 describe('editorial image spreads', () => {
   const photo = (key: string, width: number, height: number): PortableTextBlock => ({
     _type: 'image', _key: key, imageUrl: `https://cdn.sanity.io/${key}.jpg`,

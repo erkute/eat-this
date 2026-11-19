@@ -534,14 +534,28 @@ describe('photo credits', () => {
   it('puts an inline credit under the caption and shows it without a caption too', () => {
     const image = (key: string, caption?: string): PortableTextBlock => ({
       _type: 'image', _key: key, imageUrl: `https://cdn.sanity.io/${key}.jpg`,
-      imageWidth: 900, imageHeight: 600, alt: key, caption, credit: 'Foto: Eat This',
+      imageWidth: 900, imageHeight: 600, alt: key, caption, credit: 'Foto: KINK',
     }) as unknown as PortableTextBlock;
     const html = render([image('mit', 'Tatar.'), para('Zwischen.'), image('ohne')]);
     const container = document.createElement('div');
     container.innerHTML = html;
     const captions = [...container.querySelectorAll('figcaption')].map((c) => c.textContent);
-    expect(captions).toEqual(['Tatar.Foto: Eat This', 'Foto: Eat This']);
+    expect(captions).toEqual(['Tatar.Foto: KINK', 'Foto: KINK']);
     expect(container.querySelector('figcaption a')).toBeNull();
+  });
+
+  it('shows no credit under our own photos', () => {
+    const image = (key: string, caption?: string): PortableTextBlock => ({
+      _type: 'image', _key: key, imageUrl: `https://cdn.sanity.io/${key}.jpg`,
+      imageWidth: 900, imageHeight: 600, alt: key, caption, credit: 'Foto: Eat This',
+      creditUrl: 'https://www.eatthisdot.com/',
+    }) as unknown as PortableTextBlock;
+    const html = render([image('mit', 'Tatar.'), para('Zwischen.'), image('ohne')]);
+    const container = document.createElement('div');
+    container.innerHTML = html;
+    const captions = [...container.querySelectorAll('figcaption')].map((c) => c.textContent);
+    expect(captions).toEqual(['Tatar.']);
+    expect(html).not.toContain('Eat This');
   });
 });
 

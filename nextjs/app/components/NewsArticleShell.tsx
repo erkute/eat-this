@@ -25,7 +25,7 @@ import { sanityImageSize, coverImageScale, sanitySrcSet } from '@/lib/sanity-ima
 import { scaleSizes } from '@/lib/magazineCover';
 import { safeHttpUrl } from '@/lib/safeHttpUrl';
 import styles from './NewsArticleShell.module.css';
-import { PhotoCredit } from './PhotoCredit';
+import { PhotoCredit, shownPhotoCredit } from './PhotoCredit';
 import ArticleMustEatArtwork from './ArticleMustEatArtwork';
 
 const SPOT_PHOTO_WIDTHS = [600, 900, 1200, 1600, 2080];
@@ -343,12 +343,13 @@ export default function NewsArticleShell({
   // Bildunterschrift und Foto-Nachweis teilen sich die figcaption; der
   // Nachweis steht als eigene Zeile darunter.
   const renderCaption = (block: ArticleImageBlock) => {
-    if (!block.caption && !block.credit) return null;
+    const credit = shownPhotoCredit(block.credit);
+    if (!block.caption && !credit) return null;
     return (
       <figcaption>
         {block.caption}
-        {block.credit && (
-          <PhotoCredit text={block.credit} href={safeHttpUrl(block.creditUrl)} className={styles.imageCredit} />
+        {credit && (
+          <PhotoCredit text={credit} href={safeHttpUrl(block.creditUrl)} className={styles.imageCredit} />
         )}
       </figcaption>
     );
@@ -504,7 +505,7 @@ export default function NewsArticleShell({
                 />
               </div>
             )}
-            {article.imageUrl && article.credit && (
+            {article.imageUrl && article.credit && shownPhotoCredit(article.credit) && (
               <p className={styles.heroCredit}>
                 <PhotoCredit text={article.credit} href={safeHttpUrl(article.creditUrl)} />
               </p>

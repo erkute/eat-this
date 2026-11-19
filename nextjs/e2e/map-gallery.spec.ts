@@ -34,12 +34,10 @@ for (const locale of ['de', 'en'] as const) {
       const photo = gallery.getByRole('img', { name: 'Bar Basta', exact: true });
       await expect(photo).toBeVisible();
       await expect.poll(() => photo.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
-      await expect(gallery.getByRole('link')).toHaveAttribute('href', /^https:\/\/www\.eatthisdot\.com\/?$/);
-      const firstCredit = await gallery.getByRole('link').getAttribute('href');
-      expect(await gallery.getByRole('link').evaluate(el => getComputedStyle(el).fontFamily)).toContain('neue-haas-grotesk');
+      // Das Titelfoto ist unser eigenes und steht ohne Nachweis.
+      await expect(gallery.getByRole('link')).toHaveCount(0);
+      await expect(gallery.getByText(/Eat This/i)).toHaveCount(0);
       await expect(gallery.locator('span').filter({ hasText: /^Bar Basta$/ })).toHaveCount(0);
-      const creditBox = (await gallery.getByRole('link').boundingBox())!;
-      expect(creditBox.x).toBeGreaterThan(page.viewportSize()!.width / 2);
       // Wait for the initial photo to settle in the track.
       await expect.poll(async () => {
         const bounds = (await photo.boundingBox())!;
@@ -53,9 +51,6 @@ for (const locale of ['de', 'en'] as const) {
         return bounds.y + (bounds.height + parseFloat(style.paddingTop) - parseFloat(style.paddingBottom)) / 2;
       });
       expect(Math.abs(photoBox.y + photoBox.height / 2 - availableCenter)).toBeLessThan(2);
-      expect(creditBox.y).toBeGreaterThan(photoBox.y + photoBox.height);
-      expect(Math.abs(creditBox.x + creditBox.width - photoBox.x - photoBox.width)).toBeLessThan(2);
-      expect(creditBox.y + creditBox.height).toBeLessThan((await first.boundingBox())!.y);
       await page.screenshot({ path: `/tmp/eat-this-gallery/refinement/${info.project.name}-${locale}-${reduced}.png` });
 
       if (isMobile) {
@@ -83,7 +78,19 @@ for (const locale of ['de', 'en'] as const) {
       await second.click();
       await expect(second).toHaveAttribute('aria-pressed', 'true');
       await expect(gallery.getByRole('status')).toHaveText(english ? 'Photo 2 of 2' : 'Foto 2 von 2');
-      await expect(gallery.getByRole('link')).not.toHaveAttribute('href', firstCredit!);
+      const credit = gallery.getByRole('link');
+      await expect(credit).toHaveText('BAR BASTA');
+      expect(await credit.evaluate(el => getComputedStyle(el).fontFamily)).toContain('neue-haas-grotesk');
+      await expect.poll(async () => {
+        const image = await gallery.getByRole('img').filter({ visible: true }).first().boundingBox();
+        const label = await credit.boundingBox();
+        const strip = await first.boundingBox();
+        return !!image && !!label && !!strip
+          && label.x > page.viewportSize()!.width / 2
+          && label.y >= image.y + image.height
+          && Math.abs(label.x + label.width - image.x - image.width) < 2
+          && label.y + label.height < strip.y;
+      }).toBe(true);
 
       // Reflow must retain the chosen photo (especially phone rotation).
       const viewport = page.viewportSize()!;
@@ -180,9 +187,8 @@ test('gallery reserves the photo and credit layout while the full image loads', 
     const photo = gallery.getByRole('img', { name: 'Bar Basta', exact: true });
     await expect(photo).toBeAttached();
     expect(await photo.evaluate((img: HTMLImageElement) => img.complete)).toBe(false);
-    const credit = gallery.getByRole('link');
-    const creditBox = (await credit.boundingBox())!;
-    expect(creditBox.height, 'Credit must stay on one line before the photo loads').toBeLessThan(30);
+    // Das Titelfoto ist unser eigenes: ohne Nachweis, also keine Zeile darunter.
+    await expect(gallery.getByRole('link')).toHaveCount(0);
     const before = (await photo.boundingBox())!;
     expect(before.width).toBeGreaterThan(200);
     expect(before.height).toBeGreaterThan(200);

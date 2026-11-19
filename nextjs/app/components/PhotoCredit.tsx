@@ -1,3 +1,13 @@
+/**
+ * Eigene Fotos („Foto: Eat This“) brauchen keinen Nachweis auf der Seite; der
+ * Credit steht nur im Studio, damit klar ist, woher das Bild stammt.
+ */
+export function shownPhotoCredit(text: string | null | undefined): string | null {
+  const credit = text?.trim();
+  if (!credit) return null;
+  return /^(?:fotos?|photos?):\s*eat this\.?$/i.test(credit) ? null : credit;
+}
+
 /** Foto-Nachweis unter einem Bild — als Link, wenn die Quelle eine sichere URL hat. */
 export function PhotoCredit({
   text,

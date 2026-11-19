@@ -40,15 +40,15 @@ test('gallery credit sits below and aligns with the right edge of the photo, cle
   await page.getByRole('button', { name: 'Bar Basta: Fotos 1/2', exact: true }).click();
   const gallery = page.getByRole('dialog', { name: 'Bar Basta – Fotogalerie' });
   await expect(gallery.getByRole('button', { name: 'Galerie schließen' })).toBeVisible();
-  for (const index of [1, 2]) {
-    await gallery.getByRole('button', { name: `Foto ${index} von 2`, exact: true }).click();
-    const photo = gallery.getByRole('img').first();
-    const credit = gallery.getByRole('link');
-    await expect.poll(async () => {
-      const image = await photo.boundingBox(); const label = await credit.boundingBox();
-      return !!image && !!label && label.y >= image.y + image.height && Math.abs(label.x + label.width - image.x - image.width) < 2;
-    }).toBe(true);
-  }
+  // Foto 1 ist unser eigenes und steht ohne Nachweis.
+  await expect(gallery.getByRole('link')).toHaveCount(0);
+  await gallery.getByRole('button', { name: 'Foto 2 von 2', exact: true }).click();
+  const photo = gallery.getByRole('img').first();
+  const credit = gallery.getByRole('link');
+  await expect.poll(async () => {
+    const image = await photo.boundingBox(); const label = await credit.boundingBox();
+    return !!image && !!label && label.y >= image.y + image.height && Math.abs(label.x + label.width - image.x - image.width) < 2;
+  }).toBe(true);
   await page.screenshot({ path: '/tmp/eat-this-iphone16/verified-gallery.png' });
 });
 

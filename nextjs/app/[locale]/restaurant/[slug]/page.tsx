@@ -38,6 +38,7 @@ import SpotArrival from '@/app/components/SpotArrival';
 import RestaurantArticlesSection from '@/app/components/RestaurantArticlesSection';
 import MapIntentLink from '@/app/components/MapIntentLink';
 import { safeHttpUrl } from '@/lib/safeHttpUrl';
+import { PhotoCredit } from '@/app/components/PhotoCredit';
 import { Link as IntlLink } from '@/i18n/navigation';
 import styles from './RestaurantPage.module.css';
 
@@ -57,29 +58,6 @@ function imageAssetKey(url: string | undefined): string {
 function titleFitStyle(name: string): CSSProperties {
   const longest = Math.max(...name.split(/\s+/).map((w) => w.length), 1);
   return { '--word-fit': `${(100 / (0.62 * longest)).toFixed(2)}cqi` } as CSSProperties;
-}
-
-/** Foto-Nachweis unter einem Bild — als Link, wenn die Quelle eine sichere URL hat. */
-function Credit({
-  text,
-  href,
-  className,
-}: {
-  text: string;
-  href: string | null;
-  className: string;
-}) {
-  return (
-    <span className={className}>
-      {href ? (
-        <a href={href} target="_blank" rel="noopener noreferrer">
-          {text}
-        </a>
-      ) : (
-        text
-      )}
-    </span>
-  );
 }
 
 export async function generateStaticParams() {
@@ -315,7 +293,7 @@ export default async function RestaurantPage({ params }: PageProps) {
   const galleryCredit = (i: number) => {
     const img = galleryImages[i];
     if (sharedCredit || !img.credit) return null;
-    return <figcaption className={styles.caption}><Credit text={img.credit} href={safeHttpUrl(img.creditUrl)} className={styles.credit} /></figcaption>;
+    return <figcaption className={styles.caption}><PhotoCredit text={img.credit} href={safeHttpUrl(img.creditUrl)} className={styles.credit} /></figcaption>;
   };
 
   const districtsLabel = de ? 'Bezirke' : 'Districts';
@@ -360,7 +338,7 @@ export default async function RestaurantPage({ params }: PageProps) {
             <figure className={styles.figure}>
               <SpotPhoto src={r.photo} alt={heroAlt} priority />
               {heroCredit && <figcaption className={styles.caption}>
-                <Credit text={heroCredit} href={heroCreditHref} className={styles.credit} />
+                <PhotoCredit text={heroCredit} href={heroCreditHref} className={styles.credit} />
               </figcaption>}
             </figure>
           )}

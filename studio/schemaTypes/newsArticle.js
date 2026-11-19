@@ -4,6 +4,24 @@ import {ArticleInput} from '../components/ArticleInput'
 import {ArticleTextInput, ConclusionStyle, ImageBlock} from '../components/ArticleEditor'
 import {ArticleMustEatsInput} from '../components/ArticleMustEatsInput'
 
+// Foto-Nachweis für jedes Bild im Magazin: wer das Foto gemacht hat und wohin
+// der Nachweis führt. Steht klein unter dem Bild.
+const photoCreditFields = [
+  {
+    name: 'credit',
+    title: 'Foto-Nachweis',
+    type: 'string',
+    description: 'Zum Beispiel „Foto: Eat This“ oder „Foto: Name des Google-Profils“.',
+    validation: (Rule) => Rule.required().warning('Foto-Nachweis fehlt'),
+  },
+  {
+    name: 'creditUrl',
+    title: 'Link zur Quelle',
+    type: 'url',
+    description: 'Optional. Website, Instagram oder Google-Profil des Urhebers.',
+  },
+]
+
 // Das Etikett über dem Artikel („Guides“, „Openings“ …) leitet die Website
 // aus der Kategorie ab (nextjs/lib/queries.ts, ARTICLE_LABEL_*).
 const CATEGORIES = [
@@ -141,6 +159,7 @@ const contentBlocks = [
         description: 'Kurz, für Google und Screenreader.',
         validation: (Rule) => Rule.required().warning('Beschreibung fehlt'),
       },
+      ...photoCreditFields,
     ],
   },
   // Verweis auf einen anderen Artikel: erscheint als Heft-Cover mit Titel,
@@ -225,6 +244,7 @@ export default defineType({
           description: 'Kurz, für Google und Screenreader.',
           validation: (Rule) => Rule.required().warning('Beschreibung fehlt'),
         },
+        ...photoCreditFields,
       ],
       validation: (Rule) => Rule.required(),
     }),

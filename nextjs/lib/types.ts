@@ -129,6 +129,9 @@ export interface ArticleImageBlock {
   _key?: string;
   alt?: string;
   caption?: string;
+  /** Foto-Nachweis, z. B. „Foto: Eat This“. */
+  credit?: string;
+  creditUrl?: string;
   imageUrl?: string;
   imageWidth?: number;
   imageHeight?: number;
@@ -148,6 +151,9 @@ export interface NewsArticle {
   revised?: string;
   imageUrl?: string;
   alt?: string;
+  /** Foto-Nachweis des Aufmachers. */
+  credit?: string;
+  creditUrl?: string;
   excerpt?: string;
   excerptDe?: string;
   previewExcerpt?: string;

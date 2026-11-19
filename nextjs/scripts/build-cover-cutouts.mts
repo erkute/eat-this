@@ -6,6 +6,11 @@
 // Linux. Das Skript läuft deshalb lokal oder im GitHub-Job „Heft-Cover
 // freistellen“ auf einem Mac-Runner und legt das Ergebnis in Sanity ab.
 //
+// Fotos von Google-Profilen werden nie freigestellt: Ein Freisteller ist eine
+// Bearbeitung des Fotos, und die decken weder Googles Bedingungen noch der
+// Nachweis. Solche Artikel bekommen nur die Quelle gesetzt und keinen
+// Freisteller; das Cover zeigt dann das ganze Foto.
+//
 // Bearbeitet werden nur Artikel, deren Aufmacher-Bild noch nicht freigestellt
 // ist (`cover.source` ≠ Bild-Asset) — ein neuer Artikel oder ein getauschtes
 // Foto. Geschrieben werden ausschliesslich die Automatik-Felder unter `cover`
@@ -62,7 +67,10 @@ interface Article {
   slug: string;
   ref: string;
   url: string;
+  creditUrl: string | null;
 }
+
+const isGooglePhoto = (url: string | null) => /^https:\/\/(www\.)?(maps\.)?google\.[a-z.]+\/maps\//.test(url ?? '');
 
 const filter = [
   '_type == "newsArticle"',
@@ -74,7 +82,7 @@ const filter = [
   .join(' && ');
 
 const articles = await client.fetch<Article[]>(
-  `*[${filter}] | order(date desc) { _id, "slug": slug.current, "ref": image.asset._ref, "url": image.asset->url }`,
+  `*[${filter}] | order(date desc) { _id, "slug": slug.current, "ref": image.asset._ref, "url": image.asset->url, "creditUrl": image.creditUrl }`,
   slugArg ? { slug: slugArg } : {}
 );
 
@@ -90,23 +98,29 @@ try {
   await run('swiftc', ['-O', join(process.cwd(), 'scripts/cover-cutout/cutout.swift'), '-o', tool]);
 
   for (const a of articles) {
+    const google = isGooglePhoto(a.creditUrl);
+    if (google) console.log(`·  ${a.slug}  Google-Foto, kein Freisteller`);
+    if (google && dryRun) continue;
     const photo = join(work, `${a.slug}.jpg`);
     const cutout = join(work, `${a.slug}.png`);
     // 1600 ist die Obergrenze, mit der die Import-Skripte Fotos ziehen; mehr
     // braucht auch das grösste Heft (440px, 2x) nicht. Ohne Zuschnitt, damit
     // der Freisteller deckungsgleich auf dem ausgelieferten Foto liegt.
-    const res = await fetch(`${a.url}?w=1600&fm=jpg&q=90`);
-    if (!res.ok) {
+    const res = google ? null : await fetch(`${a.url}?w=1600&fm=jpg&q=90`);
+    if (res && !res.ok) {
       console.warn(`⚠️  ${a.slug}: Foto nicht ladbar (${res.status})`);
       continue;
     }
-    await writeFile(photo, Buffer.from(await res.arrayBuffer()));
-    const { stdout } = await run(tool, [photo, cutout]);
-    const report = JSON.parse(stdout.trim().split('\n').pop()!) as CutoutReport;
+    let report: CutoutReport = { found: false };
+    if (res) {
+      await writeFile(photo, Buffer.from(await res.arrayBuffer()));
+      const { stdout } = await run(tool, [photo, cutout]);
+      report = JSON.parse(stdout.trim().split('\n').pop()!) as CutoutReport;
+    }
     const usable = usableCutout(report);
     const dish = isDish(report);
     const food = (report.labels?.food ?? 0).toFixed(2);
-    console.log(
+    if (!google) console.log(
       `${dish ? '🍽 ' : usable ? '◻︎ ' : '· '} ${a.slug}  food=${food} edges=${report.edges ?? '-'} motive=${report.instances ?? 0} person=${(report.person ?? 0).toFixed(2)}${dish ? '  → Gericht' : ''}`
     );
     if (dryRun) continue;

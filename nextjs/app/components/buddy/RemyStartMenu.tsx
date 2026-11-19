@@ -53,7 +53,7 @@ export default function RemyStartMenu({ en, onLeave, onChat }: {
         if (event.key === 'End') next = items.length - 1;
         if (next !== undefined) { event.preventDefault(); items[next]?.focus(); }
       }}>
-        <div className={styles.brand} aria-hidden="true"><b>Windows</b> 95</div>
+        <div className={styles.brand} aria-hidden="true"><b>Remy</b> 95</div>
         <div className={styles.items}>
           <button type="button" role="menuitem" tabIndex={-1} onClick={() => { setOpen(false); onChat(); }}>{en ? 'Ask Remy' : 'Frag Remy'}</button>
           <Link href="/map" role="menuitem" tabIndex={-1} onClick={onLeave}>Map</Link>
@@ -66,7 +66,7 @@ export default function RemyStartMenu({ en, onLeave, onChat }: {
       </div>}
       <button type="button" className={styles.start} ref={start} aria-expanded={open} aria-controls="remy-start-menu" aria-haspopup="menu" onClick={() => setOpen(value => !value)}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/pics/remy/icons/windows-flag.webp" width={32} height={32} alt="" />
+        <img src="/pics/favicon-48.png" width={32} height={32} alt="" />
         Start
       </button>
       <span className={styles.divider} aria-hidden="true" />

@@ -17,18 +17,18 @@ export const EMAIL_SPOTS: readonly EmailSpot[] = [
     "slug": "crapulix",
     "name": "Crapulix",
     "meta": "Steglitz",
-    "version": "142a394f"
-  },
-  {
-    "slug": "bursa-uludag-kebapcisi",
-    "name": "Bursa Uludağ Kebapçısı",
-    "meta": "Schöneberg",
-    "version": "02ed7c7b"
+    "version": "71003083"
   },
   {
     "slug": "bar-basta",
     "name": "Bar Basta",
     "meta": "Mitte",
-    "version": "dd51422f"
+    "version": "e8d217db"
+  },
+  {
+    "slug": "jones-ice-cream",
+    "name": "Jones Ice Cream",
+    "meta": "Schöneberg",
+    "version": "066267f5"
   }
 ];

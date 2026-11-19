@@ -38,7 +38,7 @@ import SpotArrival from '@/app/components/SpotArrival';
 import RestaurantArticlesSection from '@/app/components/RestaurantArticlesSection';
 import MapIntentLink from '@/app/components/MapIntentLink';
 import { safeHttpUrl } from '@/lib/safeHttpUrl';
-import { PhotoCredit } from '@/app/components/PhotoCredit';
+import { PhotoCredit, shownPhotoCredit } from '@/app/components/PhotoCredit';
 import { Link as IntlLink } from '@/i18n/navigation';
 import styles from './RestaurantPage.module.css';
 
@@ -280,20 +280,23 @@ export default async function RestaurantPage({ params }: PageProps) {
   });
   const galleryAlt = (i: number) =>
     galleryImages[i].alt || `${displayName} ${de ? 'Foto' : 'photo'} ${i + 2}`;
-  // Jedes Foto braucht seinen Nachweis. Stammen alle von derselben Quelle,
-  // steht er einmal in der Mehrzahl unter dem Aufmacher („Fotos: AVIV 030");
-  // sonst unter jedem Bild.
+  // Jedes fremde Foto braucht seinen Nachweis; eigene stehen ohne. Stammen
+  // alle von derselben Quelle, steht er einmal in der Mehrzahl unter dem
+  // Aufmacher („Fotos: AVIV 030"); sonst unter jedem Bild.
   const sharedCredit =
     galleryImages.length > 0 &&
     Boolean(r.photoCredit) &&
     galleryImages.every((img) => img.credit === r.photoCredit);
-  const heroCredit = sharedCredit
-    ? `${de ? 'Fotos' : 'Photos'}: ${r.photoCredit!.replace(/^(fotos?|photos?):\s*/i, '')}`
-    : r.photoCredit;
+  const heroCredit = !shownPhotoCredit(r.photoCredit)
+    ? null
+    : sharedCredit
+      ? `${de ? 'Fotos' : 'Photos'}: ${r.photoCredit!.replace(/^(fotos?|photos?):\s*/i, '')}`
+      : r.photoCredit;
   const galleryCredit = (i: number) => {
     const img = galleryImages[i];
-    if (sharedCredit || !img.credit) return null;
-    return <figcaption className={styles.caption}><PhotoCredit text={img.credit} href={safeHttpUrl(img.creditUrl)} className={styles.credit} /></figcaption>;
+    const credit = shownPhotoCredit(img.credit);
+    if (sharedCredit || !credit) return null;
+    return <figcaption className={styles.caption}><PhotoCredit text={credit} href={safeHttpUrl(img.creditUrl)} className={styles.credit} /></figcaption>;
   };
 
   const districtsLabel = de ? 'Bezirke' : 'Districts';

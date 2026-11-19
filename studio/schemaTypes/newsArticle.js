@@ -11,7 +11,7 @@ const photoCreditFields = [
     name: 'credit',
     title: 'Foto-Nachweis',
     type: 'string',
-    description: 'Zum Beispiel „Foto: Eat This“ oder „Foto: Name des Google-Profils“.',
+    description: 'Zum Beispiel „Foto: Eat This“ oder „Foto: Name des Google-Profils“. „Foto: Eat This“ steht nur hier, nicht auf der Seite.',
     validation: (Rule) => Rule.required().warning('Foto-Nachweis fehlt'),
   },
   {

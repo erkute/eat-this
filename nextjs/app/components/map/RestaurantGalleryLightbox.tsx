@@ -6,6 +6,7 @@ import { useLocale } from 'next-intl';
 import type { RestaurantGalleryImage } from '@/lib/map/useRestaurantDetail';
 import { restoreStyle, snapshotStyle } from '@/lib/dom/styleSnapshot';
 import { safeHttpUrl } from '@/lib/safeHttpUrl';
+import { shownPhotoCredit } from '@/app/components/PhotoCredit';
 import { sanityImageSize, sanitySrcSet } from '@/lib/sanity-image-presets';
 import styles from './RestaurantGalleryLightbox.module.css';
 import ZoomCurtain from './ZoomCurtain';
@@ -19,7 +20,7 @@ interface Props {
 }
 
 function PhotoCredit({ image }: { image: RestaurantGalleryImage }) {
-  const credit = image.credit?.trim();
+  const credit = shownPhotoCredit(image.credit);
   if (!credit) return null;
   const prefix = credit.match(/^(?:Foto|Photo):\s*/i)?.[0] ?? '';
   const name = credit.slice(prefix.length);

@@ -35,7 +35,7 @@
   box-shadow: inset 1px 1px var(--start-light), inset -1px -1px var(--start-shadow);
 }
 .taskbar .start { font-weight: 700; }
-.start img { width: 32px; height: 32px; margin-block: -6px; image-rendering: pixelated; }
+.start img { width: 24px; height: 24px; margin-block: -2px; }
 .start[aria-expanded='true'], .activeTask {
   border-color: var(--start-shadow) var(--start-light) var(--start-light) var(--start-shadow);
   box-shadow: inset 1px 1px var(--start-shadow);

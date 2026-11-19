@@ -1,4 +1,4 @@
-/* Windows 95 window chrome over the user-selected desktop wallpaper. */
+/* Retro window chrome over Remy's own teal desktop. */
 .session {
   position: fixed;
   inset: var(--dialog-viewport-top, 0px) 0 auto;

@@ -43,12 +43,12 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
           {current ? (
             <section className={styles.lead} aria-labelledby="news-current">
               <div className={styles.fan}>
-                {recent.map((article, index) => <span key={article.slug} className={`${styles.fanSide} ${index === 0 ? styles.fanLeft : styles.fanRight}`} aria-hidden="true">
+                {recent.map((article, index) => <MagazineLink key={article.slug} href={`/news/${article.slug}`} className={`${styles.fanSide} ${index === 0 ? styles.fanLeft : styles.fanRight}`}>
                   <MagazineCover title={titleOf(article)} image={article.imageUrl} issue={issueOf(index + 1)} date={article.date}
                     locale={locale} cover={article.cover} priority
                     sizes="(orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) 51svh, (max-width: 599.98px) 42vw, 320px"
                     widths={[320, 480, 800, 1200]} />
-                </span>)}
+                </MagazineLink>)}
                 <MagazineLink href={`/news/${current.slug}`} className={styles.leadCover} data-current-issue="">
                   <MagazineCover
                     title={titleOf(current)} image={current.imageUrl} issue={issueOf(0)} date={current.date}

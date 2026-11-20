@@ -9,7 +9,7 @@
 .fan { position: relative; width: min(100%, 940px); height: 480px; margin: 0 auto 26px; }
 .leadCover, .fanSide { display: block; position: absolute; width: 34%; filter: drop-shadow(0 10px 12px rgb(21 18 14 / .22)); }
 .leadCover { top: 0; left: 50%; transform: translateX(-50%); z-index: 2; }
-.fanSide { top: 6%; pointer-events: none; }
+.fanSide { top: 6%; }
 .fanLeft { left: 5%; transform: rotate(-9deg); }
 .fanRight { right: 5%; transform: rotate(9deg); }
 .leadCopy { display: grid; justify-items: center; gap: 16px; max-width: 1080px; margin-inline: auto; text-align: center; }
@@ -43,13 +43,13 @@
 .empty { margin: 48px 0; font-size: 18px; }
 .shell a:focus-visible { outline: 2px solid var(--et-fg); outline-offset: 6px; }
 /* Das gehobene Heft bekommt eine eigene Ebene; sonst zeichnet der Browser die Schrift im gedrehten Heft bei jedem Schritt neu und sie zittert. */
-.leadCover > :global([data-magazine-cover]), .featureMedia > :global([data-magazine-cover]), .archiveCover > :global([data-magazine-cover]) { transition: translate 220ms ease; will-change: translate; }
+.leadCover > :global([data-magazine-cover]), .fanSide > :global([data-magazine-cover]), .featureMedia > :global([data-magazine-cover]), .archiveCover > :global([data-magazine-cover]) { transition: translate 220ms ease; will-change: translate; }
 @media (hover: hover) {
- .leadCover:hover > :global([data-magazine-cover]), .featureLink:hover .featureMedia > :global([data-magazine-cover]), .archiveLink:hover .archiveCover > :global([data-magazine-cover]) { translate: 0 -6px; }
+ .leadCover:hover > :global([data-magazine-cover]), .fanSide:hover > :global([data-magazine-cover]), .featureLink:hover .featureMedia > :global([data-magazine-cover]), .archiveLink:hover .archiveCover > :global([data-magazine-cover]) { translate: 0 -6px; }
  .featureLink:hover .featureTitle, .archiveLink:hover .archiveTitle { color: var(--et-link); }
 }
 @media (prefers-reduced-motion: reduce) {
- .leadCover > :global([data-magazine-cover]), .featureMedia > :global([data-magazine-cover]), .archiveCover > :global([data-magazine-cover]) { transition: none; }
+ .leadCover > :global([data-magazine-cover]), .fanSide > :global([data-magazine-cover]), .featureMedia > :global([data-magazine-cover]), .archiveCover > :global([data-magazine-cover]) { transition: none; }
 }
 @media (min-width: 600px) and (max-width: 1099.98px) {
  .hero { padding-bottom: 40px; }

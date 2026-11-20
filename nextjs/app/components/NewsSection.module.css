@@ -42,7 +42,8 @@
 .archiveExcerpt { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; overflow-wrap: break-word; margin: 12px 0 0; color: var(--et-copy); font-size: 16px; line-height: 1.5; }
 .empty { margin: 48px 0; font-size: 18px; }
 .shell a:focus-visible { outline: 2px solid var(--et-fg); outline-offset: 6px; }
-.leadCover > :global([data-magazine-cover]), .featureMedia > :global([data-magazine-cover]), .archiveCover > :global([data-magazine-cover]) { transition: translate 220ms ease; }
+/* Das gehobene Heft bekommt eine eigene Ebene; sonst zeichnet der Browser die Schrift im gedrehten Heft bei jedem Schritt neu und sie zittert. */
+.leadCover > :global([data-magazine-cover]), .featureMedia > :global([data-magazine-cover]), .archiveCover > :global([data-magazine-cover]) { transition: translate 220ms ease; will-change: translate; }
 @media (hover: hover) {
  .leadCover:hover > :global([data-magazine-cover]), .featureLink:hover .featureMedia > :global([data-magazine-cover]), .archiveLink:hover .archiveCover > :global([data-magazine-cover]) { translate: 0 -6px; }
  .featureLink:hover .featureTitle, .archiveLink:hover .archiveTitle { color: var(--et-link); }

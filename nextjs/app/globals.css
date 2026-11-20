@@ -56,7 +56,6 @@
      Vorlage: weisses Papier, fast schwarzes Ink, roter Akzent, flache
      Flächen, Neue Haas Grotesk. */
   --et-ink: #15120e;
-  --et-magazine-table: #0b0a08;
   --et-white: #fff;
   --et-red: #d9382a;
   --et-status-closed: #b52d25;
@@ -430,14 +429,6 @@ html[data-active-page], html[data-active-page] body, html[data-active-page] .app
   background: var(--et-ground);
 }
 html[data-active-page='start'] [data-hub] { background: var(--et-ground); }
-/* The browser canvas stays dark throughout the magazine transition, even
-   after navigation activates a light article. Its transformed page paints
-   --article-ground itself until the overlay is removed (magazineOpen.ts). */
-html[data-active-page][data-magazine-opening],
-html[data-active-page][data-magazine-opening] body,
-html[data-active-page][data-magazine-opening] .app-pages {
-  background: var(--et-magazine-table);
-}
 /* Error posters and browser overscroll follow the saved page theme. */
 html:has(main:is([data-page='not-found'], [data-page='error'])),
 html:has(main:is([data-page='not-found'], [data-page='error'])) body {

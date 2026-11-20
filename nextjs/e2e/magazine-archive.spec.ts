@@ -1,35 +1,38 @@
 import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
-test('the magazine does not darken the viewport edges ahead of the table', async ({ page, isMobile }) => {
-  await page.emulateMedia({ reducedMotion: 'no-preference' });
-  await page.goto('/news');
-  const link = page.locator('[data-current-issue]');
-  const href = await link.getAttribute('href');
-  const edgeVisibility = await page.evaluateHandle(() => {
-    const states: Record<string, string[]> = {};
-    const observer = new MutationObserver(() => {
-      const overlay = document.body.querySelector('[class*="MagazineOpen_overlay"]');
-      if (!overlay) return;
-      const caps = overlay.querySelectorAll('[class*="MagazineOpen_cap"]');
-      const opening = document.documentElement.hasAttribute('data-magazine-opening');
-      states[opening ? 'opening' : 'lifting'] ??= Array.from(caps, (cap) => getComputedStyle(cap).visibility);
-      if (opening) observer.disconnect();
-    });
-    observer.observe(document.body, { childList: true });
-    observer.observe(document.documentElement, { attributeFilter: ['data-magazine-opening'] });
-    return states;
-  });
+for (const [theme, ground] of [['light', 'rgb(255, 255, 255)'], ['dark', 'rgb(21, 18, 14)']]) {
+  test(`the magazine transition keeps the ${theme} theme through the zoom`, async ({ page, isMobile }) => {
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await page.addInitScript((value) => localStorage.setItem('et-theme', value), theme);
+    await page.goto('/news');
+    const link = page.locator('[data-current-issue]');
+    const href = await link.getAttribute('href');
+    await expect(page.locator('html')).toHaveCSS('background-color', ground);
 
-  if (isMobile) await link.tap();
-  else await link.click();
-  await expect(page).toHaveURL(new RegExp(`${href}$`));
-  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-  expect(await edgeVisibility.jsonValue()).toEqual({
-    lifting: ['hidden', 'hidden'],
-    opening: ['visible', 'visible'],
+    if (isMobile) await link.tap();
+    else await link.click();
+    const backdrop = page.locator('[class*="MagazineOpen_table"]');
+    await expect(backdrop).toHaveCSS('background-color', ground);
+    const zoom = await page.waitForFunction(() => {
+      const book = document.querySelector('[class*="MagazineOpen_book"]');
+      const inside = book?.querySelector(':scope > [class*="MagazineOpen_inside"]');
+      if (!inside || !book?.getAnimations().some((animation) =>
+        animation.playState === 'running' && animation.effect?.getTiming().duration === 480
+      )) return;
+      const surfaces = ['[class*="MagazineOpen_edge"]', '[class*="MagazineOpen_paper"]', '[data-page="news-article"]'];
+      return surfaces.map((selector) => {
+        const surface = document.querySelector(selector);
+        return surface && getComputedStyle(surface).backgroundColor;
+      });
+    }, undefined, { timeout: 10_000 });
+    expect(await zoom.jsonValue()).toEqual([ground, ground, ground]);
+    await expect(page).toHaveURL(new RegExp(`${href}$`));
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    await expect(backdrop).toHaveCount(0);
+    await expect(page.locator('html')).toHaveCSS('background-color', ground);
   });
-});
+}
 
 for (const locale of ['de', 'en'] as const) {
   for (const [width, height, reduced] of [[375, 812, false], [568, 320, true], [667, 375, true], [1440, 1000, false]] as const) {

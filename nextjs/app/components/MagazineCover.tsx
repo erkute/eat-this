@@ -116,6 +116,10 @@ export default function MagazineCover({
   const [lead, rest] = splitHeadline(title);
   const cut = hasCutout(cover) ? cover : null;
 
+  // Bis das Foto geladen ist, steht seine Hauptfarbe an seiner Stelle, nicht
+  // das leere Weiss des Hefts.
+  const photoGround = cover?.palette?.dominant?.background ?? undefined;
+
   // Das Aufmacher-Foto, `factor`-mal so breit wie das Heft.
   const photo = (className: string, factor = 1, style?: CSSProperties) => {
     const slotRatio = className === styles.fill ? 3 / 4
@@ -131,7 +135,7 @@ export default function MagazineCover({
       // proxy would re-optimise them.
       <PhotoImage
         className={className}
-        style={{ objectPosition: cropped ? undefined : sanityImagePosition(image), ...style }}
+        style={{ backgroundColor: photoGround, objectPosition: cropped ? undefined : sanityImagePosition(image), ...style }}
         src={cropped?.src ?? sanityImageLoader({ src: image, width: widths[1] ?? widths[0] })}
         srcSet={cropped?.srcSet ?? sanitySrcSet(image, widths.map((w) => Math.round(w * sourceScale)))}
         sizes={sourceScale === 1 ? sizes : scaleSizes(sizes, sourceScale)}

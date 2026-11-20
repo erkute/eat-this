@@ -8,31 +8,30 @@ import { BRAND_WORDMARK } from '@/lib/constants';
  *
  * Drei Takte über einer eigenen Ebene, der Artikel lädt währenddessen darunter:
  *
- * 1. Das Heft hebt sich von seinem Platz in die Mitte und wird gross, der Tisch
- *    (eine Spur dunkler als die Seite) zieht sich als Kreis um es zu.
+ * 1. Das Heft hebt sich von seinem Platz in die Mitte und wird gross. Der
+ *    Hintergrund breitet sich als Kreis um das Heft aus.
  * 2. Sobald der Artikel darunter steht, schwingt der Umschlag am Rücken auf.
  *    Auf der rechten Seite steht schon der Artikel — der echte, verkleinert
  *    wie eine gedruckte Seite: sein erster Bildschirm, ohne die Kopfleiste
  *    der Website (Ansagen 02.10.: „beim Aufklappen muss der Artikel schon auf
  *    der Seite stehen, dann zoomt man rein" — „ohne Header").
- * 3. Hineinzoomen: Seite und Artikel wachsen gemeinsam bis an den Rand. Am
- *    Ende steht der Artikel in voller Grösse genau dort, wo er ohnehin steht —
- *    die Ebene verschwindet ohne Sprung, und erst dann rutscht die
- *    Kopfleiste von oben herein.
+ * 3. Das aufgeklappte Heft steht kurz ganz im Bild. Beim Heranzoomen gehen
+ *    die linke Innenseite und der Schatten aus dem Bild. Die rechte Seite
+ *    wächst mit dem Artikel bis an den Rand, dann erscheint die Kopfleiste.
  *
  * Der Artikel auf der Seite ist die echte Seite unter der Ebene, durch die
  * rechte Seite hindurch gesehen und per Transform auf deren Fläche gelegt.
  * Die Seite bewegt sich in jedem Takt linear im Fortschritt derselben Kurve —
  * deshalb bleibt der Artikel mit gleicher Kurve und gleicher Dauer auf ihr.
  *
- * Nur Transform und clip-path, keine Blende. Mit reduzierter Bewegung (oder
- * ohne Web Animations) gibt `openMagazine` false zurück und der Link
- * navigiert wie immer.
+ * Mit reduzierter Bewegung oder ohne Web Animations navigiert der Link
+ * direkt zum Artikel.
  */
 
 interface MagazineOpenClasses {
   overlay: string;
   table: string;
+  edge: string;
   book: string;
   paper: string;
   shadow: string;
@@ -44,8 +43,6 @@ interface MagazineOpenClasses {
   inside: string;
   backFolio: string;
   backMark: string;
-  capTop: string;
-  capBottom: string;
 }
 
 interface Options {
@@ -66,7 +63,9 @@ const LANDING_TIMEOUT = 6000;
 const PHOTO_TIMEOUT = 700;
 
 const LIFT = { duration: 420, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)' };
-const OPEN = { duration: 820, easing: 'cubic-bezier(0.65, 0, 0.35, 1)' };
+// Die Doppelseite bekommt schon beim Anheben der freien Kante Platz.
+const OPEN = { duration: 820, easing: 'cubic-bezier(0.18, 0.78, 0.28, 1)' };
+const SPREAD_HOLD = 160;
 const ENTER = { duration: 480, easing: 'cubic-bezier(0.65, 0, 0.35, 1)' };
 const NAV = { duration: 280, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)' };
 
@@ -84,60 +83,36 @@ export function coverAngle(progress: number, across: number): number {
   return 180 * progress + curl * across ** 1.35;
 }
 
-interface CoverStrip {
-  strip: HTMLElement;
-  front: HTMLElement;
-  back: HTMLElement;
-}
-
 /** Der GSAP-Verlauf wird vorab in Keyframes umgerechnet. So bewegt der
- *  Browser die 3D-Flächen, während der Artikel fertig rendert. */
-function turnCover(strips: CoverStrip[], gutter: HTMLElement, width: number): void {
+ *  Browser die 3D-Flächen, während der Artikel fertig rendert. Welche Seite
+ *  eines Streifens man sieht, entscheidet `backface-visibility` in derselben
+ *  Ebene wie die Drehung. Ein Tausch per Skript hinkt in Safari der Drehung
+ *  nach, und das Titelbild blitzt auf der Innenseite auf. */
+function turnCover(strips: HTMLElement[], gutter: HTMLElement, width: number): void {
   const ease = gsap.parseEase('power2.inOut');
   const progress = Array.from({ length: TURN_STEPS + 1 }, (_, step) => ease(step / TURN_STEPS));
   const hinges = progress.map(() => ({ x: 0, z: 0 }));
   const timing = { duration: OPEN.duration, fill: 'both' } as const;
   const stripWidth = 1 / strips.length;
 
-  for (const [index, { strip, front, back }] of strips.entries()) {
+  for (const [index, strip] of strips.entries()) {
     const across = index / (strips.length - 1);
     const poses = progress.map((p, step) => {
       const angle = coverAngle(p, across);
       const radians = (angle * Math.PI) / 180;
-      const cos = Math.cos(radians);
-      const sin = Math.sin(radians);
       const hinge = hinges[step];
       const x = (hinge.x - index * stripWidth) * width;
       const z = hinge.z * width;
-      const transform = `translate3d(${x}px, 0, ${z}px) rotateY(${-angle}deg)`;
-      // Projektion der Blickrichtung auf die Flächennormale. Bei null
-      // sieht man nur die Kante, auch wenn der Streifen seitlich steht.
-      const facing = (COVER_PERSPECTIVE - hinge.z) * cos - (0.5 - hinge.x) * sin;
-      hinge.x += stripWidth * cos;
-      hinge.z += stripWidth * sin;
-      return { transform, facing };
+      hinge.x += stripWidth * Math.cos(radians);
+      hinge.z += stripWidth * Math.sin(radians);
+      return { transform: `translate3d(${x}px, 0, ${z}px) rotateY(${-angle}deg)` };
     });
-    strip.animate(poses.map(({ transform }) => ({ transform })), timing);
-
-    const after = poses.findIndex(({ facing }) => facing <= 0);
-    const beforeEdge = poses[after - 1].facing;
-    const edge = (after - 1 + beforeEdge / (beforeEdge - poses[after].facing)) / TURN_STEPS;
-    front.animate(flipAt(edge, 'visible', 'hidden'), timing);
-    back.animate(flipAt(edge, 'hidden', 'visible'), timing);
+    strip.animate(poses, timing);
   }
 
   gutter.animate(progress.map((p) => ({
     transform: `scaleX(${1 + 3.5 * Math.sin(Math.PI * p)})`,
   })), timing);
-}
-
-function flipAt(offset: number, from: 'visible' | 'hidden', to: 'visible' | 'hidden'): Keyframe[] {
-  return [
-    { visibility: from },
-    { visibility: from, offset },
-    { visibility: to, offset },
-    { visibility: to },
-  ];
 }
 
 export function canOpenMagazine(): boolean {
@@ -224,7 +199,8 @@ export function bookGeometry(vw: number, vh: number) {
   const narrow = vw < 768;
   const h = Math.min(vh * 0.74, 720, (narrow ? vw * 0.76 : vw * 0.38) / 0.75);
   const w = h * 0.75;
-  const spread = Math.min(1, (vw - 32) / (2 * w));
+  // Reserve room for the projected edge while the cover is still curved.
+  const spread = Math.min(1, (vw - 56) / (2 * w));
   return {
     w,
     h,
@@ -244,10 +220,25 @@ interface Rect {
   h: number;
 }
 
-/** The table fills the viewport with a window cut out for the right page. */
-function pageWindow({ x, y, w, h }: Rect): string {
-  return `polygon(evenodd, 0 0, 100% 0, 100% 100%, 0 100%, 0 0,
-    ${x}px ${y}px, ${x + w}px ${y}px, ${x + w}px ${y + h}px, ${x}px ${y + h}px, ${x}px ${y}px)`;
+const EDGES = ['left', 'right', 'top', 'bottom'] as const;
+type Edge = (typeof EDGES)[number];
+
+/** Um die rechte Seite liegt der Tisch als vier fensterhohe bzw. -breite
+ *  Bahnen, jede bündig an eine Kante der Seite geschoben. Sie bewegen sich
+ *  per Transform und damit im selben Takt wie Heft und Artikel. Ein
+ *  Fenster per clip-path rechnet Safari im Hauptthread: es hinkt dem Heft
+ *  nach, und unter dem Heft blitzt der Artikel auf. */
+export function edgeAt(edge: Edge, { x, y, w, h }: Rect, vw: number, vh: number): string {
+  switch (edge) {
+    case 'left':
+      return `translate(${x - vw}px, 0px)`;
+    case 'right':
+      return `translate(${x + w}px, 0px)`;
+    case 'top':
+      return `translate(0px, ${y - vh}px)`;
+    case 'bottom':
+      return `translate(0px, ${y + h}px)`;
+  }
 }
 
 /** Where the right page lies: closed in the middle, opened in the spread,
@@ -327,8 +318,7 @@ async function run({ link, cover, slug, navigate, classes }: Options) {
   const shadow = div(classes.shadow);
   const gutter = div(classes.gutter);
   book.append(shadow, gutter);
-  // Safari übernimmt die Farbe der deckenden Kappen für seine Browserleisten.
-  overlay.append(table, book, div(classes.capTop), div(classes.capBottom));
+  overlay.append(table, book);
 
   // Die Innenseite des Umschlags: oben dieselbe Heftzeile wie vorn, unten
   // klein das Logo — wie das Impressum eines Hefts.
@@ -386,7 +376,7 @@ async function run({ link, cover, slug, navigate, classes }: Options) {
     // Jeder Streifen zeigt seinen Ausschnitt der Titelseite und der
     // Innenseite. Deren Ausschnitte laufen vom Rücken aus nach links.
     const stripW = g.w / STRIPS;
-    const strips: CoverStrip[] = [];
+    const strips: HTMLElement[] = [];
     for (let i = 0; i < STRIPS; i++) {
       const strip = div(classes.strip);
       strip.style.left = `${i * stripW}px`;
@@ -403,8 +393,16 @@ async function run({ link, cover, slug, navigate, classes }: Options) {
       back.append(inner);
       strip.append(front, back);
       book.append(strip);
-      strips.push({ strip, front, back });
+      strips.push(strip);
     }
+    // Die flache Innenseite für danach; ihr Logo ist bis dahin dekodiert.
+    const openInside = inside();
+    openInside.style.left = `${-g.w}px`;
+    openInside.style.width = `${g.w}px`;
+    const insideReady = Promise.race([
+      openInside.querySelector('img')?.decode().catch(() => undefined),
+      sleep(PHOTO_TIMEOUT),
+    ]);
 
     const startX = from.left + from.width / 2 - (g.left + g.w / 2);
     const startY = from.top + from.height / 2 - (g.top + g.h / 2);
@@ -434,9 +432,7 @@ async function run({ link, cover, slug, navigate, classes }: Options) {
     );
     await Promise.all([done(lift, LIFT), done(close, LIFT)]);
     close.cancel();
-    // The table now fills the viewport. Match the canvas and Safari's bars
-    // before navigating to the article underneath.
-    document.documentElement.setAttribute('data-magazine-opening', '');
+    // The table covers the viewport before navigation reveals the article.
     navigate();
     const landed = await waitFor(landing, LANDING_TIMEOUT);
     if (landed) await photoReady(landed);
@@ -454,6 +450,15 @@ async function run({ link, cover, slug, navigate, classes }: Options) {
       nav.style.transition = 'none';
       nav.style.transform = 'translateY(calc(-100% - 2px))';
     }
+    // Der Tisch wird zu vier Bahnen um die noch geschlossene Seite. Das
+    // Fenster liegt genau unter dem Umschlag — man sieht keinen Wechsel.
+    const edges = EDGES.map((edge) => {
+      const el = div(classes.edge);
+      el.style.transform = edgeAt(edge, rects.closed, vw, vh);
+      book.before(el);
+      return { edge, el };
+    });
+    table.remove();
     if (landed instanceof HTMLElement) {
       const at = landed.getBoundingClientRect();
       scene.push({ el: landed, at, background: landed.style.backgroundColor });
@@ -482,9 +487,14 @@ async function run({ link, cover, slug, navigate, classes }: Options) {
     const moveScene = (fromRect: Rect, toRect: Rect | null, timing: typeof OPEN) => {
       const pageRect = toRect ?? rects.full;
       const animations = [
-        table.animate(
-          [{ clipPath: pageWindow(fromRect) }, { clipPath: pageWindow(pageRect) }],
-          { ...timing, fill: 'both' }
+        ...edges.map(({ edge, el }) =>
+          el.animate(
+            [
+              { transform: edgeAt(edge, fromRect, vw, vh) },
+              { transform: edgeAt(edge, pageRect, vw, vh) },
+            ],
+            { ...timing, fill: 'both' }
+          )
         ),
         ...scene.map(({ el, at }) =>
           el.animate(
@@ -505,6 +515,12 @@ async function run({ link, cover, slug, navigate, classes }: Options) {
       return animations;
     };
 
+    // Erst zeichnen, was neu liegt (Artikel, Papier, Tischbahnen), dann
+    // bewegen. Sonst fällt diese Arbeit in den ersten Takt, und Safari zeigt
+    // das Heft mit einem Sprung schon ein Stück kleiner.
+    await nextFrame();
+    await nextFrame();
+
     // 2 — aufschlagen. Auf der rechten Seite steht schon der Artikel.
     gutter.style.visibility = 'visible';
     turnCover(strips, gutter, g.w);
@@ -518,6 +534,16 @@ async function run({ link, cover, slug, navigate, classes }: Options) {
     sceneAnimations.push(...moveScene(rects.closed, rects.open, OPEN));
     await done(centre, OPEN);
 
+    // Lay down a flat inside cover once the turn ends. The front artwork
+    // and its 3D strips leave the scene before Safari scales the spread.
+    // Die Streifen gehen erst, wenn die flache Innenseite schon gezeichnet
+    // ist — sonst fehlt ihr Logo in Safari für ein Bild.
+    await insideReady;
+    book.append(openInside);
+    await nextFrame();
+    for (const strip of strips) strip.remove();
+    await sleep(SPREAD_HOLD);
+
     // 3 — hineinzoomen: Seite und Artikel wachsen bis an den Fensterrand.
     const enter = book.animate(
       [
@@ -527,12 +553,15 @@ async function run({ link, cover, slug, navigate, classes }: Options) {
       { ...ENTER, fill: 'forwards' }
     );
     sceneAnimations.push(...moveScene(rects.open, null, ENTER));
-    // Der Falzschatten zieht sich zum Rücken zurück, damit am Ende kein
-    // dunkler Streifen über dem Artikel liegt.
-    gutter.animate([{ transform: 'scaleX(1)' }, { transform: 'scaleX(0)' }], {
-      ...ENTER,
-      fill: 'forwards',
-    });
+    const fadeEnd = 0.65;
+    const leave = [{ opacity: 1 }, { opacity: 0, offset: fadeEnd }, { opacity: 0 }];
+    openInside.animate(leave, { ...ENTER, fill: 'forwards' });
+    shadow.animate(leave, { ...ENTER, fill: 'forwards' });
+    gutter.animate([
+      { transform: 'scaleX(1)', opacity: 1 },
+      { transform: 'scaleX(0)', opacity: 0, offset: fadeEnd },
+      { transform: 'scaleX(0)', opacity: 0 },
+    ], { ...ENTER, fill: 'forwards' });
     await done(enter, ENTER);
   } finally {
     link.style.visibility = '';
@@ -545,7 +574,6 @@ async function run({ link, cover, slug, navigate, classes }: Options) {
       el.style.clipPath = '';
     }
     sceneAnimations.forEach((animation) => animation.cancel());
-    document.documentElement.removeAttribute('data-magazine-opening');
     paper.remove();
     overlay.remove();
     if (nav?.style.transform) {

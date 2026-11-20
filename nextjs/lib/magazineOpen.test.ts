@@ -5,6 +5,7 @@ import {
   bookGeometry,
   canOpenMagazine,
   coverAngle,
+  edgeAt,
   onPage,
   openMagazine,
   pageRects,
@@ -13,6 +14,7 @@ import {
 const classes = {
   overlay: 'overlay',
   table: 'table',
+  edge: 'edge',
   book: 'book',
   paper: 'paper',
   shadow: 'shadow',
@@ -24,8 +26,6 @@ const classes = {
   inside: 'inside',
   backFolio: 'backFolio',
   backMark: 'backMark',
-  capTop: 'capTop',
-  capBottom: 'capBottom',
 };
 
 function magazine() {
@@ -55,6 +55,8 @@ const animate = vi.fn(
 
 beforeEach(() => {
   document.body.innerHTML = '';
+  // jsdom decodes no images.
+  HTMLImageElement.prototype.decode = () => Promise.resolve();
   Element.prototype.animate = animate;
   window.matchMedia = vi.fn(() => ({ matches: false }) as MediaQueryList);
   globalThis.CSS ??= { escape: (s: string) => s } as typeof CSS;
@@ -72,8 +74,8 @@ describe('bookGeometry', () => {
     expect(g.w).toBeCloseTo(296.4);
     expect(g.h).toBeCloseTo(395.2);
     expect(g.left).toBeCloseTo((390 - g.w) / 2);
-    // Cover and article side by side, 16px to spare on each edge.
-    expect(2 * g.w * g.spread).toBeCloseTo(390 - 32);
+    // Cover and article side by side, 28px to spare on each edge.
+    expect(2 * g.w * g.spread).toBeCloseTo(390 - 56);
     expect(g.shift).toBeCloseTo((g.w * g.spread) / 2);
   });
 
@@ -117,6 +119,25 @@ describe('the article on the page', () => {
   });
 });
 
+describe('edgeAt', () => {
+  const page = { x: 100, y: 200, w: 180, h: 240 };
+
+  it('lays each table edge flush against the page', () => {
+    expect(edgeAt('left', page, 390, 844)).toBe('translate(-290px, 0px)');
+    expect(edgeAt('right', page, 390, 844)).toBe('translate(280px, 0px)');
+    expect(edgeAt('top', page, 390, 844)).toBe('translate(0px, -644px)');
+    expect(edgeAt('bottom', page, 390, 844)).toBe('translate(0px, 440px)');
+  });
+
+  it('moves every edge out of the window once the page is the window', () => {
+    const full = { x: 0, y: 0, w: 390, h: 844 };
+    expect(edgeAt('left', full, 390, 844)).toBe('translate(-390px, 0px)');
+    expect(edgeAt('right', full, 390, 844)).toBe('translate(390px, 0px)');
+    expect(edgeAt('top', full, 390, 844)).toBe('translate(0px, -844px)');
+    expect(edgeAt('bottom', full, 390, 844)).toBe('translate(0px, 844px)');
+  });
+});
+
 describe('the cover turn', () => {
   it('lies flat at both ends of the turn', () => {
     for (const across of [0, 0.5, 1]) {
@@ -149,9 +170,19 @@ describe('openMagazine', () => {
   it('lifts, waits for the article, opens and leaves no trace', async () => {
     const { link, cover } = magazine();
     let article: HTMLElement | undefined;
-    let canvasHeldAtNavigation = false;
+    let overlayHeldAtNavigation = false;
+    let coverAtZoom: { strips: number; inside: number } | undefined;
+    Element.prototype.animate = function (_keyframes, timing) {
+      if (this.className === classes.book && typeof timing === 'object' && timing.duration === 480) {
+        coverAtZoom = {
+          strips: this.querySelectorAll('.strip').length,
+          inside: this.querySelectorAll(':scope > .inside').length,
+        };
+      }
+      return animate();
+    };
     const navigate = vi.fn(() => {
-      canvasHeldAtNavigation = document.documentElement.hasAttribute('data-magazine-opening');
+      overlayHeldAtNavigation = document.querySelector('.overlay .table') !== null;
       return setTimeout(() => {
         article = land('doener');
       }, 20);
@@ -170,17 +201,19 @@ describe('openMagazine', () => {
     await vi.waitFor(() => expect(navigate).toHaveBeenCalledTimes(1));
     await vi.waitFor(() => expect(document.querySelector('.overlay')).toBeNull());
     expect(link.style.visibility).toBe('');
-    // Each of the six strips turns while its two faces swap at the edge.
-    // The lift, spread and zoom also move the page, table and fold shadow.
-    expect(animate).toHaveBeenCalledTimes(2 + 6 * 3 + 5 + 5);
+    // Each of the six strips turns; its faces swap by backface visibility.
+    // The spread and zoom also move the page, the four table edges and the
+    // fold shadow.
+    expect(animate).toHaveBeenCalledTimes(2 + 6 + 8 + 10);
+    expect(document.querySelector('.table')).toBeNull();
+    expect(coverAtZoom).toEqual({ strips: 0, inside: 1 });
     // The article stands where it stands, without a transform left behind.
-    expect(canvasHeldAtNavigation).toBe(true);
+    expect(overlayHeldAtNavigation).toBe(true);
     expect(article?.style.transform).toBe('');
     expect(article?.style.transformOrigin).toBe('');
     expect(article?.style.clipPath).toBe('');
     expect(article?.style.backgroundColor).toBe('');
     expect(document.querySelector('.paper')).toBeNull();
-    expect(document.documentElement.hasAttribute('data-magazine-opening')).toBe(false);
   });
 
   it('still leads to the article when the animation breaks', async () => {
@@ -193,7 +226,6 @@ describe('openMagazine', () => {
     await vi.waitFor(() => expect(navigate).toHaveBeenCalledTimes(1));
     await vi.waitFor(() => expect(document.querySelector('.overlay')).toBeNull());
     expect(link.style.visibility).toBe('');
-    expect(document.documentElement.hasAttribute('data-magazine-opening')).toBe(false);
   });
 
   it('restores the canvas and article ground when opening fails after navigation', async () => {
@@ -212,7 +244,6 @@ describe('openMagazine', () => {
     expect(openMagazine({ link, cover, slug: 'pasta', navigate, classes })).toBe(true);
     await vi.waitFor(() => expect(document.querySelector('.overlay')).toBeNull());
     expect(navigate).toHaveBeenCalledTimes(1);
-    expect(document.documentElement.hasAttribute('data-magazine-opening')).toBe(false);
     expect(article.style.backgroundColor).toBe('rgb(240, 240, 240)');
     expect(document.querySelector('.paper')).toBeNull();
     expect(article.style.transform).toBe('');

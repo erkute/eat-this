@@ -20,9 +20,6 @@ a.link:has([data-magazine-cover]):is(:active, [data-et-pressed]) {
 }
 
 .overlay {
-  /* Der Tisch, eine Spur dunkler als die Seite — so hebt sich die rechte
-     Seite (die Seite mit dem Artikel) ab, die selbst Ink ist. */
-  --table: var(--et-magazine-table);
   position: fixed;
   inset: 0;
   z-index: var(--et-z-sheet);
@@ -31,37 +28,17 @@ a.link:has([data-magazine-cover]):is(:active, [data-et-pressed]) {
   cursor: progress;
 }
 
-.table {
+.table,
+.edge {
   position: absolute;
   inset: 0;
-  background: var(--table);
+  background: var(--et-ground);
 }
 
-/* Safari übernimmt die Farbe des fixierten Elements 4px innerhalb der
-   Kante für seine Leisten. Die Kappen werden sichtbar, sobald der Tisch
-   das Fenster füllt. */
-.capTop,
-.capBottom {
-  position: fixed;
-  left: 0;
-  right: 0;
-  background-color: var(--table);
-  visibility: hidden;
+/* Der Tisch um die rechte Seite, eine Bahn je Kante (lib/magazineOpen.ts). */
+.edge {
+  will-change: transform;
   pointer-events: none;
-}
-
-:global(html[data-magazine-opening]) :is(.capTop, .capBottom) {
-  visibility: visible;
-}
-
-.capTop {
-  top: 0;
-  height: max(6px, env(safe-area-inset-top, 0px));
-}
-
-.capBottom {
-  bottom: 0;
-  height: max(6px, env(safe-area-inset-bottom, 0px));
 }
 
 .book {
@@ -109,6 +86,8 @@ a.link:has([data-magazine-cover]):is(:active, [data-et-pressed]) {
   position: absolute;
   inset: 0;
   overflow: hidden;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 .front {
@@ -117,7 +96,6 @@ a.link:has([data-magazine-cover]):is(:active, [data-et-pressed]) {
 
 /* An der Kante übernimmt die Innenseite. */
 .back {
-  visibility: hidden;
   transform: rotateY(180deg);
 }
 
@@ -133,7 +111,12 @@ a.link:has([data-magazine-cover]):is(:active, [data-et-pressed]) {
 /* Aufgeschlagen liegt der Rücken am rechten Ende der Innenseite — dort fällt
    sie in den Falz. */
 .inside {
-  background: linear-gradient(90deg, #f4f1ea 0 72%, #ebe5d8 90%, #d6cebe);
+  background-color: var(--et-ground);
+  background-image: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--et-ground) 94%, var(--et-fg)) 72%,
+    color-mix(in srgb, var(--et-ground) 86%, black)
+  );
 }
 
 .backFolio {
@@ -141,7 +124,7 @@ a.link:has([data-magazine-cover]):is(:active, [data-et-pressed]) {
   top: 3.6%;
   left: 0;
   right: 0;
-  color: rgba(21, 18, 14, 0.6);
+  color: var(--et-muted);
   font-family: var(--et-font-display);
   font-size: clamp(7px, 1.6vmin, 11px);
   font-weight: 700;
@@ -158,6 +141,10 @@ a.link:has([data-magazine-cover]):is(:active, [data-et-pressed]) {
   width: 28%;
   height: auto;
   translate: -50% 0;
+}
+
+:global(html[data-theme='dark']) .backMark {
+  filter: invert(1);
 }
 
 /* Below the transformed article, inside the right page's transparent window. */

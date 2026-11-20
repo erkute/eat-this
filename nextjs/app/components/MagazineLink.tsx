@@ -8,6 +8,7 @@ import styles from './MagazineOpen.module.css';
 const CLASSES = {
   overlay: styles.overlay,
   table: styles.table,
+  edge: styles.edge,
   book: styles.book,
   paper: styles.paper,
   shadow: styles.shadow,
@@ -19,8 +20,6 @@ const CLASSES = {
   inside: styles.inside,
   backFolio: styles.backFolio,
   backMark: styles.backMark,
-  capTop: styles.capTop,
-  capBottom: styles.capBottom,
 };
 
 type Props = Omit<ComponentProps<typeof Link>, 'href' | 'onClick' | 'prefetch'> & {

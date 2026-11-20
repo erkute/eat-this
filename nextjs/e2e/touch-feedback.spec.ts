@@ -144,7 +144,7 @@ for (const { route, location, selector } of [
       else await link.click();
       await expect(page).toHaveURL(new RegExp(`${href}$`));
       await expect(page.locator('[data-page="news-article"] h1')).toBeVisible();
-      await expect(page.locator('html')).not.toHaveAttribute('data-magazine-opening', '');
+      await expect(page.locator('[class*="MagazineOpen_overlay"]')).toHaveCount(0);
     });
   }
 }

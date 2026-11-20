@@ -54,7 +54,8 @@ test('district recommendation and directory photos all enter their own spot', as
     const scope = selector === 'directory'
       ? page.getByRole('region', { name: 'Weitere Spots', exact: true })
       : page;
-    const card = scope.locator('[data-spot-card]').first();
+    // Spots ohne freigegebenes Foto zeigen nur ihre Initiale.
+    const card = scope.locator('[data-spot-card]').filter({ has: page.locator('[data-spot-photo] > img') }).first();
     const link = card.locator('h3 a');
     const path = (await link.getAttribute('href'))!;
     const photo = card.locator('[data-spot-photo] > img').first();

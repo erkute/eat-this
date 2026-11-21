@@ -251,6 +251,27 @@ describe('POST /api/count', () => {
     expect(mocks.writeInsight).not.toHaveBeenCalled();
     expect(dayWrite()).toBeUndefined();
   });
+  it('zaehlt einen Ladezeit-Messwert nur als Stufe, ohne Pfad, Besucher oder Seitenaufruf', async () => {
+    await POST(
+      request({ path: '/en/restaurant/crapulix', vital: 'LCP', value: 2_437.8, device: 'phone' })
+    );
+    const write = mocks.set.mock.calls.find(([name]) => name === 'analytics_vitals');
+    expect(write?.[2]).toMatchObject({
+      hist: { LCP: { spot: { phone: { '24': { __inc: 1 } } } } },
+    });
+    expect(write?.[3]).toEqual({ merge: true });
+    expect(JSON.stringify(write?.[2])).not.toContain('crapulix');
+    expect(dayWrite()).toBeUndefined();
+    expect(mocks.create).not.toHaveBeenCalled();
+    expect(mocks.update).not.toHaveBeenCalled();
+  });
+  it('verwirft unplausible Ladezeit-Messwerte', async () => {
+    await POST(request({ path: '/', vital: 'LCP', value: -1, device: 'phone' }));
+    await POST(request({ path: '/', vital: 'TTFB', value: 100, device: 'phone' }));
+    await POST(request({ path: '/', vital: 'CLS', value: 0.1, device: 'tablet' }));
+    expect(mocks.set.mock.calls.filter(([name]) => name === 'analytics_vitals')).toHaveLength(0);
+    expect(dayWrite()).toBeUndefined();
+  });
   it('ordnet nur den ersten Tagesaufruf einem Kanal zu', async () => {
     await POST(request({ path: '/news/test', referrer: 'https://www.google.de' }));
     expect(dayWrite()?.entryChannels).toEqual({ google: { __inc: 1 } });

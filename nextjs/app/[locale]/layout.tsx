@@ -10,6 +10,7 @@ import NotificationToast from '@/app/components/NotificationToast';
 import ScrollRestorer from '@/app/components/ScrollRestorer';
 import PageInsightTracker from '@/app/components/PageInsightTracker';
 import AnalyticsPageViews from '@/app/components/AnalyticsPageViews';
+import WebVitalsReporter from '@/app/components/WebVitalsReporter';
 import { buildSiteJsonLd } from '@/lib/json-ld';
 
 export function generateStaticParams() {
@@ -123,6 +124,7 @@ export default async function LocaleLayout({
           <NotificationToast />
           <ScrollRestorer />
           <AnalyticsPageViews />
+          <WebVitalsReporter />
           <PageInsightTracker />
           {children}
         </ClientIntlProvider>

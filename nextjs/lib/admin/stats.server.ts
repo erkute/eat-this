@@ -3,6 +3,7 @@ import {
   type InsightDoc,
   type InsightSummary,
 } from '@/lib/analytics/engagement';
+import { summarizeVitals, type VitalDoc, type VitalSummary } from '@/lib/analytics/webVitals';
 /**
  * Aggregation für /admin/stats: der eigene Zähler (app/api/count/route.ts) plus
  * Konten, Karten und Umsatz. Frei von Firestore, damit die Regeln ohne Emulator
@@ -264,6 +265,8 @@ export interface StatsSummary {
   measurement: MeasurementDay[];
   entryChannels: Entry[];
   engagement: InsightSummary;
+  /** Ladezeiten (Core Web Vitals) im gewählten Zeitraum, lib/analytics/webVitals.ts. */
+  vitals: VitalSummary;
   search: SearchResult | null;
   /** `closedDays` laesst den laufenden Tag weg — fuer alles, was „je Tag" rechnet. */
   totals: { pageviews: number; visitors: number; days: number; closedDays: number };
@@ -646,6 +649,7 @@ interface SummarizeOptions {
   deck?: Deck | null;
   live?: Live | null;
   insights?: InsightDoc[];
+  vitals?: VitalDoc[];
 }
 
 export function summarize(
@@ -763,6 +767,7 @@ export function summarize(
     measurement: sorted.map(measureDay),
     entryChannels: topEntries(entryChannels, Number.MAX_SAFE_INTEGER),
     engagement: summarizeInsights(options.insights ?? []),
+    vitals: summarizeVitals(options.vitals ?? []),
     search,
     totals: { pageviews, visitors, days: sorted.length, closedDays: closed.length },
     accounts,

@@ -1,5 +1,6 @@
 import { surfaceForPath, summarizeInsightHeat, type InsightDoc } from '@/lib/analytics/engagement';
 import { insightHeatId } from '@/lib/analytics/engagement.server';
+import type { VitalDoc } from '@/lib/analytics/webVitals';
 import type { Auth } from 'firebase-admin/auth';
 import { FieldPath, Timestamp, type Firestore } from 'firebase-admin/firestore';
 import { NextResponse } from 'next/server';
@@ -292,7 +293,7 @@ export async function GET(request: Request) {
   //
   // Search Console und Katalog laufen nebenher und dürfen scheitern: ihre
   // Antwort ist entweder Zahlen oder der Grund, nie ein 500 fürs ganze Brett.
-  const [snapshot, accounts, search, deck, live, engagement] = await Promise.all([
+  const [snapshot, accounts, search, deck, live, engagement, vitals] = await Promise.all([
     db
       .collection('analytics_daily')
       .where(FieldPath.documentId(), '>=', sinceDay(range.days * 2, range.end))
@@ -304,6 +305,11 @@ export async function GET(request: Request) {
     loadLive(db),
     db
       .collection('analytics_engagement')
+      .where(FieldPath.documentId(), '>=', range.start)
+      .where(FieldPath.documentId(), '<=', range.end)
+      .get(),
+    db
+      .collection('analytics_vitals')
       .where(FieldPath.documentId(), '>=', range.start)
       .where(FieldPath.documentId(), '<=', range.end)
       .get(),
@@ -329,6 +335,7 @@ export async function GET(request: Request) {
       deck,
       live,
       insights: engagement.docs.map((doc) => ({ ...doc.data(), day: doc.id }) as InsightDoc),
+      vitals: vitals.docs.map((doc) => ({ ...doc.data(), day: doc.id }) as VitalDoc),
     }),
     { headers: NO_STORE }
   );

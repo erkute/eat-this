@@ -2,6 +2,7 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { summarizeInsights } from '@/lib/analytics/engagement';
+import { summarizeVitals } from '@/lib/analytics/webVitals';
 import type { Accounts, StatsSummary } from '@/lib/admin/stats.server';
 import type { SearchSummary } from '@/lib/admin/searchConsole';
 
@@ -274,6 +275,7 @@ function summary(overrides: Partial<StatsSummary> = {}): StatsSummary {
     measurement: [],
     entryChannels: [],
     engagement: summarizeInsights([]),
+    vitals: summarizeVitals([]),
     totals: { pageviews: 8629, visitors: 1147, days: 11, closedDays: 10 },
     accounts: accounts(),
     deck: {

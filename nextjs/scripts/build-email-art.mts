@@ -15,8 +15,12 @@ const mark=await readFile('public/pics/eat-this-crumpled-wordmark.webp');
 const logo=await sharp(mark).png().toBuffer();
 const data=(b:Buffer)=>`data:image/png;base64,${b.toString('base64')}`;
 const h=React.createElement;
-const manifest:Record<string,{id:string;width:number;height:number;alt:string;version:string}>={};
-async function save(id:string,buffer:Buffer,width:number,alt:string){buffer=await sharp(buffer).png({palette:true,quality:90,dither:0.7}).toBuffer();const meta=await sharp(buffer).metadata();await writeFile(`${out}/${id}.png`,buffer);manifest[id.replace(/-([a-z])/g,(_,c:string)=>c.toUpperCase())]={id,width,height:Math.round(meta.height!/(meta.width!/width)),alt,version:createHash('sha1').update(buffer).digest('hex').slice(0,8)};}
+// Flat type and icons stay PNG. Anything on the paper texture or a photo goes
+// out as JPEG: a palette PNG of noise and photos weighs five to ten times as much.
+type Format='png'|'jpg';
+const manifest:Record<string,{id:string;file:string;width:number;height:number;alt:string;version:string}>={};
+async function encode(buffer:Buffer,format:Format){return format==='jpg'?sharp(buffer).flatten({background:COLOR.surface}).jpeg({quality:82,mozjpeg:true,chromaSubsampling:'4:4:4'}).toBuffer():sharp(buffer).png({palette:true,quality:90,dither:0.7}).toBuffer();}
+async function save(id:string,buffer:Buffer,width:number,alt:string,format:Format='png'){buffer=await encode(buffer,format);const meta=await sharp(buffer).metadata();const file=`${id}.${format}`;await writeFile(`${out}/${file}`,buffer);manifest[id.replace(/-([a-z])/g,(_,c:string)=>c.toUpperCase())]={id,file,width,height:Math.round(meta.height!/(meta.width!/width)),alt,version:createHash('sha1').update(buffer).digest('hex').slice(0,8)};}
 async function ground(w:number,height:number,yellow=false){const texture=await sharp(paper).resize(w*2,height*2,{fit:'cover'}).ensureAlpha().toBuffer();const softened=await sharp(texture).linear(.65,255*.35).toBuffer();return sharp({create:{width:w*2,height:height*2,channels:4,background:yellow?COLOR.accent:COLOR.surface}}).composite([{input:softened,blend:'multiply'}]).png().toBuffer();}
 async function render(w:number,height:number,children:React.ReactNode[],yellow=false){const bg=await ground(w,height,yellow);return Buffer.from(await new ImageResponse(h('div',{style:{display:'flex',position:'relative',width:w*2,height:height*2,fontFamily:BRAND_FONT_NAME,color:COLOR.text}},h('img',{src:data(bg),width:w*2,height:height*2,style:{position:'absolute',left:0,top:0}}),...children),{width:w*2,height:height*2,fonts:faces}).arrayBuffer());}
 function text(s:string,left:number,top:number,width:number,size:number,bold=false,line=1.35){return h('div',{style:{display:'flex',position:'absolute',left:left*2,top:top*2,width:width*2,fontSize:size*2,fontWeight:bold?700:400,lineHeight:line,whiteSpace:'pre-wrap'}},s);}
@@ -57,9 +61,9 @@ for(const locale of ['de','en'] as const){const c=copy[locale],suffix=locale==='
    }
    const lead=c[kind==='signup'?'signupLead':'loginLead'],leadSize=mobile?17:20;
    layers.push(centered(lead,y,leadSize));y+=leadSize*1.3*await lineCount(lead,cw,leadSize)+gap;
-   await save(`intro-${kind}${suffix}${tag}`,await render(w,Math.ceil(y),layers),w,alt+lead);
+   await save(`intro-${kind}${suffix}${tag}`,await render(w,Math.ceil(y),layers),w,alt+lead,'jpg');
   }
-  await save(`spot-heading${suffix}${tag}`,await render(cw,mobile?58:77,[text(c.spotTitle,0,0,cw,mobile?29:44,true,1.3)]),cw,c.spotTitle);
+  await save(`spot-heading${suffix}${tag}`,await render(cw,mobile?58:77,[text(c.spotTitle,0,0,cw,mobile?29:44,true,1.3)]),cw,c.spotTitle,'jpg');
  }
  const label=locale==='en'?'Sign in':'Anmelden';
  const labelPng=Buffer.from(await new ImageResponse(h('div',{style:{display:'flex',fontFamily:BRAND_FONT_NAME,fontWeight:700,fontSize:36,color:COLOR.text,background:COLOR.accent,width:220,height:50,alignItems:'center',justifyContent:'center'}},label),{width:220,height:50,fonts:faces}).arrayBuffer());
@@ -76,10 +80,10 @@ for(const locale of ['de','en'] as const){const c=copy[locale],suffix=locale==='
 }
 const instagram=Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="${COLOR.text}" stroke-width="1.9"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" fill="${COLOR.text}" stroke="none"/></svg>`);
 await save('footer-instagram',await sharp(instagram).png().toBuffer(),28,'Instagram');
-await sharp(await ground(600,1100)).png().toFile(`${out}/mail-paper.png`);
+await sharp(await ground(600,1100)).flatten({background:COLOR.surface}).jpeg({quality:80,mozjpeg:true}).toFile(`${out}/mail-paper.jpg`);
 await sharp(logo).resize(260).png().toFile(`${out}/eat-this-logo.png`);
 // Keep only artwork in the manifest and the separate spot-card exports.
-const keep=new Set([...Object.values(manifest).map(a=>a.id+'.png'),'mail-paper.png','eat-this-logo.png']);
-for(const f of await readdir(out))if(f.endsWith('.png')&&!keep.has(f))await unlink(`${out}/${f}`);
-await writeFile('emails/art.generated.ts',`// Generated by npm run build:email-art.\nexport const BRAND_FACE_AVAILABLE = ${isBrandFace};\nexport interface ArtAsset { id:string; width:number; height:number; alt:string; version:string }\nexport const ART = ${JSON.stringify(manifest,null,2)} as const satisfies Record<string,ArtAsset>;\n`);
+const keep=new Set([...Object.values(manifest).map(a=>a.file),'mail-paper.jpg','eat-this-logo.png']);
+for(const f of await readdir(out))if(/\.(png|jpg)$/.test(f)&&!keep.has(f))await unlink(`${out}/${f}`);
+await writeFile('emails/art.generated.ts',`// Generated by npm run build:email-art.\nexport const BRAND_FACE_AVAILABLE = ${isBrandFace};\nexport interface ArtAsset { id:string; file:string; width:number; height:number; alt:string; version:string }\nexport const ART = ${JSON.stringify(manifest,null,2)} as const satisfies Record<string,ArtAsset>;\n`);
 console.log(`${Object.keys(manifest).length} locally rendered assets. No runtime font dependency.`);

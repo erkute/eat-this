@@ -4,7 +4,7 @@ import { COLOR } from '../theme';
 import type { MailLocale } from '../locale';
 
 export function ArtImage({ art, appUrl, className, style }: {art:ArtAsset;appUrl:string;className?:string;style?:React.CSSProperties}) {
- return <Img className={className} src={`${appUrl}/pics/email/${art.id}.png?v=${art.version}`} alt={art.alt} width={art.width} style={{display:'block',height:'auto',width:'100%',maxWidth:'100%',border:0,color:COLOR.text,fontSize:14,...style}} />;
+ return <Img className={className} src={`${appUrl}/pics/email/${art.file}?v=${art.version}`} alt={art.alt} width={art.width} style={{display:'block',height:'auto',width:'100%',maxWidth:'100%',border:0,color:COLOR.text,fontSize:14,...style}} />;
 }
 
 /** Media-query clients get the phone composition; Outlook retains the desktop image. */
@@ -15,7 +15,7 @@ export function ResponsiveArt({desktop,mobile,appUrl}:{desktop:ArtAsset;mobile:A
 /** Real yellow link, with only its label rendered as an image. */
 export function CtaButton({href,art,appUrl}:{href:string;art:ArtAsset;appUrl:string}) {
  return <Button href={href} style={{display:'block',boxSizing:'border-box',width:'100%',padding:'15px 0',borderRadius:28,backgroundColor:COLOR.accent,color:COLOR.text,textAlign:'center',textDecoration:'none'}}>
-  <Img src={`${appUrl}/pics/email/${art.id}.png?v=${art.version}`} alt={art.alt} width={art.width} style={{display:'inline-block',verticalAlign:'middle',height:'auto',border:0,color:COLOR.text,fontSize:18,fontWeight:700}} />
+  <Img src={`${appUrl}/pics/email/${art.file}?v=${art.version}`} alt={art.alt} width={art.width} style={{display:'inline-block',verticalAlign:'middle',height:'auto',border:0,color:COLOR.text,fontSize:18,fontWeight:700}} />
  </Button>;
 }
 

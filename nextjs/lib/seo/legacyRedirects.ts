@@ -7,7 +7,8 @@ import { oldStyleSlug } from './legacySlug';
 //   2. oldStyleSlug() accent map — every spot whose accented slug changed.
 //   3. generic split fallback — old bare slug → `<slug>-<branch>`.
 // 2 and 3 need the catalog and run in the spot page after a 404, as a safety
-// net. GONE_SLUGS / NEWS_REDIRECTS are handled statically in middleware.ts.
+// net. GONE_SLUGS / GONE_NEWS_SLUGS / NEWS_REDIRECTS are handled statically
+// in middleware.ts.
 
 export interface LegacyRestaurant {
   name: string;
@@ -56,13 +57,21 @@ export const EARLY_RESTAURANT_REDIRECTS: Readonly<Record<string, string>> = {
   'Der-weinlobbyist': 'der-weinlobbyist',
 };
 
-// Permanently closed spots — return 410 Gone so Google drops them cleanly.
+// Spots gone for good, with no hub to send them to — return 410 Gone so
+// Google drops them cleanly.
 export const GONE_SLUGS: ReadonlySet<string> = new Set([
   'phantom-bar',
   'doyum-restaurant',
   'lala-restaurant',
   'gnam-pasta-factory',
   'zeit-caf',
+  'kuma-ramen-eatery-markthalle-pfefferberg',
+]);
+
+// Articles taken down for good, with no successor — 410 Gone in both locales.
+export const GONE_NEWS_SLUGS: ReadonlySet<string> = new Set([
+  'tuerkische-restaurants-berlin',
+  'drei-doener-berlin',
 ]);
 
 // Removed news articles → closest living target (path without locale prefix).

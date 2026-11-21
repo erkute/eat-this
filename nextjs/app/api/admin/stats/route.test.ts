@@ -26,7 +26,7 @@ vi.mock('@/lib/firebase/admin', () => ({
         };
         return { doc: () => ({ collection: () => query }) };
       }
-      if (name === 'analytics_engagement') {
+      if (name === 'analytics_engagement' || name === 'analytics_vitals') {
         const query = { where: () => query, get: async () => ({ docs: [] }) };
         return query;
       }

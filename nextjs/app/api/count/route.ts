@@ -2,6 +2,7 @@ import { channelOf } from '@/lib/analytics/channels';
 import { NextResponse } from 'next/server';
 import { parseInsight } from '@/lib/analytics/engagement';
 import { writeInsight } from '@/lib/analytics/engagement.server';
+import { parseVital } from '@/lib/analytics/webVitals';
 import { FieldValue, Timestamp, type DocumentReference } from 'firebase-admin/firestore';
 import { getAdminFirestore } from '@/lib/firebase/admin';
 import { clientIpFromXff } from '@/lib/clientIp';
@@ -308,6 +309,38 @@ export async function POST(request: Request) {
       );
     }
     await markActive(db.collection('analytics_seen').doc(hash));
+    return new NextResponse(null, { status: 204 });
+  }
+
+  // Ladezeiten: nur die Stufe je Kennzahl, Seitentyp und Gerät, kein Pfad
+  // und kein Prüfwert (lib/analytics/webVitals.ts). Kein Zeichen von
+  // Aktivität: der Browser schickt CLS und INP erst beim Verlassen der Seite.
+  if ('vital' in body) {
+    const vital = parseVital(body);
+    if (!vital) return new NextResponse(null, { status: 204 });
+    try {
+      await db
+        .collection('analytics_vitals')
+        .doc(day)
+        .set(
+          {
+            day,
+            hist: {
+              [vital.metric]: {
+                [vital.page]: {
+                  [vital.device]: { [String(vital.bucket)]: FieldValue.increment(1) },
+                },
+              },
+            },
+          },
+          { merge: true }
+        );
+    } catch (error) {
+      console.error(
+        '[count] vitals write failed',
+        error instanceof Error ? error.name : 'UnknownError'
+      );
+    }
     return new NextResponse(null, { status: 204 });
   }
 

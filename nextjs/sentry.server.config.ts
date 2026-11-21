@@ -17,6 +17,9 @@ Sentry.init({
   // the server and edge bundles too (Next runs the webpack config for all
   // three runtimes), so this would be inert.
   environment: sentryEnvironment(),
+  // Meldungen ohne künstlichen Stacktrace: Mit einem nennt Sentry sie nach der
+  // obersten Funktion des minifizierten Bundles (Titel „p“) statt nach ihrem Text.
+  attachStacktrace: false,
   dataCollection: sentryDataCollection,
   // Nimmt die Meldungen des Browsers an (lib/sentry/client-sdk.ts) und reicht
   // sie an Sentry weiter.

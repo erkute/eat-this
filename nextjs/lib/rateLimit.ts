@@ -58,9 +58,43 @@ async function consumeRateLimit(
   });
 }
 
+// Stand-in while Firestore cannot count: the same window, kept per instance.
+// Bounded, so an outage cannot grow it without limit.
+const MEMORY_KEYS_MAX = 5_000;
+const memoryWindows = new Map<string, WindowDoc & { windowMs: number }>();
+
+function consumeMemoryRateLimit(
+  key: string,
+  maxRequests: number,
+  windowMs: number,
+  now: number
+): boolean {
+  const prev = memoryWindows.get(key);
+  const fresh = !prev || now - prev.windowStart >= windowMs;
+  const windowStart = fresh ? now : prev.windowStart;
+  const count = (fresh ? 0 : prev.count) + 1;
+  if (count > maxRequests) return false;
+
+  // Re-inserting keeps the Map in order of last use, oldest first.
+  memoryWindows.delete(key);
+  memoryWindows.set(key, { windowStart, count, windowMs });
+  if (memoryWindows.size > MEMORY_KEYS_MAX) {
+    for (const [k, w] of memoryWindows) {
+      if (now - w.windowStart >= w.windowMs) memoryWindows.delete(k);
+    }
+    for (const k of memoryWindows.keys()) {
+      if (memoryWindows.size <= MEMORY_KEYS_MAX) break;
+      memoryWindows.delete(k);
+    }
+  }
+  return true;
+}
+
 /**
- * Fails open: when Firestore cannot answer, the request goes through. For
- * actions that must not depend on the limiter, such as signing in or buying.
+ * Never depends on Firestore: when it cannot answer, each instance counts the
+ * same window in memory. For actions that must keep working through an
+ * outage, such as signing in or buying, but whose limit must not fall away
+ * with it, such as sending mail.
  */
 export async function checkRateLimit(
   key: string,
@@ -69,8 +103,13 @@ export async function checkRateLimit(
 ): Promise<boolean> {
   try {
     return await consumeRateLimit(key, maxRequests, windowMs);
-  } catch {
-    return true;
+  } catch (error) {
+    // The name only: the message can carry the key, and the key is a visitor hash.
+    console.error(
+      '[rateLimit] Firestore unavailable, counting in memory',
+      error instanceof Error ? error.name : 'UnknownError'
+    );
+    return consumeMemoryRateLimit(key, maxRequests, windowMs, Date.now());
   }
 }
 

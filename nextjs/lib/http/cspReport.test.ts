@@ -54,6 +54,25 @@ describe('parseCspReport', () => {
     ).toBeNull();
   });
 
+  it('drops what Google Translate loads into a translated page', () => {
+    for (const [directive, blocked] of [
+      ['img-src', 'https://translate.google.com/gen204?x=1'],
+      ['img-src', 'https://www.google.com/images/cleardot.gif'],
+      ['style-src-elem', 'https://www.gstatic.com/_/translate_http/_/ss/k=x'],
+      ['img-src', 'https://fonts.gstatic.com/s/i/googlematerialicons/x.svg'],
+    ]) {
+      expect(
+        parseCspReport(
+          report({
+            'document-uri': 'https://www.eatthisdot.com/restaurant/x',
+            'effective-directive': directive,
+            'blocked-uri': blocked,
+          })
+        )
+      ).toBeNull();
+    }
+  });
+
   it('drops anything that is not a report', () => {
     expect(parseCspReport('not json')).toBeNull();
     expect(parseCspReport('null')).toBeNull();

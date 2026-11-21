@@ -214,6 +214,12 @@ export default withSentryConfig(withNextIntl(nextConfig), {
   project: process.env.SENTRY_PROJECT,
   authToken: process.env.SENTRY_AUTH_TOKEN,
   silent: !process.env.CI,
+  // `silent` verschluckt auch Fehler. Ohne eigenen Handler fiele ein
+  // abgelehnter Token (Source Maps fehlen, Release wird nie angelegt) im
+  // App-Hosting-Log nicht auf; der Build läuft trotzdem weiter.
+  errorHandler: (error) => {
+    console.warn(`[sentry] Source-Map-Upload fehlgeschlagen: ${error.message}`);
+  },
   // Der Hook misst Seitenwechsel, und das Messen fliegt mit `removeTracing`
   // ohnehin aus dem Bundle.
   suppressOnRouterTransitionStartWarning: true,

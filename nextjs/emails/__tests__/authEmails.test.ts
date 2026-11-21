@@ -3,7 +3,7 @@ import { renderEmail } from '../render';
 import SignupEmail from '../SignupEmail';
 import LoginEmail from '../LoginEmail';
 import { ART, BRAND_FACE_AVAILABLE } from '../art.generated';
-import { existsSync } from 'node:fs';
+import { existsSync, statSync } from 'node:fs';
 const magicLink='https://example.test/verify?oobCode=test-code&mode=signIn';
 const appUrl='https://www.eatthisdot.com';
 const variants=()=>Promise.all(['de','en'].flatMap(locale=>[SignupEmail,LoginEmail].map(component=>renderEmail(component({magicLink,appUrl,locale:locale as 'de'|'en'})))));
@@ -18,21 +18,26 @@ describe('approved paper auth emails',()=>{
  });
  it('renders every design asset locally with the real brand face',()=>{
   expect(BRAND_FACE_AVAILABLE).toBe(true);
-  for(const art of Object.values(ART))expect(existsSync(`public/pics/email/${art.id}.png`)).toBe(true);
+  for(const art of Object.values(ART))expect(existsSync(`public/pics/email/${art.file}`)).toBe(true);
  });
- it('uses PNGs, safe mail markup and versioned artwork in DE and EN',async()=>{
+ // Every mail loads the paper plus one intro; Gmail's proxy fetches both on open.
+ it('keeps the artwork light enough for mobile data',()=>{
+  expect(statSync('public/pics/email/mail-paper.jpg').size).toBeLessThan(200_000);
+  for(const art of Object.values(ART))expect(statSync(`public/pics/email/${art.file}`).size,art.file).toBeLessThan(300_000);
+ });
+ it('uses PNG and JPEG only, safe mail markup and versioned artwork in DE and EN',async()=>{
   for(const html of await variants()){
-   expect(html).toContain('mail-paper.png?v=');expect(html).not.toMatch(/\.webp|@font-face|position\s*:|(?<![a-z-])transform\s*:|box-shadow\s*:|\/api\/email\//i);
+   expect(html).toContain('mail-paper.jpg?v=');expect(html).not.toMatch(/\.webp|@font-face|position\s*:|(?<![a-z-])transform\s*:|box-shadow\s*:|\/api\/email\//i);
    for(const src of html.match(/src="[^"]*\/pics\/email\/[^"]*"/g)??[])expect(src).toMatch(/\?v=[a-z0-9]+"/);
    expect(Buffer.byteLength(html)).toBeLessThan(100_000);
   }
  });
  it('keeps signup and login distinct, with phone-specific compositions',async()=>{
   const [signup,login,enSignup,enLogin]=await variants();
-  expect(signup).toContain('20 zusätzliche Must Eats');expect(signup).toContain('spot-heading.png');
+  expect(signup).toContain('20 zusätzliche Must Eats');expect(signup).toContain('spot-heading.jpg');
   expect(signup).toContain('We tell you what to eat.');
   expect(signup).toContain('/pics/email/spots/');
-  expect(signup).toContain('/map?r=');expect(signup).toContain('intro-signup-mobile.png');
+  expect(signup).toContain('/map?r=');expect(signup).toContain('intro-signup-mobile.jpg');
   expect(login).not.toContain('/pics/email/spots/');expect(login).not.toContain('20 zusätzliche');expect(login).toContain('Hier ist dein Login-Link.');
   expect(enSignup).toContain('20 additional Must Eats');expect(enSignup).toContain('alt="Sign up"');expect(enLogin).toContain('alt="Sign in"');
   for(const html of [enSignup,enLogin]){expect(html).toContain('lang="en"');expect(html).not.toMatch(/Anmelden|Anmeldelink|Datenschutz|Stunde/);expect(html).toContain('/en/datenschutz');}

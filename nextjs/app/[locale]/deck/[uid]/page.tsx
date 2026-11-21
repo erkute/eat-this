@@ -43,10 +43,11 @@ const DECK_VIEWS_PER_MINUTE = 30;
  * Dokument-ID in `_rateLimits`, und eine rohe IP hat dort nichts verloren
  * (siehe `rateLimitKey`).
  *
- * Fail-OPEN, nicht fail-closed: faellt Firestore aus, faellt auch
- * `getPublicDeck` aus (es liest Entitlements von dort). Ein geschlossenes Tor
- * wuerde also nichts schuetzen, was nicht ohnehin schon kaputt waere, dafuer
- * aber geteilte Links waehrend jeder Stoerung auf 404 schicken.
+ * Nicht fail-closed: faellt Firestore aus, zaehlt jede Instanz im Speicher
+ * weiter (`checkRateLimit`). Ein geschlossenes Tor wuerde nichts schuetzen,
+ * was nicht ohnehin kaputt waere (`getPublicDeck` liest Entitlements aus
+ * Firestore), dafuer aber geteilte Links waehrend jeder Stoerung auf 404
+ * schicken.
  */
 async function tooManyViews(): Promise<boolean> {
   const h = await headers();

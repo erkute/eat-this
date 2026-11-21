@@ -19,6 +19,16 @@ export interface CspViolation {
 // Extensions inject their own resources into every page they touch. Those
 // violations say nothing about the site and would drown out the real ones.
 const EXTENSION_SCHEME = /^(chrome|moz|safari|safari-web|ms-browser)-extension:/i;
+// The same goes for Google Translate, which loads its styles, icons and
+// tracking pixels into the page it translates. The site itself loads nothing
+// from these hosts.
+const TRANSLATE_ORIGINS = new Set([
+  'https://translate.google.com',
+  'https://translate.googleapis.com',
+  'https://www.gstatic.com',
+  'https://fonts.gstatic.com',
+  'https://www.google.com',
+]);
 const DIRECTIVE = /^[a-z][a-z-]{2,39}$/;
 const KEYWORD = /^[a-z][a-z-]{0,19}$/;
 
@@ -63,7 +73,7 @@ export function parseCspReport(raw: string): CspViolation | null {
   if (EXTENSION_SCHEME.test(blockedRaw) || EXTENSION_SCHEME.test(sourceRaw)) return null;
 
   const blocked = originOf(blockedRaw) ?? (KEYWORD.test(blockedRaw) ? blockedRaw : null);
-  if (!blocked) return null;
+  if (!blocked || TRANSLATE_ORIGINS.has(blocked)) return null;
 
   return {
     directive,

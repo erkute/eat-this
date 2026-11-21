@@ -49,12 +49,34 @@ describe('rate limit failure policies', () => {
     vi.clearAllMocks();
   });
 
-  it('fails open for paths that must not depend on the limiter', async () => {
+  it('lets a request through while Firestore is down', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
     mocks.getAdminFirestore.mockImplementation(() => {
       throw new Error('firestore unavailable');
     });
 
     await expect(checkRateLimit('login:test', 1, 1000)).resolves.toBe(true);
+    vi.restoreAllMocks();
+  });
+
+  it('keeps the limit per instance while Firestore is down', async () => {
+    vi.useFakeTimers({ now: 1_000_000 });
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    mocks.getAdminFirestore.mockImplementation(() => {
+      throw new Error('firestore unavailable');
+    });
+    try {
+      for (let i = 0; i < 3; i++) expect(await checkRateLimit('magic-link:email:down', 3, 60_000)).toBe(true);
+      expect(await checkRateLimit('magic-link:email:down', 3, 60_000)).toBe(false);
+      // Another key has its own window.
+      expect(await checkRateLimit('magic-link:email:other', 3, 60_000)).toBe(true);
+
+      vi.advanceTimersByTime(60_000);
+      expect(await checkRateLimit('magic-link:email:down', 3, 60_000)).toBe(true);
+    } finally {
+      vi.useRealTimers();
+      vi.restoreAllMocks();
+    }
   });
 
   it('fails closed for cost-sensitive operations', async () => {

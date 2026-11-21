@@ -151,6 +151,15 @@ export function countHome(payload: Record<string, string | number | string[] | n
   sendCount({ ...payload, path: window.location.pathname });
 }
 
+/** Ein Ladezeit-Messwert (LCP, INP oder CLS) des Dokuments, das auf `path`
+ *  geöffnet wurde (lib/analytics/webVitals.ts). Telefon oder Desktop allein
+ *  nach der Fensterbreite, wie bei den übrigen Beacons. */
+export function countVital(name: string, value: number, path: string): void {
+  if (typeof window === 'undefined') return;
+  const device = window.innerWidth < 768 ? 'phone' : 'desktop';
+  sendCount({ vital: name, value, device, path });
+}
+
 /** Nur fuer Tests: den Dokument-Zustand zuruecksetzen. */
 export function resetReferrerSentForTests(): void {
   referrerSent = false;

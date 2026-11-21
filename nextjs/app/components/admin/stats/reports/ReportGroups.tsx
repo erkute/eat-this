@@ -7,6 +7,7 @@ import Revenue from './Revenue';
 import Measurement from './Measurement';
 import FunnelReport from './FunnelReport';
 import EventsReport from './EventsReport';
+import Vitals from './Vitals';
 import styles from '../../StatsDashboard.module.css';
 function Choices({
   values,
@@ -100,12 +101,15 @@ export function MeasurementReport({ data }: { data: StatsSummary }) {
         onChange={setTab}
         values={[
           { key: 'quality', label: 'Zahlenqualität' },
+          { key: 'vitals', label: 'Ladezeiten' },
           { key: 'actions', label: 'Produktaktionen' },
           { key: 'events', label: 'Alle Ereignisse' },
         ]}
       />
       {tab === 'quality' ? (
         <Measurement data={data} />
+      ) : tab === 'vitals' ? (
+        <Vitals data={data} />
       ) : tab === 'actions' ? (
         <FunnelReport data={data} />
       ) : (

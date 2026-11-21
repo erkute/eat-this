@@ -198,6 +198,16 @@ describe('middleware: legacy 404 cleanup (post-rebuild re-slug)', () => {
     expect((await middleware(makeReq('/en/restaurant/phantom-bar'))).status).toBe(410)
   })
 
+  it('article gone for good → 410 Gone with no Location (DE + EN)', async () => {
+    const middleware = await mw()
+    for (const path of ['/news/drei-doener-berlin', '/en/news/tuerkische-restaurants-berlin']) {
+      const res = await middleware(makeReq(path))
+      expect(res.status, path).toBe(410)
+      expect(res.headers.get('location'), path).toBeNull()
+      expect(await res.text(), path).toContain('Diesen Artikel gibt es nicht mehr')
+    }
+  })
+
   it('confirmed restaurant rename returns one early Location in either locale', async () => {
     const middleware = await mw()
     for (const prefix of ['', '/en']) {

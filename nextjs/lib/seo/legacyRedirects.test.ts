@@ -3,6 +3,7 @@ import {
   resolveLegacyRestaurantSlug,
   EARLY_RESTAURANT_REDIRECTS,
   GONE_SLUGS,
+  GONE_NEWS_SLUGS,
   NEWS_REDIRECTS,
   type LegacyRestaurant,
 } from './legacyRedirects';
@@ -76,16 +77,23 @@ describe('resolveLegacyRestaurantSlug', () => {
 });
 
 describe('static gone / news maps', () => {
-  it('flags the five permanently closed spots', () => {
+  it('flags the spots gone for good', () => {
     expect([...GONE_SLUGS].sort()).toEqual(
       [
         'doyum-restaurant',
         'gnam-pasta-factory',
+        'kuma-ramen-eatery-markthalle-pfefferberg',
         'lala-restaurant',
         'phantom-bar',
         'zeit-caf',
       ].sort()
     );
+  });
+  it('flags the articles gone for good, none of them also redirected', () => {
+    expect([...GONE_NEWS_SLUGS].sort()).toEqual(
+      ['drei-doener-berlin', 'tuerkische-restaurants-berlin'].sort()
+    );
+    for (const slug of GONE_NEWS_SLUGS) expect(Object.hasOwn(NEWS_REDIRECTS, slug), slug).toBe(false);
   });
   it('routes the File Asto article to its restaurant page, the rest to /news', () => {
     expect(NEWS_REDIRECTS['file-asto-brings-a-taste-of-athens-to-kreuzberg']).toBe(

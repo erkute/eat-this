@@ -20,6 +20,11 @@ const GUIDE_TO_CATEGORY = [
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  // A defined false lets production bundles remove the local emulator wiring.
+  env: {
+    NEXT_PUBLIC_FIREBASE_EMULATORS:
+      process.env.NEXT_PUBLIC_FIREBASE_EMULATORS === 'true' ? 'true' : 'false',
+  },
   // Trägt den Build-Zeitpunkt, weil die Dateien im App-Hosting-Image auf
   // 1980-01-01 stehen; cache-handler.cjs liest ihn hier heraus.
   generateBuildId: async () => `et-${Date.now()}-${randomUUID().slice(0, 8)}`,

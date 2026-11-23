@@ -78,7 +78,7 @@ describe('MagazineLink', () => {
     const { getByRole } = render(<MagazineLink href="/news/doener">{cover}</MagazineLink>);
     fireEvent.click(getByRole('link'));
     expect(navigations).toEqual([]);
-    expect(overlay()).not.toBeNull();
+    await vi.waitFor(() => expect(overlay()).not.toBeNull());
     await vi.waitFor(() => expect(navigations).toEqual(['/news/doener']));
     land('doener');
     await vi.waitFor(() => expect(overlay()).toBeNull());
@@ -122,7 +122,7 @@ describe('MagazineLink', () => {
     );
     const [front, read] = getAllByRole('link');
     fireEvent.click(read);
-    expect(front.style.visibility).toBe('hidden');
+    await vi.waitFor(() => expect(front.style.visibility).toBe('hidden'));
     await vi.waitFor(() => expect(navigations).toEqual(['/news/doener']));
     land('doener');
     await vi.waitFor(() => expect(overlay()).toBeNull());

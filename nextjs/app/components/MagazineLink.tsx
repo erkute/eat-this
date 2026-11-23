@@ -1,8 +1,7 @@
 'use client';
 
-import { useRef, useState, type ComponentProps, type MouseEvent } from 'react';
+import { useEffect, useRef, useState, type ComponentProps, type MouseEvent } from 'react';
 import { Link } from '@/i18n/navigation';
-import { openMagazine } from '@/lib/magazineOpen';
 import styles from './MagazineOpen.module.css';
 
 const CLASSES = {
@@ -47,6 +46,18 @@ type Props = Omit<ComponentProps<typeof Link>, 'href' | 'onClick' | 'prefetch'> 
 export default function MagazineLink({ href, coverFrom, children, className, onPointerEnter, onPointerDown, onFocus, ...rest }: Props) {
   const passOn = useRef(false);
   const [prefetch, setPrefetch] = useState(false);
+  const active = useRef(true);
+  const opening = useRef(false);
+  useEffect(() => {
+    active.current = true;
+    return () => { active.current = false; };
+  }, []);
+  const prepare = () => {
+    setPrefetch(true);
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      void import('@/lib/magazineOpen').catch(() => {});
+    }
+  };
 
   const onClick = (event: MouseEvent<HTMLAnchorElement>) => {
     if (passOn.current) {
@@ -60,18 +71,22 @@ export default function MagazineLink({ href, coverFrom, children, className, onP
     const link = coverFrom ? document.querySelector<HTMLElement>(coverFrom) : anchor;
     const cover = link?.querySelector<HTMLElement>('[data-magazine-cover]');
     if (!link || !cover) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    event.preventDefault();
+    if (opening.current) return;
+    opening.current = true;
+    const navigate = () => {
+      if (!active.current || !anchor.isConnected) return;
+      opening.current = false;
+      passOn.current = true;
+      anchor.click();
+    };
     const slug = href.split('/').filter(Boolean).pop() ?? '';
-    const opened = openMagazine({
-      link,
-      cover,
-      slug,
-      navigate: () => {
-        passOn.current = true;
-        anchor.click();
-      },
-      classes: CLASSES,
-    });
-    if (opened) event.preventDefault();
+    void import('@/lib/magazineOpen').then(({ openMagazine }) => {
+      if (!active.current || !anchor.isConnected) return;
+      const opened = openMagazine({ link, cover, slug, navigate, classes: CLASSES });
+      if (!opened) navigate();
+    }).catch(navigate);
   };
 
   return (
@@ -79,9 +94,9 @@ export default function MagazineLink({ href, coverFrom, children, className, onP
       {...rest}
       href={href}
       prefetch={prefetch ? null : false}
-      onPointerEnter={(event) => { setPrefetch(true); onPointerEnter?.(event); }}
-      onPointerDown={(event) => { setPrefetch(true); onPointerDown?.(event); }}
-      onFocus={(event) => { setPrefetch(true); onFocus?.(event); }}
+      onPointerEnter={(event) => { prepare(); onPointerEnter?.(event); }}
+      onPointerDown={(event) => { prepare(); onPointerDown?.(event); }}
+      onFocus={(event) => { prepare(); onFocus?.(event); }}
       onClick={onClick}
       className={[styles.link, className].filter(Boolean).join(' ')}
     >

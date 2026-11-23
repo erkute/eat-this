@@ -8,10 +8,6 @@
 
 import gsap from 'gsap';
 
-/** Länger als der längste Takt des Kopf-Auftritts (CSS: 620 + 900 ms). */
-const INTRO_MS = 1700;
-const INTRO_MARK = 'data-article-intro';
-
 interface Scene {
   trigger: Element;
   timeline: gsap.core.Timeline;
@@ -99,22 +95,9 @@ function scenesOf(root: HTMLElement): Scene[] {
   return scenes.filter((scene): scene is Scene => scene !== null);
 }
 
-/** Lässt die Kopf-Marke fallen, wenn der Auftritt durch ist — sonst liefe er
- *  beim nächsten Artikel, der über ein Heft kommt, noch einmal mit. */
-function endIntro(): () => void {
-  const html = document.documentElement;
-  if (!html.hasAttribute(INTRO_MARK)) return () => {};
-  const timer = setTimeout(() => html.removeAttribute(INTRO_MARK), INTRO_MS);
-  return () => {
-    clearTimeout(timer);
-    html.removeAttribute(INTRO_MARK);
-  };
-}
-
 export function armArticleMotion(root: HTMLElement): () => void {
-  const leaveIntro = endIntro();
-  if (typeof IntersectionObserver === 'undefined') return leaveIntro;
-  if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return leaveIntro;
+  if (typeof IntersectionObserver === 'undefined') return () => {};
+  if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return () => {};
 
   // Ein Tab, der nicht zu sehen ist (im Hintergrund geöffnet, die Vorschau
   // der Desktop-App), lässt keine Animation laufen — was hier versteckt
@@ -131,7 +114,6 @@ export function armArticleMotion(root: HTMLElement): () => void {
   return () => {
     document.removeEventListener('visibilitychange', armWhenVisible);
     disarm?.();
-    leaveIntro();
   };
 }
 

@@ -1,4 +1,4 @@
-import { Link } from '@/i18n/navigation';
+import Link from './MapIntentLink';
 import type { RestaurantCard } from '@/lib/types';
 import { normalizeName } from '@/lib/normalizeName';
 import { localizedCuisine } from '@/lib/cuisineLabels';

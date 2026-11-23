@@ -5,7 +5,6 @@ import { isStaging } from '@/lib/env';
 import { REFERRER_COOKIE, COOKIE_MAX_AGE, UID_SHAPE } from '@/lib/referral/constants';
 import {
   GONE_SLUGS,
-  GONE_NEWS_SLUGS,
   NEWS_REDIRECTS,
   EARLY_RESTAURANT_REDIRECTS,
 } from '@/lib/seo/legacyRedirects';
@@ -16,11 +15,11 @@ const INTERNAL_LOCALE_HEADER = 'x-eat-this-internal-locale';
 const STAGING_AUTH_COOKIE = '__Host-eatthis_staging_auth';
 const STAGING_AUTH_COOKIE_MAX_AGE = 60 * 60 * 12;
 
-// 410 body for spots and articles gone for good: plain semantic HTML; crawlers
+// 410 body for spots gone for good: plain semantic HTML; crawlers
 // read the 410 status, humans get a link home.
-function goneResponse(heading: string): NextResponse {
+function goneSpotResponse(): NextResponse {
   return new NextResponse(
-    `<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="robots" content="noindex"><title>Nicht mehr verfügbar – Eat This</title></head><body><h1>${heading}</h1><p>Die Seite gibt es nicht mehr. Entdecke andere Berliner Spots:</p><p><a href="https://www.eatthisdot.com/">Zur Startseite</a></p></body></html>`,
+    `<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="robots" content="noindex"><title>Nicht mehr verfügbar – Eat This</title></head><body><h1>Diesen Spot gibt es nicht mehr</h1><p>Die Seite gibt es nicht mehr. Entdecke andere Berliner Spots:</p><p><a href="https://www.eatthisdot.com/">Zur Startseite</a></p></body></html>`,
     { status: 410, headers: { 'content-type': 'text/html; charset=utf-8' } }
   );
 }
@@ -206,7 +205,7 @@ export default async function middleware(req: NextRequest) {
 
     const gone = rest.match(/^\/restaurant\/([^/]+)\/?$/);
     if (gone && GONE_SLUGS.has(gone[1])) {
-      return finalizeResponse(goneResponse('Diesen Spot gibt es nicht mehr'));
+      return finalizeResponse(goneSpotResponse());
     }
 
     if (gone && Object.hasOwn(EARLY_RESTAURANT_REDIRECTS, gone[1])) {
@@ -226,9 +225,6 @@ export default async function middleware(req: NextRequest) {
     }
 
     const news = rest.match(/^\/news\/([^/]+)\/?$/);
-    if (news && GONE_NEWS_SLUGS.has(news[1])) {
-      return finalizeResponse(goneResponse('Diesen Artikel gibt es nicht mehr'));
-    }
     if (news && NEWS_REDIRECTS[news[1]]) {
       const url = req.nextUrl.clone();
       url.search = '';

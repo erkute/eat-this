@@ -147,9 +147,20 @@ jobs:
         working-directory: .
         run: echo "run=${{ github.event_name == 'pull_request' && github.base_ref == 'staging' }}" >> "$GITHUB_OUTPUT"
 
-      # Der Build für die Jobs `e2e` und `lighthouse` unten; sie bauen nicht
-      # selbst, weil jeder weitere Build Zeit und Sanity-Kontingent kostet
-      # (siehe oben). Mit kommt nur, was `next start` braucht, plus der
+      # Der Code-Gate oben prüft die normale Produktionskonfiguration. Nur
+      # Browser-PRs bekommen zusätzlich die Demo-SDK-Konfiguration; App Hosting
+      # baut separat mit seiner eigenen Firebase-Konfiguration. Der Fetch-Cache
+      # bleibt für diesen zweiten Build erhalten.
+      - name: Browser-Build für lokale Firebase-Emulatoren
+        if: steps.browser.outputs.run == 'true'
+        run: |
+          set -a
+          . ./e2e/firebase.env
+          set +a
+          npm run build:isolated
+
+      # Diesen Build teilen die Jobs `e2e` und `lighthouse`; sie bauen nicht
+      # selbst. Mit kommt nur, was `next start` braucht, plus der
       # Fetch-Cache für Seiten, die erst zur Laufzeit rendern; ohne
       # Webpack-Cache und Standalone-Bundle.
       - name: Build für die Browser-Prüfung packen
@@ -243,7 +254,12 @@ jobs:
         env:
           FIREBASE_ADMIN_PROJECT_ID: demo-eat-this-quality
           COUNT_SALT: quality-browser-emulator-only
-        run: npx --yes firebase-tools@14.22.0 emulators:exec --only firestore,storage --project demo-eat-this-quality --config e2e/firebase.json "npx tsx e2e/seed-firebase.mts && npx playwright test --project=${{ matrix.project }}"
+          PREMIUM_ACCESS_SIGNING_KEY: quality-browser-emulator-signing-only
+        run: |
+          set -a
+          . ./e2e/firebase.env
+          set +a
+          npx --yes firebase-tools@14.22.0 emulators:exec --only auth,firestore,storage --project demo-eat-this-quality --config ../firebase.e2e.json "npx tsx e2e/seed-firebase.mts && npx playwright test --project=${{ matrix.project }}"
 
       - name: Browser evidence
         if: always()
@@ -331,7 +347,7 @@ jobs:
           LIGHTHOUSE_SHARD: ${{ matrix.shard }}/3
         run: |
           export CHROME_PATH="$(node -e "process.stdout.write(require('playwright').chromium.executablePath())")"
-          npx --yes firebase-tools@14.22.0 emulators:exec --only firestore,storage --project demo-eat-this-quality --config e2e/firebase.json "npx tsx e2e/seed-firebase.mts && npm run audit:preview"
+          npx --yes firebase-tools@14.22.0 emulators:exec --only auth,firestore,storage --project demo-eat-this-quality --config ../firebase.e2e.json "npx tsx e2e/seed-firebase.mts && npm run audit:preview"
 
       - name: Lighthouse evidence
         if: always()

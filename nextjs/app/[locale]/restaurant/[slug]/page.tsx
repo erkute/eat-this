@@ -39,7 +39,6 @@ import RestaurantArticlesSection from '@/app/components/RestaurantArticlesSectio
 import MapIntentLink from '@/app/components/MapIntentLink';
 import { safeHttpUrl } from '@/lib/safeHttpUrl';
 import { PhotoCredit, shownPhotoCredit } from '@/app/components/PhotoCredit';
-import { Link as IntlLink } from '@/i18n/navigation';
 import styles from './RestaurantPage.module.css';
 
 interface PageProps {
@@ -261,9 +260,9 @@ export default async function RestaurantPage({ params }: PageProps) {
   const metaParts = [
     districtName &&
       (bezirkSlug ? (
-        <IntlLink key="district" href={`/bezirk/${bezirkSlug}`}>
+        <MapIntentLink key="district" href={`/bezirk/${bezirkSlug}`}>
           {districtName}
-        </IntlLink>
+        </MapIntentLink>
       ) : (
         <span key="district">{districtName}</span>
       )),
@@ -325,9 +324,9 @@ export default async function RestaurantPage({ params }: PageProps) {
           </h1>
           {districtName &&
             (bezirkSlug ? (
-              <IntlLink href={`/bezirk/${bezirkSlug}`} className={styles.district}>
+              <MapIntentLink href={`/bezirk/${bezirkSlug}`} className={styles.district}>
                 {districtName}
-              </IntlLink>
+              </MapIntentLink>
             ) : (
               <p className={styles.district}>{districtName}</p>
             ))}

@@ -21,7 +21,7 @@ async function signedInFixture(context: BrowserContext, page: Page, baseURL: str
   await context.route('**/api/map-data', route => route.fulfill({ json: { ...publicData, fullCatalog } }));
   await context.route('https://firestore.googleapis.com/**', route => route.abort());
   await context.route('https://securetoken.googleapis.com/**', route => route.abort());
-  await context.route('https://identitytoolkit.googleapis.com/**', route => route.fulfill({ json: {
+  await context.route('**/identitytoolkit.googleapis.com/**', route => route.fulfill({ json: {
     users: [{ localId: uid, email: 'scroll@example.invalid', emailVerified: true, displayName: 'Scroll fixture',
       validSince: String(Math.floor(Date.now() / 1000) - 60), createdAt: String(Date.now() - 100000), lastLoginAt: String(Date.now()) }],
   } }));

@@ -6,5 +6,8 @@
     "scripts/*.{ts,mts}",
     "lib/sanityImageLoader.ts",
     "lib/sentry/client-sdk.ts"
+  ],
+  "ignoreBinaries": [
+    "openssl"
   ]
 }

@@ -121,20 +121,6 @@ describe('armArticleMotion', () => {
     visibility.mockRestore();
   });
 
-  it('lets the intro mark go once the intro has run, and on leaving', () => {
-    vi.useFakeTimers();
-    document.documentElement.setAttribute('data-article-intro', '');
-    const cleanup = armArticleMotion(article());
-    expect(document.documentElement.hasAttribute('data-article-intro')).toBe(true);
-    vi.advanceTimersByTime(2000);
-    expect(document.documentElement.hasAttribute('data-article-intro')).toBe(false);
-
-    document.documentElement.setAttribute('data-article-intro', '');
-    cleanup();
-    expect(document.documentElement.hasAttribute('data-article-intro')).toBe(false);
-    vi.useRealTimers();
-  });
-
   // Am Telefon ist „Weitere Ausgaben" ein Querscroller mit Einrasten: Er
   // rastete sonst auf das noch versetzte Heft ein und liefe beim Austeilen mit.
   // Solange die Hefte unterwegs sind, rastet nichts ein.

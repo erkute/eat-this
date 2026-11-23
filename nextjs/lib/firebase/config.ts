@@ -5,6 +5,7 @@
 import { initializeApp, getApps } from 'firebase/app';
 import {
   browserLocalPersistence,
+  connectAuthEmulator,
   getAuth,
   indexedDBLocalPersistence,
   initializeAuth,
@@ -152,7 +153,19 @@ function initAuth(): Auth {
   }
 }
 
+const emulators = process.env.NEXT_PUBLIC_FIREBASE_EMULATORS === 'true';
+if (emulators && (app.options.projectId !== 'demo-eat-this-quality'
+  || (typeof window !== 'undefined' && !isLocalHost(window.location.hostname)))) {
+  throw new Error('Firebase emulators require the demo project on loopback');
+}
+
 export const auth = initAuth();
+if (emulators && typeof window !== 'undefined' && !auth.emulatorConfig) {
+  const emulatorUrl = window.location.protocol === 'https:'
+    ? window.location.origin
+    : 'http://127.0.0.1:9099';
+  connectAuthEmulator(auth, emulatorUrl, { disableWarnings: true });
+}
 
 // Lazy Firestore. A static `getFirestore(app)` pulls the ~85 KB gzip
 // firebase/firestore SDK into every route's first-load via the global
@@ -165,7 +178,16 @@ let _dbPromise: Promise<Firestore> | null = null;
 export function getDb(): Promise<Firestore> {
   if (!_dbPromise) {
     _dbPromise = import('firebase/firestore')
-      .then(({ getFirestore }) => getFirestore(app))
+      .then(({ getFirestore, initializeFirestore, connectFirestoreEmulator }) => {
+        // The local TLS proxy keeps WebKit's emulator traffic same-origin,
+        // including Firestore's streaming transport (no mixed content).
+        if (emulators && typeof window !== 'undefined' && window.location.protocol === 'https:') {
+          return initializeFirestore(app, { host: window.location.host, ssl: true });
+        }
+        const db = getFirestore(app);
+        if (emulators) connectFirestoreEmulator(db, '127.0.0.1', 8089);
+        return db;
+      })
       .catch((error: unknown) => {
         // A transient chunk/init failure must not poison every Firestore flow
         // until the next full page load. The next caller gets a fresh attempt.

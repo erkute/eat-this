@@ -21,6 +21,8 @@ vi.mock('firebase/auth', () => ({
 
 vi.mock('firebase/firestore', () => ({
   getFirestore: mocks.getFirestore,
+  initializeFirestore: vi.fn(),
+  connectFirestoreEmulator: vi.fn(),
 }));
 
 import { getDb } from '../config';

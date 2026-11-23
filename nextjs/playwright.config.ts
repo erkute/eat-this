@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const baseURL = process.env.E2E_BASE_URL || 'http://127.0.0.1:3100';
+const baseURL = process.env.E2E_BASE_URL || 'https://127.0.0.1:3101';
 
 export default defineConfig({
   testDir: './e2e',
@@ -14,6 +14,7 @@ export default defineConfig({
   reporter: [['list']],
   use: {
     baseURL,
+    ignoreHTTPSErrors: ['127.0.0.1', 'localhost'].includes(new URL(baseURL).hostname),
     extraHTTPHeaders: { DNT: '1' },
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
@@ -22,7 +23,7 @@ export default defineConfig({
     { name: 'mobile', use: { ...devices['Pixel 7'] } },
     {
       name: 'mobile-safari',
-      testMatch: ['map-browser-toolbar.spec.ts', 'checkout-theme.spec.ts', 'loading-priority.spec.ts', 'private-musteat-images.spec.ts', 'iphone-landscape-regressions.spec.ts', 'magazine-archive.spec.ts', 'news-loading.spec.ts', 'home-device-layout.spec.ts', 'landscape-pages.spec.ts', 'landscape-spot.spec.ts', 'map-landscape-rail.spec.ts', 'home-landscape-musteats.spec.ts', 'must-eat-gallery-zoom.spec.ts', 'touch-feedback.spec.ts', 'remy-menu.spec.ts', 'home-scroll-motion.spec.ts', 'login-viewport.spec.ts', 'login-window.spec.ts', 'home-faq.spec.ts'],
+      testMatch: ['account-flows.spec.ts', 'reading-javascript.spec.ts', 'map-browser-toolbar.spec.ts', 'checkout-theme.spec.ts', 'loading-priority.spec.ts', 'private-musteat-images.spec.ts', 'iphone-landscape-regressions.spec.ts', 'magazine-archive.spec.ts', 'news-loading.spec.ts', 'home-device-layout.spec.ts', 'landscape-pages.spec.ts', 'landscape-spot.spec.ts', 'map-landscape-rail.spec.ts', 'home-landscape-musteats.spec.ts', 'must-eat-gallery-zoom.spec.ts', 'touch-feedback.spec.ts', 'remy-menu.spec.ts', 'home-scroll-motion.spec.ts', 'login-viewport.spec.ts', 'login-window.spec.ts', 'home-faq.spec.ts'],
       use: { ...devices['iPhone 13'] },
     },
     {
@@ -33,7 +34,8 @@ export default defineConfig({
   webServer: process.env.E2E_BASE_URL
     ? undefined
     : {
-        command: 'npm run start:verify',
+        command: 'node e2e/start-server.mjs',
+        ignoreHTTPSErrors: true,
         url: baseURL,
         reuseExistingServer: false,
         timeout: 60_000,

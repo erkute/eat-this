@@ -106,6 +106,15 @@ describe('MustEatTeaserSection', () => {
     );
   });
 
+  it('shows the one-time Starter offer in the Spot HTML in both languages', () => {
+    expect(render(mustEats('me-1'))).toContain(
+      'einmalig bis zu 20 kostenlose Must-Eat-Karten'
+    );
+    const en = render(mustEats('me-1'), 'en');
+    expect(en).toContain('up to 20 free Must Eat cards, once per account');
+    expect(en).toContain('href="/en/map?me=me-1"');
+  });
+
   it('uses each card as the map link without an additional CTA', () => {
     const html = render(mustEats('me-1', 'me-2'));
     expect(html.match(/<a\b[^>]*href="\/map\?me=[^"]+"/g)).toHaveLength(2);

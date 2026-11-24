@@ -13,6 +13,8 @@ vi.mock('next-intl', () => ({
       proximityAway: 'Noch nicht aufgedeckt',
       proximityHint:
         'Ein Gericht, das du probieren musst. Am Spot deckst du die Karte auf — dann gehört sie dir.',
+      proximityFreeAtSpot: 'Am Spot kannst du diese Karte kostenlos aufdecken.',
+      proximityPacks: 'Packs ansehen',
       locationAllow: 'Standort freigeben',
       locationBlocked: 'Standort blockiert',
       proximityHere: 'Du bist da.',
@@ -110,6 +112,7 @@ describe('MustEatDetailMobile guest pitch', () => {
        verdeckte Karte; das Formular oeffnet erst der Tipp (MustEatDetail). */
     expect(screen.getByText('Noch nicht aufgedeckt')).toBeTruthy();
     expect(screen.queryByText('Standort freigeben')).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Packs ansehen' })).toBeNull();
 
     /* Der Kartentipp ist der Weg zum Formular — und so heisst er auch fuers
        Screenreader-Ohr („Anmelden", map.starterCta), nicht „Standort
@@ -184,7 +187,7 @@ describe('MustEatDetailMobile guest pitch', () => {
 });
 
 describe('MustEatDetailMobile proximity states', () => {
-  it('shows no distance at all and names what is under the card', () => {
+  it('shows the free reveal first and offers packs separately at a known distance', () => {
     const { container } = render(
       <MustEatDetailMobile
         mustEat={mustEat}
@@ -195,11 +198,11 @@ describe('MustEatDetailMobile proximity states', () => {
     );
 
     expect(screen.getByText('Noch nicht aufgedeckt')).toBeTruthy();
-    expect(
-      screen.getByText(
-        'Ein Gericht, das du probieren musst. Am Spot deckst du die Karte auf — dann gehört sie dir.'
-      )
-    ).toBeTruthy();
+    const free = screen.getByText('Am Spot kannst du diese Karte kostenlos aufdecken.');
+    const packs = screen.getByRole('link', { name: 'Packs ansehen' });
+    expect(packs.getAttribute('href')).toBe('/packs');
+    expect(free.compareDocumentPosition(packs) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(packs.closest('[role="status"]')).toBeNull();
     // No figure anywhere in the block: the radius made it read as arithmetic,
     // and the remaining distance made the spot look far and like hard work.
     expect(container.textContent).not.toMatch(/50\s?m/);
@@ -228,6 +231,7 @@ describe('MustEatDetailMobile proximity states', () => {
     // One step per state: no fix means the copy line carries only the chip —
     // the sentence about the prize waits for the state that can promise it.
     expect(screen.queryByText(/Ein Gericht, das du probieren musst/)).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Packs ansehen' })).toBeNull();
 
     const chip = container.querySelector('[data-location-needed]');
     expect(chip?.getAttribute('data-location-needed')).toBe('ask');
@@ -267,6 +271,7 @@ describe('MustEatDetailMobile proximity states', () => {
     expect(screen.queryByText('Standort freigeben')).toBeNull();
     expect(container.querySelector('[data-location-needed]')).toBeNull();
     expect(screen.getByLabelText('Standort blockiert')).toBeTruthy();
+    expect(screen.queryByRole('link', { name: 'Packs ansehen' })).toBeNull();
   });
 
   /* Ein Wort bricht nicht: ein langes Versalwort wie „RINDERGULASCH" muss die
@@ -352,6 +357,20 @@ describe('MustEatDetailMobile proximity states', () => {
     expect(screen.getByText('Du bist da.')).toBeTruthy();
     expect(screen.getByText('Tipp drauf und sieh, was du hier bestellen musst.')).toBeTruthy();
     expect(container.querySelector('[data-reveal-ready]')).not.toBeNull();
+    expect(screen.queryByRole('link', { name: 'Packs ansehen' })).toBeNull();
+  });
+
+  it('keeps the pack offer hidden once the card is open under a reveal transition', () => {
+    render(
+      <MustEatDetailMobile
+        mustEat={mustEat}
+        isUnlocked
+        onClose={vi.fn()}
+        state={makeState({ revealOrigin: {} as DOMRect })}
+      />
+    );
+
+    expect(screen.queryByRole('link', { name: 'Packs ansehen' })).toBeNull();
   });
 
   /* Nach der Beute schließt sich die Bühne um die heimkehrende Karte. Das Sheet
@@ -384,5 +403,6 @@ describe('MustEatDetailMobile proximity states', () => {
     expect(screen.getByText('Rinder Schaufel')).toBeTruthy();
     expect(screen.getByText('Zwölf Stunden geschmort.')).toBeTruthy();
     expect(screen.queryByText('Du bist da.')).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Packs ansehen' })).toBeNull();
   });
 });

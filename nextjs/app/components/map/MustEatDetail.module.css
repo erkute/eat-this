@@ -1469,6 +1469,10 @@
   width: 100%;
 }
 
+.fdPackLink {
+  margin-top: 8px;
+}
+
 .fdLocationChip svg {
   flex: 0 0 auto;
   width: 16px;

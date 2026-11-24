@@ -10,6 +10,7 @@ const en = {
   mustEats: {
     // Alt-Text der verdeckten Karte, gleiches Wort wie auf der Pack-Seite.
     covered: 'Covered',
+    spotStarter: 'Get started with up to {count} free Must Eat cards, once per account.',
     howItWorks: 'How does it work?',
     onb1Kicker: 'Must Eats',
     onb1Title: 'What will you try next?',
@@ -137,6 +138,8 @@ const en = {
     // the prize first and puts the condition second.
     proximityHint:
       'What to order here, you find out right at the spot. That is where you flip the card and add it to your deck.',
+    proximityFreeAtSpot: 'You can reveal this card for free at the spot.',
+    proximityPacks: 'View packs',
     revealCollected: 'New in your collection',
     revealError: "That didn't work.",
     revealRetry: 'Tap the card again.',
@@ -358,6 +361,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
   },
   mustEats: {
     covered: 'Verdeckt',
+    spotStarter: 'Mit deinem Konto erhältst du einmalig bis zu {count} kostenlose Must-Eat-Karten.',
     howItWorks: "Wie funktioniert's?",
     onb1Kicker: 'Must Eats',
     onb1Title: 'Was probierst du als Nächstes?',
@@ -483,6 +487,8 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     // als die Beschreibung der Nachbarkarte.
     proximityHint:
       'Was du hier bestellen solltest, erfährst du direkt am Spot. Dort kannst du die Karte aufdecken und deinem Deck hinzufügen.',
+    proximityFreeAtSpot: 'Am Spot kannst du diese Karte kostenlos aufdecken.',
+    proximityPacks: 'Packs ansehen',
     revealCollected: 'Neu in deiner Sammlung',
     revealError: 'Hat nicht geklappt.',
     revealRetry: 'Tipp nochmal auf die Karte.',

@@ -16,6 +16,7 @@
 .buyButton { width: min(100%, 340px); }
 .pay { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
 .paymentNote { margin: 0; color: var(--et-copy); font-size: 13px; line-height: 1.4; }
+.paymentNote strong { color: var(--et-fg); font-size: var(--et-type-button); }
 .error { margin: 0; color: var(--et-link); }
 .boardUpsell .title { font-size: clamp(48px, 6vw, 80px); }
 @media (min-width: 900px) {

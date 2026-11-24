@@ -111,9 +111,8 @@ export default function PackBuyButton({
         onClick={onBuy}
         disabled={state === 'pending' || owned === null}
         aria-busy={state === 'pending' || owned === null}
-        aria-label={owned === null ? (locale === 'de' ? 'Wird geladen' : 'Loading') : undefined}
       >
-        {state === 'pending' ? pendingLabel : owned === null ? '…' : label}
+        {state === 'pending' ? pendingLabel : label}
       </button>
       {state === 'error' && <p className={errorClassName ?? styles.ctaError}>{errorLabel}</p>}
     </>

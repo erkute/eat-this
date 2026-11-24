@@ -46,7 +46,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 const copy = {
   de: {
     pack: 'Pack',
-    cta: 'Freischalten',
+    cta: 'Pack kaufen',
     pending: 'Weiter zu Stripe …',
     owned: 'Zur Map',
     error: 'Da ging was schief. Versuch es nochmal.',
@@ -56,7 +56,7 @@ const copy = {
   },
   en: {
     pack: 'Pack',
-    cta: 'Unlock',
+    cta: 'Buy pack',
     pending: 'Going to Stripe …',
     owned: 'Open map',
     error: 'Something went wrong. Please try again.',
@@ -123,36 +123,36 @@ export default async function PackDetailPage({ params }: PageProps) {
                 />
               </div>
             )}
-              <div className={styles.actions}>
-                {empty ? (
-                  <p className={styles.soon}>{t.soon}</p>
-                ) : (
+            <div className={styles.actions}>
+              {empty ? (
+                <p className={styles.soon}>{t.soon}</p>
+              ) : (
+                <>
+                  <p className={styles.paymentNote}>
+                    <strong>{formatPackPrice(pack.amountCents)}</strong>
+                    {' · '}
+                    {loc === 'de' ? 'Einmalzahlung, kein Abo' : 'One-time payment, no subscription'}
+                  </p>
                   <PackBuyButton
                     packId={pack.packId}
                     packName={pack.displayName}
                     amountCents={pack.amountCents}
                     locale={loc}
                     errorClassName={styles.ctaError}
-                    label={`${t.cta} · ${formatPackPrice(pack.amountCents)}`}
+                    label={t.cta}
                     pendingLabel={t.pending}
                     ownedLabel={t.owned}
                     ownedHref={t.map}
                     errorLabel={t.error}
                   />
-                )}
-                {!empty && (
-                  <p className={styles.paymentNote}>
-                    {loc === 'de' ? 'Einmalzahlung, kein Abo' : 'One-time payment, no subscription'}
-                  </p>
-                )}
-                {!empty && (
                   <PaymentMarks
                     height={24}
                     label={`${t.payment}: ${PAYMENT_MARK_NAMES.join(', ')}`}
                     className={styles.paymentLogos}
                   />
-                )}
-              </div>
+                </>
+              )}
+            </div>
           </section>
 
           {!empty && <PackPreview locale={loc} category={categorySlug} />}

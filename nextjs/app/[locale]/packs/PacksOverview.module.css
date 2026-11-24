@@ -156,12 +156,17 @@
   text-transform: none;
 }
 
-/* Der Weg zur Detailseite — Preis und Kauf stehen erst dort. Eine ruhige
-   Ink-Pille in der kleinen Grösse (in einer Liste von neun reicht sie);
-   das Rot bleibt dem Kauf vorbehalten.
-   Hover und Fokus: Akzentrot. */
-.view {
+.offer {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
   margin-top: 4px;
+}
+
+.price {
+  font-size: var(--et-type-button);
+  font-weight: 700;
 }
 
 @media (max-width: 980px) {

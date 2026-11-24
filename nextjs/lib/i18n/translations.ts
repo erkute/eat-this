@@ -1,6 +1,8 @@
 /* EN is the source of truth; DE is a deep merge of EN with DE overrides. All
    HTML values in modals come from this constant, not from user input. */
 
+import { STARTER_PACK_CARDS } from '@/lib/starter-pack';
+
 const en = {
   a11y: {
     skip: 'Skip to content',
@@ -14,11 +16,11 @@ const en = {
     onb1Body: 'Our favourite dishes in Berlin, as cards for your collection. Pick what you’re going to try next.',
     onb2Kicker: 'Out in Berlin',
     onb2Title: 'Your next find.',
-    onb2Body: 'Find hidden cards on the map. Head to the spot, allow location access and reveal the card with a tap. One more for your deck.',
-    onb3Kicker: 'For your deck',
+    onb2Body: 'Find hidden cards on the map. Head to the spot, allow location access and reveal the card with a tap. One more for your collection.',
+    onb3Kicker: 'For your collection',
     onb3Title: 'More to discover.',
     onb3Body:
-      'Add more Must Eats to your deck with Booster Packs, without visiting each spot first. New cards, new dishes to try.',
+      'Add more Must Eats to your collection with Booster Packs, without visiting each spot first. New cards, new dishes to try.',
     onbFlipAria: 'Flip the card',
     // Last slide, logged-out variant. Selling a paid Booster Pack to someone
     // without an account skips a rung: the Starter Pack is the offer that
@@ -26,14 +28,14 @@ const en = {
     onbStarterKicker: 'Your collection',
     onbStarterTitle: 'Your first pack.',
     onbStarterBody:
-      'Of the {mustEatCount} Must Eats currently in Berlin, 10 are already revealed. Your Starter Pack reveals 20 more. Discover the rest at the spots themselves. More are added over time.',
+      `Of the {mustEatCount} Must Eats currently in Berlin, 10 are already revealed. Your Starter Pack reveals up to ${STARTER_PACK_CARDS} more cards, once per account. Discover the rest at the spots themselves. More are added over time.`,
     onbStarterCta: 'Sign in',
     onbNext: 'Next',
     onbStart: "Let's go",
     onbPacksCta: 'Packs',
     onbClose: 'Close',
     teaserTitle: 'Must Eats',
-    teaserSub: 'Berlin has a lot on the menu. We tell you what to order – and you collect the recommendations as cards in your own deck.',
+    teaserSub: 'Berlin has a lot on the menu. Discover what to order and add the recommendations to your collection as cards.',
     teaserCta: 'All Must Eats',
     teaserMystery: 'What’s inside?',
     teaserTap: 'Tap the card.',
@@ -293,18 +295,16 @@ const en = {
       dividerOr: 'or',
       resendBtn: 'Resend',
       backBtn: 'Back',
-      packKicker: 'Start your collection',
-      packTitle: 'Starter Pack',
+      packTitle: 'Your Starter Pack.',
       packLead:
-        'Already {mustEatCount} Must Eats across Berlin. Your Starter Pack shows you the first ones. Discover the rest at the spots themselves.',
-      cardKicker: 'Reveal your Must Eats',
-      cardTitle: 'Look underneath',
+        `Sign in and get up to ${STARTER_PACK_CARDS} free Must Eat cards, once per account. Cards already revealed to you don’t count towards your pack.`,
+      cardTitle: 'Discover your Starter Pack.',
       cardLead:
-        'Already {mustEatCount} Must Eats across Berlin. Your Starter Pack shows you the first ones. Discover the rest at the spots themselves.',
-      heartKicker: 'Save your spots',
-      heartTitle: 'For later',
-      heartLead:
-        'Already {mustEatCount} Must Eats across Berlin. Your Starter Pack shows you the first ones. Discover the rest at the spots themselves.',
+        'If you’re getting your Starter Pack for the first time and this card is still hidden, your pack reveals it for free.',
+      heartTitle: 'Save it for later.',
+      heartLead: 'Sign in to save this spot to your favourites.',
+      accountNote:
+        'New here? Signing in creates your account. Already joined? You’ll return to your account. No password needed.',
       emailLabel: 'Email',
       emptyEmail: 'Add your email first.',
       invalidEmail: 'That does not look like an email yet.',
@@ -365,23 +365,23 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     onb2Kicker: 'Draußen entdecken',
     onb2Title: 'Dein nächster Fund.',
     onb2Body:
-      'Finde verdeckte Karten auf der Map. Geh zum Spot, gib deinen Standort frei und deck die Karte mit einem Tap auf. Eine neue Karte für dein Deck.',
-    onb3Kicker: 'Für dein Deck',
+      'Finde verdeckte Karten auf der Map. Geh zum Spot, gib deinen Standort frei und deck die Karte mit einem Tap auf. Eine neue Karte für deine Sammlung.',
+    onb3Kicker: 'Für deine Sammlung',
     onb3Title: 'Noch mehr entdecken.',
     onb3Body:
-      'Mit Booster Packs holst du dir weitere Must Eats ins Deck, auch ohne Besuch vor Ort. Neue Karten, neue Gerichte zum Probieren.',
+      'Mit Booster Packs erweiterst du deine Sammlung um weitere Must Eats, auch ohne Besuch vor Ort. Neue Karten, neue Gerichte zum Probieren.',
     onbFlipAria: 'Karte umdrehen',
     onbStarterKicker: 'Deine Sammlung',
     onbStarterTitle: 'Dein erstes Pack.',
     onbStarterBody:
-      'Von aktuell {mustEatCount} Must Eats in Berlin sind 10 schon aufgedeckt. Dein Starter Pack deckt 20 weitere auf. Den Rest entdeckst du vor Ort. Neue kommen nach und nach dazu.',
+      `Von aktuell {mustEatCount} Must Eats in Berlin sind 10 schon aufgedeckt. Dein Starter Pack deckt einmalig bis zu ${STARTER_PACK_CARDS} weitere Karten auf. Den Rest entdeckst du vor Ort. Neue kommen nach und nach dazu.`,
     onbStarterCta: 'Anmelden',
     onbNext: 'Weiter',
     onbStart: "Los geht's",
     onbPacksCta: 'Packs',
     onbClose: 'Schließen',
     teaserTitle: 'Must Eats',
-    teaserSub: 'Berlin hat viel auf der Karte. Wir sagen dir, was du bestellen solltest – und du sammelst die Empfehlungen als Karten in deinem eigenen Deck.',
+    teaserSub: 'Berlin hat viel auf der Karte. Entdecke, was du bestellen solltest, und füge die Empfehlungen als Karten deiner Sammlung hinzu.',
     teaserCta: 'Alle Must Eats',
     teaserMystery: 'Was steckt drin?',
     teaserTap: 'Tipp auf die Karte.',
@@ -644,18 +644,16 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       dividerOr: 'oder',
       resendBtn: 'Nochmal',
       backBtn: 'Zur\u00fcck',
-      packKicker: 'Starte deine Sammlung',
-      packTitle: 'Starter Pack',
+      packTitle: 'Dein Starter Pack.',
       packLead:
-        'Schon {mustEatCount} Must Eats in ganz Berlin. Dein Starter Pack zeigt dir die ersten. Den Rest entdeckst du vor Ort.',
-      cardKicker: 'Decke deine Must Eats auf',
-      cardTitle: 'Schau drunter',
+        `Melde dich an und erhalte einmalig bis zu ${STARTER_PACK_CARDS} kostenlose Must-Eat-Karten. Bereits offene Karten zählen nicht mit.`,
+      cardTitle: 'Entdecke dein Starter Pack.',
       cardLead:
-        'Schon {mustEatCount} Must Eats in ganz Berlin. Dein Starter Pack zeigt dir die ersten. Den Rest entdeckst du vor Ort.',
-      heartKicker: 'Speichere deine Spots',
-      heartTitle: 'Für später',
-      heartLead:
-        'Schon {mustEatCount} Must Eats in ganz Berlin. Dein Starter Pack zeigt dir die ersten. Den Rest entdeckst du vor Ort.',
+        'Wenn du dein Starter Pack zum ersten Mal erhältst und diese Karte noch verdeckt ist, deckst du sie dabei kostenlos auf.',
+      heartTitle: 'Für später merken.',
+      heartLead: 'Melde dich an, um diesen Spot in deinen Favoriten zu speichern.',
+      accountNote:
+        'Neu hier? Deine Anmeldung legt dein Konto an. Schon dabei? Du kommst zurück in dein Konto. Ohne Passwort.',
       emailLabel: 'E-Mail',
       emptyEmail: 'Bitte gib deine E-Mail ein.',
       invalidEmail: 'Das sieht noch nicht nach einer E-Mail aus.',
@@ -676,7 +674,7 @@ const de = deepMerge(en, deOverrides) as TranslationsShape;
 
 export const translations: Record<Lang, TranslationsShape> = { en, de };
 
-/** Resolve the catalog size on the server so every signup surface has it at first paint. */
+/** Resolve the catalog size on the server so the map promo and onboarding have it at first paint. */
 export function getCatalogMessages(locale: Lang, mustEatCount: number): TranslationsShape {
   const messages = translations[locale];
   const count = new Intl.NumberFormat(locale).format(mustEatCount);
@@ -691,15 +689,6 @@ export function getCatalogMessages(locale: Lang, mustEatCount: number): Translat
     map: {
       ...messages.map,
       starterPromoBody: fillCount(messages.map.starterPromoBody),
-    },
-    modals: {
-      ...messages.modals,
-      login: {
-        ...messages.modals.login,
-        packLead: fillCount(messages.modals.login.packLead),
-        cardLead: fillCount(messages.modals.login.cardLead),
-        heartLead: fillCount(messages.modals.login.heartLead),
-      },
     },
   };
 }

@@ -98,8 +98,8 @@
   .close { top: 2px; right: 2px; }
 }
 
-@container login-modal (min-width: 480px) and (max-height: 304px) {
-  .frame { padding: 12px 30px; }
+@container login-modal (min-width: 480px) and (max-height: 380px) {
+  .frame { padding: 8px 30px; }
 }
 
 /* Keep the close control outside the scrolling form above the keyboard. */

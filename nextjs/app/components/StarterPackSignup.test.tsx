@@ -53,17 +53,17 @@ describe('StarterPackSignup', () => {
   it('zeigt das Pack und traegt die Ueberschrift des Modals', () => {
     const html = renderToStaticMarkup(tafel());
     expect(html).toContain('starter-pack-front.webp');
-    expect(html).toContain('>Starter Pack</h2>');
-    expect(html).toContain('Starte deine Sammlung');
-    expect(html).toContain('Schon 100 Must Eats in ganz Berlin. Dein Starter Pack zeigt dir die ersten. Den Rest entdeckst du vor Ort.');
-    // Kein „Gratis"-Kicker: kein Geschenk-Wording.
-    expect(html).not.toMatch(/gratis|kostenlos/i);
+    expect(html).toContain('>Dein Starter Pack.</h2>');
+    expect(html).toContain('einmalig bis zu 20 kostenlose Must-Eat-Karten');
+    expect(html).toContain('Bereits offene Karten zählen nicht mit.');
+    expect(html).toContain('Ohne Passwort.');
   });
 
   it('spricht Englisch unter /en', () => {
     const html = renderToStaticMarkup(tafel('en'));
     expect(html).toContain('Sign in with Google');
-    expect(html).toContain('Already 100 Must Eats across Berlin. Your Starter Pack shows you the first ones. Discover the rest at the spots themselves.');
+    expect(html).toContain('up to 20 free Must Eat cards, once per account');
+    expect(html).toContain('No password needed.');
   });
 
   /* Die Tafel steht auf jeder Startseite; Google Sign-In laedt erst, wenn die

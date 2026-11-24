@@ -178,17 +178,17 @@ describe('MustEatsSection', () => {
     expect(closing).toContain('Hol sie dir.');
     // Gast: das Starter Pack zuerst, die Map als zweite Antwort, keine Packs.
     expect(guest).toContain('Starter Pack');
-    expect(guest).toContain('20 Karten. Der Anfang deiner Sammlung.');
-    expect(guest).toContain('Dein Starter Pack zeigt dir die ersten Must Eats.');
-    expect(guest.indexOf('>Konto erstellen<')).toBeLessThan(guest.indexOf('href="/map"'));
+    expect(guest).toContain('Bis zu 20 Karten. Der Anfang deiner Sammlung.');
+    expect(guest).toContain('Das Starter Pack gibt es einmal pro Konto.');
+    expect(guest.indexOf('>Anmelden<')).toBeLessThan(guest.indexOf('href="/map"'));
     expect(guest).not.toContain('href="/packs"');
     // Konto: die Map vorn, Booster Packs dahinter.
     expect(auth.indexOf('href="/map"')).toBeLessThan(auth.indexOf('href="/packs"'));
   });
 
   it('describes the growing catalogue without promising automatically opened cards', () => {
-    expect(render()).toContain('Und es werden immer mehr.');
-    expect(render('en')).toContain('with more added over time.');
+    expect(render()).toContain('Nach und nach kommen neue Gerichte dazu');
+    expect(render('en')).toContain('More dishes will be added over time');
     expect(render()).not.toContain('Alle 20 Karten liegen sofort offen');
     expect(render('en')).not.toContain('All 20 cards go straight into your deck face up');
   });

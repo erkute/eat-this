@@ -21,7 +21,6 @@ interface LoginBoardProps {
   /** Die Szene links (LoginSceneArt) — reine Dekoration. */
   art: ReactNode;
   editorial?: boolean;
-  kicker?: string | null;
   title: string;
   lead?: string | null;
   /** Was der Magic-Link durch den Posteingang tragen soll (Herz, Karte). */
@@ -38,9 +37,9 @@ interface LoginBoardProps {
 
 /**
  * Die Anmeldung: ein Aufbau für alle Stellen, an denen sie steht: das Modal
- * (LoginPanel), die Starter-Pack-Tafel der Startseite und die Beitritts-Tafel
- * des geteilten Decks, mit denselben Texten, derselben Knopfform und demselben
- * Verhalten nach dem Absenden.
+ * (LoginPanel) und die Starter-Pack-Tafel auf der Startseite. Texte zum Anlass
+ * erklären den Einstieg. Das Formular und der Ablauf nach dem Absenden sind
+ * an beiden Stellen gleich.
  *
  * Links die Szene, rechts Überschrift und Formular. Die Szene bleibt stehen,
  * wenn die Mail raus ist: Das, worauf man wartet, verschwindet nicht.
@@ -51,7 +50,6 @@ interface LoginBoardProps {
 export default function LoginBoard({
   art,
   editorial = false,
-  kicker,
   title,
   lead,
   intent = null,
@@ -136,9 +134,9 @@ export default function LoginBoard({
         ) : (
           <>
             <div className={styles.copy}>
-              {kicker && <p className={styles.kicker}>{kicker}</p>}
               <h2 className={styles.title}>{title}</h2>
               {lead && <p className={styles.lead}>{lead}</p>}
+              <p className={styles.accountNote}>{t('accountNote')}</p>
             </div>
 
             <div className={styles.credentials}>

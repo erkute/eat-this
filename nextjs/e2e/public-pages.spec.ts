@@ -72,7 +72,7 @@ for (const reducedMotion of ['no-preference', 'reduce'] as const) {
     await page
       .getByRole('button', { name: 'Verdecktes Must Eat — anmelden und aufdecken', exact: true })
       .click();
-    await expect(page.getByRole('heading', { name: 'Schau drunter', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Entdecke dein Starter Pack.', exact: true })).toBeVisible();
     await expect(page.locator('input[type="email"]').last()).toBeVisible();
   });
 }

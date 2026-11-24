@@ -37,7 +37,6 @@ export default function StarterPackSignup() {
         <LoginBoard
           editorial
           art={<StarterPack3D />}
-          kicker={t('packKicker')}
           title={t('packTitle')}
           lead={t('packLead')}
           googleWarmup="intent"

@@ -78,9 +78,9 @@ export default function HubMapIntro({ locale }: { locale: 'de' | 'en' }) {
   return (
     <section className={styles.section} data-hub-map-intro="" aria-labelledby="home-map-title">
       <div className={styles.header}>
-        <h2 id="home-map-title" className={styles.title}>{de ? 'Wo wir' : 'Where we'}<br />{de ? 'essen gehen.' : 'eat.'}</h2>
+        <h2 id="home-map-title" className={styles.title}>{de ? 'Gute Adressen in Berlin.' : 'Good places to eat in Berlin.'}</h2>
         <div className={styles.copy}>
-          <p>{de ? 'Entdecke Berlins beste Restaurants, Cafés und Bars, probiere ihre Must Eats und sammle sie in deinem Deck. Alles auf einer Map.' : 'Discover Berlin’s best restaurants, cafés and bars, try their Must Eats and collect them in your deck. All on one map.'}</p>
+          <p>{de ? 'Entdecke Restaurants, Cafés und Bars, probiere ihre Must Eats und füge die Karten deiner Sammlung hinzu. Alles auf einer Map.' : 'Discover restaurants, cafés and bars, try their Must Eats and add the cards to your collection. All on one map.'}</p>
         </div>
         <div className={styles.desktopCta}><MapIntentLink href="/map" className="et-btn">{de ? 'Zur Map' : 'Explore the map'}</MapIntentLink></div>
       </div>

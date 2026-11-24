@@ -46,7 +46,7 @@
   padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px) + var(--map-bar-overhang, 0px));
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
-  touch-action: pan-y;
+  touch-action: pan-y pinch-zoom;
   grid-template-rows: auto minmax(0, 1fr) auto auto;
   overflow-y: auto;
   --me-rest-slot: clamp(124px, 15dvh, 136px);

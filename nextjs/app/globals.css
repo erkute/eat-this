@@ -1500,7 +1500,6 @@ html[data-active-page='map'] .et-label {
 html[data-active-page='map'] .et-label.et-label-open,
 html[data-active-page='map'] .et-label.et-label-closed {
   padding: 4px 6px;
-  font-size: 10px;
   letter-spacing: 0.05em;
 }
 html[data-active-page='map'] .et-label.et-label-open.et-label-tape {

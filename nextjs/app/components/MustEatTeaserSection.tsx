@@ -1,10 +1,12 @@
 'use client';
 
 import { CSSProperties, MouseEvent, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import Image from '@/app/components/SiteImage';
 import type { InitialMapData } from '@/lib/map/server-initial-map-data';
 import { useVisibleMustEats } from '@/lib/must-eat/useVisibleMustEats';
 import { mustEatCardSrc } from '@/lib/must-eat/cardImage';
+import { STARTER_PACK_CARDS } from '@/lib/starter-pack';
 import type { MustEatPreview } from '@/lib/sanity.server';
 import { useRouter } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
@@ -29,6 +31,7 @@ const TILTS = [-3.2, 2.4, -1.8, 2.8, -2.6, 1.9, -3.0, 2.2, -2.1, 2.6, -2.4, 1.7]
 export default function MustEatTeaserSection({ mustEats, initialData, name, locale, classNames }: Props) {
   const [shakingId, setShakingId] = useState<string | null>(null);
   const router = useRouter();
+  const t = useTranslations('mustEats');
   const visible = useVisibleMustEats(initialData);
   const revealedIds = new Set(visible.revealedMustEatIds);
   const faceUp = new Map(visible.mustEats
@@ -71,7 +74,9 @@ export default function MustEatTeaserSection({ mustEats, initialData, name, loca
       <h2 id="spot-must-eats" className={classNames.heading}>
         Must Eats
       </h2>
-      <p className={styles.sentence}>{sentence}</p>
+      <p className={styles.sentence}>
+        {sentence} {t('spotStarter', { count: STARTER_PACK_CARDS })}
+      </p>
 
       <ul className={styles.grid} role="list">
         {mustEats.map((m, i) => {

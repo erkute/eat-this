@@ -54,11 +54,9 @@ export function useMapLocationFeedback({ locale, isActive, sheetView, location,
       ? { copy: null, isError: false, canRetry: false }
       : rawLocationStatus;
 
-  /* A first visit with the location question still open: the map asks once,
-     through the info card (useLocationWelcome), never over a detail. That is
-     also the funnel step — a visitor who already answered has nothing to
-     decide, and counting them would pad the denominator; neither would one
-     who never touched the map and so was never asked. */
+  /* Invitation eligibility: the permission question is still open and the
+     visitor explored the active map/list outside a detail. The delayed welcome
+     notice has additional visibility and UI-preference guards below. */
   const invited = useLocationInvite(location !== null);
   // Invite only after the visitor has explored the map or list and let go.
   const explored = useExplorationSettled();
@@ -73,9 +71,9 @@ export function useMapLocationFeedback({ locale, isActive, sheetView, location,
     locationStatus.copy &&
     locationStatusKey !== dismissedLocationStatusKey
   );
-  /* The denominator for map_location_invite_accepted: trackEvent counts the
-     NAME through /api/count, so "labelled vs. pressed" stays readable. Once
-     per session — a re-render would inflate it past any use. */
+  /* Count eligibility once per document, including SPA navigation and remounts.
+     Reloads can count again; acceptances count actions. The two totals are
+     neither confirmed notice impressions nor a session conversion rate. */
   useEffect(() => {
     if (!isRealInvite) return;
     trackEventOnce('map_location_invite', 'map_location_invite_shown');

@@ -210,15 +210,14 @@ export function trackEvent(name: string, params?: AnalyticsParams): void {
   countEventWithQualifier(name, params);
 }
 
-/** Session-scoped dedupe for events that may remount during App Router flows. */
+// Document lifetime: SPA navigation and remounts keep this set; reloads and
+// new tabs start empty. Keys stay in memory and never enter a beacon.
+const trackedEventKeys = new Set<string>();
+
+/** Count at most once per key in this document, without browser storage.
+ * This limits send attempts, not confirmed delivery or purchases across reloads. */
 export function trackEventOnce(key: string, name: string, params?: AnalyticsParams): void {
-  if (typeof window === 'undefined') return;
-  const storageKey = `eatthis_analytics_${key}`;
-  try {
-    if (window.sessionStorage.getItem(storageKey)) return;
-    window.sessionStorage.setItem(storageKey, '1');
-  } catch {
-    // Private mode: sending twice is preferable to dropping the event.
-  }
+  if (typeof window === 'undefined' || trackedEventKeys.has(key)) return;
+  trackedEventKeys.add(key);
   trackEvent(name, params);
 }

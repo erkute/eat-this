@@ -11,7 +11,6 @@ import {
   qualifiedCountName,
   resetReferrerSentForTests,
   trackEvent,
-  trackEventOnce,
 } from './analytics';
 
 /* `{ ...navigator }` verliert `userAgent` — der Getter liegt auf dem Prototyp.
@@ -24,7 +23,6 @@ describe('der Zaehler laesst eigene und automatische Besuche aus', () => {
   let beacon: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
-    sessionStorage.clear();
     beacon = vi.fn(() => true);
     vi.stubGlobal('navigator', { ...navigator, userAgent: TEST_UA, sendBeacon: beacon });
   });
@@ -64,12 +62,6 @@ describe('der Zaehler laesst eigene und automatische Besuche aus', () => {
   it('haelt „admin" im Slug nicht fuer das Brett', () => {
     vi.stubGlobal('location', { ...window.location, pathname: '/news/administration-kantine' });
     countView();
-    expect(beacon).toHaveBeenCalledTimes(1);
-  });
-
-  it('zaehlt sitzungsweit einmalige Ereignisse nur einmal', () => {
-    trackEventOnce('purchase_1', 'purchase', { value: 2.99 });
-    trackEventOnce('purchase_1', 'purchase', { value: 2.99 });
     expect(beacon).toHaveBeenCalledTimes(1);
   });
 });

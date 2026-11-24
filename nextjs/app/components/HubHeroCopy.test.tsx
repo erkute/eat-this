@@ -57,8 +57,11 @@ describe('HubHeroCopy', () => {
     expect(html).toContain('Kinmedai Sashimi · November Brasserie');
     expect(html).toContain('Sabich · Kitten Deli');
     expect(html).toContain('href="/must-eats"');
-    expect(html).toContain('Must Eats entdecken');
-    expect(render('en')).toContain('Discover Must Eats');
+    expect(html).toContain('href="/map"');
+    expect(html).toContain('kostenlosen Map');
+    expect(html).toContain('Zur Map');
+    expect(render('en')).toContain('free map');
+    expect(render('en')).toContain('Explore the map');
   });
 
   it('keeps exactly the same hero before and after sign-in, including hydration', () => {

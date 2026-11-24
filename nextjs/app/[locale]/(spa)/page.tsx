@@ -25,7 +25,7 @@ interface PageProps {
 
 const TITLE = {
   de: 'Restaurants, Cafés & Bars in Berlin | eat this.',
-  en: 'eat this. | We know where to eat in Berlin',
+  en: 'Restaurants, Cafés & Bars in Berlin | eat this.',
 } as const;
 const DESCRIPTION = {
   de: 'Pizza bei Gazzo, Kaffee bei Kolo. Entdecke Restaurants, Cafés und Bars auf unserer Berlin Food Map. Unsere Lieblingsgerichte gibt’s als Must-Eat-Karten zum Sammeln.',

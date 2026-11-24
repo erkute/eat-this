@@ -47,6 +47,16 @@ export default function HubHeroCopy({ locale }: Props) {
         </picture>
       </h1>
       </div>
+      <div className={styles.heroActions} data-hero-actions="">
+        <p className={styles.heroSummary}>
+          {locale === 'de'
+            ? 'Restaurants, Cafés und Bars in Berlin. Entdecke die Spots auf der kostenlosen Map und ihre Must Eats als Sammelkarten.'
+            : 'Restaurants, cafés and bars in Berlin. Explore the spots on the free map and discover their Must Eats as collectible cards.'}
+        </p>
+        <MapIntentLink href="/map" className="et-btn et-btn-lg">
+          {locale === 'de' ? 'Zur Map' : 'Explore the map'}
+        </MapIntentLink>
+      </div>
       <MapIntentLink
         href="/must-eats"
         className={styles.heroArt}
@@ -72,11 +82,6 @@ export default function HubHeroCopy({ locale }: Props) {
           ))}
         </span>
       </MapIntentLink>
-      <div className={styles.heroActions} data-hero-actions="">
-        <MapIntentLink href="/must-eats" className="et-btn et-btn-lg">
-          {locale === 'de' ? 'Must Eats entdecken' : 'Discover Must Eats'}
-        </MapIntentLink>
-      </div>
     </div>
   );
 }

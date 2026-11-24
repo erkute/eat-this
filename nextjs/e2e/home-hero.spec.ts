@@ -31,8 +31,12 @@ for (const locale of ['de', 'en'] as const) {
       expect(spread).toBeGreaterThan(1);
       const cta = page.locator('[data-hero-actions] .et-btn');
       await expect(cta).toBeVisible();
+      await expect(cta).toHaveText(locale === 'de' ? 'Zur Map' : 'Explore the map');
+      await expect(page.locator('[data-hero-actions] p')).toContainText(
+        locale === 'de' ? 'kostenlosen Map' : 'free map',
+      );
       await cta.click();
-      await expect(page).toHaveURL(new RegExp(`${locale === 'en' ? '/en' : ''}/must-eats$`));
+      await expect(page).toHaveURL(new RegExp(`${locale === 'en' ? '/en' : ''}/map$`));
     });
   }
 }

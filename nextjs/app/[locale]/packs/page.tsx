@@ -6,7 +6,7 @@ import { setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { CATALOG } from '@/lib/stripe-catalog';
 import { categoryArt } from '@/lib/categoryArt';
-import { packUrlSlug } from '@/lib/pack/packDetail';
+import { formatPackPrice, packUrlSlug } from '@/lib/pack/packDetail';
 import { getPackContents } from '@/lib/sanity.server';
 import { hreflangAlternates } from '@/lib/seo/metadata';
 import AllBerlinBoard from '@/app/components/AllBerlinBoard';
@@ -93,9 +93,11 @@ export default async function PacksOverviewPage({ params }: PageProps) {
                 const empty =
                   (pack.slug ? (packContents.byCategory[pack.slug]?.mustEats ?? 0) : 1) === 0;
 
+                const offer = empty ? t.soon : formatPackPrice(pack.amountCents);
+
                 return (
                   <li key={pack.packId}>
-                    <Link href={href} className={styles.tile} aria-label={`${pack.displayName} ${t.view.toLowerCase()}`}>
+                    <Link href={href} className={styles.tile} aria-label={`${pack.displayName} ${t.view.toLowerCase()} · ${offer}`}>
                       <span className={styles.packLink} aria-hidden="true">
                         {art && (
                           <Image
@@ -112,14 +114,12 @@ export default async function PacksOverviewPage({ params }: PageProps) {
                         <span className={styles.tileName}>{pack.displayName}</span>
                         <p className={styles.spectrum}>{pack.spectrum[loc]}</p>
 
-                        {/* Gekauft wird auf der Detailseite, nach dem Blick
-                            hinein. Hier nur der Weg dorthin; der Preis steht
-                            erst dort. */}
                         {empty ? (
-                          <span className={styles.soon}>{t.soon}</span>
+                          <span className={styles.soon}>{offer}</span>
                         ) : (
-                          <span className={`et-btn et-btn-sm ${styles.view}`} aria-hidden="true">
-                            {t.view}
+                          <span className={styles.offer} aria-hidden="true">
+                            <span className={styles.price}>{offer}</span>
+                            <span className="et-btn et-btn-sm">{t.view}</span>
                           </span>
                         )}
                       </div>

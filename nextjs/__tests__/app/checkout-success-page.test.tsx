@@ -52,6 +52,7 @@ describe('checkout success page', () => {
 
     expect(html).toContain('Zahlung bestätigt')
     expect(html).toContain('Pizza Pack')
+    expect(html).toContain('Anmeldelink')
     expect(html).toContain('bu•••@example.com')
     expect(html).not.toContain('All Berlin')
     expect(mocks.analytics).toHaveBeenCalledWith({
@@ -62,19 +63,50 @@ describe('checkout success page', () => {
     }, undefined)
   })
 
-  it('shows a pending state and emits no purchase event while unpaid', async () => {
+  it.each([
+    ['de', 'in deiner Sammlung, sobald dein Kauf verarbeitet wurde'],
+    ['en', 'in your collection once your purchase has been processed'],
+  ])('explains when a paid pack reaches the collection (%s)', async (locale, expected) => {
+    mocks.retrieveVerified.mockResolvedValueOnce({
+      session: { id: 'cs_paid', payment_status: 'paid', amount_total: 299 },
+      pack: { packId: 'category-pizza', displayName: 'Pizza' },
+      mode: 'auth',
+      locale,
+      uid: 'u1',
+    })
+
+    const html = await render({ session_id: 'cs_paid' }, locale)
+
+    expect(html).toContain(expected)
+  })
+
+  it.each([
+    {
+      locale: 'de',
+      pending: 'Zahlung in Bearbeitung',
+      paid: 'Zahlung bestätigt',
+      copy: 'Nach der Zahlungsbestätigung werden die Karten deiner Sammlung hinzugefügt.',
+    },
+    {
+      locale: 'en',
+      pending: 'Payment processing',
+      paid: 'Payment confirmed',
+      copy: 'The cards will be added to your collection after your payment is confirmed.',
+    },
+  ])('shows a pending state and emits no purchase event while unpaid ($locale)', async ({ locale, pending, paid, copy }) => {
     mocks.retrieveVerified.mockResolvedValueOnce({
       session: { id: 'cs_pending', payment_status: 'unpaid', amount_total: 299 },
       pack: { packId: 'category-pizza', displayName: 'Pizza' },
       mode: 'auth',
-      locale: 'de',
+      locale,
       uid: 'u1',
     })
 
-    const html = await render({ session_id: 'cs_pending' })
+    const html = await render({ session_id: 'cs_pending' }, locale)
 
-    expect(html).toContain('Zahlung in Bearbeitung')
-    expect(html).not.toContain('Zahlung bestätigt')
+    expect(html).toContain(pending)
+    expect(html).toContain(copy)
+    expect(html).not.toContain(paid)
     expect(mocks.analytics).not.toHaveBeenCalled()
   })
 

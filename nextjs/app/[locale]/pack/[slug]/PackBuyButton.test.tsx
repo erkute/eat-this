@@ -49,10 +49,11 @@ describe('PackBuyButton ownership', () => {
     expect(html).toContain('Kaufen');
     expect(html).not.toContain('disabled');
   });
-  it('waits for ownership before offering a purchase', () => {
+  it('keeps the purchase label visible while ownership is checked', () => {
     ownership.owned = null;
     const html = renderToStaticMarkup(<PackBuyButton {...props} />);
     expect(html).toContain('disabled');
-    expect(html).not.toContain('Kaufen');
+    expect(html).toContain('aria-busy="true"');
+    expect(html).toContain('>Kaufen</button>');
   });
 });

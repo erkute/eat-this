@@ -107,28 +107,30 @@ export default function AllBerlinBoard({
         </div>)}
       </div>
       <div className={styles.actions}>
-          <PackBuyButton
-            className={styles.buyButton}
-            packId={pack.packId}
-            packName={pack.displayName}
-            amountCents={pack.amountCents}
-            locale={locale}
-            label={`${locale === 'de' ? 'All Berlin freischalten' : 'Unlock All Berlin'} · ${formatPackPrice(pack.amountCents)}`}
-            pendingLabel={locale === 'de' ? 'Weiter zu Stripe …' : 'Going to Stripe …'}
-            ownedLabel={locale === 'de' ? 'Zur Map' : 'Open map'}
-            ownedHref="/map"
-            errorLabel={locale === 'de' ? 'Da ging was schief. Versuch es nochmal.' : 'Something went wrong. Please try again.'}
-            errorClassName={styles.error}
-          />
-          <p className={styles.paymentNote}>
-            {locale === 'de' ? 'Einmalzahlung, kein Abo' : 'One-time payment, no subscription'}
-          </p>
-          <PaymentMarks
-              height={24}
-              label={`${t.trust}: ${PAYMENT_MARK_NAMES.join(', ')}`}
-              className={styles.pay}
-            />
-        </div>
+        <p className={styles.paymentNote}>
+          <strong>{formatPackPrice(pack.amountCents)}</strong>
+          {' · '}
+          {locale === 'de' ? 'Einmalzahlung, kein Abo' : 'One-time payment, no subscription'}
+        </p>
+        <PackBuyButton
+          className={styles.buyButton}
+          packId={pack.packId}
+          packName={pack.displayName}
+          amountCents={pack.amountCents}
+          locale={locale}
+          label={locale === 'de' ? 'All Berlin kaufen' : 'Buy All Berlin'}
+          pendingLabel={locale === 'de' ? 'Weiter zu Stripe …' : 'Going to Stripe …'}
+          ownedLabel={locale === 'de' ? 'Zur Map' : 'Open map'}
+          ownedHref="/map"
+          errorLabel={locale === 'de' ? 'Da ging was schief. Versuch es nochmal.' : 'Something went wrong. Please try again.'}
+          errorClassName={styles.error}
+        />
+        <PaymentMarks
+          height={24}
+          label={`${t.trust}: ${PAYMENT_MARK_NAMES.join(', ')}`}
+          className={styles.pay}
+        />
+      </div>
     </section>
   );
 }

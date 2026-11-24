@@ -7,15 +7,19 @@ const CHECKOUT_LIFETIME_SECONDS = 60 * 60;
 // 30 minutes away. Leave one minute of clock-skew/headroom on retries.
 const MIN_CREATE_WINDOW_SECONDS = 31 * 60;
 
+type CheckoutLocale = 'de' | 'en';
+
 interface AttemptData {
   attemptId?: string;
   expiresAt?: FirebaseFirestore.Timestamp;
   sessionUrl?: string;
+  locale?: CheckoutLocale;
 }
 
 type CheckoutAttempt =
-  | { kind: 'create'; attemptId: string; expiresAtSeconds: number }
-  | { kind: 'reuse'; url: string };
+  | { kind: 'create'; attemptId: string; expiresAtSeconds: number; locale: CheckoutLocale }
+  | { kind: 'reuse'; url: string }
+  | { kind: 'pending' };
 
 function attemptRef(uid: string, packId: string) {
   return getAdminFirestore()
@@ -28,11 +32,13 @@ function attemptRef(uid: string, packId: string) {
 /**
  * One deterministic document per signed-in buyer and pack serializes parallel
  * checkout requests. A request that finds an in-flight attempt reuses its
- * idempotency key; once Stripe has answered, later requests reuse its URL.
+ * idempotency key and locale; once Stripe has answered, later requests reuse
+ * its URL.
  */
 export async function reserveCheckoutAttempt(
   uid: string,
-  packId: string
+  packId: string,
+  locale: CheckoutLocale
 ): Promise<CheckoutAttempt> {
   const ref = attemptRef(uid, packId);
   const nowSeconds = Math.floor(Date.now() / 1000);
@@ -44,8 +50,11 @@ export async function reserveCheckoutAttempt(
 
     if (data?.attemptId && expiresAtSeconds > nowSeconds) {
       if (data.sessionUrl) return { kind: 'reuse', url: data.sessionUrl };
+      // Without the original locale, the Stripe request cannot be retried
+      // with identical parameters. The attempt may already be payable.
+      if (!data.locale) return { kind: 'pending' };
       if (expiresAtSeconds > nowSeconds + MIN_CREATE_WINDOW_SECONDS) {
-        return { kind: 'create', attemptId: data.attemptId, expiresAtSeconds };
+        return { kind: 'create', attemptId: data.attemptId, expiresAtSeconds, locale: data.locale };
       }
       // A previous Stripe create failed and left too little time to reuse its
       // expires_at value. Fall through and rotate the attempt/idempotency key
@@ -57,10 +66,11 @@ export async function reserveCheckoutAttempt(
     tx.set(ref, {
       attemptId,
       status: 'creating',
+      locale,
       createdAt: FieldValue.serverTimestamp(),
       expiresAt: Timestamp.fromMillis(nextExpiry * 1000),
     });
-    return { kind: 'create', attemptId, expiresAtSeconds: nextExpiry };
+    return { kind: 'create', attemptId, expiresAtSeconds: nextExpiry, locale };
   });
 }
 

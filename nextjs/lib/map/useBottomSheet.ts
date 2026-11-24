@@ -472,10 +472,21 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       v: VelocityState;
     } | null = null;
 
+    const cancelTouchDrag = () => {
+      if (touchState?.active) {
+        cancelDragRaf();
+        setDragging(false);
+      }
+      touchState = null;
+    };
+
     const onTouchStart = (e: TouchEvent) => {
       if (configRef.current.dragMode !== 'all') return;
       if (configRef.current.inflow && usesNativeScroll()) return;
-      if (e.touches.length !== 1) return;
+      if (e.touches.length !== 1) {
+        cancelTouchDrag();
+        return;
+      }
       const h = visibleViewportH();
       sheetHRef.current = h;
       /* The detail's real scroller is nested ([data-detail-scroll]); the outer
@@ -494,6 +505,10 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
 
     const onTouchMove = (e: TouchEvent) => {
       if (!touchState) return;
+      if (e.touches.length !== 1) {
+        cancelTouchDrag();
+        return;
+      }
       const dy = e.touches[0].clientY - touchState.startY;
       velocitySample(touchState.v, e.touches[0].clientY, e.timeStamp);
       if (!touchState.active) {
@@ -551,12 +566,12 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     content.addEventListener('touchstart', onTouchStart, { passive: true });
     content.addEventListener('touchmove', onTouchMove, { passive: false });
     content.addEventListener('touchend', onTouchEnd);
-    content.addEventListener('touchcancel', onTouchEnd);
+    content.addEventListener('touchcancel', cancelTouchDrag);
     return () => {
       content.removeEventListener('touchstart', onTouchStart);
       content.removeEventListener('touchmove', onTouchMove);
       content.removeEventListener('touchend', onTouchEnd);
-      content.removeEventListener('touchcancel', onTouchEnd);
+      content.removeEventListener('touchcancel', cancelTouchDrag);
     };
   }, [applyYDrag, cancelDragRaf, snap, contentTick, nativeScrollLayout]);
 
@@ -577,10 +592,21 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       v: VelocityState;
     } | null = null;
 
+    const cancelTouchDrag = () => {
+      if (touchState?.active) {
+        cancelDragRaf();
+        setDragging(false);
+      }
+      touchState = null;
+    };
+
     const onTouchStart = (e: TouchEvent) => {
       if (configRef.current.dragMode !== 'all') return;
       if (configRef.current.inflow && usesNativeScroll()) return;
-      if (e.touches.length !== 1) return;
+      if (e.touches.length !== 1) {
+        cancelTouchDrag();
+        return;
+      }
       const h = visibleViewportH();
       sheetHRef.current = h;
       touchState = {
@@ -594,6 +620,10 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
 
     const onTouchMove = (e: TouchEvent) => {
       if (!touchState) return;
+      if (e.touches.length !== 1) {
+        cancelTouchDrag();
+        return;
+      }
       const dy = e.touches[0].clientY - touchState.startY;
       velocitySample(touchState.v, e.touches[0].clientY, e.timeStamp);
       if (!touchState.active) {
@@ -636,12 +666,12 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     header.addEventListener('touchstart', onTouchStart, { passive: true });
     header.addEventListener('touchmove', onTouchMove, { passive: false });
     header.addEventListener('touchend', onTouchEnd);
-    header.addEventListener('touchcancel', onTouchEnd);
+    header.addEventListener('touchcancel', cancelTouchDrag);
     return () => {
       header.removeEventListener('touchstart', onTouchStart);
       header.removeEventListener('touchmove', onTouchMove);
       header.removeEventListener('touchend', onTouchEnd);
-      header.removeEventListener('touchcancel', onTouchEnd);
+      header.removeEventListener('touchcancel', cancelTouchDrag);
     };
   }, [applyYDrag, cancelDragRaf, snap, headerTick, nativeScrollLayout]);
 

@@ -248,7 +248,6 @@ const Item = memo(
         {statusMain && (
           <span
             className={`et-label ${status?.isOpen ? 'et-label-open et-label-tape' : 'et-label-closed'} ${styles.openPill}`}
-            role="status"
           >
             {statusMain}
           </span>

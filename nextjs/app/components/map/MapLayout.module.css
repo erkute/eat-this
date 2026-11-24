@@ -14,9 +14,8 @@
      --map-runtime-bar-overhang from visualViewport; lvh/dvh alone do not match
      iOS Safari's toolbar. */
   --map-bar-overhang: var(--map-runtime-bar-overhang, calc(100lvh - 100dvh + 80px));
-  /* No page pinch-zoom on UI surfaces; the MapLibre canvas sets touch-action:
-     none so the map itself pinches and rotates. */
-  touch-action: pan-y;
+  /* UI surfaces zoom the page. The canvas handles map zoom and rotation. */
+  touch-action: pan-y pinch-zoom;
 }
 
 .body {

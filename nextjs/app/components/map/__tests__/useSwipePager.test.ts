@@ -24,9 +24,9 @@ function mount() {
   return { container, thumb, plain };
 }
 
-function firePointer(type: string, target: Element, clientX: number, clientY: number) {
+function firePointer(type: string, target: Element, clientX: number, clientY: number, isPrimary = true) {
   const ev = new Event(type, { bubbles: true, cancelable: true });
-  Object.assign(ev, { pointerType: 'touch', clientX, clientY });
+  Object.assign(ev, { pointerType: 'touch', clientX, clientY, isPrimary });
   target.dispatchEvent(ev);
 }
 
@@ -80,6 +80,21 @@ describe('useSwipePager — commit', () => {
     firePointer('pointermove', card, 100, 100);
     firePointer('pointerup', card, 100, 100);
     expect(onCommit).toHaveBeenCalledWith('next', -24);
+  });
+
+  it.each(['second pointer', 'browser cancellation'])('drops a paging gesture on %s', (reason) => {
+    const { card, onCommit } = mountCard(true);
+    firePointer('pointerdown', card, 200, 100);
+    firePointer('pointermove', card, 100, 100);
+    if (reason === 'second pointer') {
+      firePointer('pointerdown', card, 265, 120, false);
+    } else {
+      firePointer('pointercancel', card, 100, 100);
+    }
+    firePointer('pointerup', card, 100, 100);
+
+    expect(onCommit).not.toHaveBeenCalled();
+    expect(card.style.transform).toBe('translateX(0)');
   });
 
   it('blättert nicht, wenn der Wisch zu kurz ist', () => {

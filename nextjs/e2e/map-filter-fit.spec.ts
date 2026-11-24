@@ -5,6 +5,7 @@ for (const locale of ['de', 'en']) {
     await page.goto(`${locale === 'en' ? '/en' : ''}/map?cat=must-eats&bezirk=charlottenburg&price=10&open=1`, { waitUntil: 'domcontentloaded' });
     const row = page.locator('[data-filter-chip-row]');
     const district = row.getByRole('button', { name: 'Charlottenburg', exact: true });
+    const clearDistrict = row.getByRole('button', { name: /: (Bezirk|District)$/ });
     await expect(district).toBeVisible();
     const widths = info.project.name === 'desktop' ? [1024, 1280, 1440] : [320, 375, 390];
     for (const width of widths) {
@@ -20,6 +21,10 @@ for (const locale of ['de', 'en']) {
           return style.textOverflow !== 'ellipsis' && label.scrollWidth <= label.clientWidth + 1 && label.scrollHeight <= label.clientHeight + 1;
         })
       )).toBe(true);
+      if (width < 768) {
+        await expect(clearDistrict).toHaveCSS('width', '44px');
+        await expect(clearDistrict).toHaveCSS('height', '44px');
+      }
       if (width >= 1024) {
         await expect.poll(async () => {
           const menu = await page.getByRole('button', { name: locale === 'en' ? 'Menu' : 'Menü', exact: true }).boundingBox();
@@ -42,7 +47,7 @@ for (const locale of ['de', 'en']) {
     await expect(district).toHaveAttribute('aria-expanded', 'true');
     await page.keyboard.press('Escape');
     await expect(district).toHaveAttribute('aria-expanded', 'false');
-    await row.getByRole('button', { name: /: (Bezirk|District)$/ }).click();
+    await clearDistrict.click();
     await expect(row.getByRole('button', { name: locale === 'en' ? 'District' : 'Bezirk', exact: true })).toBeVisible();
     await expect(open).toHaveAttribute('aria-pressed', 'true');
   });

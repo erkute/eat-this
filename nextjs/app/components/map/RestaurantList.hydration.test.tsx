@@ -55,10 +55,11 @@ describe('RestaurantList hydration', () => {
   beforeEach(() => vi.clearAllMocks());
 
   it('defers timezone-dependent opening status until after hydration', async () => {
-    expect(renderToString(list())).not.toContain('role="status"');
+    expect(renderToString(list())).not.toContain('Geöffnet');
 
     render(list());
 
-    expect((await screen.findByRole('status')).textContent).toContain('Geöffnet');
+    expect(await screen.findByText('Geöffnet', { exact: true })).toBeTruthy();
+    expect(screen.queryByRole('status')).toBeNull();
   });
 });

@@ -62,7 +62,7 @@
   scroll-snap-type: x mandatory;
   overscroll-behavior-x: contain;
   scrollbar-width: none;
-  touch-action: pan-y;
+  touch-action: pan-y pinch-zoom;
 }
 .rcardPhotos::-webkit-scrollbar {
   display: none;

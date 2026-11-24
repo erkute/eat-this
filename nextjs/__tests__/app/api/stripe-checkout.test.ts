@@ -64,9 +64,9 @@ beforeEach(() => {
   mocks.sessionsCreate.mockReset()
   mocks.sessionsCreate.mockResolvedValue({ id: 'cs_test', url: 'https://checkout.stripe.com/test' })
   mocks.reserveAttempt.mockReset()
-  mocks.reserveAttempt.mockResolvedValue({
-    kind: 'create', attemptId: 'attempt-1', expiresAtSeconds: 2_000_000_000,
-  })
+  mocks.reserveAttempt.mockImplementation(async (_uid, _packId, locale) => ({
+    kind: 'create', attemptId: 'attempt-1', expiresAtSeconds: 2_000_000_000, locale,
+  }))
   mocks.saveAttempt.mockReset()
   mocks.saveAttempt.mockResolvedValue(undefined)
   mocks.entitlementDocs.clear()
@@ -195,7 +195,7 @@ describe('/api/stripe/checkout', () => {
     expect(args.line_items[0].price).toBe(getPack('category-pizza')!.stripePriceId)
     expect(args.success_url).toContain('/checkout/success')
     expect(args.success_url).not.toContain('pack=')
-    expect(args.cancel_url).toContain('/packs')
+    expect(args.cancel_url).toBe('https://trusted.example/pack/pizza')
     expect(args.success_url).toMatch(/^https:\/\/trusted\.example\//)
     expect(args.expires_at).toBe(2_000_000_000)
     expect(mocks.sessionsCreate.mock.calls[0][1]).toEqual({
@@ -204,6 +204,53 @@ describe('/api/stripe/checkout', () => {
     expect(mocks.saveAttempt).toHaveBeenCalledWith(
       'u1', 'category-pizza', 'attempt-1', 'cs_test', 'https://checkout.stripe.com/test',
     )
+  })
+
+  describe.each([null, 'good'])('checkout return URLs (token: %s)', (token) => {
+    it.each([
+      ['category-pizza', 'de', '/pack/pizza'],
+      ['category-pizza', 'en', '/en/pack/pizza'],
+      ['all-berlin', 'de', '/packs'],
+      ['all-berlin', 'en', '/en/packs'],
+    ])('returns %s in %s to %s', async (packId, locale, expectedPath) => {
+      mocks.verifyIdToken.mockResolvedValueOnce({ uid: 'u1', email: 'u@x.com' })
+      const res = await POST(makeReq({ packId, locale, cancelUrl: 'https://elsewhere.example' }, token))
+
+      expect(res.status).toBe(200)
+      expect(mocks.sessionsCreate.mock.calls[0][0].cancel_url).toBe(`https://trusted.example${expectedPath}`)
+    })
+  })
+
+  it('retries with identical Stripe parameters after a language change', async () => {
+    mocks.verifyIdToken.mockResolvedValue({ uid: 'u1', email: 'u@x.com' })
+    mocks.reserveAttempt.mockResolvedValue({
+      kind: 'create', attemptId: 'attempt-1', expiresAtSeconds: 2_000_000_000, locale: 'en',
+    })
+    mocks.saveAttempt.mockRejectedValueOnce(new Error('temporary write failure'))
+
+    expect((await POST(makeReq({ packId: 'category-pizza', locale: 'en' }, 'good'))).status).toBe(200)
+    expect((await POST(makeReq({ packId: 'category-pizza', locale: 'de' }, 'good'))).status).toBe(200)
+
+    expect(mocks.reserveAttempt).toHaveBeenNthCalledWith(1, 'u1', 'category-pizza', 'en')
+    expect(mocks.reserveAttempt).toHaveBeenNthCalledWith(2, 'u1', 'category-pizza', 'de')
+    expect(mocks.sessionsCreate.mock.calls[1]).toEqual(mocks.sessionsCreate.mock.calls[0])
+    expect(mocks.sessionsCreate.mock.calls[1][0]).toMatchObject({
+      locale: 'en',
+      metadata: { locale: 'en' },
+      success_url: 'https://trusted.example/en/checkout/success?session_id={CHECKOUT_SESSION_ID}',
+      cancel_url: 'https://trusted.example/en/pack/pizza',
+    })
+  })
+
+  it('does not start another checkout while a pending attempt has no stored locale', async () => {
+    mocks.verifyIdToken.mockResolvedValueOnce({ uid: 'u1', email: 'u@x.com' })
+    mocks.reserveAttempt.mockResolvedValueOnce({ kind: 'pending' })
+
+    const res = await POST(makeReq({ packId: 'category-pizza' }, 'good'))
+
+    expect(res.status).toBe(503)
+    expect(await res.json()).toEqual({ error: 'checkout_unavailable' })
+    expect(mocks.sessionsCreate).not.toHaveBeenCalled()
   })
 
   it('reuses the active Checkout URL for parallel signed-in requests', async () => {

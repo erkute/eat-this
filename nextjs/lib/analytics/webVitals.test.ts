@@ -72,14 +72,59 @@ describe('summarizeVitals', () => {
     expect(summary.rows).toHaveLength(1);
     const [row] = summary.rows;
     expect(row).toMatchObject({ page: 'spot', device: 'phone' });
-    expect(row.metrics.LCP).toEqual({ count: 4, median: 1_100, p75: 2_100 });
-    expect(row.metrics.INP).toEqual({ count: 0, median: null, p75: null });
+    expect(row.metrics.LCP).toEqual({
+      count: 4,
+      median: 1_100,
+      medianIsLowerBound: false,
+      p75: 2_100,
+      p75IsLowerBound: false,
+    });
+    expect(row.metrics.INP).toEqual({
+      count: 0,
+      median: null,
+      medianIsLowerBound: false,
+      p75: null,
+      p75IsLowerBound: false,
+    });
   });
   it('rechnet CLS ohne Fließkomma-Krümel', () => {
     const [row] = summarizeVitals([
       { day: '2026-11-21', hist: { CLS: { home: { desktop: { '0': 3, '12': 1 } } } } },
     ]).rows;
-    expect(row.metrics.CLS).toEqual({ count: 4, median: 0.01, p75: 0.01 });
+    expect(row.metrics.CLS).toEqual({
+      count: 4,
+      median: 0.01,
+      medianIsLowerBound: false,
+      p75: 0.01,
+      p75IsLowerBound: false,
+    });
+  });
+  it('unterscheidet die Untergrenze der offenen Stufe von der gleichen Obergrenze davor', () => {
+    const [row] = summarizeVitals([
+      {
+        day: '2026-11-21',
+        hist: {
+          LCP: { home: { desktop: { '99': 2, '100': 2 } } },
+          INP: { home: { desktop: { '100': 4 } } },
+          CLS: { home: { desktop: { '99': 3, '100': 1 } } },
+        },
+      },
+    ]).rows;
+    expect(row.metrics.LCP).toEqual({
+      count: 4,
+      median: 10_000,
+      medianIsLowerBound: false,
+      p75: 10_000,
+      p75IsLowerBound: true,
+    });
+    expect(row.metrics.INP).toEqual({
+      count: 4,
+      median: 1_000,
+      medianIsLowerBound: true,
+      p75: 1_000,
+      p75IsLowerBound: true,
+    });
+    expect(row.metrics.CLS).toMatchObject({ p75: 1, p75IsLowerBound: false });
   });
   it('ignoriert kaputte Schlüssel und Zähler', () => {
     const [row] = summarizeVitals([
@@ -88,7 +133,13 @@ describe('summarizeVitals', () => {
         hist: { INP: { map: { phone: { x: 5, '-1': 3, '30': -2, '40': 1 } } } },
       },
     ]).rows;
-    expect(row.metrics.INP).toEqual({ count: 1, median: 410, p75: 410 });
+    expect(row.metrics.INP).toEqual({
+      count: 1,
+      median: 410,
+      medianIsLowerBound: false,
+      p75: 410,
+      p75IsLowerBound: false,
+    });
   });
 });
 

@@ -6,7 +6,7 @@ import { pathKey } from './pathKey';
  * Gespeichert wird kein einzelner Messwert, sondern nur, wie oft ein Wert in
  * eine Stufe fiel: je Tag, Kennzahl, Seitentyp und Gerät ein Zähler je Stufe.
  * Kein Pfad, kein Besucher-Bezug. Aus den Stufen ergeben sich Median und P75,
- * aufgerundet auf die Stufenbreite.
+ * als Stufengrenzen.
  *
  * Gemessen wird nur der erste Aufruf eines Dokuments, wie bei Googles
  * Felddaten (CrUX): LCP gehört zur Seite, die der Browser frisch geladen hat;
@@ -116,11 +116,17 @@ export interface VitalDoc {
   >;
 }
 
+interface VitalQuantile {
+  value: number;
+  isLowerBound: boolean;
+}
+
 export interface VitalStat {
   count: number;
-  /** Aufgerundet auf die Stufenbreite; null ohne Messwert. */
   median: number | null;
+  medianIsLowerBound: boolean;
   p75: number | null;
+  p75IsLowerBound: boolean;
 }
 
 interface VitalRow {
@@ -136,15 +142,22 @@ export interface VitalSummary {
 
 const num = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) && v > 0 ? v : 0);
 
-/** Das p-Quantil aus den Stufen, als Obergrenze der Stufe, in der es liegt. */
-function quantile(metric: VitalMetric, counts: Map<number, number>, total: number, p: number) {
+/** Obergrenze der Stufe des Quantils, bei der offenen Stufe ihre Untergrenze. */
+function quantile(
+  metric: VitalMetric,
+  counts: Map<number, number>,
+  total: number,
+  p: number
+): VitalQuantile | null {
   if (!total) return null;
-  const { step } = VITAL_SCALES[metric];
+  const { step, cap } = VITAL_SCALES[metric];
   const rank = Math.max(1, Math.ceil(p * total));
   let seen = 0;
   for (const bucket of [...counts.keys()].sort((a, b) => a - b)) {
     seen += counts.get(bucket)!;
-    if (seen >= rank) return Math.round((bucket + 1) * step * 100) / 100;
+    if (seen < rank) continue;
+    if (bucket === vitalBucket(metric, cap)) return { value: cap, isLowerBound: true };
+    return { value: Math.round((bucket + 1) * step * 100) / 100, isLowerBound: false };
   }
   return null;
 }
@@ -164,10 +177,14 @@ export function summarizeVitals(docs: VitalDoc[]): VitalSummary {
           }
         }
         const count = [...counts.values()].reduce((sum, n) => sum + n, 0);
+        const median = quantile(metric, counts, count, 0.5);
+        const p75 = quantile(metric, counts, count, 0.75);
         metrics[metric] = {
           count,
-          median: quantile(metric, counts, count, 0.5),
-          p75: quantile(metric, counts, count, 0.75),
+          median: median?.value ?? null,
+          medianIsLowerBound: median?.isLowerBound ?? false,
+          p75: p75?.value ?? null,
+          p75IsLowerBound: p75?.isLowerBound ?? false,
         };
       }
       if (VITAL_METRICS.some((metric) => metrics[metric].count > 0))

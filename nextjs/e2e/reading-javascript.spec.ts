@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 
 for (const reducedMotion of ['no-preference', 'reduce'] as const) {
   test(`reading pages leave GSAP unloaded until animation intent (${reducedMotion})`, async ({ page }) => {

@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 import { createAccount, emulatorRoutes, readDocument, requireEmulators, restoreAccount, clientApiKey } from './account-fixture';
 import type { MapMustEat } from '../lib/types';
 

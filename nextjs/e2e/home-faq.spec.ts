@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 
 for (const reduced of [false, true]) {
   test(`FAQ opens quietly and keeps keyboard focus visible (${reduced})`, async ({ page, isMobile }) => {

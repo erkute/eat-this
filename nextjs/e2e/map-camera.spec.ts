@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 
 for (const english of [false, true]) {
   test(`map markers follow camera movement (${english ? 'EN' : 'DE'})`, async ({ page }) => {

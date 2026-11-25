@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from './test';
 
 // Exercise the same dayparts on developer machines and UTC CI runners.
 test.use({ timezoneId: 'UTC' });

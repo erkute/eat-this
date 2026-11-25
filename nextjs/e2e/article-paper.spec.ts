@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 
 for (const theme of ['light', 'dark'] as const) {
   test(`article labels and clean catalogue surface (${theme})`, async ({ page }, info) => {

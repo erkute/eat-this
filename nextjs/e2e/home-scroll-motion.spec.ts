@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 
 for (const reduced of [false, true]) {
   test(`Must Eats are visible without an entrance action (${reduced})`, async ({ page }) => {

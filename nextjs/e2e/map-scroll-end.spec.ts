@@ -1,4 +1,4 @@
-import { expect, test, type BrowserContext, type Page } from '@playwright/test';
+import { expect, test, type BrowserContext, type Page } from './test';
 import { existsSync, readFileSync } from 'node:fs';
 import { parse } from 'dotenv';
 

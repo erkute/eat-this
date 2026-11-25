@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 import AxeBuilder from '@axe-core/playwright';
 
 for (const [theme, ground] of [['light', 'rgb(255, 255, 255)'], ['dark', 'rgb(21, 18, 14)']]) {

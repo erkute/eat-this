@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 
 test('footer reserves its logo space before the lazy image loads', async ({ page }) => {
   let releaseLogo!: () => void;

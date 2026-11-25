@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, placeholderSanityPhotos, test } from './test';
 import AxeBuilder from '@axe-core/playwright';
 
 test.beforeEach(async ({ page }) => {
@@ -110,6 +110,7 @@ test('changing reduced motion leaves the destination fully visible', async ({ pa
 
 test('category recommendations navigate without JavaScript', async ({ browser, baseURL }) => {
   const context = await browser.newContext({ javaScriptEnabled: false, extraHTTPHeaders: { DNT: '1' } });
+  await placeholderSanityPhotos(context);
   try {
     const page = await context.newPage();
     // Link navigation must remain usable while unrelated images are loading.
@@ -226,6 +227,7 @@ test('category gallery enters directly and the open directory filters its result
 
 test('category directory stays open and navigates without JavaScript', async ({ browser, baseURL }) => {
   const context = await browser.newContext({ javaScriptEnabled: false, extraHTTPHeaders: { DNT: '1' } });
+  await placeholderSanityPhotos(context);
   try {
     const page = await context.newPage();
     await page.goto(`${baseURL}/en/kategorie/sweets`, { waitUntil: 'domcontentloaded' });

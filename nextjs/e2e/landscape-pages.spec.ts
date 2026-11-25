@@ -1,4 +1,4 @@
-import {test,expect} from '@playwright/test';
+import {test,expect} from './test';
 test.setTimeout(90000);
 for(const path of ['/must-eats','/kategorie','/kategorie/pizza','/bezirk','/bezirk/mitte','/news','/packs','/about']) test(`landscape page ${path}`,async({page})=>{
  await page.setViewportSize({width:844,height:390});

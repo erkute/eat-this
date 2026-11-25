@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 
 for (const locale of ['de', 'en']) {
   test(`all map filter values stay fully readable with all four filters active (${locale})`, async ({ page }, info) => {

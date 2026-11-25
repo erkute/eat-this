@@ -62,6 +62,7 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
   // back stripped (no dish/image), unlocked ones carry the full card data.
   const {
     restaurants: ownedRestaurants,
+    hasFetchedRestaurants,
     mustEats,
     revealedMustEatIds,
     fullCatalog,
@@ -92,9 +93,11 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
     () => new Set(ownedRestaurants.map((r) => r._id)),
     [ownedRestaurants]
   );
-  const ownedRestaurantSlugs = useMemo(
-    () => new Map(ownedRestaurants.map((r) => [r._id, r.slug])),
-    [ownedRestaurants]
+  const restaurantsById = useMemo(
+    () => new Map(ownedRestaurants.map(({ _id, slug, photo }) => [
+      _id, { slug, photo: hasFetchedRestaurants ? photo : undefined },
+    ])),
+    [ownedRestaurants, hasFetchedRestaurants]
   );
   // Only Must-Eats whose spot the user owns appear in the album.
   const ownedMustEats = useMemo(
@@ -211,7 +214,7 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
         >
           {tab === 'spots' && (
             <section className={styles.section}>
-              <ProfileSpots uid={user.uid} restaurantSlugs={ownedRestaurantSlugs} />
+              <ProfileSpots uid={user.uid} restaurantsById={restaurantsById} />
             </section>
           )}
         </div>

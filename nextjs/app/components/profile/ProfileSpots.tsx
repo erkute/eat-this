@@ -4,28 +4,24 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import MapIntentLink from '@/app/components/MapIntentLink';
+import SiteImage from '@/app/components/SiteImage';
 import { useFavorites } from '@/lib/map/useFavorites';
 import { normalizeName } from '@/lib/normalizeName';
 import { notify } from '@/lib/notice';
 import styles from './Profile.module.css';
-import { sanityImagePosition } from '@/lib/sanity-image-presets';
+import type { MapRestaurant } from '@/lib/types';
 
-// Gespeicherte Spots (Firestore-Favoriten) als Ink-Tafeln mit Foto → Tipp öffnet
-// die Map. Jede Tafel trägt einen Knopf zum Entfernen, damit man Spots auch hier
-// loswird (nicht nur über das Herz auf der Map und der Spot-Seite).
-//
-// Ein gespeicherter Spot hat zwei Zustände: „will hin" (der Normalfall —
-// deshalb hat man ihn gespeichert) und „war da". Der Besuch ist der Punkt der
-// Liste, nicht ihr Ende.
+type SpotDetails = Pick<MapRestaurant, 'slug' | 'photo'>;
+
 export default function ProfileSpots({
   uid,
-  restaurantSlugs,
+  restaurantsById,
 }: {
   uid: string;
-  restaurantSlugs: ReadonlyMap<string, string>;
+  restaurantsById: ReadonlyMap<string, SpotDetails>;
 }) {
   const saved = useFavorites(uid);
-  return <ProfileSpotsContent {...saved} restaurantSlugs={restaurantSlugs} />;
+  return <ProfileSpotsContent {...saved} restaurantsById={restaurantsById} />;
 }
 
 export function ProfileSpotsContent({
@@ -34,12 +30,12 @@ export function ProfileSpotsContent({
   toggle,
   updateNote,
   setVisited,
-  restaurantSlugs,
+  restaurantsById,
 }: Pick<
   ReturnType<typeof useFavorites>,
   'favorites' | 'loading' | 'toggle' | 'updateNote' | 'setVisited'
 > & {
-  restaurantSlugs: ReadonlyMap<string, string>;
+  restaurantsById: ReadonlyMap<string, SpotDetails>;
 }) {
   const t = useTranslations('profile');
   const locale = useLocale();
@@ -106,26 +102,21 @@ export function ProfileSpotsContent({
       )}
       <div className={styles.spotsCards}>
         {shown.map((f) => {
-          const slug = restaurantSlugs.get(f.restaurantId) ?? f.slug;
+          const restaurant = restaurantsById.get(f.restaurantId);
+          const slug = restaurant?.slug ?? f.slug;
+          const photo = restaurant?.photo;
           return (
-            <div key={f.restaurantId} className={styles.spotCardWrap}>
+            <article key={f.restaurantId} className={styles.spotCardWrap}>
               <MapIntentLink
                 href={slug ? `/map?r=${encodeURIComponent(slug)}` : '/map'}
                 className={styles.spotCard}
                 rel="nofollow"
               >
-                <span className={styles.spotPhoto}>
-                  {f.photo && (
-                    <span
-                      className={styles.spotImg}
-                      style={{ backgroundImage: `url(${f.photo})`, backgroundPosition: sanityImagePosition(f.photo) }}
-                    />
-                  )}
-                </span>
-                <span className={styles.spotCaption}>
-                  {f.district && <p className={styles.spotDistrict}>{f.district}</p>}
+                {photo && <SpotPhoto key={photo} src={photo} />}
+                <div className={styles.spotCaption}>
                   <h3 className={styles.spotName}>{normalizeName(f.name)}</h3>
-                </span>
+                  {f.district && <p className={styles.spotDistrict}>{f.district}</p>}
+                </div>
               </MapIntentLink>
               <button
                 type="button"
@@ -159,25 +150,44 @@ export function ProfileSpotsContent({
                   <path d="M18 6L6 18" />
                 </svg>
               </button>
-              <VisitedToggle
-                visited={f.visited === true}
-                label={t(f.visited ? 'spotWasThere' : 'spotWasThereAsk')}
-                ariaLabel={t(f.visited ? 'spotUnmarkVisited' : 'spotMarkVisited', {
-                  name: normalizeName(f.name),
-                })}
-                onToggle={(next) => setVisited(f.restaurantId, next)}
-              />
-              <SpotNote
-                initialNote={f.note ?? ''}
-                label={t('spotNoteLabel', { name: normalizeName(f.name) })}
-                placeholder={t('spotNotePlaceholder')}
-                onSave={(note) => updateNote(f.restaurantId, note)}
-              />
-            </div>
+              <div className={styles.spotActions}>
+                <VisitedToggle
+                  visited={f.visited === true}
+                  label={t(f.visited ? 'spotWasThere' : 'spotWasThereAsk')}
+                  ariaLabel={t(f.visited ? 'spotUnmarkVisited' : 'spotMarkVisited', {
+                    name: normalizeName(f.name),
+                  })}
+                  onToggle={(next) => setVisited(f.restaurantId, next)}
+                />
+                <SpotNote
+                  initialNote={f.note ?? ''}
+                  label={t('spotNoteLabel', { name: normalizeName(f.name) })}
+                  placeholder={t('spotNotePlaceholder')}
+                  onSave={(note) => updateNote(f.restaurantId, note)}
+                />
+              </div>
+            </article>
           );
         })}
       </div>
     </>
+  );
+}
+
+function SpotPhoto({ src }: { src: string }) {
+  const [failed, setFailed] = useState(false);
+  if (failed) return null;
+
+  return (
+    <span className={styles.spotPhoto}>
+      <SiteImage
+        src={src}
+        alt=""
+        fill
+        sizes="(max-width: 767px) 94vw, (max-width: 1280px) 46vw, 600px"
+        onError={() => setFailed(true)}
+      />
+    </span>
   );
 }
 

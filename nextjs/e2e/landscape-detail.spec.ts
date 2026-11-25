@@ -1,4 +1,4 @@
-import {test,expect} from '@playwright/test';
+import {test,expect} from './test';
 test('rotated Must Eat keeps card and restaurant visible',async({page})=>{
  await page.setViewportSize({width:390,height:844});
  await page.goto('/map?me=mustead-main-6');

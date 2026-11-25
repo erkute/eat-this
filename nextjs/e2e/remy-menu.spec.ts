@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 
 /* Remy hat keinen Knopf in der Ecke. Der Weg zu ihm führt über „Frag Remy" im
    Menü, auf jeder Seite, auch nach dem Scrollen. */

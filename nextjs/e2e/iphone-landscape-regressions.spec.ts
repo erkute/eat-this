@@ -1,4 +1,4 @@
-import { expect, test, type Locator } from '@playwright/test';
+import { expect, test, type Locator } from './test';
 
 async function show(section: Locator) {
   await section.evaluate(e => {

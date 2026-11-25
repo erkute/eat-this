@@ -6,7 +6,7 @@
 /* Der Name ist das Erste, was man sieht. */
 .name { font-size: clamp(88px, 13vw, 184px); line-height: .9; letter-spacing: -.055em; }
 .intro { max-width: 30ch; margin: 0 0 24px; font-size: clamp(20px, 1.8vw, 26px); font-weight: 700; line-height: 1.25; text-wrap: pretty; }
-.prompt { margin: 0 0 14px; font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.prompt { margin: 0 0 14px; font-size: var(--et-type-caption); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 .questions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
 /* Die Fragen sind Pillen auf dem Rot, damit sie sich vom weißen, eckigen
    Eingabefeld darunter abheben und als Knöpfe erkennbar sind. Die Fläche ist
@@ -79,7 +79,7 @@
   .name, .compact .name { font-size: 64px; }
   .hello { font-size: 18px; }
   .intro { font-size: 18px; margin-bottom: 16px; }
-  .prompt { font-size: 11px; margin-bottom: 8px; }
+  .prompt { margin-bottom: 8px; }
   .questions { gap: 8px; margin-bottom: 16px; }
   .form { padding: 4px; }
   .input { min-height: 44px; padding-block: 8px; }
@@ -88,4 +88,9 @@
   .portrait, .compact .portrait { width: 32%; height: 100%; right: 0; bottom: 0; }
   .figure { inset: 0 0 -8%; }
   .head { bottom: 0; top: auto; width: min(125cqw, 100cqh); }
+}
+
+@media (max-width: 319.98px) {
+  .name, .compact .name { font-size: 26vw; }
+  .form { display: grid; }
 }

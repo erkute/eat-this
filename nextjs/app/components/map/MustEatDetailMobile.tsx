@@ -523,9 +523,9 @@ export default function MustEatDetailMobile({
           )}
         </div>
 
-        {/* Die ganze Zeile ist der Weg zum Spot, ohne Pille oder Pfeil. Der
-            Name bleibt einzeilig, damit die Zeile in jeder Karte gleich hoch
-            ist und der Stapel beim Blättern nicht springt. */}
+        {/* Die ganze Zeile führt zum Spot. Ab 320 px bleibt der Name einzeilig
+            und der Kartenstapel beim Blättern stabil. Darunter darf der Name
+            umbrechen. */}
         {(() => {
           const rowContent = (
             <>

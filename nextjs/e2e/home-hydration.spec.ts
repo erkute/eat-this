@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 
 // Der Hero vom Server muss derselbe Knoten bleiben, bis React ihn übernommen
 // hat: nie doppelt im DOM, nie verschwunden, nie im Browser neu gebaut.

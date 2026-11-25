@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 
 for (const route of ['/news/vegane-restaurants-berlin', '/restaurant/standard-serious-pizza-mitte']) {
   test(`reading progress ends before recommendations: ${route}`, async ({ page }) => {

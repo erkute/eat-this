@@ -386,6 +386,10 @@
   font-size: 13px;
 }
 
+.kpiFoot > :is(.deltaUp, .deltaDown, .deltaFlat) {
+  white-space: normal;
+}
+
 .kpiHint {
   color: var(--faint);
 }
@@ -1072,7 +1076,7 @@
   filter: invert(1);
 }
 
-/* Kleine Displays behalten zwei klar lesbare Kennzahlen je Zeile. */
+/* Bis 600 px stehen die Kennzahlen paarweise, unter 320 px einspaltig. */
 @media (max-width: 600px) {
   .kpis {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1180,6 +1184,12 @@
   }
   .searchPeriod {
     padding: 16px;
+  }
+}
+
+@media (max-width: 319.98px) {
+  .kpis {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 

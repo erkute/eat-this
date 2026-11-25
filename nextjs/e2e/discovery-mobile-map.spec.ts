@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from './test';
 
 test.beforeEach(async ({ page, isMobile }) => {
   if (isMobile) await page.setViewportSize({ width: 375, height: 812 });

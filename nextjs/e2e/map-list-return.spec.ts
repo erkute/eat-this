@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 
 for (const reducedMotion of ['reduce', 'no-preference'] as const) {
   test(`map detail returns to its row through history and the list button (${reducedMotion})`, async ({ page }) => {

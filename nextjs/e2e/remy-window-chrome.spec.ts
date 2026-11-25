@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 
 for (const width of [390, 1440]) {
   test(`Remy title bar and close control stay aligned after sending at ${width}px`, async ({ page }) => {

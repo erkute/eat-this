@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 
 for (const size of [{ width: 320, height: 740 }, { width: 844, height: 390 }, { width: 1440, height: 900 }]) {
   test(`editorial surfaces and footer fit ${size.width}x${size.height}`, async ({ page }, info) => {

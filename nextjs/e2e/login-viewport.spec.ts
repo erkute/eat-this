@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 
 for (const locale of ['de', 'en']) {
   test(`signup fits phones, tablets and rotation without scrolling (${locale})`, async ({ page }) => {

@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 
 test('publicly revealed cards load real private-storage images', async ({ page, request }) => {
   // The catalog includes the public cards regardless of the initial map list ordering.

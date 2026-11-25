@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 
 test('list keeps native touch scrolling through repeated phone rotation', async ({ page, context }, info) => {
   test.skip(info.project.name !== 'mobile', 'Chromium touch input across explicit phone sizes.');

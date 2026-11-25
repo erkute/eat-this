@@ -1,4 +1,4 @@
-import { expect, test, type Locator } from '@playwright/test';
+import { expect, test, type Locator } from './test';
 
 function nativeTapHighlights(controls: Locator) {
   return controls.evaluateAll(elements => elements

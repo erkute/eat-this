@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 import AxeBuilder from '@axe-core/playwright';
 
 for (const locale of ['de', 'en'] as const) {
@@ -174,7 +174,7 @@ test('gallery reserves the photo and credit layout while the full image loads', 
   const imagesReady = new Promise<void>((resolve) => { releaseImages = resolve; });
   await page.route('https://cdn.sanity.io/images/**', async (route) => {
     await imagesReady;
-    await route.continue();
+    await route.fallback();
   });
   try {
     // The viewer can reuse a responsive photo already loaded by the sheet.

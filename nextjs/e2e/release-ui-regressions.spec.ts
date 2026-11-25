@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 
 for (const [width, height] of [[1440, 900], [525, 802], [390, 844], [320, 568]]) {
   test(`admin menu fits its ninth destination at ${width}×${height}`, async ({ page }) => {

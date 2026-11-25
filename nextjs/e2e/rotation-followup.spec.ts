@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 
 test('phone rotation keeps main views within the viewport', async ({ page }, info) => {
   test.skip(info.project.name !== 'desktop', 'Explicit viewport matrix.');

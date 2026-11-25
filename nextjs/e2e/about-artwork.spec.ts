@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 
 for (const locale of ['de', 'en']) {
   test(`About artwork remains still and cards stay open with reduced motion (${locale})`, async ({ page }) => {

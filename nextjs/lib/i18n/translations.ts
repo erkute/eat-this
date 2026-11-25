@@ -36,7 +36,7 @@ const en = {
     onbPacksCta: 'Packs',
     onbClose: 'Close',
     teaserTitle: 'Must Eats',
-    teaserSub: 'Berlin has a lot on the menu. Discover what to order and add the recommendations to your collection as cards.',
+    teaserSub: 'Each card tells you what to order and where.',
     teaserCta: 'All Must Eats',
     teaserMystery: 'What’s inside?',
     teaserTap: 'Tap the card.',
@@ -299,6 +299,7 @@ const en = {
       resendBtn: 'Resend',
       backBtn: 'Back',
       packTitle: 'Your Starter Pack.',
+      homePackLead: 'Get your first Must Eat cards.',
       packLead:
         `Sign in and get up to ${STARTER_PACK_CARDS} free Must Eat cards, once per account. Cards already revealed to you don’t count towards your pack.`,
       cardTitle: 'Discover your Starter Pack.',
@@ -385,7 +386,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     onbPacksCta: 'Packs',
     onbClose: 'Schließen',
     teaserTitle: 'Must Eats',
-    teaserSub: 'Berlin hat viel auf der Karte. Entdecke, was du bestellen solltest, und füge die Empfehlungen als Karten deiner Sammlung hinzu.',
+    teaserSub: 'Jede Karte verrät dir, was du wo bestellen solltest.',
     teaserCta: 'Alle Must Eats',
     teaserMystery: 'Was steckt drin?',
     teaserTap: 'Tipp auf die Karte.',
@@ -651,6 +652,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       resendBtn: 'Nochmal',
       backBtn: 'Zur\u00fcck',
       packTitle: 'Dein Starter Pack.',
+      homePackLead: 'Hol dir deine ersten Must-Eat-Karten.',
       packLead:
         `Melde dich an und erhalte einmalig bis zu ${STARTER_PACK_CARDS} kostenlose Must-Eat-Karten. Bereits offene Karten zählen nicht mit.`,
       cardTitle: 'Entdecke dein Starter Pack.',

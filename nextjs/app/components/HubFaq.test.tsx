@@ -15,7 +15,9 @@ describe('HubFaq', () => {
     expect(html).toContain('<summary');
     // first DE FAQ question
     expect(html).toContain('Was kostet Eat This?');
+    expect(html).toContain('Was sind Must Eats?');
     expect(html).toContain('aktuell 137 Must Eats in Berlin');
+    expect(html.match(/bis zu 20/g)).toHaveLength(1);
   });
 
   it('uses homeV2 section structure with hv-title heading', async () => {

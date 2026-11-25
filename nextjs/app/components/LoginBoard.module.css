@@ -391,7 +391,6 @@
    sonst Umbrüche mitten im Wort (overflow-wrap: anywhere für lange Adressen). */
 .editorial .title { color: var(--et-fg); font-size: min(var(--hv-display, clamp(40px, 5.6vw, 72px)), 26cqi); font-family: var(--et-font-body); letter-spacing: -.055em; line-height: .92; text-transform: none; max-width: 7ch; overflow-wrap: normal; }
 .editorial .lead { color: var(--et-fg); font-size: 18px; line-height: 1.4; margin-top: 14px; }
-.editorial .accountNote { color: var(--et-fg); }
 /* Auch auf der Startseite bleibt das E-Mail-Feld glatt und ohne Linienrahmen. */
 .editorial .input { --login-input-bg: var(--et-field, var(--et-ground)); }
 .editorial .input::placeholder { color: var(--et-field-muted, var(--et-muted)); }

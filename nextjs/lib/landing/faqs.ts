@@ -9,15 +9,15 @@ const FAQS: { de: LandingFaqEntry[]; en: LandingFaqEntry[] } = {
   de: [
     {
       q: 'Was kostet Eat This?',
-      a: `Map und Spots kannst du ohne Konto entdecken. 10 Must Eats sind schon aufgedeckt. Dein Starter Pack deckt einmalig bis zu ${STARTER_PACK_CARDS} weitere Karten auf. Den Rest der aktuell {mustEatCount} Must Eats in Berlin entdeckst du vor Ort. Neue kommen nach und nach dazu.\n\nNur Booster Packs kosten etwas. Damit kannst du weitere Karten aufdecken, ohne die Spots vorher besuchen zu müssen.`,
+      a: 'Nur Booster Packs kosten etwas. Damit bekommst du zusätzliche Must-Eat-Karten auch ohne Besuch vor Ort.',
     },
     {
       q: 'Brauche ich ein Konto?',
-      a: `Du kannst die Map und die Spots ohne Konto entdecken. Zum Sammeln und Aufdecken verdeckter Must-Eat-Karten brauchst du ein Konto. Dein Starter Pack deckt einmalig bis zu ${STARTER_PACK_CARDS} weitere Karten auf.`,
+      a: 'Die Map kannst du ohne Konto nutzen. Zum Sammeln von Must-Eat-Karten meldest du dich an.',
     },
     {
-      q: 'Was sind Must Eats und wie decke ich sie auf?',
-      a: `Must Eats sind Empfehlungen für konkrete Gerichte an einem Spot. 10 Karten sind schon für alle aufgedeckt. Dein Starter Pack deckt einmalig bis zu ${STARTER_PACK_CARDS} weitere Karten auf. Die übrigen Karten entdeckst du vor Ort und fügst sie deiner Sammlung hinzu. Ein Booster Pack deckt die enthaltenen Karten auch ohne Besuch auf.`,
+      q: 'Was sind Must Eats?',
+      a: `Ein Must Eat empfiehlt dir, was du an einer Adresse bestellen solltest. Von aktuell {mustEatCount} Must Eats in Berlin sind 10 Karten für alle offen. Mit dem Starter Pack bekommst du einmalig bis zu ${STARTER_PACK_CARDS} weitere Karten. Weitere Karten kannst du vor Ort sammeln.`,
     },
     {
       q: 'Welche Spots finde ich auf der Map?',
@@ -31,15 +31,15 @@ const FAQS: { de: LandingFaqEntry[]; en: LandingFaqEntry[] } = {
   en: [
     {
       q: 'What does Eat This cost?',
-      a: `You can explore the map and spots without an account. 10 Must Eats are already revealed. Your Starter Pack reveals up to ${STARTER_PACK_CARDS} more cards, once per account. Discover the rest of the {mustEatCount} Must Eats currently in Berlin at the spots themselves. More are added over time.\n\nOnly Booster Packs cost money. They reveal more cards without having to visit the spots first.`,
+      a: 'Only Booster Packs cost money. They give you extra Must Eat cards without having to visit in person.',
     },
     {
       q: 'Do I need an account?',
-      a: `You can explore the map and spots without an account. You need an account to reveal hidden Must Eat cards and add them to your collection. Your Starter Pack reveals up to ${STARTER_PACK_CARDS} more cards, once per account.`,
+      a: 'You can use the map without an account. Sign in to collect Must Eat cards.',
     },
     {
-      q: 'What are Must Eats and how do I reveal them?',
-      a: `Must Eats are recommendations for specific dishes at a spot. 10 cards are already revealed for everyone. Your Starter Pack reveals up to ${STARTER_PACK_CARDS} more cards, once per account. Discover the remaining cards at the spots and add them to your collection. A Booster Pack reveals the included cards without a visit.`,
+      q: 'What are Must Eats?',
+      a: `A Must Eat tells you what to order at a particular place. Of the {mustEatCount} Must Eats currently in Berlin, 10 cards are open to everyone. Your Starter Pack adds up to ${STARTER_PACK_CARDS} cards, once per account. You can collect more cards when you visit.`,
     },
     {
       q: 'Which spots are on the map?',

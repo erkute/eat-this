@@ -11,8 +11,8 @@ for (const locale of ['de', 'en'] as const) {
     await expect(
       section.getByText(
         locale === 'de'
-          ? 'Berlin hat viel auf der Karte. Entdecke, was du bestellen solltest, und füge die Empfehlungen als Karten deiner Sammlung hinzu.'
-          : 'Berlin has a lot on the menu. Discover what to order and add the recommendations to your collection as cards.',
+          ? 'Jede Karte verrät dir, was du wo bestellen solltest.'
+          : 'Each card tells you what to order and where.',
         { exact: true }
       )
     ).toBeVisible();

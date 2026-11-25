@@ -36,7 +36,10 @@ for (const reduced of [false, true]) {
   });
 }
 
-test('card backs wait until the Must Eats approach a narrow viewport', async ({ page }) => {
+// Die Must Eats folgen direkt auf die Map-Einleitung, auf dem Telefon rund
+// 1.200 px unter dem ersten Bildschirm. Dort holt der Browser ein `lazy`-Bild
+// schon vorab; es darf nur nie mit Vorrang laden und das Startbild verdrängen.
+test('card backs load lazily without priority on a narrow viewport', async ({ page }) => {
   const requests: string[] = [];
   const hydrationErrors: string[] = [];
   page.on('request', (request) => {
@@ -51,10 +54,11 @@ test('card backs wait until the Must Eats approach a narrow viewport', async ({ 
   // Match the mobile performance audit; large screens preload farther ahead.
   await page.setViewportSize({ width: 412, height: 823 });
   await page.goto('/');
-  expect(requests).toHaveLength(0);
   const deck = page.locator('[data-hub-musteats] ul');
-  await deck.scrollIntoViewIfNeeded();
   const back = deck.locator('[data-stack-photo="covered"] img');
+  await expect(back.first()).toHaveAttribute('loading', 'lazy');
+  await expect(back.first()).not.toHaveAttribute('fetchpriority', 'high');
+  await deck.scrollIntoViewIfNeeded();
   await expect(back).toBeVisible();
   await expect
     .poll(() =>

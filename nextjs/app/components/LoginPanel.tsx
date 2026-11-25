@@ -70,6 +70,7 @@ export default function LoginPanel({ onBack }: LoginPanelProps) {
           art={<LoginSceneArt />}
           title={title}
           lead={lead}
+          accountNote={t('accountNote')}
           intent={intent}
           googleWarmup={reason?.kind === 'map-prompt' ? 'intent' : 'mount'}
         />

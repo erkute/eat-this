@@ -12,10 +12,9 @@ function promo(locale: 'de' | 'en', count: number) {
 }
 
 function explanations(locale: 'de' | 'en', count: number) {
-  return [
-    getCatalogMessages(locale, count).mustEats.onbStarterBody,
-    getLandingFaqs(locale, count)[0].a,
-  ];
+  const question = locale === 'de' ? 'Was sind Must Eats?' : 'What are Must Eats?';
+  const faq = getLandingFaqs(locale, count).find(({ q }) => q === question);
+  return [getCatalogMessages(locale, count).mustEats.onbStarterBody, faq?.a ?? ''];
 }
 
 for (const locale of ['de', 'en'] as const) {
@@ -36,10 +35,13 @@ for (const locale of ['de', 'en'] as const) {
       expect(message).not.toMatch(/\b(?:10|20)\b/);
       expect(message).toContain(locale === 'de' ? 'zeigt dir die ersten' : 'shows you the first ones');
       expect(message).toContain(locale === 'de' ? 'entdeckst du vor Ort' : 'Discover the rest');
+      const starterLimit = locale === 'de' ? 'einmalig bis zu 20' : 'up to 20';
+      expect(getLandingFaqs(locale, 137).filter(({ a }) => a.includes(starterLimit))).toHaveLength(1);
       for (const message of explanations(locale, 137)) {
         expect(message).toContain('10');
-        expect(message).toContain(locale === 'de' ? 'einmalig bis zu 20' : 'up to 20 more cards, once per account');
-        expect(message).toContain(locale === 'de' ? 'vor Ort' : 'spots themselves');
+        expect(message).toContain(starterLimit);
+        expect(message).toMatch(locale === 'de' ? /vor Ort/ : /spots themselves|when you visit/);
+        if (locale === 'en') expect(message).toContain('once per account');
       }
     });
 

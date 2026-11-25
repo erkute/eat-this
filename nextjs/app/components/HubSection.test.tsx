@@ -100,11 +100,12 @@ describe('HubSection home', () => {
     expect(html.indexOf('data-hub-starter')).toBeGreaterThan(html.indexOf('data-testid="faq"'));
   });
 
-  it('orders magazine, Must Eats, districts, Remy, FAQ and signup', () => {
+  it('orders the map, Must Eats, magazine, districts, Remy, FAQ and signup', () => {
     const html = renderHome();
-    expect(html.indexOf('data-hub-hero')).toBeLessThan(html.indexOf('data-hub-magazine'));
-    expect(html.indexOf('data-hub-magazine')).toBeLessThan(html.indexOf('musteats'));
-    expect(html.indexOf('musteats')).toBeLessThan(html.indexOf('districts'));
+    expect(html.indexOf('data-hub-hero')).toBeLessThan(html.indexOf('data-hub-map-intro'));
+    expect(html.indexOf('data-hub-map-intro')).toBeLessThan(html.indexOf('musteats'));
+    expect(html.indexOf('musteats')).toBeLessThan(html.indexOf('data-hub-magazine'));
+    expect(html.indexOf('data-hub-magazine')).toBeLessThan(html.indexOf('districts'));
     expect(html.indexOf('musteats')).toBeLessThan(html.indexOf('data-hub-starter'));
     expect(html.indexOf('musteats')).toBeLessThan(html.indexOf('data-testid="remy"'));
     expect(html.indexOf('data-testid="remy"')).toBeLessThan(html.indexOf('data-testid="faq"'));

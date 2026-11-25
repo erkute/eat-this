@@ -58,10 +58,11 @@ describe('HubHeroCopy', () => {
     expect(html).toContain('Sabich · Kitten Deli');
     expect(html).toContain('href="/must-eats"');
     expect(html).toContain('href="/map"');
-    expect(html).toContain('kostenlosen Map');
-    expect(html).toContain('Zur Map');
-    expect(render('en')).toContain('free map');
-    expect(render('en')).toContain('Explore the map');
+    expect(html).toContain('Auf der Map entdecken, vor Ort probieren und als Sammelkarten verewigen.');
+    expect(html).toContain('Map öffnen');
+    const english = render('en');
+    expect(english).toContain('Discover them on the map, try them in person and collect the cards.');
+    expect(english).toContain('Explore the map');
   });
 
   it('keeps exactly the same hero before and after sign-in, including hydration', () => {

@@ -49,12 +49,18 @@ export default function HubHeroCopy({ locale }: Props) {
       </div>
       <div className={styles.heroActions} data-hero-actions="">
         <p className={styles.heroSummary}>
-          {locale === 'de'
-            ? 'Restaurants, Cafés und Bars in Berlin. Entdecke die Spots auf der kostenlosen Map und ihre Must Eats als Sammelkarten.'
-            : 'Restaurants, cafés and bars in Berlin. Explore the spots on the free map and discover their Must Eats as collectible cards.'}
+          <strong className={styles.heroSummaryLead}>
+            {locale === 'de' ? 'Berlins' : 'Berlin’s'}{' '}
+            <em className={styles.heroSummaryAccent}>Must Eats.</em>
+          </strong>{' '}
+          <span>
+            {locale === 'de'
+              ? 'Auf der Map entdecken, vor Ort probieren und als Sammelkarten verewigen.'
+              : 'Discover them on the map, try them in person and collect the cards.'}
+          </span>
         </p>
         <MapIntentLink href="/map" className="et-btn et-btn-lg">
-          {locale === 'de' ? 'Zur Map' : 'Explore the map'}
+          {locale === 'de' ? 'Map öffnen' : 'Explore the map'}
         </MapIntentLink>
       </div>
       <MapIntentLink

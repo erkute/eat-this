@@ -31,9 +31,11 @@ for (const locale of ['de', 'en'] as const) {
       expect(spread).toBeGreaterThan(1);
       const cta = page.locator('[data-hero-actions] .et-btn');
       await expect(cta).toBeVisible();
-      await expect(cta).toHaveText(locale === 'de' ? 'Zur Map' : 'Explore the map');
-      await expect(page.locator('[data-hero-actions] p')).toContainText(
-        locale === 'de' ? 'kostenlosen Map' : 'free map',
+      await expect(cta).toHaveText(locale === 'de' ? 'Map öffnen' : 'Explore the map');
+      await expect(page.locator('[data-hero-actions] p')).toHaveText(
+        locale === 'de'
+          ? 'Berlins Must Eats. Auf der Map entdecken, vor Ort probieren und als Sammelkarten verewigen.'
+          : 'Berlin’s Must Eats. Discover them on the map, try them in person and collect the cards.',
       );
       await cta.click();
       await expect(page).toHaveURL(new RegExp(`${locale === 'en' ? '/en' : ''}/map$`));

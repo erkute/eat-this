@@ -23,6 +23,7 @@ interface LoginBoardProps {
   editorial?: boolean;
   title: string;
   lead?: string | null;
+  accountNote?: string;
   /** Was der Magic-Link durch den Posteingang tragen soll (Herz, Karte). */
   intent?: LoginIntent | null;
   /**
@@ -52,6 +53,7 @@ export default function LoginBoard({
   editorial = false,
   title,
   lead,
+  accountNote,
   intent = null,
   googleWarmup,
 }: LoginBoardProps) {
@@ -136,7 +138,7 @@ export default function LoginBoard({
             <div className={styles.copy}>
               <h2 className={styles.title}>{title}</h2>
               {lead && <p className={styles.lead}>{lead}</p>}
-              <p className={styles.accountNote}>{t('accountNote')}</p>
+              {accountNote && <p className={styles.accountNote}>{accountNote}</p>}
             </div>
 
             <div className={styles.credentials}>

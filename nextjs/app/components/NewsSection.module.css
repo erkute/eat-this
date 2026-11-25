@@ -14,6 +14,7 @@
 .fanRight { right: 5%; transform: rotate(9deg); }
 .leadCopy { display: grid; justify-items: center; gap: 16px; max-width: 1080px; margin-inline: auto; text-align: center; }
 .leadMeta { margin: 0; }
+.leadMeta > :global(.et-label) { font-size: var(--et-type-caption); line-height: 1.25; white-space: normal; }
 .currentTitle { max-width: 36ch; margin: 0; font-size: clamp(28px, 3.5vw, 50px); font-weight: 700; letter-spacing: -.045em; line-height: 1.04; text-wrap: balance; overflow-wrap: break-word; }
 .issueExcerpt { max-width: 78ch; margin: 0; color: var(--et-copy); font-size: 18px; line-height: 1.5; text-wrap: pretty; }
 .read { margin-top: 6px; }
@@ -26,7 +27,7 @@
 .featureMedia { display: flex; align-items: flex-end; justify-content: center; height: 508px; margin-bottom: 40px; filter: drop-shadow(0 10px 12px rgb(21 18 14 / .18)); }
 .featureMedia > :global([data-magazine-cover]) { width: min(100%, 380px); rotate: -4deg; }
 .feature:nth-child(2) .featureMedia > :global([data-magazine-cover]) { width: min(100%, 320px); rotate: 5deg; }
-.meta { margin: 0; color: var(--et-muted); font-size: 12px; font-weight: 700; letter-spacing: .05em; line-height: 1.5; text-transform: uppercase; }
+.meta { margin: 0; color: var(--et-muted); font-size: var(--et-type-caption); font-weight: 700; letter-spacing: .05em; line-height: 1.5; text-transform: uppercase; overflow-wrap: anywhere; }
 .featureTitle { max-width: 30ch; margin: 12px 0 0; font-size: clamp(26px, 2.5vw, 36px); font-weight: 700; letter-spacing: -.03em; line-height: 1.12; text-wrap: pretty; overflow-wrap: break-word; }
 .featureExcerpt { max-width: 50ch; margin: 18px 0 0; color: var(--et-copy); font-size: 18px; line-height: 1.5; }
 .archive { padding-top: 24px; }
@@ -92,7 +93,9 @@
  .archiveLink { grid-template-columns: 116px minmax(0, 1fr); gap: 20px; padding-block: 18px; }
  .archiveCover { width: 116px; }
  .archiveTitle { font-size: 20px; }
- .meta { font-size: 11px; }
+}
+@media (max-width: 319.98px) {
+ .archiveLink { grid-template-columns: minmax(0, 1fr); }
 }
 /* Mitte der Textur, 640 x 800: `cover` richtet sich hier nach der Höhe und
    zeigt höchstens 576 der 1200 Pixel Breite. Muss zum Preload in
@@ -124,5 +127,4 @@
  .archiveLink { grid-template-columns: 144px minmax(0, 1fr); gap: 24px; }
  .archiveCover { width: 144px; }
  .archiveTitle { font-size: 22px; }
- .meta { font-size: 11px; }
 }

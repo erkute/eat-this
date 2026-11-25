@@ -24,6 +24,7 @@ import styles from './MustEatDetail.module.css';
 import { type MustEatDetailState } from './useMustEatDetailState';
 import { useSwipePager } from './useSwipePager';
 import { CloseIcon, PinIcon } from './icons';
+import MustEatPager from './MustEatPager';
 
 const CARD_BACK = '/pics/card-back.webp?v=20261028';
 /* Gesetzt, sobald jemand in dieser Sitzung gewischt hat; der Wisch-Hinweis ruht
@@ -322,40 +323,21 @@ export default function MustEatDetailMobile({
       >
         <CloseIcon />
       </button>
+      {(prevMustEat || nextMustEat || (position && position.count > 1)) && (
+        <div className={styles.fdPager}>
+          <MustEatPager
+            position={position}
+            previousName={previousName}
+            nextName={nextName}
+            onPrevious={prevMustEat && onPagePrev ? () => pageWithCard('prev') : undefined}
+            onNext={nextMustEat && onPageNext ? () => pageWithCard('next') : undefined}
+          />
+        </div>
+      )}
       <div className={styles.scroll} data-detail-scroll>
         {/* Locked bleibt flach: Die Karte ist der Startpunkt des Aufdeck-Flugs. */}
         <div className={styles.fdHeroWrap} data-detail-hero>
-          {/* Der Stapel ist die Gruppe fürs Screenreader-Ohr; die Namen der
-              Nachbarn tragen die aria-Labels. */}
-          <div
-            className={styles.fdCardStack}
-            role={prevMustEat || nextMustEat ? 'group' : undefined}
-            aria-label={prevMustEat || nextMustEat ? t('map.pagerAria') : undefined}
-          >
-            {(prevMustEat || nextMustEat) && (
-              <button
-                type="button"
-                className={styles.fdPagerPrev}
-                disabled={!prevMustEat}
-                onClick={() => pageWithCard('prev')}
-                aria-label={
-                  previousName ? `${t('map.pagerPrev')}: ${previousName}` : t('map.pagerPrev')
-                }
-              >
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H4m7-7-7 7 7 7" /></svg>
-              </button>
-            )}
-            {(prevMustEat || nextMustEat) && (
-              <button
-                type="button"
-                className={styles.fdPagerNext}
-                disabled={!nextMustEat}
-                onClick={() => pageWithCard('next')}
-                aria-label={nextName ? `${t('map.pagerNext')}: ${nextName}` : t('map.pagerNext')}
-              >
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16m-7-7 7 7-7 7" /></svg>
-              </button>
-            )}
+          <div className={styles.fdCardStack}>
             <img
               className={`${styles.fdStackCard} ${styles.fdStackCardOne}`}
               src={CARD_BACK}
@@ -460,11 +442,6 @@ export default function MustEatDetailMobile({
           {/* Kicker und Gerichtsname als ein Kopf. Der Kicker nennt den Bezirk:
               die Angabe, die verdeckt wie aufgedeckt gilt. */}
           <div className={styles.fdHead}>
-            {position && position.count > 1 && (
-              <p className={styles.fdKickerCount}>
-                {position.index} / {position.count}
-              </p>
-            )}
             {/* `data-detail-pager` misst useMapSheet. */}
             <div className={styles.fdKickerRow} data-detail-pager>
               <p className={`et-label ${styles.fdKicker}`}>{kicker}</p>

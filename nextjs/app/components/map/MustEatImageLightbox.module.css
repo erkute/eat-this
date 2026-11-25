@@ -125,90 +125,14 @@
   }
 }
 
-/* ── Blätter-Leiste ───────────────────────────────────────────────────────────
-   Wortgleich zur Foto-Galerie (RestaurantGalleryLightbox): ein Pfeil links,
-   der Stand in der Mitte, ein Pfeil rechts, fix über dem Vorhang. Zwei Zooms
-   in derselben App sollen sich gleich blättern lassen. */
 .nav {
   position: fixed;
   left: 50%;
   bottom: max(20px, calc(env(safe-area-inset-bottom, 0px) + 12px));
   z-index: 2;
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  padding: 4px;
   color: var(--et-white);
   transform: translateX(-50%);
   cursor: default;
-}
-
-.navBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  color: inherit;
-  box-shadow: none;
-  cursor: pointer;
-}
-
-.navBtn svg {
-  width: 24px;
-  height: 24px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-/* Mobile blättert mit der Wischgeste; nur der Kartenstand bleibt sichtbar. */
-@media (max-width: 1023.98px) {
-  .navBtn { display: none; }
-}
-
-.navBtn:disabled {
-  /* Am Anfang und am Ende bleibt der Knopf stehen und wird still — sonst
-     rutscht der Zählstand aus der Mitte. */
-  background: transparent;
-  color: rgba(255, 255, 255, 0.28);
-  box-shadow: none;
-  cursor: default;
-}
-
-@media (hover: hover) {
-  .navBtn:hover:not(:disabled) {
-    color: var(--et-accent-text);
-  }
-}
-
-.navBtn:focus-visible {
-  color: var(--et-accent-text);
-  outline: 2px solid currentColor;
-  outline-offset: -2px;
-}
-
-.counter {
-  display: grid;
-  place-items: center;
-  min-width: 68px;
-  height: 44px;
-  padding: 0 16px;
-  border-radius: 0;
-  background: transparent;
-  color: inherit;
-  font-family: var(--et-font-display);
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  line-height: 1.4;
-  white-space: nowrap;
 }
 
 /* ── Der Ausgang unter der Karte ─────────────────────────────
@@ -238,12 +162,15 @@
 :global(html[data-active-page='map']) .close svg { width: 24px; height: 24px; }
 @media (max-width: 767.98px) {
   :global(html[data-active-page='map']) .close { width: 48px; height: 48px; }
-  .navBtn { min-width: 48px; height: 48px; }
 }
 
-/* Short landscape views leave the full height to the card. */
+/* In kurzen Querformaten steht der Pager neben der Karte. */
 @media (orientation: landscape) and (min-width: 600px) and (max-height: 500px) {
   .wrapper { --zoom-side-controls: 1; padding-block: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-bottom)); }
   .nav, .action { left: auto; right: max(16px, env(safe-area-inset-right)); transform: none; }
+  .nav {
+    --must-eat-pager-columns: 1fr;
+    --must-eat-counter-column: 1;
+  }
   .wrapper:has(.action) .nav { bottom: max(80px, calc(env(safe-area-inset-bottom) + 68px)); }
 }

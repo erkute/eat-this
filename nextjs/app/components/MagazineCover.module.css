@@ -70,15 +70,15 @@
 .lower {
   text-transform: lowercase;
 }
-.onPhoto {
-  color: #fff;
-  text-shadow: 0 1px 5px rgba(21, 18, 14, 0.6);
+/* Die Etiketten behalten ihre Markenfarben bis hinunter zur Miniatur. */
+.cover .photoTitle {
+  padding: 0.1em 0.22em 0.08em;
 }
-.onPhotoStrong {
-  color: #fff;
-  text-shadow:
-    0 1px 6px rgba(0, 0, 0, 0.85),
-    0 0 18px rgba(0, 0, 0, 0.35);
+.cover .photoMeta {
+  padding: 0.24em 0.46em;
+  font: inherit;
+  letter-spacing: inherit;
+  white-space: normal;
 }
 /* Fußband: höchstens zwei Zeilen. Das hält die Größe (fitSize in
    MagazineCover), nicht eine Zeilenklammer; auch Schlagzeilen mit 85 Zeichen
@@ -101,7 +101,6 @@
 }
 .meta,
 .metaBold,
-.metaShadow,
 .metaWide,
 .fieldMeta {
   font-family: var(--et-font-display);
@@ -115,26 +114,10 @@
   font-size: 2.6cqw;
   font-weight: 700;
 }
-.metaShadow {
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
-}
 .metaWide {
   font-family: var(--et-font-display);
   font-weight: 700;
   letter-spacing: 0.18em;
-}
-[data-cover-look='front'] .metaWide {
-  color: rgba(255, 255, 255, 0.86);
-  text-shadow: 0 1px 2px rgba(21, 18, 14, 0.6);
-}
-.slogan {
-  left: 0;
-  right: 0;
-  text-align: center;
-  font-family: var(--et-font-display);
-  font-size: 2.9cqw;
-  color: #fff;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
 }
 .hidden {
   width: 1px;
@@ -158,8 +141,7 @@
 .cover.ink .logo,
 .cover.ink .logoAt,
 .cover .bandLogo,
-.cover[data-cover-look='front'] .logo,
-.cover[data-cover-look='system'] .logo {
+.frontLogo {
   filter: invert(1);
 }
 /* The wordmark in the cover palette. */
@@ -169,19 +151,32 @@
   -webkit-mask: url('/pics/eat-this-crumpled-wordmark.webp?v=20261028') center / contain no-repeat;
   mask: url('/pics/eat-this-crumpled-wordmark.webp?v=20261028') center / contain no-repeat;
 }
-.logoShadow {
-  inset: 0;
-  filter: drop-shadow(0 0.5cqw 0.9cqw rgba(0, 0, 0, 0.45));
+.wordmarkPanel {
+  display: block;
+  padding: 1.5cqw 2cqw;
+  background: var(--et-ink);
 }
-.logoShadow > .flatLogo {
-  position: absolute;
+.frontPanel,
+.systemPanel {
+  left: 50%;
+  translate: -50% 0;
+}
+.frontPanel { padding: 0; }
+.systemPanel {
+  top: 4cqw;
+  width: 70cqw;
+  background: var(--et-white);
+}
+.frontLogo,
+.systemLogo {
+  width: 100%;
+  height: auto;
 }
 .middle {
   left: 3cqw;
   right: 3cqw;
   top: 50%;
   translate: 0 -50%;
-  filter: drop-shadow(0 0.4cqw 1cqw rgba(0, 0, 0, 0.25));
 }
 .redBlock {
   left: 0;
@@ -263,37 +258,6 @@
 }
 .cutoutShadow {
   filter: drop-shadow(0 1.2cqw 1.8cqw rgba(0, 0, 0, 0.45));
-}
-
-/* Abdunklungen, damit Logo und Schrift auf jedem Foto stehen. */
-.scrimTop {
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 34cqw;
-  background: linear-gradient(rgba(21, 18, 14, 0.4), rgba(21, 18, 14, 0));
-}
-.scrimBottom {
-  inset: 0;
-  background: linear-gradient(rgba(21, 18, 14, 0) 50%, rgba(21, 18, 14, 0.78) 95%);
-}
-.scrimBoth {
-  inset: 0;
-  background:
-    linear-gradient(rgba(21, 18, 14, 0.45), rgba(21, 18, 14, 0) 34%),
-    linear-gradient(rgba(21, 18, 14, 0) 58%, rgba(21, 18, 14, 0.82) 94%);
-}
-.scrimSilver {
-  inset: 0;
-  /* Oben für das Silber-Logo, unten für die Schlagzeile — die Mitte bleibt
-     Foto. */
-  background:
-    linear-gradient(rgba(21, 18, 14, 0.62), rgba(21, 18, 14, 0.15) 34%, rgba(21, 18, 14, 0) 44%),
-    linear-gradient(rgba(21, 18, 14, 0) 50%, rgba(21, 18, 14, 0.82) 92%);
-}
-.dim {
-  inset: 0;
-  background: rgba(21, 18, 14, 0.18);
 }
 
 /* ── Einzelteile ─────────────────────────────────────────────────────── */

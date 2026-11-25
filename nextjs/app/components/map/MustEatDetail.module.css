@@ -887,7 +887,7 @@
 }
 
 /*
- * Die Slots (`--me-mid-slot`, `--me-rest-slot`, `--me-pager-slot`) sind
+ * Die Slots (`--me-mid-slot`, `--me-rest-slot`) sind
  * Mindestmaße; der Kartenstapel nimmt den freien Platz und gibt ihn her, wenn
  * Name oder Beschreibung mehr brauchen.
  *
@@ -1038,8 +1038,7 @@
 }
 
 /*
- * Phone: gewischt wird (useSwipePager), es gibt keine Pager-Leiste. Der Stapel
- * ist höhengesteuert, damit er als einziger Stoßdämpfer nachgeben kann und die
+ * Der Stapel ist auf dem Telefon höhengesteuert, damit er nachgeben kann und die
  * Restaurant-Zeile nicht unter die Safari-Leiste schiebt.
  */
 
@@ -1488,10 +1487,21 @@
   }
 }
 
-/* Blättern an der Karte: Ab 768px stehen Winkel an den Kanten der obersten
-   Karte, auf dem Telefon wird gewischt. Im Rail kauft die Karte den Platz für
-   die Spuren (--me-lane): Wer die Karte größer will, muss die Spur opfern. Die
-   ganze Spur ist die Taste, nicht nur der Winkel. */
+/* Der Pager nutzt den Platz oberhalb des Stapels, neben dem Schließen-Knopf. */
+.fdPager {
+  position: absolute;
+  top: 10px;
+  inset-inline: 0;
+  z-index: 7;
+  width: max-content;
+  margin-inline: auto;
+}
+
+@media (max-width: 767.98px) {
+  .fdPager {
+    top: calc(7px + env(safe-area-inset-top, 0px) + var(--map-visual-offset-top, 0px));
+  }
+}
 
 .fdKickerRow {
   display: flex;
@@ -1502,122 +1512,13 @@
   max-width: 100%;
 }
 
-.fdPagerPrev,
-.fdPagerNext {
-  display: grid;
-  flex: 0 0 auto;
-  place-items: center;
-  width: 44px;
-  height: 36px;
-  margin: 0;
-  padding: 0;
-  appearance: none;
-  border: 0;
-  background: transparent;
-  color: var(--me-ink);
-  opacity: 0.72;
-  cursor: pointer;
-  transition: opacity 0.15s ease-out;
-}
-
-.fdPagerPrev svg,
-.fdPagerNext svg {
-  display: block;
-  width: 24px;
-  height: 24px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  transition: translate 0.15s ease-out;
-}
-
-
-.fdPagerPrev:disabled,
-.fdPagerNext:disabled {
-  visibility: hidden;
-  cursor: default;
-}
-
-@media (min-width: 768px) {
-  .fdCardStack {
-    --me-arrow-gap: 15px;
-    --me-fan-overhang: 42px;
-  }
-
-  .fdPagerPrev,
-  .fdPagerNext {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: calc(var(--me-arrow-gap) + 44px);
-    height: auto;
-    /* Über den schräg hängenden Fächerkarten. */
-    z-index: 2;
-  }
-
-  .fdPagerPrev {
-    right: 100%;
-    justify-items: start;
-    padding-left: 11px;
-  }
-
-  .fdPagerNext {
-    left: calc(100% + var(--me-fan-overhang));
-    justify-items: end;
-    padding-right: 11px;
-  }
-}
-
 @media (min-width: 1024px) {
   .fdCardStack {
-    --me-lane: 60px;
-    /* Karte = Rail − 2 Spuren − Fächer; die Höhe folgt der Kartenproportion. */
-    width: calc(100% + 48px - 2 * var(--me-lane) - var(--me-fan-overhang));
-    max-width: calc(100% + 48px - 2 * var(--me-lane) - var(--me-fan-overhang));
+    /* Im Rail bestimmt die Breite das Format und lässt dem Fächer seitlich Luft. */
+    width: calc(100% - 114px);
+    max-width: calc(100% - 114px);
     height: auto;
     max-height: none;
-  }
-}
-
-.fdPagerPrev:focus-visible,
-.fdPagerNext:focus-visible {
-  opacity: 1;
-  outline: none;
-}
-
-.fdPagerPrev:focus-visible svg,
-.fdPagerNext:focus-visible svg {
-  outline: 2px solid var(--me-accent);
-  outline-offset: 6px;
-}
-
-@media (hover: hover) {
-  .fdPagerPrev:hover,
-  .fdPagerNext:hover {
-    opacity: 1;
-  }
-  .fdPagerPrev:hover svg {
-    translate: -2px 0;
-  }
-  .fdPagerNext:hover svg {
-    translate: 2px 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .fdPagerPrev,
-  .fdPagerNext,
-  .fdPagerPrev svg,
-  .fdPagerNext svg {
-    transition: none;
-  }
-  @media (hover: hover) {
-    .fdPagerPrev:hover svg,
-    .fdPagerNext:hover svg {
-      translate: none;
-    }
   }
 }
 
@@ -1671,26 +1572,6 @@
     height: 48px;
     min-height: 48px;
   }
-}
-
-@media (max-width: 767.98px) {
-  .fdPagerPrev,
-  .fdPagerNext {
-    display: none;
-  }
-}
-
-.fdKickerCount {
-  flex: 0 0 auto;
-  margin: 0 0 6px;
-  color: var(--et-muted);
-  font-family: var(--et-font-display);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  line-height: 1;
-  text-align: center;
-  white-space: nowrap;
 }
 
 /* Dieselbe Spezifität wie `[data-map-sheet][data-view='detail']
@@ -1808,7 +1689,4 @@
 
 @media (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
   .detail .scroll .fdCardStack { width: min(calc(100% - 144px), calc((100dvh - 115px) * .7)); max-width: min(calc(100% - 144px), calc((100dvh - 115px) * .7)); height: auto; max-height: none; }
-  .fdPagerPrev, .fdPagerNext { display: grid; position: absolute; top: 0; bottom: 0; height: auto; width: 44px; padding: 0; justify-content: center; z-index: 4; }
-  .fdPagerPrev { right: calc(100% + 16px); }
-  .fdPagerNext { left: calc(100% + 58px); }
 }

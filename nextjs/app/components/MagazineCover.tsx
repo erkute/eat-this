@@ -174,13 +174,21 @@ export default function MagazineCover({
     <img className={className} style={style} src={LOGO} alt="" loading={loading} decoding="async" />
   );
   // The wordmark in the cover's own colour.
-  const flatLogo = (fill: string, style: CSSProperties) => (
+  const flatLogo = (fill: string, style?: CSSProperties) => (
     <span className={styles.flatLogo} style={{ ...style, '--fill': fill } as CSSProperties} />
   );
   const meta = (text: ReactNode, style: CSSProperties, className = styles.meta) => (
     <span className={className} style={style} aria-hidden="true" data-cover-folio="">
       {text}
     </span>
+  );
+  const photoLabel = (text: ReactNode) => (
+    <span className={`et-label et-label-paper ${styles.photoMeta}`}>{text}</span>
+  );
+  const photoMeta = (text: ReactNode, style: CSSProperties, className = styles.meta) =>
+    text ? meta(photoLabel(text), style, className) : null;
+  const photoTitle = (text: string) => (
+    <span className={`et-label-title ${styles.photoTitle}`}>{text}</span>
   );
   const barcode = (style: CSSProperties, upright = false) => (
     <span
@@ -302,13 +310,19 @@ export default function MagazineCover({
               decoding="async"
             />
           )}
-          {onPhoto && <span className={styles.scrimBoth} aria-hidden="true" />}
-          {meta(
+          {(onPhoto ? photoMeta : meta)(
             issueLine,
-            { left: 0, right: 0, top: q(3.4), textAlign: 'center' },
+            { left: 0, right: 0, top: q(2.8), textAlign: 'center' },
             styles.metaWide
           )}
-          {logo({ top: q(FRONT_LOGO.top), width: q(FRONT_LOGO.width) })}
+          {onPhoto ? (
+            <span
+              className={`${styles.wordmarkPanel} ${styles.frontPanel}`}
+              style={{ top: q(FRONT_LOGO.top), width: q(FRONT_LOGO.width) }}
+            >
+              {logo({}, styles.frontLogo)}
+            </span>
+          ) : logo({ top: q(FRONT_LOGO.top), width: q(FRONT_LOGO.width) })}
           {onPhoto ? (
             <PhotoImage
               className={`${styles.layer} ${styles.cutoutShadow}`}
@@ -324,7 +338,7 @@ export default function MagazineCover({
             cutout(c, g.rect, styles.cutoutShadow)
           )}
           <span
-            className={`${styles.headline} ${styles.onPhoto}`}
+            className={styles.headline}
             style={{
               ...size(fitSize(title, 360, 5.4, 7.6)),
               left: q(6),
@@ -332,7 +346,7 @@ export default function MagazineCover({
               bottom: q(6),
             }}
           >
-            {title}
+            {onPhoto ? photoTitle(title) : title}
           </span>
         </>
       );
@@ -371,22 +385,23 @@ export default function MagazineCover({
       body = (
         <>
           {photo(styles.fill)}
-          <span className={styles.scrimBottom} aria-hidden="true" />
           {flatLogo(toneOnTone(cover?.palette), { left: q(3), right: q(3), top: q(3) })}
           <span
             className={styles.stack}
-            style={{ left: q(6), right: q(6), bottom: q(6.5), textAlign: 'center', color: '#fff' }}
+            style={{ left: q(6), right: q(6), bottom: q(6.5), textAlign: 'center' }}
             aria-hidden="true"
           >
             <span
               className={`${styles.headline} ${styles.caps}`}
               style={size(fitSize(lead, 300, 4.6, 7))}
             >
-              {lead}
+              {photoTitle(lead)}
             </span>
-            <span className={styles.sub}>
-              {[rest, issue ? `Issue ${issue}` : ''].filter(Boolean).join(' · ')}
-            </span>
+            {(rest || Boolean(issue)) && (
+              <span className={styles.sub}>
+                {photoLabel([rest, issue ? `Issue ${issue}` : ''].filter(Boolean).join(' · '))}
+              </span>
+            )}
           </span>
           {hiddenTitle}
         </>
@@ -398,8 +413,9 @@ export default function MagazineCover({
       body = (
         <>
           {photo(styles.systemPhoto)}
-          <span className={styles.scrimTop} aria-hidden="true" />
-          {logo({ top: q(4), width: q(70) })}
+          <span className={`${styles.wordmarkPanel} ${styles.systemPanel}`}>
+            {logo({}, styles.systemLogo)}
+          </span>
           {barcode({ left: q(6), top: q(102), width: q(4.4), height: q(17) }, true)}
           <span className={styles.systemText} aria-hidden="true">
             <span className={styles.headline} style={size(fitSize(lead, 190, 5, 7.4))}>
@@ -418,37 +434,32 @@ export default function MagazineCover({
       break;
     }
     case 'holiday': {
-      // Nach Holiday: das Logo weiss und riesig, darunter gesperrt der
-      // Leitsatz, unten rechts der kurze Titel.
+      // Nach Holiday: grosses weisses Logo und gesperrter Leitsatz, unten
+      // rechts der kurze Titel.
       body = (
         <>
           {photo(styles.fill)}
-          <span className={styles.scrimBoth} aria-hidden="true" />
-          {flatLogo('#fff', { left: q(4), right: q(4), top: q(4) })}
-          {meta(
+          <span className={styles.wordmarkPanel} style={{ left: q(4), right: q(4), top: q(4) }}>
+            {flatLogo('var(--et-white)')}
+          </span>
+          {photoMeta(
             SLOGAN,
-            {
-              left: 0,
-              right: 0,
-              top: q(36.5),
-              textAlign: 'center',
-              color: '#fff',
-              letterSpacing: '.34em',
-            },
-            styles.metaShadow
+            { left: 0, right: 0, top: q(36.5), textAlign: 'center', letterSpacing: '.34em' }
           )}
           <span
             className={styles.stack}
-            style={{ right: q(6), bottom: q(7), width: q(56), textAlign: 'right', color: '#fff' }}
+            style={{ right: q(6), bottom: q(7), width: q(56), textAlign: 'right' }}
             aria-hidden="true"
           >
             <span
               className={`${styles.headline} ${styles.caps}`}
               style={size(fitSize(lead, 200, 3.8, 5.6))}
             >
-              {lead}
+              {photoTitle(lead)}
             </span>
-            <span className={styles.sub}>{issue ? `N° ${issue}` : month}</span>
+            {(Boolean(issue) || month) && (
+              <span className={styles.sub}>{photoLabel(issue ? `N° ${issue}` : month)}</span>
+            )}
           </span>
           {barcode({ left: q(6), bottom: q(6), width: q(4.4), height: q(17) }, true)}
           {hiddenTitle}
@@ -466,28 +477,15 @@ export default function MagazineCover({
             transformOrigin: `${f.x}% ${f.y}%`,
             objectPosition: `${f.x}% ${f.y}%`,
           })}
-          <span className={styles.dim} aria-hidden="true" />
-          {meta(
+          {photoMeta(
             issueLine,
-            {
-              left: 0,
-              right: 0,
-              top: q(5),
-              textAlign: 'center',
-              color: '#fff',
-              letterSpacing: '.2em',
-            },
-            styles.metaShadow
+            { left: 0, right: 0, top: q(5), textAlign: 'center', letterSpacing: '.2em' }
           )}
-          <span className={styles.middle}>
-            {flatLogo('rgba(255, 255, 255, 0.9)', {
-              position: 'relative',
-              display: 'block',
-              width: '100%',
-            })}
+          <span className={`${styles.wordmarkPanel} ${styles.middle}`}>
+            {flatLogo('var(--et-white)')}
           </span>
           <span
-            className={`${styles.headline} ${styles.onPhoto}`}
+            className={styles.headline}
             style={{
               ...size(fitSize(title, 260, 3.8, 5)),
               left: q(10),
@@ -496,28 +494,24 @@ export default function MagazineCover({
               textAlign: 'center',
             }}
           >
-            {title}
+            {photoTitle(title)}
           </span>
         </>
       );
       break;
     }
     case 'silver': {
-      // Nach 032c, Ausgabe 49: das Logo in Silber, Leitsatz, die Schlagzeile
-      // groß unten links über dem Strichcode, gut lesbar und nicht mittig. Kein
-      // roter Rücken links.
+      // Nach 032c, Ausgabe 49: Silber-Logo und Leitsatz oben, die
+      // Schlagzeile unten links über dem Strichcode.
       body = (
         <>
           {photo(styles.fill)}
-          <span className={styles.scrimSilver} aria-hidden="true" />
-          <span className={styles.logoShadow}>
-            {flatLogo('var(--silver)', { left: q(6), right: q(3), top: q(3) })}
+          <span className={styles.wordmarkPanel} style={{ left: q(6), right: q(3), top: q(3) }}>
+            {flatLogo('var(--silver)')}
           </span>
-          <span className={styles.slogan} style={{ top: q(35) }} aria-hidden="true">
-            {SLOGAN}
-          </span>
+          {photoMeta(SLOGAN, { left: 0, right: 0, top: q(35), textAlign: 'center', fontSize: q(2.9) })}
           <span
-            className={`${styles.headline} ${styles.caps} ${styles.onPhotoStrong}`}
+            className={`${styles.headline} ${styles.caps}`}
             style={{
               ...size(fitSize(title, 270, 4.6, 6.8)),
               left: q(7),
@@ -525,13 +519,12 @@ export default function MagazineCover({
               bottom: q(14),
             }}
           >
-            {title}
+            {photoTitle(title)}
           </span>
           {barcode({ left: q(7), bottom: q(4), width: q(15), height: q(6) })}
-          {meta(
+          {photoMeta(
             [issue ? `No. ${issue}` : '', month, 'Berlin'].filter(Boolean).join(' · '),
-            { right: q(4), bottom: q(4.6), color: '#fff' },
-            styles.metaShadow
+            { right: q(4), bottom: q(4.6) }
           )}
         </>
       );
@@ -542,8 +535,7 @@ export default function MagazineCover({
       body = (
         <>
           {photo(styles.fill)}
-          <span className={styles.dim} aria-hidden="true" />
-          {meta(
+          {(Boolean(issue) || month) && photoMeta(
             <>
               {issue ? (
                 <>
@@ -553,12 +545,13 @@ export default function MagazineCover({
               ) : null}
               {month}
             </>,
-            { left: q(7), top: q(5), color: '#fff' },
-            styles.metaShadow
+            { left: q(7), top: q(5) }
           )}
-          {flatLogo('var(--et-red)', { left: q(6), right: q(2), top: q(52) })}
+          <span className={styles.wordmarkPanel} style={{ left: q(6), right: q(2), top: q(52) }}>
+            {flatLogo('var(--et-red)')}
+          </span>
           <span
-            className={`${styles.headline} ${styles.onPhoto}`}
+            className={styles.headline}
             style={{
               ...size(fitSize(title, 260, 4, 5.4)),
               left: q(14),
@@ -567,7 +560,7 @@ export default function MagazineCover({
               textAlign: 'center',
             }}
           >
-            {title}
+            {photoTitle(title)}
           </span>
           {spine}
           {barcode({ left: q(7), bottom: q(4), width: q(15), height: q(6) })}
@@ -597,15 +590,13 @@ export default function MagazineCover({
       body = (
         <>
           {photo(styles.fill)}
-          <span className={styles.scrimBottom} aria-hidden="true" />
           <span className={styles.redBlock}>{logo({ width: q(52) }, styles.logoInBlock)}</span>
-          {meta(
+          {(Boolean(issue) || month) && photoMeta(
             issueStack,
-            { right: q(5), top: q(5), textAlign: 'right', color: '#fff' },
-            styles.metaShadow
+            { right: q(5), top: q(5), textAlign: 'right' }
           )}
           <span
-            className={`${styles.headline} ${styles.caps} ${styles.onPhoto}`}
+            className={`${styles.headline} ${styles.caps}`}
             style={{
               ...size(fitSize(title, 420, 5.4, 8.6)),
               left: q(5),
@@ -614,7 +605,7 @@ export default function MagazineCover({
               lineHeight: 1.04,
             }}
           >
-            {title}
+            {photoTitle(title)}
           </span>
         </>
       );

@@ -19,7 +19,7 @@ interface SwipePagerOptions {
    Swipe left → next, right → prev. Axis-locked so it never fights the
    vertical sheet-drag / content scroll: the first significant move decides
    the axis; only a clearly-horizontal gesture pages (and preventDefault's).
-   Touch-only — mouse drags bail (desktop uses the pager arrows).
+   Touch-only. Mouse users can use the pager buttons.
 
    ACHTUNG beim Einbau: der Aufrufer schiebt die Karte beim Wechsel um eine
    volle Viewport-Breite. Ein Vorfahr MUSS die x-Achse klemmen (`overflow-x:

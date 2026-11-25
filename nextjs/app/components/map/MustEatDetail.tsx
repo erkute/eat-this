@@ -35,7 +35,7 @@ interface MustEatDetailProps {
   nextUnlocked?: boolean;
   onPagePrev?: () => void;
   onPageNext?: () => void;
-  /** Stand im globalen Stapel, 1-basiert — der Zoom zeigt ihn als Zähler. */
+  /** Stand im globalen Stapel (1-basiert), für beide Pager. */
   position?: { index: number; count: number };
   /** Offene Karten gegen alle — die Bühne des Aufdeckens zählt eins hoch. */
   collection?: { count: number; total: number };
@@ -224,7 +224,7 @@ export default function MustEatDetail({
         />
       )}
       {/* Der Zoom blättert durch denselben Stapel wie das Detail darunter —
-          Wisch, Pfeile, Zähler wie in der Foto-Galerie. Der Zoom öffnet nur
+          Wischgesten, Blätterknöpfe und derselbe Zähler. Der Zoom öffnet nur
           auf einer aufgedeckten Karte (handleCardZoom), unterwegs darf er aber
           auf einer verdeckten landen: die zeigt ihren Rücken, so wie die
           /must-eats-Galerie ihre verdeckten Karten im Zoom zeigt. Ein

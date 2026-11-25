@@ -10,6 +10,7 @@ import {
   useTransform,
 } from 'framer-motion';
 import { useLocale } from 'next-intl';
+import MustEatPager from './MustEatPager';
 import { whenImageReady } from '@/lib/dom/imageReady';
 import {
   DEAL_IN_DELAY_MS,
@@ -596,9 +597,7 @@ const Inner = memo(function Inner({
         </div>
       )}
 
-      {/* Dieselbe Leiste wie in der Foto-Galerie: ein Pfeil, der Stand, ein
-          Pfeil. Sie schluckt ihre eigenen Klicks — der Vorhang darunter
-          schliesst den Zoom. */}
+      {/* Pager-Ereignisse dürfen weder eine Wischgeste starten noch den Zoom schließen. */}
       {canPage && position && position.count > 1 && (
         <div
           className={styles.nav}
@@ -606,37 +605,12 @@ const Inner = memo(function Inner({
           onPointerUp={(e) => e.stopPropagation()}
           onPointerDown={(e) => e.stopPropagation()}
         >
-          <button
-            type="button"
-            className={styles.navBtn}
-            aria-label={english ? 'Previous card' : 'Vorherige Karte'}
-            disabled={!hasPrev}
-            onClick={(e) => {
-              e.stopPropagation();
-              page(-1);
-            }}
-          >
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="M19 12H5m6-6-6 6 6 6" />
-            </svg>
-          </button>
-          <span className={styles.counter}>
-            {position.index} / {position.count}
-          </span>
-          <button
-            type="button"
-            className={styles.navBtn}
-            aria-label={english ? 'Next card' : 'Nächste Karte'}
-            disabled={!hasNext}
-            onClick={(e) => {
-              e.stopPropagation();
-              page(1);
-            }}
-          >
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="M5 12h14m-6-6 6 6-6 6" />
-            </svg>
-          </button>
+          <MustEatPager
+            position={position}
+            alternateButtons
+            onPrevious={hasPrev && onPrev ? () => page(-1) : undefined}
+            onNext={hasNext && onNext ? () => page(1) : undefined}
+          />
         </div>
       )}
     </motion.div>

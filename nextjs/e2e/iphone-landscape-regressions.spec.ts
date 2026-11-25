@@ -69,23 +69,31 @@ test('category, district and price open inside the right rail', async ({ page })
   }
 });
 
-test('Must Eat paging arrows leave space around the complete card fan', async ({ page }) => {
+test('Must Eat paging controls stay clear of the complete card fan', async ({ page }) => {
   await page.goto('/map?me=mustead-main-13');
   const detail = page.locator('[data-detail-root="must-eat"]');
-  await expect(detail).toBeVisible();
+  const pager = detail.getByRole('group', { name: 'Must Eat wechseln' });
+  await expect(pager.getByRole('button', { name: /^Vorherige Karte/ })).toBeInViewport({ ratio: 1 });
+  await expect(pager.getByRole('button', { name: /^Nächste Karte/ })).toBeInViewport({ ratio: 1 });
   const stack = detail.locator('[class*="fdCardStack"]').first();
+  // Im Hochformat steht der Pager über dem Fächer, im Querformat daneben:
+  // Keine Karte darf die Knöpfe in irgendeiner Richtung überdecken.
   await expect.poll(async () => {
-    const bounds = await stack.locator('img').evaluateAll(images => images.map(img => img.getBoundingClientRect().toJSON()).filter(b => b.width > 0));
-    const right = Math.max(...bounds.map(b => b.right));
-    const left = Math.min(...bounds.map(b => b.left));
-    const prev = (await detail.locator('[class*="fdPagerPrev"] svg').boundingBox())!;
-    const next = (await detail.locator('[class*="fdPagerNext"] svg').boundingBox())!;
-    return Math.min(left - prev.x - prev.width, next.x - right);
-  }).toBeGreaterThanOrEqual(16);
+    const controls = (await pager.boundingBox())!;
+    const cards = await stack.locator('img').evaluateAll(images =>
+      images.map(img => img.getBoundingClientRect().toJSON()).filter(b => b.width > 0)
+    );
+    return Math.min(...cards.map(card => Math.max(
+      card.top - controls.y - controls.height,
+      controls.y - card.bottom,
+      card.left - controls.x - controls.width,
+      controls.x - card.right,
+    )));
+  }).toBeGreaterThanOrEqual(0);
   const fanBottom = await stack.locator('img').evaluateAll(images => Math.max(...images.map(img => img.getBoundingClientRect().bottom)));
   const hint = (await detail.locator('[class*="fdSwipeHint"]').boundingBox())!;
   expect(hint.y - fanBottom).toBeGreaterThanOrEqual(10);
-  await page.screenshot({ path: '/tmp/eat-this-iphone16/verified-card-arrows.png' });
+  await page.screenshot({ path: '/tmp/eat-this-iphone16/verified-card-pager.png' });
 });
 
 test('Zoom controls stay clear of the enlarged card after rotation', async ({ page }) => {

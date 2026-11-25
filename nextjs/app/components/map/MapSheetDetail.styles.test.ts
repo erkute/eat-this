@@ -120,34 +120,8 @@ describe('Map sheet detail CSS contracts', () => {
     expect(hasAnimationNone(mustEat, '.fdHeroLocked.mustEatCardCanUnlock')).toBe(true);
     expect(hasAnimationNone(restaurant, '.medishReady .medishPh img')).toBe(true);
     expect(hasAnimationNone(restaurant, '.rdBodySkel span')).toBe(true);
-    // Der einmalige Wisch-Nudge ersetzt auf dem Phone die Pager-Tasten. Bei
-    // reduzierter Bewegung darf er nicht laufen — dort tritt die Textfassung
-    // (.fdSwipeHint) an seine Stelle.
+    // Bei reduzierter Bewegung übernimmt der Texthinweis den Wisch-Nudge.
     expect(hasAnimationNone(mustEat, '.fdTopCardHint')).toBe(true);
-  });
-
-  /* Die Blätter-Winkel stehen ab 768px an den Kartenkanten (absolut im Stapel),
-     auf dem Telefon gibt es sie nicht. */
-  it('pins the Must Eat pager arrows to the card edges from tablet up, hides them on phones', () => {
-    for (const arrow of ['fdPagerPrev', 'fdPagerNext']) {
-      let absolute = false;
-      let hiddenOnPhone = false;
-      mustEat.walkRules((rule) => {
-        if (!rule.selectors.some((s) => s.includes(`.${arrow}`))) return;
-        if (isInside(rule, 'media', '(min-width: 768px)')) {
-          rule.walkDecls('position', (d) => {
-            if (d.value === 'absolute') absolute = true;
-          });
-        }
-        if (isInside(rule, 'media', '(max-width: 767.98px)')) {
-          rule.walkDecls('display', (d) => {
-            if (d.value === 'none') hiddenOnPhone = true;
-          });
-        }
-      });
-      expect(absolute, `${arrow} absolute from 768px`).toBe(true);
-      expect(hiddenOnPhone, `${arrow} hidden below 768px`).toBe(true);
-    }
   });
 
   it('keeps the in-range Must Eat card shake fast and high-amplitude', () => {

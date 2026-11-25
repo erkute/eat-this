@@ -1,0 +1,25 @@
+.pager {
+  display: grid;
+  grid-template-columns: var(--must-eat-pager-columns, 1fr auto 1fr);
+  align-items: center;
+  gap: 8px;
+}
+
+.counter {
+  grid-column: var(--must-eat-counter-column, 2);
+  font-family: var(--et-font-display);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.announcement {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

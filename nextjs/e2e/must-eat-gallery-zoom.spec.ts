@@ -1,4 +1,4 @@
-import { expect, test, type Locator } from '@playwright/test';
+import { expect, test, type Locator } from './test';
 
 for (const locale of ['de', 'en'] as const) {
   test(`catalogue cards zoom before opening their map spot (${locale})`, async ({ page, baseURL, isMobile }) => {

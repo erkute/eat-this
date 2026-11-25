@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, placeholderSanityPhotos, test } from './test';
 import AxeBuilder from '@axe-core/playwright';
 
 for (const route of [
@@ -123,6 +123,7 @@ test('rubric navigation and spot links survive without JavaScript', async ({
     javaScriptEnabled: false,
     extraHTTPHeaders: { DNT: '1' },
   });
+  await placeholderSanityPhotos(context);
   const page = await context.newPage();
   try {
     await page.goto(`${baseURL}/en/kategorie`);
@@ -160,6 +161,7 @@ test('district keyboard links, map intent and complete unfiltered directory', as
 
 test('district overview and restaurant links survive without JavaScript', async ({ browser, baseURL, isMobile }) => {
   const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: isMobile ? 375 : 1440, height: 900 }, extraHTTPHeaders: { DNT: '1' } });
+  await placeholderSanityPhotos(context);
   const page = await context.newPage();
   try {
     await page.goto(`${baseURL}/en/bezirk`);

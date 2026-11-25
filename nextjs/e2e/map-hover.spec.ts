@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 
 for (const theme of ['light', 'dark']) {
   test(`map actions stay free of frames and retain keyboard focus (${theme})`, async ({ page, isMobile }, info) => {

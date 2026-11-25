@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 
 for (const reducedMotion of ['reduce', 'no-preference'] as const) {
   test(`phone screens wait for their section and remain usable (${reducedMotion})`, async ({ page }) => {

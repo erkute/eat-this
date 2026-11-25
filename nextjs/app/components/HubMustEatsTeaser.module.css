@@ -32,6 +32,13 @@
   .foot { flex-direction: row; align-items: center; flex-wrap: wrap; }
 }
 
+/* Telefon: Hauptknopf über die volle Breite, die Erklärung mittig darunter. */
+@media (max-width: 599.98px) {
+  .foot { flex-direction: column; align-items: stretch; gap: 16px; }
+  .foot > :global(.et-btn) { width: 100%; }
+  .foot button { align-self: center; }
+}
+
 @media (min-width: 600px) and (max-width: 899px) {
   .intro { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
   .intro :global(.hv-head) { margin: 0; }

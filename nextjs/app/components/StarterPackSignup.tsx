@@ -26,13 +26,13 @@ export default function StarterPackSignup() {
       data-hub-starter=""
       data-red-sheet=""
       data-guest-only=""
-      aria-label={t('packTitle')}
+      aria-label={t('homePackTitle')}
     >
       <div>
         <LoginBoard
           editorial
           art={<StarterPack3D />}
-          title={t('packTitle')}
+          title={t('homePackTitle')}
           lead={t('homePackLead')}
           googleWarmup="intent"
         />

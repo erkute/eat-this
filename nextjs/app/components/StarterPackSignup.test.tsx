@@ -49,12 +49,12 @@ describe('StarterPackSignup', () => {
     expect(renderToStaticMarkup(tafel())).toContain('data-guest-only');
   });
 
-  /* Derselbe Aufbau wie das Modal: das Pack, eine Ueberschrift, das Formular. */
-  it('zeigt das Pack und traegt die Ueberschrift des Modals', () => {
+  /* Derselbe Aufbau wie das Modal: das Pack, eine eigene Ueberschrift, das Formular. */
+  it('zeigt das Pack mit der Ueberschrift der Startseite', () => {
     const html = renderToStaticMarkup(tafel());
     expect(html).toContain('starter-pack-front.webp');
-    expect(html).toContain('>Dein Starter Pack.</h2>');
-    expect(html).toContain('Hol dir deine ersten Must-Eat-Karten.');
+    expect(html).toContain('>Mach Berlin zu deiner Sammlung.</h2>');
+    expect(html).toContain('Zum Start erwarten dich 20 weitere Must Eats.');
     expect(html).toContain('type="email"');
     expect(html).toContain('Mit Google anmelden');
     expect(html).not.toContain('Anmeldung per E-Mail-Link oder mit Google.');
@@ -63,7 +63,8 @@ describe('StarterPackSignup', () => {
   it('spricht Englisch unter /en', () => {
     const html = renderToStaticMarkup(tafel('en'));
     expect(html).toContain('Sign in with Google');
-    expect(html).toContain('Get your first Must Eat cards.');
+    expect(html).toContain('>Make Berlin your collection.</h2>');
+    expect(html).toContain('To start, 20 more Must Eats are waiting for you.');
     expect(html).not.toContain('Sign in with an email link or Google.');
   });
 

@@ -10,9 +10,8 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  /* Lock to vertical only — block any horizontal swipe gesture that could
-     pan the sheet sideways or hand-off to the OS back-swipe. */
-  touch-action: pan-y;
+  /* Keep panel scrolling vertical and allow page zoom. */
+  touch-action: pan-y pinch-zoom;
   overscroll-behavior: contain;
 }
 /* Cap the mount to the visible sheet slice on tablets, so the inner scroller's

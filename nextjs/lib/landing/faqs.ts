@@ -1,3 +1,5 @@
+import { STARTER_PACK_CARDS } from '@/lib/starter-pack';
+
 export interface LandingFaqEntry {
   q: string;
   a: string;
@@ -7,45 +9,45 @@ const FAQS: { de: LandingFaqEntry[]; en: LandingFaqEntry[] } = {
   de: [
     {
       q: 'Was kostet Eat This?',
-      a: 'Map und Spots kannst du ohne Konto entdecken. 10 Must Eats sind schon aufgedeckt. Mit deinem Konto deckt das Starter Pack 20 weitere auf. Den Rest der aktuell {mustEatCount} Must Eats in Berlin entdeckst du vor Ort. Neue kommen nach und nach dazu.\n\nNur Booster Packs kosten etwas. Damit kannst du weitere Must Eats freischalten und Karten sammeln, ohne die Spots vorher besuchen zu müssen.',
+      a: 'Nur Booster Packs kosten etwas. Damit bekommst du zusätzliche Must-Eat-Karten auch ohne Besuch vor Ort.',
     },
     {
       q: 'Brauche ich ein Konto?',
-      a: 'Du kannst die Map und die Spots ohne Konto entdecken. Zum Sammeln und Aufdecken verdeckter Must Eats brauchst du ein Konto. Dein Starter Pack deckt bei der Anmeldung 20 weitere Must Eats auf.',
+      a: 'Die Map kannst du ohne Konto nutzen. Zum Sammeln von Must-Eat-Karten meldest du dich an.',
     },
     {
-      q: 'Was sind Must Eats und wie decke ich sie auf?',
-      a: 'Must Eats sind konkrete Gerichte, die wir dir an einem Spot empfehlen. 10 Karten sind schon für alle aufgedeckt. Mit deinem Konto deckt das Starter Pack 20 weitere auf. Die übrigen Karten entdeckst du vor Ort und sammelst sie in deinem Deck. Ein Booster Pack schaltet die enthaltenen Karten auch ohne Besuch frei.',
+      q: 'Was sind Must Eats?',
+      a: `Ein Must Eat empfiehlt dir, was du an einer Adresse bestellen solltest. Von aktuell {mustEatCount} Must Eats in Berlin sind 10 Karten für alle offen. Mit dem Starter Pack bekommst du einmalig bis zu ${STARTER_PACK_CARDS} weitere Karten. Weitere Karten kannst du vor Ort sammeln.`,
     },
     {
-      q: 'Wie wählt ihr die Spots aus?',
-      a: 'Wir sind Foodies und gehen einfach gern essen. Dabei sind wir ziemlich wählerisch. Auf die Map kommen die Restaurants, Cafés und Bars, die uns selbst überzeugen – und die wir auch unseren Freunden empfehlen.',
+      q: 'Welche Spots finde ich auf der Map?',
+      a: 'Eat This sammelt ausgewählte Restaurants, Cafés und Bars in Berlin.',
     },
     {
       q: 'Gibt’s Eat This auch außerhalb von Berlin?',
-      a: 'Aktuell findest du bei uns Restaurants, Cafés und Bars in Berlin. Weitere Großstädte sind geplant.',
+      a: 'Aktuell findest du auf Eat This Restaurants, Cafés und Bars in Berlin. Weitere Großstädte sind geplant.',
     },
   ],
   en: [
     {
       q: 'What does Eat This cost?',
-      a: 'You can explore the map and spots without an account. 10 Must Eats are already revealed. With your account, the Starter Pack reveals 20 more. Discover the rest of the {mustEatCount} Must Eats currently in Berlin at the spots themselves. More are added over time.\n\nOnly Booster Packs cost money. With them you can unlock more Must Eats and collect cards without having to visit the spots first.',
+      a: 'Only Booster Packs cost money. They give you extra Must Eat cards without having to visit in person.',
     },
     {
       q: 'Do I need an account?',
-      a: 'You can explore the map and spots without an account. To collect Must Eats and reveal hidden cards, you need an account. Your Starter Pack reveals 20 more Must Eats when you sign up.',
+      a: 'You can use the map without an account. Sign in to collect Must Eat cards.',
     },
     {
-      q: 'What are Must Eats and how do I reveal them?',
-      a: 'Must Eats are specific dishes we recommend at a spot. 10 cards are already revealed for everyone. With your account, the Starter Pack reveals 20 more. Discover the remaining cards at the spots and collect them in your deck. A Booster Pack unlocks its included cards without a visit.',
+      q: 'What are Must Eats?',
+      a: `A Must Eat tells you what to order at a particular place. Of the {mustEatCount} Must Eats currently in Berlin, 10 cards are open to everyone. Your Starter Pack adds up to ${STARTER_PACK_CARDS} cards, once per account. You can collect more cards when you visit.`,
     },
     {
-      q: 'How do you choose the spots?',
-      a: 'We love going out to eat, and we’re pretty particular about what’s on our plates. Our map features the restaurants, cafés and bars that win us over – the ones we recommend to our friends.',
+      q: 'Which spots are on the map?',
+      a: 'Eat This brings together selected restaurants, cafés and bars in Berlin.',
     },
     {
       q: 'Is Eat This available outside Berlin?',
-      a: 'For now, you’ll find restaurants, cafés and bars in Berlin. We plan to expand to other major cities.',
+      a: 'For now, you’ll find restaurants, cafés and bars in Berlin. More cities are planned.',
     },
   ],
 };

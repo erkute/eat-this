@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 
 for (const route of ['/news', '/en/news']) {
   test(`news loads without the homepage bundle: ${route}`, async ({ page }) => {

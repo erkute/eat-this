@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 import AxeBuilder from '@axe-core/playwright';
 
 for (const en of [false, true]) {
@@ -53,7 +53,7 @@ test('dark map guest login remains readable', async ({ page }) => {
   await page.getByRole('button', { name: 'Verdecktes Must Eat', exact: true }).click();
   // Der erste Tipp öffnet das Must-Eat-Detail, erst die Karte dort fragt nach dem Konto.
   await page.getByRole('img', { name: 'Verdeckt', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Schau drunter', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Entdecke dein Starter Pack.', exact: true })).toBeVisible();
   await expect(page.getByRole('textbox', { name: 'E-Mail', exact: true })).toBeVisible();
   const check = async () => {
     const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();

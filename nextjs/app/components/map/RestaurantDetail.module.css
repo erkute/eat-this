@@ -30,7 +30,7 @@
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   /* Vertical content scrolling; the nested photo rail owns horizontal gestures. */
-  touch-action: pan-y;
+  touch-action: pan-y pinch-zoom;
 }
 .scroll::-webkit-scrollbar {
   width: 0;
@@ -394,7 +394,7 @@
    ruckelte auf iOS und brach bei jedem leicht schrägen Wisch ab. */
 
 .rdHeroPhotos {
-  touch-action: pan-x pan-y;
+  touch-action: pan-x pan-y pinch-zoom;
   position: absolute;
   inset: 0;
   display: flex;

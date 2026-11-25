@@ -48,14 +48,14 @@ function getCheckoutCopy(locale: 'de' | 'en', checkout: CheckoutState): Checkout
         body:
           checkout.mode === 'guest'
             ? checkout.email
-              ? `Deine Zahlung ist bestätigt. Den Login-Link für dein Pack schicken wir an ${checkout.email}.`
-              : 'Deine Zahlung ist bestätigt. Den Login-Link für dein Pack schicken wir dir per E-Mail.'
-            : 'Deine Zahlung ist bestätigt. Deine Karten liegen gleich im Album.',
+              ? `Deine Zahlung ist bestätigt. Den Anmeldelink für dein Pack bekommst du per E-Mail an ${checkout.email}.`
+              : 'Deine Zahlung ist bestätigt. Den Anmeldelink für dein Pack bekommst du per E-Mail.'
+            : 'Deine Zahlung ist bestätigt. Die Karten erscheinen in deiner Sammlung, sobald dein Kauf verarbeitet wurde.',
         packTag: `${checkout.packLabel} Pack`,
         check:
           checkout.mode === 'guest'
-            ? 'Check gleich dein Postfach (auch Spam).'
-            : 'Die Freischaltung kann einen Moment dauern.',
+            ? 'Prüfe dein Postfach und deinen Spam-Ordner.'
+            : 'Wenn die Karten noch fehlen, schau später noch einmal nach.',
         backLabel: 'Zurück zur Map',
         backHref: '/map',
       };
@@ -64,7 +64,7 @@ function getCheckoutCopy(locale: 'de' | 'en', checkout: CheckoutState): Checkout
       return {
         eyebrow: 'Zahlung in Bearbeitung',
         headline: 'Fast geschafft.',
-        body: 'Stripe verarbeitet deine Zahlung noch. Deine Karten kommen erst nach der Zahlungsbestätigung ins Album.',
+        body: 'Stripe verarbeitet deine Zahlung noch. Nach der Zahlungsbestätigung werden die Karten deiner Sammlung hinzugefügt.',
         packTag: `${checkout.packLabel} Pack`,
         check: 'Du kannst diese Seite später erneut laden.',
         backLabel: 'Zurück zur Map',
@@ -89,14 +89,14 @@ function getCheckoutCopy(locale: 'de' | 'en', checkout: CheckoutState): Checkout
       body:
         checkout.mode === 'guest'
           ? checkout.email
-            ? `Your payment is confirmed. We will send the sign-in link for your pack to ${checkout.email}.`
-            : 'Your payment is confirmed. We will send the sign-in link for your pack by email.'
-          : 'Your payment is confirmed. Your cards are landing in your album.',
+            ? `Your payment is confirmed. You will receive the sign-in link for your pack by email at ${checkout.email}.`
+            : 'Your payment is confirmed. You will receive the sign-in link for your pack by email.'
+          : 'Your payment is confirmed. The cards will appear in your collection once your purchase has been processed.',
       packTag: `${checkout.packLabel} pack`,
       check:
         checkout.mode === 'guest'
-          ? 'Check your inbox (and spam) shortly.'
-          : 'Unlocking can take a moment.',
+          ? 'Check your inbox and spam folder.'
+          : 'If the cards are not there yet, check again later.',
       backLabel: 'Back to the map',
       backHref: '/map',
     };
@@ -105,7 +105,7 @@ function getCheckoutCopy(locale: 'de' | 'en', checkout: CheckoutState): Checkout
     return {
       eyebrow: 'Payment processing',
       headline: 'Almost there.',
-      body: 'Stripe is still processing your payment. Your cards reach your album only after payment is confirmed.',
+      body: 'Stripe is still processing your payment. The cards will be added to your collection after your payment is confirmed.',
       packTag: `${checkout.packLabel} pack`,
       check: 'You can reload this page later.',
       backLabel: 'Back to the map',

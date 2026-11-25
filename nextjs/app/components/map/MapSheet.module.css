@@ -50,8 +50,8 @@
   padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
-  /* Vertical only — no native diagonal panning inside the rows. */
-  touch-action: pan-y;
+  /* Vertical scrolling and page zoom inside the rows. */
+  touch-action: pan-y pinch-zoom;
 }
 
 /* ── Desktop: the rail ─────────────────────────────────────────────────── */

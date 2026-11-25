@@ -7,28 +7,21 @@ vi.mock('@/lib/sanity.server', () => ({ getPackContents }));
 vi.mock('next-intl/server', () => ({ getRequestConfig: (config: unknown) => config }));
 import requestConfig from '@/i18n/request';
 
-function promoMessages(locale: 'de' | 'en', count: number) {
-  const messages = getCatalogMessages(locale, count);
-  return [
-    messages.map.starterPromoBody,
-    messages.modals.login.packLead,
-    messages.modals.login.cardLead,
-    messages.modals.login.heartLead,
-  ];
+function promo(locale: 'de' | 'en', count: number) {
+  return getCatalogMessages(locale, count).map.starterPromoBody;
 }
 
 function explanations(locale: 'de' | 'en', count: number) {
-  return [
-    getCatalogMessages(locale, count).mustEats.onbStarterBody,
-    getLandingFaqs(locale, count)[0].a,
-  ];
+  const question = locale === 'de' ? 'Was sind Must Eats?' : 'What are Must Eats?';
+  const faq = getLandingFaqs(locale, count).find(({ q }) => q === question);
+  return [getCatalogMessages(locale, count).mustEats.onbStarterBody, faq?.a ?? ''];
 }
 
 for (const locale of ['de', 'en'] as const) {
   describe(`Catalog size in ${locale}`, () => {
     it('updates the total in promos and explanations', () => {
       for (const count of [100, 101, 137]) {
-        for (const message of [...promoMessages(locale, count), ...explanations(locale, count)]) {
+        for (const message of [promo(locale, count), ...explanations(locale, count)]) {
           expect(message).toContain(String(count));
           expect(message).not.toMatch(/kostenlos|gratis|\bfree\b/i);
           expect(message).not.toContain('{mustEatCount}');
@@ -38,20 +31,22 @@ for (const locale of ['de', 'en'] as const) {
     });
 
     it('keeps the reveal arithmetic in the explanation and discovery in the promo', () => {
-      for (const message of promoMessages(locale, 137)) {
-        expect(message).not.toMatch(/\b(?:10|20)\b/);
-        expect(message).toContain(locale === 'de' ? 'zeigt dir die ersten' : 'shows you the first ones');
-        expect(message).toContain(locale === 'de' ? 'entdeckst du vor Ort' : 'Discover the rest');
-      }
+      const message = promo(locale, 137);
+      expect(message).not.toMatch(/\b(?:10|20)\b/);
+      expect(message).toContain(locale === 'de' ? 'zeigt dir die ersten' : 'shows you the first ones');
+      expect(message).toContain(locale === 'de' ? 'entdeckst du vor Ort' : 'Discover the rest');
+      const starterLimit = locale === 'de' ? 'einmalig bis zu 20' : 'up to 20';
+      expect(getLandingFaqs(locale, 137).filter(({ a }) => a.includes(starterLimit))).toHaveLength(1);
       for (const message of explanations(locale, 137)) {
         expect(message).toContain('10');
-        expect(message).toContain(locale === 'de' ? '20 weitere auf' : '20 more');
-        expect(message).toContain(locale === 'de' ? 'vor Ort' : 'spots themselves');
+        expect(message).toContain(starterLimit);
+        expect(message).toMatch(locale === 'de' ? /vor Ort/ : /spots themselves|when you visit/);
+        if (locale === 'en') expect(message).toContain('once per account');
       }
     });
 
     it('formats larger catalogs for the current locale', () => {
-      for (const message of [...promoMessages(locale, 1234), ...explanations(locale, 1234)]) {
+      for (const message of [promo(locale, 1234), ...explanations(locale, 1234)]) {
         expect(message).toContain(locale === 'de' ? '1.234' : '1,234');
       }
     });

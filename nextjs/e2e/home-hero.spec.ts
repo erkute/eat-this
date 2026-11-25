@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 
 for (const locale of ['de', 'en'] as const) {
   for (const reducedMotion of ['no-preference', 'reduce'] as const) {
@@ -31,8 +31,14 @@ for (const locale of ['de', 'en'] as const) {
       expect(spread).toBeGreaterThan(1);
       const cta = page.locator('[data-hero-actions] .et-btn');
       await expect(cta).toBeVisible();
+      await expect(cta).toHaveText(locale === 'de' ? 'Map öffnen' : 'Explore the map');
+      await expect(page.locator('[data-hero-actions] p')).toHaveText(
+        locale === 'de'
+          ? 'Berlins Must Eats. Auf der Map entdecken, vor Ort probieren und als Sammelkarten verewigen.'
+          : 'Berlin’s Must Eats. Discover them on the map, try them in person and collect the cards.',
+      );
       await cta.click();
-      await expect(page).toHaveURL(new RegExp(`${locale === 'en' ? '/en' : ''}/must-eats$`));
+      await expect(page).toHaveURL(new RegExp(`${locale === 'en' ? '/en' : ''}/map$`));
     });
   }
 }

@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 import { mkdir, writeFile } from 'node:fs/promises';
 
 for (const orientation of ['vertical', 'horizontal'] as const) {

@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 import AxeBuilder from '@axe-core/playwright';
 
 for (const locale of ['', '/en']) {
@@ -148,7 +148,7 @@ test('home menu links are clickable and hand off to the starter login', async ({
     .toBe(true);
   await page.locator('#loginBtn').click();
   await expect(menu).toBeHidden();
-  await expect(page.getByRole('heading', { name: 'Starter Pack', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Dein Starter Pack.', exact: true })).toBeVisible();
   await expect(page.locator('input[type="email"]').last()).toBeVisible();
 });
 

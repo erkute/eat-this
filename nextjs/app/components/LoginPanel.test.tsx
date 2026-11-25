@@ -30,9 +30,9 @@ import LoginPanel from './LoginPanel';
 
 const onBack = vi.fn();
 
-function panel() {
+function panel(locale: 'de' | 'en' = 'de') {
   return render(
-    <NextIntlClientProvider locale="de" messages={getCatalogMessages('de', 100)} timeZone="Europe/Berlin">
+    <NextIntlClientProvider locale={locale} messages={getCatalogMessages(locale, 100)} timeZone="Europe/Berlin">
       <LoginPanel onBack={onBack} />
     </NextIntlClientProvider>
   );
@@ -50,34 +50,27 @@ beforeEach(() => {
 describe('LoginPanel — Starter Pack mit Texten zum Anlass', () => {
   it('zeigt ohne Anlass das Starter Pack', () => {
     const { container } = panel();
-    expect(title(container)).toBe('Starter Pack');
-    expect(container.querySelector('h2')?.previousElementSibling?.textContent).toBe(
-      'Starte deine Sammlung'
-    );
-    expect(container.textContent).toContain(
-      'Schon 100 Must Eats in ganz Berlin. Dein Starter Pack zeigt dir die ersten. Den Rest entdeckst du vor Ort.'
-    );
+    expect(title(container)).toBe('Dein Starter Pack.');
+    expect(container.textContent).toContain('einmalig bis zu 20 kostenlose Must-Eat-Karten');
+    expect(container.textContent).toContain('Bereits offene Karten zählen nicht mit.');
+    expect(container.textContent).toContain('Ohne Passwort.');
   });
 
   /* Kein Spot-Name: im Startseiten-Teaser ist er Teil der Überraschung. */
-  it('verspricht bei einer angetippten Karte genau diese', () => {
+  it.each([
+    ['de', 'Entdecke dein Starter Pack.', 'zum ersten Mal erhältst und diese Karte noch verdeckt ist'],
+    ['en', 'Discover your Starter Pack.', 'for the first time and this card is still hidden'],
+  ] as const)('nennt die Bedingungen der Wunschkarte auf %s', (locale, heading, condition) => {
     modal.reason = { kind: 'card', mustEatId: 'me-9' };
-    const { container } = panel();
-    expect(title(container)).toBe('Schau drunter');
-    expect(container.querySelector('h2')?.previousElementSibling?.textContent).toBe(
-      'Decke deine Must Eats auf'
-    );
-    expect(container.textContent).toContain(
-      'Schon 100 Must Eats in ganz Berlin. Dein Starter Pack zeigt dir die ersten. Den Rest entdeckst du vor Ort.'
-    );
+    const { container } = panel(locale);
+    expect(title(container)).toBe(heading);
+    expect(container.textContent).toContain(condition);
     expect(container.innerHTML).not.toContain('card-back.webp');
     expect(container.querySelectorAll('img')).toHaveLength(1);
     expect(container.innerHTML).toContain('starter-pack-front.webp');
   });
 
-  /* Ein Gast mit Herz hat noch kein Deck: Er bekommt das Starter Pack, nicht
-     „Einloggen" und „Dein Deck wartet". */
-  it('zeigt beim Herz nur das Starter Pack', () => {
+  it('erklärt beim Herz das Speichern in den Favoriten', () => {
     modal.reason = {
       kind: 'heart',
       restaurantId: 'sofi',
@@ -85,15 +78,9 @@ describe('LoginPanel — Starter Pack mit Texten zum Anlass', () => {
       photo: 'https://cdn.sanity.io/images/p/d/a.jpg',
     };
     const { container } = panel();
-    expect(title(container)).toBe('Für später');
-    // Der Kicker sagt, wozu das Herz da ist, nicht den Bezirk.
-    expect(container.querySelector('h2')?.previousElementSibling?.textContent).toBe(
-      'Speichere deine Spots'
-    );
-    expect(container.textContent).toContain(
-      'Schon 100 Must Eats in ganz Berlin. Dein Starter Pack zeigt dir die ersten. Den Rest entdeckst du vor Ort.'
-    );
-    expect(container.textContent).not.toMatch(/Deck|Profil/);
+    expect(title(container)).toBe('Für später merken.');
+    expect(container.textContent).toContain('diesen Spot in deinen Favoriten zu speichern');
+    expect(container.textContent).toContain('Ohne Passwort.');
     expect(container.innerHTML).toContain('starter-pack-front.webp');
     expect(container.querySelectorAll('img')).toHaveLength(1);
     expect(container.innerHTML).not.toContain('cdn.sanity.io/images/p/d/a.jpg');
@@ -133,11 +120,8 @@ it('offers the automatic pack invitation with a working close button', () => {
   modal.reason = { kind: 'map-prompt' };
   const { container, getByRole } = panel();
   expect(modal.prepare).not.toHaveBeenCalled();
-  /* Die Pack-Texte, einzeilig im Titel: kein eigener, der auf dem Telefon
-     ueberliefe, und kein „kostenlos". */
-  expect(title(container)).toBe('Starter Pack');
-  expect(container.textContent).toContain('Starte deine Sammlung');
-  expect(container.textContent).not.toMatch(/kostenlos/i);
+  expect(title(container)).toBe('Dein Starter Pack.');
+  expect(container.textContent).toContain('einmalig bis zu 20 kostenlose Must-Eat-Karten');
   fireEvent.click(getByRole('button', { name: 'Zurück' }));
   expect(onBack).toHaveBeenCalledOnce();
 });

@@ -26,10 +26,11 @@ const SHIFT = new Intl.NumberFormat('de-DE', {
   maximumFractionDigits: 2,
 });
 
-function formatValue(metric: VitalMetric, value: number): string {
-  if (metric === 'LCP') return `${SECONDS.format(value / 1000)} s`;
-  if (metric === 'INP') return `${NUMBER.format(value)} ms`;
-  return SHIFT.format(value);
+function formatQuantile(metric: VitalMetric, value: number, isLowerBound: boolean): string {
+  const prefix = isLowerBound ? '≥\u00a0' : '';
+  if (metric === 'LCP') return `${prefix}${SECONDS.format(value / 1000)} s`;
+  if (metric === 'INP') return `${prefix}${NUMBER.format(value)} ms`;
+  return `${prefix}${SHIFT.format(value)}`;
 }
 
 /** Bewertung als Wort, die Farbe der Pille nur als Beigabe. */
@@ -47,11 +48,14 @@ function MetricCell({ metric, stat }: { metric: VitalMetric; stat: VitalStat }) 
   const rating = RATING[vitalRating(metric, stat.p75)];
   return (
     <td>
-      <span className={styles.cellNum}>{formatValue(metric, stat.p75)}</span>{' '}
+      <span className={styles.cellNum}>
+        {formatQuantile(metric, stat.p75, stat.p75IsLowerBound)}
+      </span>{' '}
       <span className={rating.className}>{rating.label}</span>
       <br />
       <span className={styles.muted}>
-        Median {formatValue(metric, stat.median)} · {NUMBER.format(stat.count)} Messungen
+        Median {formatQuantile(metric, stat.median, stat.medianIsLowerBound)} ·{' '}
+        {NUMBER.format(stat.count)} Messungen
       </span>
     </td>
   );
@@ -64,7 +68,7 @@ export default function Vitals({ data }: { data: StatsSummary }) {
       <Card
         title="Ladezeiten echter Besucher"
         span={3}
-        sub="P75 heißt: drei von vier Seitenaufrufen waren so schnell oder schneller. Google bewertet eine Seite nach diesem Wert. Gemessen wird beim ersten Aufruf eines Dokuments, Seitenwechsel in der App zählen bei INP und CLS mit."
+        sub="P75 ist der Wert, den mindestens drei von vier Messungen einhalten. Die Tabelle zeigt die zugehörige Stufengrenze. Gemessen wird beim ersten Aufruf eines Dokuments, Seitenwechsel in der App zählen bei INP und CLS mit."
       >
         {rows.length === 0 ? (
           <p className={styles.note}>
@@ -122,8 +126,9 @@ export default function Vitals({ data }: { data: StatsSummary }) {
           ein Wert fiel, je Tag, Seitentyp und Gerät. Kein Pfad, kein Bezug zu einer Person. Die
           Werte sind auf die Stufe aufgerundet: LCP auf{' '}
           {SECONDS.format(VITAL_SCALES.LCP.step / 1000)} s, INP auf {VITAL_SCALES.INP.step} ms, CLS
-          auf {SHIFT.format(VITAL_SCALES.CLS.step)}. Ziele nach Google: LCP bis 2,5 s, INP bis 200
-          ms, CLS bis 0,10.
+          auf {SHIFT.format(VITAL_SCALES.CLS.step)}. In der höchsten Stufe zeigt „≥“ den
+          Mindestwert an. Googles Zielwerte liegen bei höchstens 2,5 s für LCP, 200 ms für INP und
+          0,10 für CLS.
           {since ? ` Messwerte ab ${longDay(since)}.` : ''}
         </p>
       </Card>

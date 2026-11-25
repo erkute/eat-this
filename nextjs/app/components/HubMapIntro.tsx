@@ -74,15 +74,20 @@ export default function HubMapIntro({ locale }: { locale: 'de' | 'en' }) {
     : ['Bar Basta in detail', 'The map with spots in Berlin', 'Must Eats and details for Bar Basta', 'The spot list with Slice Society, Gazzo and Romeo’s Sandwiches'];
 
   const screens = SCREEN_ORDER.map(id => ({ id, description: descriptions[id - 1] }));
+  const mapLabel = de ? 'Map öffnen' : 'Explore the map';
 
   return (
     <section className={styles.section} data-hub-map-intro="" aria-labelledby="home-map-title">
       <div className={styles.header}>
-        <h2 id="home-map-title" className={styles.title}>{de ? 'Wo wir' : 'Where we'}<br />{de ? 'essen gehen.' : 'eat.'}</h2>
+        <h2 id="home-map-title" className={styles.title}>{de ? 'Wo wir essen gehen.' : 'Where we eat.'}</h2>
         <div className={styles.copy}>
-          <p>{de ? 'Entdecke Berlins beste Restaurants, Cafés und Bars, probiere ihre Must Eats und sammle sie in deinem Deck. Alles auf einer Map.' : 'Discover Berlin’s best restaurants, cafés and bars, try their Must Eats and collect them in your deck. All on one map.'}</p>
+          <p>
+            {de
+              ? 'Eine kuratierte Auswahl der Berliner Gastronomieszene. Zwischen zeitlosen Klassikern und neuen Konzepten.'
+              : 'A curated selection from Berlin’s dining scene, spanning timeless classics and new concepts.'}
+          </p>
         </div>
-        <div className={styles.desktopCta}><MapIntentLink href="/map" className="et-btn">{de ? 'Zur Map' : 'Explore the map'}</MapIntentLink></div>
+        <div className={styles.desktopCta}><MapIntentLink href="/map" className="et-btn">{mapLabel}</MapIntentLink></div>
       </div>
       <div ref={showcase} className={styles.showcase} onMouseEnter={() => setInteracting(true)} onMouseLeave={() => setInteracting(false)} onFocusCapture={() => setInteracting(true)} onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) setInteracting(false); }}>
         <MapIntentLink
@@ -152,7 +157,7 @@ export default function HubMapIntro({ locale }: { locale: 'de' | 'en' }) {
           {screens.map(({ description }, index) => <button key={description} type="button" className={styles.dot} aria-label={description} aria-pressed={active === index} onClick={() => { showScreen(index); setPaused(true); }} />)}
           {!reduced && <button type="button" className={styles.pause} aria-label={paused ? (de ? 'Automatischen Wechsel starten' : 'Start slideshow') : (de ? 'Automatischen Wechsel pausieren' : 'Pause slideshow')} onClick={() => setPaused(value => !value)}>{paused ? '▶' : 'Ⅱ'}</button>}
         </div>
-        <div className={styles.cta}><MapIntentLink href="/map" className="et-btn">{de ? 'Zur Map' : 'Explore the map'}</MapIntentLink></div>
+        <div className={styles.cta}><MapIntentLink href="/map" className="et-btn">{mapLabel}</MapIntentLink></div>
       </div>
     </section>
   );

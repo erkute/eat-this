@@ -1,4 +1,4 @@
-import {test,expect} from '@playwright/test';
+import {test,expect} from './test';
 test.setTimeout(90000);
 for(const width of [667,844]) test(`spot return preserves landscape map controls ${width}`,async({page})=>{
  await page.setViewportSize({width,height:390});

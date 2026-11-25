@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 
 for (const reducedMotion of ['reduce', 'no-preference'] as const) {
   test(`header logo appears after the hero logo leaves (${reducedMotion})`, async ({ page }) => {

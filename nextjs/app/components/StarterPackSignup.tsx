@@ -6,13 +6,8 @@ import StarterPack3D from './StarterPack3D';
 import styles from './StarterPackSignup.module.css';
 
 /**
- * Die Anmeldung auf der Startseite, direkt unter dem Hero, im selben Aufbau wie
- * das Anmelde-Modal (LoginBoard): das Pack, eine Überschrift, dasselbe
- * Formular.
- *
- * Nur eine Stelle, direkt unter dem Hero. Eine zweite Kopie weiter unten läse
- * sich mit demselben Pack und derselben Tafel als Wiederholung, und zwischen
- * Kaufprodukten im Kategorie-Karussell geht das Formular unter.
+ * Die Starter-Pack-Anmeldung am Ende der Startseite nutzt dasselbe Formular
+ * wie das Anmelde-Modal (LoginBoard).
  *
  * Nach der Anmeldung versteckt `data-guest-only` diese Tafel (globals.css); der
  * Wartescreen liegt als Portal darüber und bleibt die Haltezeit stehen. Ein
@@ -31,15 +26,14 @@ export default function StarterPackSignup() {
       data-hub-starter=""
       data-red-sheet=""
       data-guest-only=""
-      aria-label={t('packTitle')}
+      aria-label={t('homePackTitle')}
     >
       <div>
         <LoginBoard
           editorial
           art={<StarterPack3D />}
-          kicker={t('packKicker')}
-          title={t('packTitle')}
-          lead={t('packLead')}
+          title={t('homePackTitle')}
+          lead={t('homePackLead')}
           googleWarmup="intent"
         />
       </div>

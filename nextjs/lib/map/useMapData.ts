@@ -29,6 +29,8 @@ interface UseMapDataArgs {
 
 interface MapData {
   restaurants: MapRestaurant[];
+  /** A catalog response has arrived since this hook mounted. */
+  hasFetchedRestaurants: boolean;
   mustEats: MapMustEat[];
   categories: CategoryDef[];
   /** Total restaurant count in Sanity — independent of trial cap / entitlements.
@@ -73,6 +75,7 @@ export function useMapData({ uid, authLoading, firebaseUid, initialMapData }: Us
   const [restaurants, setRestaurants] = useState<MapRestaurant[]>(
     initialMapData?.restaurants ?? []
   );
+  const [hasFetchedRestaurants, setHasFetchedRestaurants] = useState(false);
   /* In Kartenreihenfolge, egal woher die Liste kommt: das Must-Eat-Detail
      blaettert durch genau diese Liste („3 / 39"). */
   const [mustEats, setMustEats] = useState<MapMustEat[]>(() =>
@@ -182,6 +185,7 @@ export function useMapData({ uid, authLoading, firebaseUid, initialMapData }: Us
           fullCatalog: json.fullCatalog === true,
         };
         setRestaurants(next.restaurants);
+        setHasFetchedRestaurants(true);
         setMustEats(sortByCardNumber(next.mustEats));
         setCategories(next.categories);
         setTotalCount(next.totalCount);
@@ -252,6 +256,7 @@ export function useMapData({ uid, authLoading, firebaseUid, initialMapData }: Us
 
   return {
     restaurants,
+    hasFetchedRestaurants,
     mustEats: visible.mustEats,
     categories,
     totalCount,

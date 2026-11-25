@@ -10,10 +10,12 @@ const state = vi.hoisted(() => ({
     displayName: 'Food Fan',
   } as { uid: string; email: string; displayName: string } | null,
   mapLoading: false,
+  hasFetchedRestaurants: false,
   mapError: null as string | null,
   restaurants: [] as Array<{
     _id: string;
     slug: string;
+    photo?: string;
     categories: Array<{ name: string }>;
   }>,
   refetch: vi.fn(),
@@ -50,6 +52,7 @@ vi.mock('@/lib/map', () => ({
   useUnlockedMustEats: () => ({ unlockedIds: new Set<string>(), unlockedAt: new Map() }),
   useMapData: () => ({
     restaurants: state.restaurants,
+    hasFetchedRestaurants: state.hasFetchedRestaurants,
     mustEats: [],
     revealedMustEatIds: new Set<string>(),
     loading: state.mapLoading,
@@ -61,7 +64,11 @@ vi.mock('@/lib/firebase/useUserProfile', () => ({
   defaultAvatarFromUid: () => 1,
   useUserProfile: () => ({ profile: { avatar: 1 }, setAvatar: vi.fn() }),
 }));
-vi.mock('./ProfileSpots', () => ({ default: () => <div>Profile spots</div> }));
+vi.mock('./ProfileSpots', () => ({
+  default: ({ restaurantsById }: { restaurantsById: ReadonlyMap<string, { photo?: string }> }) => (
+    <div data-photo={restaurantsById.get('r-1')?.photo}>Profile spots</div>
+  ),
+}));
 /* Zieht sonst den echten UserLocationContext mit — der wirft ausserhalb
    seines Providers, und dieser Test rendert die Shell blank. */
 vi.mock('./ProfileAlbum', () => ({ default: () => <div>Profile album</div> }));
@@ -75,6 +82,7 @@ beforeEach(() => {
   state.authLoading = false;
   state.user = { uid: 'user-1', email: 'food@example.com', displayName: 'Food Fan' };
   state.mapLoading = false;
+  state.hasFetchedRestaurants = false;
   state.mapError = null;
   state.restaurants = [];
   state.refetch.mockReset();
@@ -141,6 +149,19 @@ describe('ProfileShell map-data states', () => {
 /* Die Seite ist vier Bildschirme lang, also lassen sich die Tabs oben wechseln. */
 describe('ProfileShell tabs', () => {
   afterEach(() => window.history.replaceState(null, '', '/'));
+
+  it('shows catalog photos only after a successful fetch', () => {
+    state.restaurants = [{ _id: 'r-1', slug: 'cached-spot', photo: '/old.jpg', categories: [] }];
+    const { rerender } = render(<ProfileShell publicFaceUpIds={[]} />);
+    fireEvent.click(screen.getByRole('tab', { name: 'tab_spots' }));
+
+    expect(screen.getByText('Profile spots').getAttribute('data-photo')).toBeNull();
+
+    state.restaurants = [{ _id: 'r-1', slug: 'current-spot', photo: '/current.jpg', categories: [] }];
+    state.hasFetchedRestaurants = true;
+    rerender(<ProfileShell publicFaceUpIds={[]} />);
+    expect(screen.getByText('Profile spots').getAttribute('data-photo')).toBe('/current.jpg');
+  });
 
   it('zeigt je Reiter nur seinen Teil und merkt ihn sich im Anker', () => {
     render(<ProfileShell publicFaceUpIds={[]} />);

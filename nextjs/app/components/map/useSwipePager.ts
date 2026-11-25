@@ -43,6 +43,10 @@ export function useSwipePager(ref: RefObject<HTMLElement | null>, opts: SwipePag
       active = false;
     const onDown = (e: PointerEvent) => {
       if (e.pointerType === 'mouse') return;
+      if (!e.isPrimary) {
+        cancel();
+        return;
+      }
       // Don't hijack horizontal gestures that begin inside a region owning its
       // own horizontal scrolling (e.g. the photo-gallery carousel) — same axis
       // split the filter-chip rail uses against the sheet drag: a gesture moves
@@ -55,7 +59,7 @@ export function useSwipePager(ref: RefObject<HTMLElement | null>, opts: SwipePag
       active = true;
     };
     const onMove = (e: PointerEvent) => {
-      if (!active) return;
+      if (!active || !e.isPrimary) return;
       const dx = e.clientX - startX,
         dy = e.clientY - startY;
       if (axis === null) {
@@ -78,6 +82,10 @@ export function useSwipePager(ref: RefObject<HTMLElement | null>, opts: SwipePag
        the swipe midway. Only a non-passive touchmove preventDefault keeps
        the gesture once we've locked the horizontal axis. */
     const onTouchMove = (e: TouchEvent) => {
+      if (e.touches.length > 1) {
+        cancel();
+        return;
+      }
       if (active && axis === 'h' && e.cancelable) e.preventDefault();
     };
     const settle = () => {
@@ -89,8 +97,13 @@ export function useSwipePager(ref: RefObject<HTMLElement | null>, opts: SwipePag
         target.style.removeProperty('transform');
       }, 220);
     };
+    const cancel = () => {
+      if (active && axis === 'h') settle();
+      active = false;
+      axis = null;
+    };
     const end = (e: PointerEvent) => {
-      if (!active) return;
+      if (!active || !e.isPrimary) return;
       const dx = e.clientX - startX;
       const wasH = axis === 'h';
       active = false;
@@ -105,13 +118,13 @@ export function useSwipePager(ref: RefObject<HTMLElement | null>, opts: SwipePag
     el.addEventListener('pointermove', onMove, { passive: false });
     el.addEventListener('touchmove', onTouchMove, { passive: false });
     el.addEventListener('pointerup', end);
-    el.addEventListener('pointercancel', end);
+    el.addEventListener('pointercancel', cancel);
     return () => {
       el.removeEventListener('pointerdown', onDown);
       el.removeEventListener('pointermove', onMove);
       el.removeEventListener('touchmove', onTouchMove);
       el.removeEventListener('pointerup', end);
-      el.removeEventListener('pointercancel', end);
+      el.removeEventListener('pointercancel', cancel);
     };
   }, [ref]);
 }

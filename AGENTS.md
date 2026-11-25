@@ -58,8 +58,8 @@ Bestehende Komponenten und die `--et-*`-Tokens in `globals.css` sind die Referen
 
 - **Knöpfe:** Jeder Text-Knopf trägt `et-btn`, dazu Größen und Varianten aus `globals.css`. Module setzen nur Position, nie Farbe, Form, Schrift oder Hover. Eigen bleiben Symbol-Knöpfe, Chips, Filter, Sprachwahl und Remy-Chat-Senden.
 - **Schrift:** Neue Haas Grotesk Text (Adobe-Fonts-Kit `kgb1lmh`), über `--et-font-display` / `--et-font-body`.
-- **Etiketten:** Text auf Fotos über `et-label*`, immer gerade. Fotos werden für Text nie abgedunkelt.
-- **Keine Pfeile oder Chevrons als Richtungszeichen.** Ausnahmen: die Lasche des Map-Panels am Desktop und der Zurück-Pfeil im Spot-Detail der Map.
+- **Etiketten:** Text auf Fotos über `et-label*`, immer gerade. Fotos werden für Text nie abgedunkelt. Ausnahme: die Magazin-Cover (`MagazineCover`) behalten ihre Abdunklungen und Schatten als Heft-Look.
+- **Keine Pfeile oder Chevrons als Richtungszeichen.** Ausnahmen: die Lasche des Map-Panels am Desktop, der Zurück-Pfeil im Spot-Detail der Map und die Blätter-Pfeile der Must Eats im Detail und in der Großansicht.
 - **Keine unterstrichenen Wörter oder Links**, auch nicht bei Hover oder Fokus; stattdessen Farbe, Fläche oder klare Umrandung.
 - **Design-Originale** liegen lokal unter `design/` (ignoriert, das Repo ist öffentlich). Standard-Figma-Datei: [Eat This](https://www.figma.com/design/p5XEjPCeGlgtXxhreeIgnB/Eat-This).
 

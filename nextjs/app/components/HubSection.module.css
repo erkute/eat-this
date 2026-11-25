@@ -80,7 +80,39 @@
 .heroSloganDesktop { display: block; width: 100%; }
 .heroSloganMobile { display: none; }
 .heroSloganPicture { display: contents; }
-.heroActions { grid-column: 1; grid-row: 4; display: flex; justify-content: center; margin-top: 36px; }
+.heroActions {
+  grid-column: 1; grid-row: 4;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 20px; margin-top: 24px;
+  text-align: center;
+}
+.heroSummary {
+  display: grid;
+  gap: 0.32em;
+  max-width: 100%;
+  margin: 0;
+  font-family: var(--et-font-display);
+  font-size: clamp(15px, 1.42vw, 21px);
+  line-height: 1.3;
+  letter-spacing: -0.018em;
+  text-wrap: balance;
+}
+.heroSummaryLead {
+  font-size: clamp(1.12em, 4.65vw, 1.28em);
+  font-weight: 700;
+  letter-spacing: -0.05em;
+}
+.heroSummaryAccent {
+  display: inline-block;
+  padding: 0.06em 0.35em 0.1em;
+  background: var(--et-accent);
+  color: var(--et-on-accent);
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  white-space: nowrap;
+}
 .heroArt { grid-column: 2; grid-row: 1 / -1; display: block; position: relative; width: 100%; height: 100%; min-height: 0; container-type: size; }
 .heroFan { position: absolute; display: block; width: min(94cqw, 145.6cqh); aspect-ratio: 728 / 470; left: 50%; top: 47%; transform: translate(-50%, -50%); }
 .heroCard { position: absolute; display: block; width: 35%; aspect-ratio: 513 / 705; }
@@ -97,12 +129,12 @@
   .heroSloganDesktop { display: none; }
   .heroSloganMobile { display: block; width: auto; max-width: 100%; height: 100%; max-height: 91px; object-fit: contain; }
   .heroArt { grid-column: 1; grid-row: 3; width: 100%; height: 100%; margin: 0; }
-  .heroFan { width: min(100cqw, 119.58cqh, 342px); aspect-ratio: 342 / 286; top: 48%; }
+  .heroFan { width: min(100cqw, 104cqh, 342px); aspect-ratio: 342 / 286; top: 46%; }
   .heroCard { width: 40%; }
   .heroCardLeft { left: 3%; top: 35%; }
   .heroCardRight { left: 57%; top: 35%; }
   .heroCardFront { left: 30%; top: 2%; }
-  .heroActions { grid-row: 4; margin-top: 24px; }
+  .heroActions { grid-row: 4; gap: 12px; margin-top: 0; }
   .page { --hv-display: clamp(46px, 15vw, 72px); }
 }
 
@@ -156,7 +188,8 @@
  .heroHeadline { grid-column: 1; grid-row: 3; display: block; height: auto; width: 100%; max-width: none; margin: 0; text-align: center; }
  .heroSloganDesktop { display: block; }
  .heroSloganMobile { display: none; }
- .heroActions { grid-column: 1; grid-row: 3; margin-top: 20px; justify-content: flex-start; }
+ .heroActions { grid-column: 1; grid-row: 3; align-items: flex-start; gap: 8px; margin-top: 14px; text-align: left; }
+ .heroSummary { font-size: clamp(12px, 4dvh, 15px); }
  .heroArt { grid-column: 2; grid-row: 1 / -1; height: 100%; }
  .heroFan { width: min(100cqw, 124cqh); aspect-ratio: 728 / 470; top: 48%; }
  .heroCard { width: 40%; }

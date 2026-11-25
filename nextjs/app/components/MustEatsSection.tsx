@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react';
 import { Link } from '@/i18n/navigation';
 import type { InitialMustEatsData } from '@/lib/map/initial-surface-data';
 import { sortByCardNumber } from '@/lib/map/cardOrder';
+import { STARTER_PACK_CARDS } from '@/lib/starter-pack';
 import MustEatsGallery from './MustEatsGallery';
 import { MustEatCardZoomProvider, MustEatZoomCard } from './MustEatCardZoom';
 import MustEatsOnboarding from './MustEatsOnboarding';
@@ -37,10 +38,10 @@ const COPY = {
     setMore: 'Alle Karten anzeigen',
     // Gast: das Konto ist der nächste Schritt, nicht die Map.
     closeGuestKicker: 'Dein Starter Pack',
-    closeGuestTitle: '20 Karten. Der Anfang deiner Sammlung.',
+    closeGuestTitle: `Bis zu ${STARTER_PACK_CARDS} Karten. Der Anfang deiner Sammlung.`,
     closeGuestBody:
-      'Dein Starter Pack zeigt dir die ersten Must Eats. Den Rest entdeckst du vor Ort. Und es werden immer mehr.',
-    closeGuestCta: 'Konto erstellen',
+      'Das Starter Pack gibt es einmal pro Konto. Weitere Karten entdeckst du vor Ort.',
+    closeGuestCta: 'Anmelden',
     // Mit Konto ist die Sammlung längst angefangen: Map und Booster Packs.
     closeKicker: 'Und jetzt',
     closeTitle: 'Hol sie dir.',
@@ -68,10 +69,10 @@ const COPY = {
     zoomAria: 'enlarge card',
     setMore: 'Show all cards',
     closeGuestKicker: 'Your Starter Pack',
-    closeGuestTitle: '20 cards. The start of your collection.',
+    closeGuestTitle: `Up to ${STARTER_PACK_CARDS} cards. The start of your collection.`,
     closeGuestBody:
-      'Your Starter Pack shows you your first Must Eats. Discover the rest at the spots themselves, with more added over time.',
-    closeGuestCta: 'Create account',
+      'You get the Starter Pack once per account. Discover more cards at the spots themselves.',
+    closeGuestCta: 'Sign in',
     closeKicker: 'Now go',
     closeTitle: 'Come and get them.',
     closeBody:

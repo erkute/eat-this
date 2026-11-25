@@ -33,20 +33,12 @@ export default function LoginPanel({ onBack }: LoginPanelProps) {
     trackEvent('login_view', { surface: 'modal', context: sceneKind });
   }, [sceneKind]);
 
-  /* Der Kicker sagt, wozu der Griff da war: „Decke deine Must Eats auf",
-     „Speichere deine Spots". Nicht den Bezirk. */
-  let kicker = t('packKicker');
   let title = t('packTitle');
   let lead = t('packLead');
-  /* Die Einladung nach dem Stöbern auf der Karte ('map-prompt') trägt die
-     Pack-Texte: Ein eigener, zweizeiliger Titel mit längerem Text läuft auf dem
-     Telefon über und macht das Fenster scrollbar. */
   if (reason?.kind === 'card') {
-    kicker = t('cardKicker');
     title = t('cardTitle');
     lead = t('cardLead');
   } else if (reason?.kind === 'heart') {
-    kicker = t('heartKicker');
     title = t('heartTitle');
     lead = t('heartLead');
   }
@@ -76,9 +68,9 @@ export default function LoginPanel({ onBack }: LoginPanelProps) {
         <span className={styles.srOnly}>{t('heroHeadline')}</span>
         <LoginBoard
           art={<LoginSceneArt />}
-          kicker={kicker}
           title={title}
           lead={lead}
+          accountNote={t('accountNote')}
           intent={intent}
           googleWarmup={reason?.kind === 'map-prompt' ? 'intent' : 'mount'}
         />

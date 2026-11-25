@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 
 for (const locale of ['de', 'en'] as const) {
   for (const reduced of [false, true]) {

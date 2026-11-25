@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './test';
 for (const width of [667, 844])
   for (const motion of ['no-preference', 'reduce'] as const)
     test(`home Must Eats deal completes at ${width} (${motion})`, async ({ page }) => {

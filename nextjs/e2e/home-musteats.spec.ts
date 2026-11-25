@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 import AxeBuilder from '@axe-core/playwright';
 
 for (const locale of ['de', 'en'] as const) {
@@ -11,8 +11,8 @@ for (const locale of ['de', 'en'] as const) {
     await expect(
       section.getByText(
         locale === 'de'
-          ? 'Berlin hat viel auf der Karte. Wir sagen dir, was du bestellen solltest – und du sammelst die Empfehlungen als Karten in deinem eigenen Deck.'
-          : 'Berlin has a lot on the menu. We tell you what to order – and you collect the recommendations as cards in your own deck.',
+          ? 'Was solltest du wo unbedingt bestellen? Genau das verraten dir unsere Karten.'
+          : 'What should you order, and where? That’s exactly what our cards tell you.',
         { exact: true }
       )
     ).toBeVisible();

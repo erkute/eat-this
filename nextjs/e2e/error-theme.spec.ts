@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 
 for (const prefix of ['', '/en']) {
   test(`streamed 404 preserves the saved dark theme (${prefix || 'DE'})`, async ({ page }) => {

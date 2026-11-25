@@ -288,15 +288,13 @@ html[data-vintage][data-theme='dark']:not(:has(main:is([data-page='not-found'], 
 }
 /* Getrennt wird über die Farbe der Blätter, ohne weisse Fuge (Ansage
    21.10.2026: „mit verschiedenen Farben für die Sections, damit man diese
-   weisse Ebene nicht braucht"). Die Folge der Startseite: Gelb (Aufmacher) → Ink (Map) →
-   Papier (Magazin) → Ink (Must Eats) → Papier (Bezirke) → Rot (Remy) →
-   Papier (Fragen) → Rot (Starter Pack) → Ink (Fuss). Nie zwei gleiche
-   nebeneinander; den Abstand gibt das Innenpolster der Sections. Ink- und
-   Rot-Blätter setzen ihre Rollen-Farben selbst, damit Schrift, Knöpfe und
-   Felder darin stimmen. */
+   weisse Ebene nicht braucht"). Die Startseite trennt Map und Must Eats
+   mit zwei Ink-Tönen und Magazin und Bezirke mit zwei Papier-Tönen.
+   Den Abstand gibt das Innenpolster der Sections. Ink- und Rot-Blätter setzen
+   ihre Rollen-Farben selbst, damit Schrift, Knöpfe und Felder darin stimmen. */
 html[data-vintage] .homeV2 > [data-hub-musteats] {
   color-scheme: dark;
-  --et-ground: #15120e;
+  --et-ground: var(--et-ink-raised);
   --et-fg: #fff;
   --et-muted: #b7b3ae;
   --et-copy: #d4d1cd;
@@ -308,9 +306,8 @@ html[data-vintage] .homeV2 > [data-hub-musteats] {
   --et-on-solid: #15120e;
   --et-sheet: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark.webp?v=5');
 }
-/* Im Dunkelmodus ist das Papier selbst Ink — Must Eats eine Stufe heller. */
-html[data-vintage][data-theme='dark'] .homeV2 > [data-hub-musteats] {
-  --et-ground: #25231f;
+html[data-vintage] .homeV2 > [data-hub-districts] {
+  --et-ground: var(--et-quiet);
 }
 /* Schwarzes Kartenpapier und weisse Druckfarbe für die Map. */
 html[data-vintage] .homeV2 > [data-hub-map-intro] {
@@ -1225,6 +1222,10 @@ ol {
   --et-btn-bg: var(--et-field, #fff);
   --et-btn-fg: var(--et-field-fg, var(--et-ink));
 }
+:where([data-hub-starter], [data-login-panel]) .et-btn.et-btn-alt {
+  --et-btn-hover: color-mix(in srgb, var(--et-field) 88%, var(--et-field-fg));
+  --et-btn-hover-fg: var(--et-field-fg);
+}
 .et-btn-paper {
   --et-btn-bg: var(--et-ground);
   --et-btn-fg: var(--et-fg);
@@ -1500,7 +1501,6 @@ html[data-active-page='map'] .et-label {
 html[data-active-page='map'] .et-label.et-label-open,
 html[data-active-page='map'] .et-label.et-label-closed {
   padding: 4px 6px;
-  font-size: 10px;
   letter-spacing: 0.05em;
 }
 html[data-active-page='map'] .et-label.et-label-open.et-label-tape {
@@ -1566,6 +1566,12 @@ html[data-category-entering]::view-transition-new(root) { animation-duration: 45
     height: 100dvh;
     min-height: 0;
     overflow: visible;
+  }
+}
+
+@media (max-width: 319.98px) {
+  :where([data-hub-starter], [data-login-panel]) .et-btn {
+    --et-btn-pad: 12px;
   }
 }
 

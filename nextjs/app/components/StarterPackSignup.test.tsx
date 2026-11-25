@@ -49,21 +49,23 @@ describe('StarterPackSignup', () => {
     expect(renderToStaticMarkup(tafel())).toContain('data-guest-only');
   });
 
-  /* Derselbe Aufbau wie das Modal: das Pack, eine Ueberschrift, das Formular. */
-  it('zeigt das Pack und traegt die Ueberschrift des Modals', () => {
+  /* Derselbe Aufbau wie das Modal: das Pack, eine eigene Ueberschrift, das Formular. */
+  it('zeigt das Pack mit der Ueberschrift der Startseite', () => {
     const html = renderToStaticMarkup(tafel());
     expect(html).toContain('starter-pack-front.webp');
-    expect(html).toContain('>Starter Pack</h2>');
-    expect(html).toContain('Starte deine Sammlung');
-    expect(html).toContain('Schon 100 Must Eats in ganz Berlin. Dein Starter Pack zeigt dir die ersten. Den Rest entdeckst du vor Ort.');
-    // Kein „Gratis"-Kicker: kein Geschenk-Wording.
-    expect(html).not.toMatch(/gratis|kostenlos/i);
+    expect(html).toContain('>Mach Berlin zu deiner Sammlung.</h2>');
+    expect(html).toContain('Zum Start erwarten dich 20 weitere Must Eats.');
+    expect(html).toContain('type="email"');
+    expect(html).toContain('Mit Google anmelden');
+    expect(html).not.toContain('Anmeldung per E-Mail-Link oder mit Google.');
   });
 
   it('spricht Englisch unter /en', () => {
     const html = renderToStaticMarkup(tafel('en'));
     expect(html).toContain('Sign in with Google');
-    expect(html).toContain('Already 100 Must Eats across Berlin. Your Starter Pack shows you the first ones. Discover the rest at the spots themselves.');
+    expect(html).toContain('>Make Berlin your collection.</h2>');
+    expect(html).toContain('To start, 20 more Must Eats are waiting for you.');
+    expect(html).not.toContain('Sign in with an email link or Google.');
   });
 
   /* Die Tafel steht auf jeder Startseite; Google Sign-In laedt erst, wenn die

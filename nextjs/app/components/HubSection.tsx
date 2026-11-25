@@ -49,8 +49,8 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
       <HubMotion />
       <HubMapIntro locale={locale} />
       <HomeMapDataProvider initialMapData={initialMapData}>
-        <MagazineGrid articles={initialData.magazine} locale={locale} />
         <HubMustEatsTeaser />
+        <MagazineGrid articles={initialData.magazine} locale={locale} />
         <HomeDistricts locale={locale} />
       </HomeMapDataProvider>
       <HubFragRemy />

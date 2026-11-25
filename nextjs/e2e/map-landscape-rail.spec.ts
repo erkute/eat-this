@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 
 test('landscape filters stay above the right-hand list through scrolling and rotation', async ({ page }, info) => {
   test.skip(info.project.name === 'desktop', 'Touch viewport matrix.');

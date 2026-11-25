@@ -33,6 +33,31 @@ it('zeigt P75 je Seitentyp und Gerät mit der Bewertung als Wort', () => {
   expect(row.textContent).not.toContain('wenige Messungen');
 });
 
+it('zeigt P75 und Median aus der offenen Stufe als Mindestwerte', () => {
+  const data = summarize([], [], {
+    ...range,
+    vitals: [
+      {
+        day: '2026-11-21',
+        hist: {
+          LCP: { spot: { phone: { '99': 10, '100': 10 } } },
+          INP: { spot: { phone: { '100': 20 } } },
+          CLS: { spot: { phone: { '100': 20 } } },
+        },
+      },
+    ],
+  });
+  render(<Vitals data={data} />);
+  const row = screen.getByRole('row', { name: /Spot · Telefon/ });
+  expect(row.textContent).toContain('Median 10,0 s');
+  expect(row.textContent).toContain('Median ≥\u00a01.000 ms');
+  expect(row.textContent).toContain('Median ≥\u00a01,00');
+  expect(screen.getByText('≥ 10,0 s')).toBeTruthy();
+  expect(screen.getByText('≥ 1.000 ms')).toBeTruthy();
+  expect(screen.getByText('≥ 1,00')).toBeTruthy();
+  expect(screen.getAllByText('schlecht')).toHaveLength(3);
+});
+
 it('sagt, wenn es noch keine Messwerte gibt', () => {
   render(<Vitals data={summarize([], [], range)} />);
   expect(screen.getByText(/Noch keine Messwerte/)).toBeTruthy();

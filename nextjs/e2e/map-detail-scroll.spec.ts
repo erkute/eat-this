@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 
 // The translated tablet sheet must keep its final content inside the viewport.
 for (const viewport of [{ width: 375, height: 812 }, { width: 768, height: 768 }, { width: 820, height: 1180 }, { width: 1440, height: 1000 }]) {

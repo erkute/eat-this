@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 
 for (const reduced of [false, true]) {
   test(`homepage magazine opens its selected article (${reduced})`, async ({ page }) => {

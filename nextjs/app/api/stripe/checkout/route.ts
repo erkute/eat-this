@@ -41,7 +41,7 @@ export async function POST(req: Request) {
   if (!body.packId) return NextResponse.json({ error: 'missing_packId' }, { status: 400 });
   const pack = getPack(body.packId);
   if (!pack) return NextResponse.json({ error: 'unknown_packId' }, { status: 400 });
-  const locale: 'de' | 'en' = body.locale === 'en' ? 'en' : 'de';
+  const requestedLocale = body.locale === 'en' ? 'en' : 'de';
 
   // Guests have no account to hang a limit on, so every request would open a
   // new Stripe session. An account needs none: its parallel requests collapse
@@ -85,16 +85,7 @@ export async function POST(req: Request) {
     }
   }
 
-  const origin = getAppUrl();
-
   const mode = uid ? 'auth' : 'guest';
-  const successPath =
-    locale === 'en'
-      ? '/en/checkout/success?session_id={CHECKOUT_SESSION_ID}'
-      : '/checkout/success?session_id={CHECKOUT_SESSION_ID}';
-  // Guests cancel back to home; auth users return to the packs overview.
-  const cancelPath =
-    mode === 'auth' ? (locale === 'en' ? '/en/packs' : '/packs') : locale === 'en' ? '/en' : '/';
 
   let priceId: string;
   try {
@@ -108,11 +99,11 @@ export async function POST(req: Request) {
 
   // The deterministic auth attempt serializes parallel requests. If Stripe
   // has already answered, reuse that still-live Hosted Checkout URL; if it
-  // has not, every request uses the same Stripe idempotency key.
+  // has not, every request uses the same Stripe idempotency key and locale.
   let attempt: Awaited<ReturnType<typeof reserveCheckoutAttempt>> | null = null;
   if (uid) {
     try {
-      attempt = await reserveCheckoutAttempt(uid, pack.packId);
+      attempt = await reserveCheckoutAttempt(uid, pack.packId, requestedLocale);
     } catch (err) {
       Sentry.captureException(err, {
         extra: { uid, packId: pack.packId, source: 'checkout-attempt' },
@@ -122,7 +113,16 @@ export async function POST(req: Request) {
     if (attempt.kind === 'reuse') {
       return NextResponse.json({ url: attempt.url }, { status: 200 });
     }
+    if (attempt.kind === 'pending') {
+      return NextResponse.json({ error: 'checkout_unavailable' }, { status: 503 });
+    }
   }
+
+  const locale = attempt?.locale ?? requestedLocale;
+  const origin = getAppUrl();
+  const localePrefix = locale === 'en' ? '/en' : '';
+  const successPath = `${localePrefix}/checkout/success?session_id={CHECKOUT_SESSION_ID}`;
+  const cancelPath = `${localePrefix}${pack.slug ? `/pack/${pack.slug}` : '/packs'}`;
 
   let session;
   try {

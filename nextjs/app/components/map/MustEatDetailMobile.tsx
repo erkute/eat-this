@@ -78,6 +78,7 @@ export default function MustEatDetailMobile({
   const tMap = useTranslations('map');
   const localizedDescription = pickLocale(mustEat.description, mustEat.descriptionEn, lang);
   const {
+    distance,
     canUnlock,
     needsLocation,
     locationDenied,
@@ -261,6 +262,8 @@ export default function MustEatDetailMobile({
   /* Ohne Fix trägt die Copy-Zeile nur den Chip. Verweigert ist kein eigener
      Zustand: Erst der Tipp sagt, was fehlt, als Meldung in der Info-Karte. */
   const explainerData = guest ? onboardingData : undefined;
+  const showPackLink =
+    !guest && !isUnlocked && distance !== null && !canUnlock && !unlocking && !unlockError;
   /* Ein Gast bekommt „Wie funktioniert's?" statt des Näherungs-Hinweises;
      beides zusammen sprengte den Text-Slot. */
   const coverSub = unlockError
@@ -269,7 +272,7 @@ export default function MustEatDetailMobile({
       ? tMap('proximityTapReveal')
       : (needsLocation && !locationDenied) || explainerData
         ? null
-        : tMap('proximityHint');
+        : tMap(showPackLink ? 'proximityFreeAtSpot' : 'proximityHint');
   const showLocationChip = !guest && needsLocation && !locationDenied && !unlocking && !unlockError;
   const guestPitch = guest && !textOpen;
   const kicker = mustEat.restaurant.district
@@ -483,12 +486,16 @@ export default function MustEatDetailMobile({
           {!textOpen && (
             <div
               className={`${styles.fdProximity}${unlockError ? ` ${styles.fdProximityError}` : canUnlock ? ` ${styles.fdProximityReady}` : ''}`}
-              role={unlockError ? 'alert' : 'status'}
-              aria-live="polite"
             >
-              {/* Keine Entfernung hier: Wie weit es ist, zeigt die Map; diese
-                  Zeile sagt, was unter der Karte liegt. */}
-              {coverSub && <p className={styles.fdProximitySub}>{coverSub}</p>}
+              {/* Die Map zeigt die Entfernung. Die Zeile erklärt den nächsten Schritt. */}
+              <div role={unlockError ? 'alert' : 'status'} aria-live="polite">
+                {coverSub && <p className={styles.fdProximitySub}>{coverSub}</p>}
+              </div>
+              {showPackLink && (
+                <Link href="/packs" prefetch={false} className={`et-btn et-btn-sm et-btn-alt ${styles.fdPackLink}`}>
+                  {tMap('proximityPacks')}
+                </Link>
+              )}
               {/* Für Gäste die Erklärfolien der Must-Eats-Seite, nur auf
                   Knopfdruck. */}
               {explainerData && (
@@ -516,9 +523,9 @@ export default function MustEatDetailMobile({
           )}
         </div>
 
-        {/* Die ganze Zeile ist der Weg zum Spot, ohne Pille oder Pfeil. Der
-            Name bleibt einzeilig, damit die Zeile in jeder Karte gleich hoch
-            ist und der Stapel beim Blättern nicht springt. */}
+        {/* Die ganze Zeile führt zum Spot. Ab 320 px bleibt der Name einzeilig
+            und der Kartenstapel beim Blättern stabil. Darunter darf der Name
+            umbrechen. */}
         {(() => {
           const rowContent = (
             <>

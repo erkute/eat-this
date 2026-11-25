@@ -335,21 +335,29 @@ export function Kpi({
   invert?: boolean;
 }) {
   const dir = direction(delta);
-  const good =
-    dir === null ? null : dir === 'flat' ? 'flat' : (dir === 'up') !== invert ? 'up' : 'down';
+  const change = delta?.change;
+  let assessment = 'Kein Vergleich';
+  let assessmentClass = styles.deltaFlat;
+  if (dir === 'flat') {
+    assessment = change === 0 ? 'Unverändert' : 'Nahezu unverändert';
+  } else if (dir) {
+    const improved = (dir === 'up') !== invert;
+    assessment = improved ? 'Verbessert' : 'Verschlechtert';
+    assessmentClass = improved ? styles.deltaUp : styles.deltaDown;
+  }
+
+  if (change != null) {
+    const sign = change < 0 ? '−' : change > 0 ? '+' : '';
+    const amount = percent(Math.abs(change)).replace(' %', '\u00a0%');
+    assessment += ` (${sign}${amount})`;
+  }
   return (
     <div className={styles.kpi}>
       <span className={styles.kpiLabel}>{label}</span>
       <strong className={styles.kpiValue}>{value}</strong>
       <span className={styles.kpiFoot}>
-        {delta && dir !== null && (
-          <span
-            className={
-              good === 'up' ? styles.deltaUp : good === 'down' ? styles.deltaDown : styles.deltaFlat
-            }
-          >
-            {dir === 'flat' ? '±' : dir === 'up' ? '▲' : '▼'} {percent(Math.abs(delta.change ?? 0))}
-          </span>
+        {delta !== undefined && (
+          <span className={assessmentClass}>{assessment}</span>
         )}
         {hint && <span className={styles.kpiHint}>{hint}</span>}
       </span>

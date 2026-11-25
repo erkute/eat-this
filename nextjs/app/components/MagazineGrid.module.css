@@ -6,7 +6,7 @@
 .header h2 { margin: 0; font: 700 min(var(--hv-display, clamp(40px, 5.6vw, 80px)), calc((100cqi - 70px) * .13))/.92 var(--et-font-body); letter-spacing: -.055em; overflow-wrap: normal; }
 .intro { padding-bottom: 4px; }
 .intro p { max-width: 530px; margin: 0 0 24px; font-size: 20px; line-height: 1.4; }
-.intro .kicker { font-size: 12px; font-weight: 700; letter-spacing: .01em; margin-bottom: 16px; }
+.intro .kicker { font-size: var(--et-type-caption); font-weight: 700; letter-spacing: .01em; margin-bottom: 16px; }
 .covers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; max-width: 1400px; margin: 64px auto 0; padding: 0; list-style: none; }
 .covers li { min-width: 0; }
 .cover { display: block; width: 100%; color: inherit; }
@@ -18,7 +18,7 @@
   .header h2 { font-size: min(var(--hv-display, 40px), 26cqi); }
   .intro { margin-top: 24px; }
   .intro p { font-size: 17px; margin-bottom: 0; }
-  .intro .kicker { font-size: 11px; margin-bottom: 12px; }
+  .intro .kicker { margin-bottom: 12px; }
   .section .intro .desktopLink { display: none; }
   /* Der Stapel: alle Hefte in derselben Zelle, die Posen setzt GSAP
      (MagazineGrid.tsx). Unten Luft für die Hefte, die darunter hervorschauen. */
@@ -62,16 +62,15 @@
 }
 
 /* Über dem Titel, wie in der Magazin-Rubrik (.meta in NewsSection.module.css). */
-.metadata { margin: 16px 0 0; color: var(--et-muted); font-size: 12px; font-weight: 700; letter-spacing: .05em; line-height: 1.5; text-transform: uppercase; }
+.metadata { margin: 16px 0 0; color: var(--et-muted); font-size: var(--et-type-caption); font-weight: 700; letter-spacing: .05em; line-height: 1.5; text-transform: uppercase; overflow-wrap: anywhere; }
 @media (max-width: 599.98px) and (orientation: portrait) {
-  .metadata { margin-top: 12px; font-size: 11px; }
+  .metadata { margin-top: 12px; }
   .selectedTitle .metadata { margin-top: 0; }
 }
-/* In schmalen Spalten bleibt die Zeile einzeilig: in Versalien fiele die
-   Jahreszahl allein in eine zweite Zeile. */
+/* In schmalen Spalten bleibt mit gemischter Schreibung mehr Platz fürs Datum. */
 .moreCovers li, .desktopMeta { container-type: inline-size; }
 @container (max-width: 219.98px) {
-  .metadata { font-size: min(11px, 7.4cqi); letter-spacing: 0; text-transform: none; }
+  .metadata { letter-spacing: 0; text-transform: none; }
 }
 
 @media (min-width: 600px), (orientation: landscape) {
@@ -93,5 +92,10 @@
   .section .moreCovers { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 24px; gap: 20px; }
   .moreCovers li[data-extra-index="3"] { display: none; }
   .articleTitle, .smallTitle { font-size: 17px; line-height: 1.25; }
-  .metadata { margin-top: 12px; font-size: 11px; }
+  .metadata { margin-top: 12px; }
+}
+
+@media (max-width: 319.98px) and (orientation: portrait) {
+  .selectedTitle > div { min-width: 0; overflow-wrap: anywhere; }
+  .moreCovers { grid-template-columns: minmax(0, 1fr); }
 }

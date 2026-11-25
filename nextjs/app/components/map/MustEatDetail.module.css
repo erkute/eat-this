@@ -1345,14 +1345,10 @@
 }
 
 /*
- * Restaurant-Zeile: Foto, Name, eine Zeile, keine eigene Kachel. Die Selektoren
- * tragen `:has(.fdRestPhoto)`, weil die Grid-Regeln weiter oben es tun; ohne
- * dieselbe Spezifität gewinnt deren Platzierung.
+ * Die ganze Restaurant-Zeile führt zum Spot. Ab 320 px steht ein vorhandenes
+ * Foto neben dem Namen. `:has(.fdRestPhoto)` übernimmt die Spezifität der
+ * vorangehenden Grid-Regeln.
  */
-
-/* Die ganze Zeile ist der Knopf, ohne „Zum Spot"-Pille: Die nähme dem Namen
-   Platz, und ein zweizeiliger Name ließe den Kartenstapel beim Blättern
-   springen. */
 .detail .scroll > .fdRestInline:has(.fdRestPhoto),
 .detail .scroll > .fdRestInline {
   grid-template-rows: auto;
@@ -1402,9 +1398,8 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
-/* Einzeilig, Ellipse als letztes Mittel (die Stufen fdVLong und fdVCompact
-   fangen fast alles ab). Feste Pixel statt vw: Der Rail ist schmal, vw wüchse
-   mit dem Fenster. */
+/* Ab 320 px bleibt der Name einzeilig. Feste Schriftgrößen und die Stufen
+   fdVLong und fdVCompact halten lange Namen im schmalen Rail. */
 
 .scroll > .fdRestInline .fdV {
   width: 100%;
@@ -1685,10 +1680,10 @@
   margin: 0 0 6px;
   color: var(--et-muted);
   font-family: var(--et-font-display);
-  font-size: 11px;
+  font-size: var(--et-type-caption);
   font-weight: 700;
   letter-spacing: 0.08em;
-  line-height: 1;
+  line-height: 1.25;
   text-align: center;
   white-space: nowrap;
 }
@@ -1745,12 +1740,27 @@
 .scroll > .fdRestInline .fdK {
   color: var(--et-muted);
   font-family: var(--et-font-body);
-  font-size: 11px;
+  font-size: var(--et-type-caption);
   font-weight: 700;
   letter-spacing: 0.08em;
+  line-height: 1.25;
 }
 .scroll > .fdRestInline .fdV {
   color: var(--et-fg);
+}
+
+@media (max-width: 319.98px) {
+  .detail .scroll { --me-content-gap: 16px; }
+  .detail .fdHead { height: auto; min-height: 0; max-height: none; }
+  .detail .scroll > .fdRestInline:has(.fdRestPhoto) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .detail .scroll > .fdRestInline .fdRestPhoto { display: none; }
+  .detail .scroll > .fdRestInline > .fdRestName { grid-column: 1; }
+  .scroll > .fdRestInline :is(.fdK, .fdV) {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
 }
 
 .fdClose svg {

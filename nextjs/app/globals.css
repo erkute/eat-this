@@ -1222,6 +1222,10 @@ ol {
   --et-btn-bg: var(--et-field, #fff);
   --et-btn-fg: var(--et-field-fg, var(--et-ink));
 }
+:where([data-hub-starter], [data-login-panel]) .et-btn.et-btn-alt {
+  --et-btn-hover: color-mix(in srgb, var(--et-field) 88%, var(--et-field-fg));
+  --et-btn-hover-fg: var(--et-field-fg);
+}
 .et-btn-paper {
   --et-btn-bg: var(--et-ground);
   --et-btn-fg: var(--et-fg);
@@ -1562,6 +1566,12 @@ html[data-category-entering]::view-transition-new(root) { animation-duration: 45
     height: 100dvh;
     min-height: 0;
     overflow: visible;
+  }
+}
+
+@media (max-width: 319.98px) {
+  :where([data-hub-starter], [data-login-panel]) .et-btn {
+    --et-btn-pad: 12px;
   }
 }
 

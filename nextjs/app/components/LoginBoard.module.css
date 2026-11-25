@@ -229,7 +229,7 @@
   margin: 0;
   color: var(--et-copy);
   font-family: var(--et-font-display);
-  font-size: 12px;
+  font-size: var(--et-type-caption);
   font-weight: 700;
   letter-spacing: 0.12em;
   text-align: center;
@@ -240,16 +240,26 @@
   margin: 2px 0 0;
   color: var(--et-copy);
   font-family: var(--et-font-display);
-  font-size: 12px;
-  line-height: 1.28;
+  font-size: var(--et-type-caption);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
   text-align: center;
 }
 
 .legalLink {
-  color: var(--et-fg);
+  color: var(--et-link);
   font-weight: 700;
   text-decoration: none;
-  text-underline-offset: 3px;
+}
+
+.legalLink:is(:hover, :focus-visible) {
+  color: var(--et-field-fg, var(--et-ground));
+  background: var(--et-field, var(--et-fg));
+}
+
+.board .legalLink:focus-visible {
+  outline: 2px solid var(--et-focus, var(--et-fg));
+  outline-offset: 1px;
 }
 
 /* ── Mail ist raus ───────────────────────────────────────────────────── */
@@ -263,14 +273,13 @@
   display: grid;
   gap: 5px;
   padding: 12px 14px;
-  background: var(--et-quiet);
-  border-radius: 0;
+  background: var(--et-field, var(--et-quiet));
+  color: var(--et-field-fg, var(--et-fg));
 }
 
 .toLabel {
-  color: var(--et-copy);
   font-family: var(--et-font-display);
-  font-size: 10px;
+  font-size: var(--et-type-caption);
   font-weight: 700;
   letter-spacing: 0.1em;
   line-height: 1.2;
@@ -397,15 +406,18 @@
 /* Knöpfe als Pillen, das Feld bleibt eckig: So liest sich der weiße
    Google-Knopf nicht als zweites Feld. */
 
-.editorial .legal,
-.editorial .legalLink,
-.editorial .or,
-.editorial .sub,
-.editorial .spam,
-.editorial .toLabel,
-.editorial .toValue { color: var(--et-muted); }
-.editorial .legalLink:focus-visible, .editorial button:focus-visible { outline: 3px solid var(--et-focus, #d9382a); outline-offset: 4px; }
-@media(max-width:820.98px) { .board.editorial { grid-template-columns: 1fr; gap: 32px; } .editorial .lead { font-size: 17px; } }
+.editorial button:focus-visible { outline: 3px solid var(--et-focus, #d9382a); outline-offset: 4px; }
+@media(max-width:820.98px) { .board.editorial { grid-template-columns: minmax(0, 1fr); gap: 32px; } .editorial .lead { font-size: 17px; } }
+
+@media (max-width: 319.98px) {
+  .side { grid-template-columns: minmax(0, 1fr); }
+  .editorial .title { overflow-wrap: anywhere; }
+  .input { padding-inline: 6px; font-size: 16px; }
+  .ctaPrimary span, .ctaGoogle span, .board .textlink {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
 
 @media (min-width: 600px) and (max-width: 1023.98px) {
   :global([data-hub-starter]) .board.editorial { grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: 28px; }

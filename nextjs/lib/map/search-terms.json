@@ -410,7 +410,7 @@
   ]
  },
  "21d84f84-d546-4f52-ad5d-fdd18c335f00": {
-  "h": "8c9b1f84e53e9324",
+  "h": "2b970aaea1ecab04",
   "t": [
    "onigiri",
    "japanisch",
@@ -1841,7 +1841,7 @@
   ]
  },
  "82a1c915-c301-42df-9703-5c85626cf739": {
-  "h": "9f7027577b25ae82",
+  "h": "8027993996043a81",
   "t": [
    "falafel",
    "hummus",
@@ -2068,7 +2068,7 @@
   ]
  },
  "8e1aa277-2508-4577-aa9b-55174e938cab": {
-  "h": "ed408541ce4e0221",
+  "h": "48392e4ae92359bd",
   "t": [
    "pizza",
    "pizzeria",
@@ -2150,7 +2150,7 @@
   ]
  },
  "9967e3dd-6568-4776-a297-882fe5f60c7e": {
-  "h": "d992b8f320b56fff",
+  "h": "0bdc55dc291c7fcf",
   "t": [
    "deutsch",
    "german",
@@ -2281,7 +2281,7 @@
   ]
  },
  "a77d0d23-d218-4464-98ee-76086c57849b": {
-  "h": "95782e919c51b957",
+  "h": "6b4e76e5d0c0a46c",
   "t": [
    "sandwich",
    "sandwiches",
@@ -3701,7 +3701,7 @@
   ]
  },
  "ecf1db09-90ae-401b-92f3-d254bde05e73": {
-  "h": "cab8a7bf5946240a",
+  "h": "bf410fb95fc05a85",
   "t": [
    "burger",
    "burgers",
@@ -3800,7 +3800,7 @@
   ]
  },
  "f0a1f8ad-d9d8-4ff4-a2e4-3373f6558d1c": {
-  "h": "11335ed269ea420c",
+  "h": "d0a2bcfbdb2179c2",
   "t": [
    "burger",
    "burgers",
@@ -3874,7 +3874,7 @@
   ]
  },
  "f21bc5d6-a70c-4f0a-a764-2a568ceae98e": {
-  "h": "d05a0b2fc468c7d0",
+  "h": "162195d6daddd926",
   "t": [
    "eis",
    "ice cream",
@@ -4169,7 +4169,7 @@
   ]
  },
  "restaurant-ari-s": {
-  "h": "f40fbb0ce935c4ac",
+  "h": "8c88f3af1174ef1e",
   "t": [
    "diner",
    "burger",
@@ -4728,7 +4728,7 @@
   ]
  },
  "restaurant-crapulix": {
-  "h": "67d1979ed1f4e65a",
+  "h": "d04580e0800aebcb",
   "t": [
    "bäckerei",
    "bakery",
@@ -5232,7 +5232,7 @@
   ]
  },
  "restaurant-jones-ice-cream": {
-  "h": "22e5e7262ad57099",
+  "h": "5f214cb8dde52804",
   "t": [
    "eis",
    "ice cream",
@@ -5372,7 +5372,7 @@
   ]
  },
  "restaurant-kitten-deli": {
-  "h": "598860d0529a39d9",
+  "h": "ac8ebb87f2b50f51",
   "t": [
    "deli",
    "bäckerei",
@@ -5396,6 +5396,12 @@
    "kuchen",
    "cake",
    "labneh",
+   "pita",
+   "hummus",
+   "potatoes",
+   "kartoffeln",
+   "cauliflower",
+   "blumenkohl",
    "zum teilen",
    "frühstück",
    "breakfast",
@@ -5887,7 +5893,7 @@
   ]
  },
  "restaurant-saveur-de-b-nh-m": {
-  "h": "b0809f9f5590e7b3",
+  "h": "784c53f3b03cff67",
   "t": [
    "banh mi",
    "bánh mì",

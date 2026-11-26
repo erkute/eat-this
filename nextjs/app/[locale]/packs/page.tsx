@@ -95,7 +95,7 @@ export default async function PacksOverviewPage({ params }: PageProps) {
 
                 return (
                   <li key={pack.packId}>
-                    <Link href={href} className={styles.tile} aria-label={empty ? `${pack.displayName} · ${t.soon}` : `${pack.displayName} ${t.view.toLowerCase()}`}>
+                    <Link href={href} className={styles.tile}>
                       <span className={styles.packLink} aria-hidden="true">
                         {art && (
                           <Image
@@ -115,7 +115,7 @@ export default async function PacksOverviewPage({ params }: PageProps) {
                         {empty ? (
                           <span className={styles.soon}>{t.soon}</span>
                         ) : (
-                          <span className={`et-btn et-btn-sm ${styles.view}`} aria-hidden="true">{t.view}</span>
+                          <span className={`et-btn et-btn-sm ${styles.view}`}>{t.view}</span>
                         )}
                       </div>
                     </Link>

@@ -178,8 +178,8 @@ describe('MustEatsSection', () => {
     expect(closing).toContain('Hol sie dir.');
     // Gast: das Starter Pack zuerst, die Map als zweite Antwort, keine Packs.
     expect(guest).toContain('Starter Pack');
-    expect(guest).toContain('Bis zu 20 Karten. Der Anfang deiner Sammlung.');
-    expect(guest).toContain('Das Starter Pack gibt es einmal pro Konto.');
+    expect(guest).toContain('20 Karten. Der Anfang deiner Sammlung.');
+    expect(guest).toContain('Weitere Karten entdeckst du vor Ort.');
     expect(guest.indexOf('>Anmelden<')).toBeLessThan(guest.indexOf('href="/map"'));
     expect(guest).not.toContain('href="/packs"');
     // Konto: die Map vorn, Booster Packs dahinter.

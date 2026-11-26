@@ -13,7 +13,7 @@ vi.mock('next-intl', () => ({
       proximityAway: 'Noch nicht aufgedeckt',
       proximityHint:
         'Ein Gericht, das du probieren musst. Am Spot deckst du die Karte auf — dann gehört sie dir.',
-      proximityFreeAtSpot: 'Am Spot kannst du diese Karte kostenlos aufdecken.',
+      proximityFreeAtSpot: 'Am Spot kannst du diese Karte auch ohne Pack aufdecken.',
       proximityPacks: 'Packs ansehen',
       locationAllow: 'Standort freigeben',
       locationBlocked: 'Standort blockiert',
@@ -198,7 +198,7 @@ describe('MustEatDetailMobile proximity states', () => {
     );
 
     expect(screen.getByText('Noch nicht aufgedeckt')).toBeTruthy();
-    const free = screen.getByText('Am Spot kannst du diese Karte kostenlos aufdecken.');
+    const free = screen.getByText('Am Spot kannst du diese Karte auch ohne Pack aufdecken.');
     const packs = screen.getByRole('link', { name: 'Packs ansehen' });
     expect(packs.getAttribute('href')).toBe('/packs');
     expect(free.compareDocumentPosition(packs) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();

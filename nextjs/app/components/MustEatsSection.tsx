@@ -38,9 +38,9 @@ const COPY = {
     setMore: 'Alle Karten anzeigen',
     // Gast: das Konto ist der nächste Schritt, nicht die Map.
     closeGuestKicker: 'Dein Starter Pack',
-    closeGuestTitle: `Bis zu ${STARTER_PACK_CARDS} Karten. Der Anfang deiner Sammlung.`,
+    closeGuestTitle: `${STARTER_PACK_CARDS} Karten. Der Anfang deiner Sammlung.`,
     closeGuestBody:
-      'Das Starter Pack gibt es einmal pro Konto. Weitere Karten entdeckst du vor Ort.',
+      'Weitere Karten entdeckst du vor Ort.',
     closeGuestCta: 'Anmelden',
     // Mit Konto ist die Sammlung längst angefangen: Map und Booster Packs.
     closeKicker: 'Und jetzt',
@@ -69,9 +69,9 @@ const COPY = {
     zoomAria: 'enlarge card',
     setMore: 'Show all cards',
     closeGuestKicker: 'Your Starter Pack',
-    closeGuestTitle: `Up to ${STARTER_PACK_CARDS} cards. The start of your collection.`,
+    closeGuestTitle: `${STARTER_PACK_CARDS} cards. The start of your collection.`,
     closeGuestBody:
-      'You get the Starter Pack once per account. Discover more cards at the spots themselves.',
+      'Discover more cards at the spots themselves.',
     closeGuestCta: 'Sign in',
     closeKicker: 'Now go',
     closeTitle: 'Come and get them.',

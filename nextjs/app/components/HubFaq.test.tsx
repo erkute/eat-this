@@ -17,7 +17,7 @@ describe('HubFaq', () => {
     expect(html).toContain('Was kostet der Spaß?');
     expect(html).toContain('Was ist ein Must Eat?');
     expect(html).toContain('Von aktuell 137 Must Eats');
-    expect(html.match(/bis zu 20/g)).toHaveLength(1);
+    expect(html.match(/bekommst du 20 weitere/g)).toHaveLength(1);
   });
 
   it('uses homeV2 section structure with hv-title heading', async () => {

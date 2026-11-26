@@ -10,7 +10,7 @@ const en = {
   mustEats: {
     // Alt-Text der verdeckten Karte, gleiches Wort wie auf der Pack-Seite.
     covered: 'Covered',
-    spotStarter: 'Get started with up to {count} free Must Eat cards, once per account.',
+    spotStarter: 'With an account you get a Starter Pack of {count} Must Eats.',
     howItWorks: 'How does it work?',
     onb1Kicker: 'Must Eats',
     onb1Title: 'What will you try next?',
@@ -29,7 +29,7 @@ const en = {
     onbStarterKicker: 'Your collection',
     onbStarterTitle: 'Your first pack.',
     onbStarterBody:
-      `Of the {mustEatCount} Must Eats currently in Berlin, 10 are already revealed. Your Starter Pack reveals up to ${STARTER_PACK_CARDS} more cards, once per account. Discover the rest at the spots themselves. More are added over time.`,
+      `Of the {mustEatCount} Must Eats currently in Berlin, 10 are already revealed. Your Starter Pack reveals ${STARTER_PACK_CARDS} more cards. Discover the rest at the spots themselves. More are added over time.`,
     onbStarterCta: 'Sign in',
     onbNext: 'Next',
     onbStart: "Let's go",
@@ -138,7 +138,7 @@ const en = {
     // the prize first and puts the condition second.
     proximityHint:
       'What to order here, you find out right at the spot. That is where you flip the card and add it to your deck.',
-    proximityFreeAtSpot: 'You can reveal this card for free at the spot.',
+    proximityFreeAtSpot: 'At the spot you can reveal this card without a pack.',
     proximityPacks: 'View packs',
     revealCollected: 'New in your collection',
     revealError: "That didn't work.",
@@ -302,14 +302,14 @@ const en = {
       homePackTitle: 'Make Berlin your collection.',
       homePackLead: `Discover new favourite dishes and build your own Must Eats collection. To start, ${STARTER_PACK_CARDS} more Must Eats are waiting for you.`,
       packLead:
-        `Sign in and get up to ${STARTER_PACK_CARDS} free Must Eat cards, once per account. Cards already revealed to you don’t count towards your pack.`,
-      cardTitle: 'Discover your Starter Pack.',
+        `Sign in and get ${STARTER_PACK_CARDS}\u00a0Must Eats.`,
+      cardTitle: 'Reveal this card.',
       cardLead:
-        'If you’re getting your Starter Pack for the first time and this card is still hidden, your pack reveals it for free.',
+        `Sign in. Your Starter Pack reveals it, plus ${STARTER_PACK_CARDS - 1}\u00a0more.`,
       heartTitle: 'Save it for later.',
-      heartLead: 'Sign in to save this spot to your favourites.',
+      heartLead: 'Sign in to save this spot.',
       accountNote:
-        'New here? Signing in creates your account. Already joined? You’ll return to your account. No password needed.',
+        'New here? Signing in creates your account.',
       emailLabel: 'Email',
       emptyEmail: 'Add your email first.',
       invalidEmail: 'That does not look like an email yet.',
@@ -363,7 +363,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
   },
   mustEats: {
     covered: 'Verdeckt',
-    spotStarter: 'Mit deinem Konto erhältst du einmalig bis zu {count} kostenlose Must-Eat-Karten.',
+    spotStarter: 'Mit deinem Konto bekommst du ein Starter Pack mit {count} Must Eats.',
     howItWorks: "Wie funktioniert's?",
     onb1Kicker: 'Must Eats',
     onb1Title: 'Was probierst du als Nächstes?',
@@ -380,7 +380,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     onbStarterKicker: 'Deine Sammlung',
     onbStarterTitle: 'Dein erstes Pack.',
     onbStarterBody:
-      `Von aktuell {mustEatCount} Must Eats in Berlin sind 10 schon aufgedeckt. Dein Starter Pack deckt einmalig bis zu ${STARTER_PACK_CARDS} weitere Karten auf. Den Rest entdeckst du vor Ort. Neue kommen nach und nach dazu.`,
+      `Von aktuell {mustEatCount} Must Eats in Berlin sind 10 schon aufgedeckt. Dein Starter Pack deckt ${STARTER_PACK_CARDS} weitere Karten auf. Den Rest entdeckst du vor Ort. Neue kommen nach und nach dazu.`,
     onbStarterCta: 'Anmelden',
     onbNext: 'Weiter',
     onbStart: "Los geht's",
@@ -489,7 +489,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     // als die Beschreibung der Nachbarkarte.
     proximityHint:
       'Was du hier bestellen solltest, erfährst du direkt am Spot. Dort kannst du die Karte aufdecken und deinem Deck hinzufügen.',
-    proximityFreeAtSpot: 'Am Spot kannst du diese Karte kostenlos aufdecken.',
+    proximityFreeAtSpot: 'Am Spot kannst du diese Karte auch ohne Pack aufdecken.',
     proximityPacks: 'Packs ansehen',
     revealCollected: 'Neu in deiner Sammlung',
     revealError: 'Hat nicht geklappt.',
@@ -656,14 +656,14 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       homePackTitle: 'Mach Berlin zu deiner Sammlung.',
       homePackLead: `Entdecke neue Lieblingsgerichte und baue deine persönliche Must Eats Sammlung auf. Zum Start erwarten dich ${STARTER_PACK_CARDS} weitere Must Eats.`,
       packLead:
-        `Melde dich an und erhalte einmalig bis zu ${STARTER_PACK_CARDS} kostenlose Must-Eat-Karten. Bereits offene Karten zählen nicht mit.`,
-      cardTitle: 'Entdecke dein Starter Pack.',
+        `Melde dich an und hol dir ${STARTER_PACK_CARDS}\u00a0Must Eats.`,
+      cardTitle: 'Deck diese Karte auf.',
       cardLead:
-        'Wenn du dein Starter Pack zum ersten Mal erhältst und diese Karte noch verdeckt ist, deckst du sie dabei kostenlos auf.',
+        `Melde dich an. Dein Starter Pack deckt sie auf, dazu ${STARTER_PACK_CARDS - 1}\u00a0weitere.`,
       heartTitle: 'Für später merken.',
-      heartLead: 'Melde dich an, um diesen Spot in deinen Favoriten zu speichern.',
+      heartLead: 'Melde dich an und speicher diesen Spot.',
       accountNote:
-        'Neu hier? Deine Anmeldung legt dein Konto an. Schon dabei? Du kommst zurück in dein Konto. Ohne Passwort.',
+        'Neu hier? Deine Anmeldung legt dein Konto an.',
       emailLabel: 'E-Mail',
       emptyEmail: 'Bitte gib deine E-Mail ein.',
       invalidEmail: 'Das sieht noch nicht nach einer E-Mail aus.',

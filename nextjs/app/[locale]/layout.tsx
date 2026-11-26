@@ -57,10 +57,11 @@ const CRITICAL_BOOTSTRAP = `(function(){
     var paper=['/pics/vintage/paper-grain.webp?v=4',document.documentElement.getAttribute('data-theme')==='dark'?'/pics/vintage/section-wear-dark-light.webp?v=4':'/pics/vintage/section-wear-light.webp?v=4'];
     paper.forEach(function(src){var link=document.createElement('link');link.rel='preload';link.as='image';link.fetchPriority='high';link.href=src;document.head.appendChild(link);});
   }
-  // Startseite: Die Papier-Texturen der Blätter unter dem Hero teilen sich am
-  // Telefon die Leitung mit den Hero-Bildern. Sie kommen erst nach dem Laden
-  // oder beim ersten Scrollen (globals.css, data-paper-later).
-  if(slug==='start'){var de=document.documentElement;de.setAttribute('data-paper-later','');var paperNow=function(){de.removeAttribute('data-paper-later');removeEventListener('load',paperNow);document.removeEventListener('scroll',paperNow,true);};addEventListener('load',paperNow);document.addEventListener('scroll',paperNow,{capture:true,passive:true});}
+  // Startseite und Kategorien: Die Papier-Texturen unterhalb des ersten
+  // Bildschirms teilen sich am Telefon die Leitung mit dem grössten Bild. Sie
+  // kommen erst nach dem Laden oder beim ersten Scrollen (data-paper-later:
+  // globals.css, MagazineCover, HubIssue, KategorieBoost).
+  if(slug==='start'||slug==='kategorie'){var de=document.documentElement;de.setAttribute('data-paper-later','');var paperNow=function(){de.removeAttribute('data-paper-later');removeEventListener('load',paperNow);document.removeEventListener('scroll',paperNow,true);};addEventListener('load',paperNow);document.addEventListener('scroll',paperNow,{capture:true,passive:true});}
   try{if(slug==='start'&&'scrollRestoration' in history)history.scrollRestoration='manual';}catch(_){}
   try{if(slug==='start'&&location.hash){var nv=performance.getEntriesByType('navigation')[0];if(nv&&nv.type==='reload')history.replaceState(history.state,'',location.pathname+location.search);}}catch(_){}
   try{var ah=JSON.parse(localStorage.getItem('_authHint')||'null');if(ah&&ah.n)document.documentElement.setAttribute('data-auth','1');}catch(_){}

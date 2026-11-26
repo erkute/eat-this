@@ -364,7 +364,9 @@ html[data-vintage] .homeV2 > section {
 /* Bis zum Laden der Seite oder zum ersten Scrollen tragen die Blätter unter
    dem Hero nur ihre Grundfarbe (Bootstrap in app/[locale]/layout.tsx). Sonst
    laden ihre Texturen am Telefon gleichzeitig mit den Hero-Bildern und
-   verzögern das größte Bild um rund eine halbe Sekunde. */
+   verzögern das größte Bild um rund eine halbe Sekunde. Kategorieseiten setzen
+   dasselbe Attribut; ihre Flächen unter dem ersten Bildschirm regeln
+   MagazineCover, HubIssue und KategorieBoost in ihren Modulen. */
 html[data-vintage][data-paper-later] :is(.homeV2 > section:not([data-hub-hero]), [data-site-footer]) {
   background-image: none;
 }

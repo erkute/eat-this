@@ -52,13 +52,13 @@ describe('LoginPanel — Starter Pack mit Texten zum Anlass', () => {
     const { container } = panel();
     expect(title(container)).toBe('Dein Starter Pack.');
     expect(container.textContent).toContain('Melde dich an und hol dir 20\u00a0Must Eats.');
-    expect(container.textContent).toContain('Du kommst zurück in dein Konto.');
+    expect(container.textContent).toContain('Neu hier? Deine Anmeldung legt dein Konto an.');
   });
 
   /* Kein Spot-Name: im Startseiten-Teaser ist er Teil der Überraschung. */
   it.each([
-    ['de', 'Entdecke dein Starter Pack.', 'zum ersten Mal erhältst und diese Karte noch verdeckt ist'],
-    ['en', 'Discover your Starter Pack.', 'for the first time and this card is still hidden'],
+    ['de', 'Deck diese Karte auf.', 'Dein Starter Pack deckt sie auf, dazu 19'],
+    ['en', 'Reveal this card.', 'Your Starter Pack reveals it, plus 19'],
   ] as const)('nennt die Bedingungen der Wunschkarte auf %s', (locale, heading, condition) => {
     modal.reason = { kind: 'card', mustEatId: 'me-9' };
     const { container } = panel(locale);
@@ -78,8 +78,8 @@ describe('LoginPanel — Starter Pack mit Texten zum Anlass', () => {
     };
     const { container } = panel();
     expect(title(container)).toBe('Für später merken.');
-    expect(container.textContent).toContain('diesen Spot in deinen Favoriten zu speichern');
-    expect(container.textContent).toContain('Du kommst zurück in dein Konto.');
+    expect(container.textContent).toContain('Melde dich an und speicher diesen Spot.');
+    expect(container.textContent).toContain('Neu hier? Deine Anmeldung legt dein Konto an.');
     expect(container.innerHTML).toContain('starter-pack-front.webp');
     expect(container.querySelectorAll('img')).toHaveLength(1);
     expect(container.innerHTML).not.toContain('cdn.sanity.io/images/p/d/a.jpg');

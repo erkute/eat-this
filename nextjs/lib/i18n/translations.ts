@@ -29,7 +29,7 @@ const en = {
     onbStarterKicker: 'Your collection',
     onbStarterTitle: 'Your first pack.',
     onbStarterBody:
-      `Of the {mustEatCount} Must Eats currently in Berlin, 10 are already revealed. Your Starter Pack reveals up to ${STARTER_PACK_CARDS} more cards, once per account. Discover the rest at the spots themselves. More are added over time.`,
+      `Of the {mustEatCount} Must Eats currently in Berlin, 10 are already revealed. Your Starter Pack reveals ${STARTER_PACK_CARDS} more cards. Discover the rest at the spots themselves. More are added over time.`,
     onbStarterCta: 'Sign in',
     onbNext: 'Next',
     onbStart: "Let's go",
@@ -303,13 +303,13 @@ const en = {
       homePackLead: `Discover new favourite dishes and build your own Must Eats collection. To start, ${STARTER_PACK_CARDS} more Must Eats are waiting for you.`,
       packLead:
         `Sign in and get ${STARTER_PACK_CARDS}\u00a0Must Eats.`,
-      cardTitle: 'Discover your Starter Pack.',
+      cardTitle: 'Reveal this card.',
       cardLead:
-        'If you’re getting your Starter Pack for the first time and this card is still hidden, your pack reveals it too.',
+        `Sign in. Your Starter Pack reveals it, plus ${STARTER_PACK_CARDS - 1}\u00a0more.`,
       heartTitle: 'Save it for later.',
-      heartLead: 'Sign in to save this spot to your favourites.',
+      heartLead: 'Sign in to save this spot.',
       accountNote:
-        'New here? Signing in creates your account. Already joined? You’ll return to your account.',
+        'New here? Signing in creates your account.',
       emailLabel: 'Email',
       emptyEmail: 'Add your email first.',
       invalidEmail: 'That does not look like an email yet.',
@@ -380,7 +380,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     onbStarterKicker: 'Deine Sammlung',
     onbStarterTitle: 'Dein erstes Pack.',
     onbStarterBody:
-      `Von aktuell {mustEatCount} Must Eats in Berlin sind 10 schon aufgedeckt. Dein Starter Pack deckt einmalig bis zu ${STARTER_PACK_CARDS} weitere Karten auf. Den Rest entdeckst du vor Ort. Neue kommen nach und nach dazu.`,
+      `Von aktuell {mustEatCount} Must Eats in Berlin sind 10 schon aufgedeckt. Dein Starter Pack deckt ${STARTER_PACK_CARDS} weitere Karten auf. Den Rest entdeckst du vor Ort. Neue kommen nach und nach dazu.`,
     onbStarterCta: 'Anmelden',
     onbNext: 'Weiter',
     onbStart: "Los geht's",
@@ -657,13 +657,13 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       homePackLead: `Entdecke neue Lieblingsgerichte und baue deine persönliche Must Eats Sammlung auf. Zum Start erwarten dich ${STARTER_PACK_CARDS} weitere Must Eats.`,
       packLead:
         `Melde dich an und hol dir ${STARTER_PACK_CARDS}\u00a0Must Eats.`,
-      cardTitle: 'Entdecke dein Starter Pack.',
+      cardTitle: 'Deck diese Karte auf.',
       cardLead:
-        'Wenn du dein Starter Pack zum ersten Mal erhältst und diese Karte noch verdeckt ist, deckt dein Pack sie gleich mit auf.',
+        `Melde dich an. Dein Starter Pack deckt sie auf, dazu ${STARTER_PACK_CARDS - 1}\u00a0weitere.`,
       heartTitle: 'Für später merken.',
-      heartLead: 'Melde dich an, um diesen Spot in deinen Favoriten zu speichern.',
+      heartLead: 'Melde dich an und speicher diesen Spot.',
       accountNote:
-        'Neu hier? Deine Anmeldung legt dein Konto an. Schon dabei? Du kommst zurück in dein Konto.',
+        'Neu hier? Deine Anmeldung legt dein Konto an.',
       emailLabel: 'E-Mail',
       emptyEmail: 'Bitte gib deine E-Mail ein.',
       invalidEmail: 'Das sieht noch nicht nach einer E-Mail aus.',

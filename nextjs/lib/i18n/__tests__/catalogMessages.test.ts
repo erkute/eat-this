@@ -25,8 +25,7 @@ for (const locale of ['de', 'en'] as const) {
         const [onboarding, faq] = explanations(locale, count);
         for (const message of [promo(locale, count), onboarding, faq]) {
           expect(message).toContain(String(count));
-          // Die Startseiten-FAQ nennt Starter Pack und Konto ausdrücklich kostenlos.
-          if (message !== faq) expect(message).not.toMatch(/kostenlos|gratis|\bfree\b/i);
+          expect(message).not.toMatch(/kostenlos|gratis|\bfree\b/i);
           expect(message).not.toContain('{mustEatCount}');
           if (count !== 100) expect(message).not.toContain('100');
         }
@@ -40,15 +39,14 @@ for (const locale of ['de', 'en'] as const) {
         locale === 'de' ? 'zeigt dir die ersten' : 'shows you the first ones'
       );
       expect(message).toContain(locale === 'de' ? 'entdeckst du vor Ort' : 'Discover the rest');
-      const starterLimit = locale === 'de' ? 'einmalig bis zu 20' : 'up to 20';
-      expect(getLandingFaqs(locale, 137).filter(({ a }) => a.includes(starterLimit))).toHaveLength(
+      const starterCount = locale === 'de' ? '20 weitere' : '20 more';
+      expect(getLandingFaqs(locale, 137).filter(({ a }) => a.includes(starterCount))).toHaveLength(
         1
       );
       for (const message of explanations(locale, 137)) {
         expect(message).toContain('10');
-        expect(message).toContain(starterLimit);
+        expect(message).toContain(starterCount);
         expect(message).toMatch(locale === 'de' ? /vor Ort/ : /spots themselves|when you visit/);
-        if (locale === 'en') expect(message).toContain('once per account');
       }
     });
 

@@ -31,7 +31,8 @@ const HOME_CARD_ART: Readonly<Record<string, string>> = {
 const CARD_WIDTHS = [180, 360, 440, 720] as const;
 
 function cardSrcSet(url: string): string {
-  if (url.startsWith('/pics/home/')) return `${url.replace('.webp', '-360.webp')} 360w, ${url} 720w`;
+  // Die eigenen Karten sind 720 px breit; kleinere Breiten liefert der Optimierer.
+  if (url.startsWith('/pics/home/')) return `${optimizedImageSrcSet(url, [256, 384, 480, 640])}, ${url} 720w`;
   return CARD_WIDTHS.map((w) => `${mustEatCardSrc(url, w)} ${w}w`).join(', ');
 }
 

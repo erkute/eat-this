@@ -406,6 +406,10 @@
 :global(html[data-vintage]) .wearB {
   background-image: url('/pics/vintage/cover-wear-b.webp?v=1');
 }
+/* Startseite vor dem Laden: siehe data-paper-later in globals.css. */
+:global(html[data-vintage][data-paper-later] [data-hub-magazine]) .wear {
+  background-image: none;
+}
 /* Glanz des Umschlags und der Rücken links, wo er gefalzt ist. */
 .sheen {
   inset: 0;

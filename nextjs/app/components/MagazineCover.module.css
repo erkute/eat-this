@@ -169,6 +169,14 @@
   -webkit-mask: url('/pics/eat-this-crumpled-wordmark.webp?v=20261028') center / contain no-repeat;
   mask: url('/pics/eat-this-crumpled-wordmark.webp?v=20261028') center / contain no-repeat;
 }
+/* Unter 1024 px ist kein Heft breiter als ~430 px: dafür reicht die
+   1080er-Fassung aus Nexts Optimierer (20 statt 65 kB). */
+@media (max-width: 1023.98px) {
+  .flatLogo {
+    -webkit-mask-image: url('/_next/image?url=%2Fpics%2Feat-this-crumpled-wordmark.webp%3Fv%3D20261028&w=1080&q=80');
+    mask-image: url('/_next/image?url=%2Fpics%2Feat-this-crumpled-wordmark.webp%3Fv%3D20261028&w=1080&q=80');
+  }
+}
 .logoShadow {
   inset: 0;
   filter: drop-shadow(0 0.5cqw 0.9cqw rgba(0, 0, 0, 0.45));
@@ -406,9 +414,16 @@
 :global(html[data-vintage]) .wearB {
   background-image: url('/pics/vintage/cover-wear-b.webp?v=1');
 }
-/* Startseite vor dem Laden: siehe data-paper-later in globals.css. */
-:global(html[data-vintage][data-paper-later] [data-hub-magazine]) .wear {
+/* Vor dem Laden (data-paper-later, globals.css): auf der Startseite die Hefte
+   im Magazin-Teil, auf Kategorieseiten alle, denn dort stehen sie unter dem
+   ersten Bildschirm. Dort fehlt bis dahin auch der Schriftzug: Er ist ein
+   grosses Bild, das sonst mit dem Aufmacher-Foto um die Leitung konkurriert. */
+:global(html[data-vintage][data-paper-later] [data-hub-magazine]) .wear,
+:global(html[data-vintage][data-paper-later][data-active-page='kategorie']) .wear {
   background-image: none;
+}
+:global(html[data-paper-later][data-active-page='kategorie']) :is(.logo, .logoAt, .logoInBlock, .bandLogo, .flatLogo) {
+  display: none;
 }
 /* Glanz des Umschlags und der Rücken links, wo er gefalzt ist. */
 .sheen {

@@ -22,10 +22,13 @@ import {
 } from '@/lib/magazineCover';
 import { sanityImagePosition, sanitySrcSet, coverImageScale, sanityCroppedSources } from '@/lib/sanity-image-presets';
 import sanityImageLoader from '@/lib/sanityImageLoader';
+import { optimizedImageSrc, optimizedImageSrcSet } from '@/lib/optimizedImage';
 import styles from './MagazineCover.module.css';
 import PreviewImage from './PreviewImage';
 
 const LOGO = BRAND_WORDMARK.src;
+/** Stufen des Logos aus Nexts Optimierer (alle in next.config.ts). */
+const LOGO_WIDTHS = [256, 384, 640, 1080, 1920] as const;
 const TONES: Record<CoverTone, string> = {
   yellow: styles.yellow,
   red: styles.red,
@@ -169,9 +172,20 @@ export default function MagazineCover({
     );
   };
 
-  const logo = (style: CSSProperties, className = styles.logo) => (
+  // `width` in Prozent der Titelseite: daraus die Bildbreite, die das Logo
+  // braucht. Das Original ist 2600 px breit, gezeigt wird es selten über 600.
+  const logo = (width: number, style: CSSProperties = {}, className = styles.logo) => (
     // eslint-disable-next-line @next/next/no-img-element
-    <img className={className} style={style} src={LOGO} alt="" loading={loading} decoding="async" />
+    <img
+      className={className}
+      style={{ ...style, width: q(width) }}
+      src={optimizedImageSrc(LOGO, 1080)}
+      srcSet={optimizedImageSrcSet(LOGO, LOGO_WIDTHS)}
+      sizes={scaleSizes(sizes, width / 100)}
+      alt=""
+      loading={loading}
+      decoding="async"
+    />
   );
   // The wordmark in the cover's own colour.
   const flatLogo = (fill: string, style: CSSProperties) => (
@@ -206,7 +220,7 @@ export default function MagazineCover({
       const c = cut as CutoutCover;
       body = (
         <>
-          {logo({ left: q(5), top: q(5), width: q(34) }, styles.logoAt)}
+          {logo(34, { left: q(5), top: q(5) }, styles.logoAt)}
           {meta(issueStack, { right: q(5), top: q(6), textAlign: 'right' })}
           {cutout(c, fitCutout(c, 84, 68, 50, 58), styles.object)}
           <span
@@ -227,7 +241,7 @@ export default function MagazineCover({
       tone = 'red';
       body = (
         <>
-          {logo({ top: q(3.5), width: q(92) })}
+          {logo(92, { top: q(3.5) })}
           <span className={`${styles.panel} ${styles.ink}`} aria-hidden="true" />
           {meta('Berlin', { left: q(9), top: q(41), color: '#fff' }, styles.metaBold)}
           {meta(
@@ -270,7 +284,15 @@ export default function MagazineCover({
               {title}
             </span>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className={styles.bandLogo} src={LOGO} alt="" loading={loading} decoding="async" />
+            <img
+              className={styles.bandLogo}
+              src={optimizedImageSrc(LOGO, 1080)}
+              srcSet={optimizedImageSrcSet(LOGO, LOGO_WIDTHS)}
+              sizes={scaleSizes(sizes, 0.24)}
+              alt=""
+              loading={loading}
+              decoding="async"
+            />
           </span>
         </>
       );
@@ -308,7 +330,7 @@ export default function MagazineCover({
             { left: 0, right: 0, top: q(3.4), textAlign: 'center' },
             styles.metaWide
           )}
-          {logo({ top: q(FRONT_LOGO.top), width: q(FRONT_LOGO.width) })}
+          {logo(FRONT_LOGO.width, { top: q(FRONT_LOGO.top) })}
           {onPhoto ? (
             <PhotoImage
               className={`${styles.layer} ${styles.cutoutShadow}`}
@@ -359,7 +381,7 @@ export default function MagazineCover({
             {title}
           </span>
           {cutout(c, fitCutout(c, 84, 62, 50, 76), styles.object, { rotate: `${tilt(issue)}deg` })}
-          {logo({ bottom: q(6), width: q(30) })}
+          {logo(30, { bottom: q(6) })}
         </>
       );
       break;
@@ -399,7 +421,7 @@ export default function MagazineCover({
         <>
           {photo(styles.systemPhoto)}
           <span className={styles.scrimTop} aria-hidden="true" />
-          {logo({ top: q(4), width: q(70) })}
+          {logo(70, { top: q(4) })}
           {barcode({ left: q(6), top: q(102), width: q(4.4), height: q(17) }, true)}
           <span className={styles.systemText} aria-hidden="true">
             <span className={styles.headline} style={size(fitSize(lead, 190, 5, 7.4))}>
@@ -598,7 +620,7 @@ export default function MagazineCover({
         <>
           {photo(styles.fill)}
           <span className={styles.scrimBottom} aria-hidden="true" />
-          <span className={styles.redBlock}>{logo({ width: q(52) }, styles.logoInBlock)}</span>
+          <span className={styles.redBlock}>{logo(52, {}, styles.logoInBlock)}</span>
           {meta(
             issueStack,
             { right: q(5), top: q(5), textAlign: 'right', color: '#fff' },
@@ -632,7 +654,7 @@ export default function MagazineCover({
             { left: 0, right: 0, top: q(3.6), textAlign: 'center' },
             styles.metaWide
           )}
-          {logo({ top: q(8), width: q(56) })}
+          {logo(56, { top: q(8) })}
           <span className={styles.hole} aria-hidden="true">
             {photo('', 0.6)}
           </span>
@@ -671,7 +693,7 @@ export default function MagazineCover({
               {issueStack}
             </span>
           </span>
-          {logo({ left: q(7), bottom: q(5), width: q(52) }, styles.logoAt)}
+          {logo(52, { left: q(7), bottom: q(5) }, styles.logoAt)}
         </>
       );
     }

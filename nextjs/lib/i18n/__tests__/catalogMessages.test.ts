@@ -12,7 +12,8 @@ function promo(locale: 'de' | 'en', count: number) {
 }
 
 function explanations(locale: 'de' | 'en', count: number) {
-  const question = locale === 'de' ? 'Was sind Must Eats?' : 'What are Must Eats?';
+  const question =
+    locale === 'de' ? 'Warum sind die meisten Karten verdeckt?' : 'Why are most cards face down?';
   const faq = getLandingFaqs(locale, count).find(({ q }) => q === question);
   return [getCatalogMessages(locale, count).mustEats.onbStarterBody, faq?.a ?? ''];
 }
@@ -21,9 +22,11 @@ for (const locale of ['de', 'en'] as const) {
   describe(`Catalog size in ${locale}`, () => {
     it('updates the total in promos and explanations', () => {
       for (const count of [100, 101, 137]) {
-        for (const message of [promo(locale, count), ...explanations(locale, count)]) {
+        const [onboarding, faq] = explanations(locale, count);
+        for (const message of [promo(locale, count), onboarding, faq]) {
           expect(message).toContain(String(count));
-          expect(message).not.toMatch(/kostenlos|gratis|\bfree\b/i);
+          // Die Startseiten-FAQ nennt Starter Pack und Konto ausdrücklich kostenlos.
+          if (message !== faq) expect(message).not.toMatch(/kostenlos|gratis|\bfree\b/i);
           expect(message).not.toContain('{mustEatCount}');
           if (count !== 100) expect(message).not.toContain('100');
         }
@@ -33,10 +36,14 @@ for (const locale of ['de', 'en'] as const) {
     it('keeps the reveal arithmetic in the explanation and discovery in the promo', () => {
       const message = promo(locale, 137);
       expect(message).not.toMatch(/\b(?:10|20)\b/);
-      expect(message).toContain(locale === 'de' ? 'zeigt dir die ersten' : 'shows you the first ones');
+      expect(message).toContain(
+        locale === 'de' ? 'zeigt dir die ersten' : 'shows you the first ones'
+      );
       expect(message).toContain(locale === 'de' ? 'entdeckst du vor Ort' : 'Discover the rest');
       const starterLimit = locale === 'de' ? 'einmalig bis zu 20' : 'up to 20';
-      expect(getLandingFaqs(locale, 137).filter(({ a }) => a.includes(starterLimit))).toHaveLength(1);
+      expect(getLandingFaqs(locale, 137).filter(({ a }) => a.includes(starterLimit))).toHaveLength(
+        1
+      );
       for (const message of explanations(locale, 137)) {
         expect(message).toContain('10');
         expect(message).toContain(starterLimit);

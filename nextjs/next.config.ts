@@ -82,6 +82,10 @@ const nextConfig: NextConfig = {
     // Untergrenze.
     minimumCacheTTL: 86400,
     qualities: [75, 80, 90],
+    // Nexts Standard plus 480: Die Karten im Startseiten-Fächer sind am
+    // Telefon 137 px breit und brauchen bei dreifacher Pixeldichte 411 px.
+    // Ohne 480 springt die Auswahl auf 640 px und fast doppelt so viele Bytes.
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384, 480],
     // Sanity-Bilder gehen direkt an die Sanity-CDN (SiteImage setzt
     // `sanityImageLoader`); über den Optimierer kosteten sie auf Cloud Run
     // Speicher bis zur 1-GiB-Grenze. Kein globaler `loaderFile`, der schaltet

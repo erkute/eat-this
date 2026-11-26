@@ -3,12 +3,14 @@ import SiteImage from './SiteImage';
 import styles from './HubSection.module.css';
 import BrandSlogan from './BrandSlogan';
 import { BRAND_WORDMARK } from '@/lib/constants';
+import { optimizedImageSrc, optimizedImageSrcSet } from '@/lib/optimizedImage';
 
 interface Props {
   locale: 'de' | 'en';
 }
 const ART = '/pics/home/silver-hero';
 const EMPTY_IMAGE = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+const SLOGAN = `${ART}/slogan-mobile.webp?v=20261028`;
 
 /** One server-rendered hero for guests and members, independent of auth hydration. */
 export default function HubHeroCopy({ locale }: Props) {
@@ -20,9 +22,11 @@ export default function HubHeroCopy({ locale }: Props) {
         <img
           className={styles.heroMark}
           data-hero-mark=""
-          src={BRAND_WORDMARK.src}
-          width={2600}
-          height={645}
+          src={optimizedImageSrc(BRAND_WORDMARK.src, 1200)}
+          srcSet={optimizedImageSrcSet(BRAND_WORDMARK.src, [384, 640, 828, 1200])}
+          sizes="(max-width: 1023px) 370px, 560px"
+          width={BRAND_WORDMARK.width}
+          height={BRAND_WORDMARK.height}
           alt="Eat This"
           fetchPriority="high"
           decoding="async"
@@ -38,7 +42,9 @@ export default function HubHeroCopy({ locale }: Props) {
           <source media="(min-width: 768px)" srcSet={EMPTY_IMAGE} />
           <img
             className={styles.heroSloganMobile}
-            src={`${ART}/slogan-mobile.webp?v=20261028`}
+            src={optimizedImageSrc(SLOGAN, 750)}
+            srcSet={optimizedImageSrcSet(SLOGAN, [256, 480, 750])}
+            sizes="240px"
             width={1200}
             height={468}
             alt=""

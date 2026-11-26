@@ -13,6 +13,7 @@ import { useTranslation } from '@/lib/i18n';
 import { normalizeName } from '@/lib/normalizeName';
 import { spotNameWithoutDistrict } from '@/lib/home/spotNameWithoutDistrict';
 import { mustEatCardSrc } from '@/lib/must-eat/cardImage';
+import { optimizedImageSrc, optimizedImageSrcSet } from '@/lib/optimizedImage';
 import { useHomeMapData } from './HomeMapDataContext';
 import styles from './HubMustEatsTeaser.module.css';
 
@@ -34,6 +35,9 @@ function cardSrcSet(url: string): string {
   return CARD_WIDTHS.map((w) => `${mustEatCardSrc(url, w)} ${w}w`).join(', ');
 }
 
+const CARD_BACK = '/pics/card-back.webp?v=20261028';
+const CARD_BACK_SRC = optimizedImageSrc(CARD_BACK, 480);
+const CARD_BACK_SRCSET = optimizedImageSrcSet(CARD_BACK, [256, 384, 480, 750]);
 const CARD_SIZES = '(orientation: landscape) and (max-height: 500px) and (max-width: 1023px) 130px, (min-width: 900px) 17vw, calc((100vw - 64px) / 2)';
 
 export default function HubMustEatsTeaser() {
@@ -134,7 +138,9 @@ export default function HubMustEatsTeaser() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 className={styles.card}
-                src="/pics/card-back.webp?v=20261028"
+                src={CARD_BACK_SRC}
+                srcSet={CARD_BACK_SRCSET}
+                sizes={CARD_SIZES}
                 loading="lazy"
                 decoding="async"
                 alt=""
@@ -159,7 +165,9 @@ export default function HubMustEatsTeaser() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 className={styles.card}
-                src="/pics/card-back.webp?v=20261028"
+                src={CARD_BACK_SRC}
+                srcSet={CARD_BACK_SRCSET}
+                sizes={CARD_SIZES}
                 loading="lazy"
                 decoding="async"
                 alt=""
@@ -240,7 +248,9 @@ export default function HubMustEatsTeaser() {
                             <img
                               className={styles.dealBack}
                               data-deal-back=""
-                              src="/pics/card-back.webp?v=20261028"
+                              src={CARD_BACK_SRC}
+                              srcSet={CARD_BACK_SRCSET}
+                              sizes={CARD_SIZES}
                               alt=""
                               aria-hidden="true"
                               width={760}

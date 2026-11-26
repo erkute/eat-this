@@ -175,7 +175,7 @@ describe('HubMustEatsTeaser', () => {
     expect(html).toContain('/map?me=open4');
     expect(html).not.toContain('/map?me=open5');
     expect(html).not.toContain('Hidden Spot');
-    expect(html).toContain('/pics/card-back.webp');
+    expect(html).toContain('card-back.webp');
   });
 
   it('shows fewer open cards with one covered preview', () => {

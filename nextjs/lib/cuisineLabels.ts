@@ -9,6 +9,7 @@ export const CUISINE_LABELS_DE: Record<string, string> = {
   American: 'Amerikanisch',
   Austrian: 'Österreichisch',
   Bakery: 'Bäckerei',
+  'Bakery / Café': 'Bäckerei',
   Bar: 'Bar',
   Burgers: 'Burger',
   Café: 'Café',
@@ -47,6 +48,7 @@ export const CUISINE_LABELS_DE: Record<string, string> = {
   Turkish: 'Türkisch',
   Vegan: 'Vegan',
   Vegetarian: 'Vegetarisch',
+  'Vegetarian / Regional': 'Vegetarisch',
   Vietnamese: 'Vietnamesisch',
   'Wine Bar': 'Weinbar',
 };

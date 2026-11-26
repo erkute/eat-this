@@ -21,6 +21,8 @@ describe('localizedCuisine', () => {
     ['Desserts', 'Desserts'],
     ['Vegetarian', 'Vegetarisch'],
     ['Spanish', 'Spanisch'],
+    ['Bakery / Café', 'Bäckerei'],
+    ['Vegetarian / Regional', 'Vegetarisch'],
   ])('kennt %s', (raw, expected) => {
     expect(localizedCuisine(raw, 'de')).toBe(expected);
   });

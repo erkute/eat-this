@@ -174,20 +174,20 @@ const en = {
     /* Der Satz, der in WhatsApp unter der Vorschaukarte steht. Er muss die
        Frage „warum schickt der mir das" beantworten, bevor jemand klickt. */
     metaDescription:
-      '{done} of {total} cards flipped. Over a hundred spots in Berlin, and because discovering beats searching, every Must Eat is a card.',
+      '{done} of {total} Must Eats revealed. Hand-picked spots across Berlin on one map, the best dishes as cards to collect.',
     metaDescriptionNamed:
-      '{name} has flipped {done} of {total} cards. Over a hundred spots in Berlin, and because discovering beats searching, every Must Eat is a card.',
+      '{name} has revealed {done} of {total} Must Eats. Hand-picked spots across Berlin on one map, the best dishes as cards to collect.',
     /* Der Stand als Herausforderung. */
     challenge:
       '{done, plural, =0 {{name} is just getting started.} one {{name} has 1 of {total} Must Eats.} other {{name} has # of {total} Must Eats.}}',
     challengeFull: '{name} has all {total} Must Eats.',
     challengeAnon:
-      '{done, plural, =0 {This deck is just getting started.} other {# of {total} Must Eats flipped.}}',
+      '{done, plural, =0 {This deck is just getting started.} other {# of {total} Must Eats revealed.}}',
     /* Der sichtbare Stand, um die grosse Zahl herum gelesen ein Satz:
-       „Alex has flipped / 14 / of 100 Must Eats." */
-    scoreLead: '{name} has flipped',
+       „Alex has revealed / 14 / of 100 Must Eats." */
+    scoreLead: '{name} has revealed',
     scoreOf: 'of {total} Must Eats.',
-    scoreOfAnon: 'of {total} Must Eats flipped.',
+    scoreOfAnon: 'of {total} Must Eats revealed.',
     dare: 'Can you beat that?',
     dareFull: 'Can you match that?',
     dareStart: 'Who gets there first?',
@@ -195,9 +195,9 @@ const en = {
     mapBody: 'Hand-picked restaurants, cafés and bars across Berlin — and what to order there.',
     collectLabel: 'Must Eats',
     collectBody:
-      'The dishes you should not miss. Go there, flip them and collect them in your deck.',
+      'The dishes you should not miss. Go there, reveal them and collect them in your deck.',
     toMap: 'To the map',
-    signIn: 'Sign up',
+    signIn: 'Sign in',
   },
   profile: {
     avatarError: 'Your character could not be saved. Please try again.',
@@ -521,9 +521,9 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     metaTitle: 'Ein Deck bei Eat This',
     metaTitleNamed: 'Das Deck von {name} bei Eat This',
     metaDescription:
-      '{done} von {total} Karten umgedreht. \u00dcber hundert Spots in Berlin, und weil Entdecken mehr Spa\u00df macht als Suchen, ist jedes Must Eat eine Karte.',
+      '{done} von {total} Must Eats aufgedeckt. Handverlesene Spots in ganz Berlin auf einer Map, die besten Gerichte als Karten zum Sammeln.',
     metaDescriptionNamed:
-      '{name} hat {done} von {total} Karten umgedreht. \u00dcber hundert Spots in Berlin, und weil Entdecken mehr Spa\u00df macht als Suchen, ist jedes Must Eat eine Karte.',
+      '{name} hat {done} von {total} Must Eats aufgedeckt. Handverlesene Spots in ganz Berlin auf einer Map, die besten Gerichte als Karten zum Sammeln.',
     /* Der Stand als Herausforderung. */
     challenge:
       '{done, plural, =0 {{name} f\u00e4ngt gerade an.} one {{name} hat 1 von {total} Must Eats.} other {{name} hat # von {total} Must Eats.}}',

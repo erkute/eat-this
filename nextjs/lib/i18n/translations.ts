@@ -10,7 +10,7 @@ const en = {
   mustEats: {
     // Alt-Text der verdeckten Karte, gleiches Wort wie auf der Pack-Seite.
     covered: 'Covered',
-    spotStarter: 'Get started with up to {count} free Must Eat cards, once per account.',
+    spotStarter: 'With an account you get a Starter Pack of {count} Must Eats.',
     howItWorks: 'How does it work?',
     onb1Kicker: 'Must Eats',
     onb1Title: 'What will you try next?',
@@ -138,7 +138,7 @@ const en = {
     // the prize first and puts the condition second.
     proximityHint:
       'What to order here, you find out right at the spot. That is where you flip the card and add it to your deck.',
-    proximityFreeAtSpot: 'You can reveal this card for free at the spot.',
+    proximityFreeAtSpot: 'At the spot you can reveal this card without a pack.',
     proximityPacks: 'View packs',
     revealCollected: 'New in your collection',
     revealError: "That didn't work.",
@@ -302,14 +302,14 @@ const en = {
       homePackTitle: 'Make Berlin your collection.',
       homePackLead: `Discover new favourite dishes and build your own Must Eats collection. To start, ${STARTER_PACK_CARDS} more Must Eats are waiting for you.`,
       packLead:
-        `Sign in and get up to ${STARTER_PACK_CARDS} free Must Eat cards, once per account. Cards already revealed to you don’t count towards your pack.`,
+        `Sign in and get ${STARTER_PACK_CARDS}\u00a0Must Eats.`,
       cardTitle: 'Discover your Starter Pack.',
       cardLead:
-        'If you’re getting your Starter Pack for the first time and this card is still hidden, your pack reveals it for free.',
+        'If you’re getting your Starter Pack for the first time and this card is still hidden, your pack reveals it too.',
       heartTitle: 'Save it for later.',
       heartLead: 'Sign in to save this spot to your favourites.',
       accountNote:
-        'New here? Signing in creates your account. Already joined? You’ll return to your account. No password needed.',
+        'New here? Signing in creates your account. Already joined? You’ll return to your account.',
       emailLabel: 'Email',
       emptyEmail: 'Add your email first.',
       invalidEmail: 'That does not look like an email yet.',
@@ -363,7 +363,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
   },
   mustEats: {
     covered: 'Verdeckt',
-    spotStarter: 'Mit deinem Konto erhältst du einmalig bis zu {count} kostenlose Must-Eat-Karten.',
+    spotStarter: 'Mit deinem Konto bekommst du ein Starter Pack mit {count} Must Eats.',
     howItWorks: "Wie funktioniert's?",
     onb1Kicker: 'Must Eats',
     onb1Title: 'Was probierst du als Nächstes?',
@@ -489,7 +489,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     // als die Beschreibung der Nachbarkarte.
     proximityHint:
       'Was du hier bestellen solltest, erfährst du direkt am Spot. Dort kannst du die Karte aufdecken und deinem Deck hinzufügen.',
-    proximityFreeAtSpot: 'Am Spot kannst du diese Karte kostenlos aufdecken.',
+    proximityFreeAtSpot: 'Am Spot kannst du diese Karte auch ohne Pack aufdecken.',
     proximityPacks: 'Packs ansehen',
     revealCollected: 'Neu in deiner Sammlung',
     revealError: 'Hat nicht geklappt.',
@@ -656,14 +656,14 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       homePackTitle: 'Mach Berlin zu deiner Sammlung.',
       homePackLead: `Entdecke neue Lieblingsgerichte und baue deine persönliche Must Eats Sammlung auf. Zum Start erwarten dich ${STARTER_PACK_CARDS} weitere Must Eats.`,
       packLead:
-        `Melde dich an und erhalte einmalig bis zu ${STARTER_PACK_CARDS} kostenlose Must-Eat-Karten. Bereits offene Karten zählen nicht mit.`,
+        `Melde dich an und hol dir ${STARTER_PACK_CARDS}\u00a0Must Eats.`,
       cardTitle: 'Entdecke dein Starter Pack.',
       cardLead:
-        'Wenn du dein Starter Pack zum ersten Mal erhältst und diese Karte noch verdeckt ist, deckst du sie dabei kostenlos auf.',
+        'Wenn du dein Starter Pack zum ersten Mal erhältst und diese Karte noch verdeckt ist, deckt dein Pack sie gleich mit auf.',
       heartTitle: 'Für später merken.',
       heartLead: 'Melde dich an, um diesen Spot in deinen Favoriten zu speichern.',
       accountNote:
-        'Neu hier? Deine Anmeldung legt dein Konto an. Schon dabei? Du kommst zurück in dein Konto. Ohne Passwort.',
+        'Neu hier? Deine Anmeldung legt dein Konto an. Schon dabei? Du kommst zurück in dein Konto.',
       emailLabel: 'E-Mail',
       emptyEmail: 'Bitte gib deine E-Mail ein.',
       invalidEmail: 'Das sieht noch nicht nach einer E-Mail aus.',

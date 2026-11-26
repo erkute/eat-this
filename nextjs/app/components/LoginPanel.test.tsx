@@ -51,9 +51,8 @@ describe('LoginPanel — Starter Pack mit Texten zum Anlass', () => {
   it('zeigt ohne Anlass das Starter Pack', () => {
     const { container } = panel();
     expect(title(container)).toBe('Dein Starter Pack.');
-    expect(container.textContent).toContain('einmalig bis zu 20 kostenlose Must-Eat-Karten');
-    expect(container.textContent).toContain('Bereits offene Karten zählen nicht mit.');
-    expect(container.textContent).toContain('Ohne Passwort.');
+    expect(container.textContent).toContain('Melde dich an und hol dir 20\u00a0Must Eats.');
+    expect(container.textContent).toContain('Du kommst zurück in dein Konto.');
   });
 
   /* Kein Spot-Name: im Startseiten-Teaser ist er Teil der Überraschung. */
@@ -80,7 +79,7 @@ describe('LoginPanel — Starter Pack mit Texten zum Anlass', () => {
     const { container } = panel();
     expect(title(container)).toBe('Für später merken.');
     expect(container.textContent).toContain('diesen Spot in deinen Favoriten zu speichern');
-    expect(container.textContent).toContain('Ohne Passwort.');
+    expect(container.textContent).toContain('Du kommst zurück in dein Konto.');
     expect(container.innerHTML).toContain('starter-pack-front.webp');
     expect(container.querySelectorAll('img')).toHaveLength(1);
     expect(container.innerHTML).not.toContain('cdn.sanity.io/images/p/d/a.jpg');
@@ -121,7 +120,7 @@ it('offers the automatic pack invitation with a working close button', () => {
   const { container, getByRole } = panel();
   expect(modal.prepare).not.toHaveBeenCalled();
   expect(title(container)).toBe('Dein Starter Pack.');
-  expect(container.textContent).toContain('einmalig bis zu 20 kostenlose Must-Eat-Karten');
+  expect(container.textContent).toContain('Melde dich an und hol dir 20\u00a0Must Eats.');
   fireEvent.click(getByRole('button', { name: 'Zurück' }));
   expect(onBack).toHaveBeenCalledOnce();
 });

@@ -6,6 +6,9 @@
 .status { position: relative; flex: 0 0 auto; height: calc(36 * var(--phone-unit, 1px)); padding: 0 7%; display: flex; align-items: center; justify-content: space-between; color: #111; font: 700 calc(9 * var(--phone-unit, 1px))/1 Arial, sans-serif; }
 .status i { position: absolute; top: calc(7 * var(--phone-unit, 1px)); left: 50%; transform: translateX(-50%); width: 29%; height: calc(19 * var(--phone-unit, 1px)); border-radius: calc(20 * var(--phone-unit, 1px)); background: #050505; }
 .status i::after { content: ''; position: absolute; right: calc(7 * var(--phone-unit, 1px)); top: calc(6 * var(--phone-unit, 1px)); width: calc(6 * var(--phone-unit, 1px)); height: calc(6 * var(--phone-unit, 1px)); border-radius: 50%; background: radial-gradient(circle at 40% 35%, #202c40, #080b11 65%); }
+/* Die Uhrzeit ist Teil der Grafik. Als CSS-Inhalt zählt sie nicht zum
+   sichtbaren Text des Links, der die Grafik umschließt (WCAG 2.5.3). */
+.clock::before { content: '9:41'; }
 .statusIcons { width: 19%; height: auto; }
 .homeBar { position: absolute; bottom: calc(6 * var(--phone-unit, 1px)); left: 34%; width: 32%; height: calc(3 * var(--phone-unit, 1px)); border-radius: calc(4 * var(--phone-unit, 1px)); background: #111; box-shadow: 0 0 calc(2 * var(--phone-unit, 1px)) #fff; }
 .phone:focus-visible { outline: calc(3 * var(--phone-unit, 1px)) solid var(--et-fg); outline-offset: calc(5 * var(--phone-unit, 1px)); }

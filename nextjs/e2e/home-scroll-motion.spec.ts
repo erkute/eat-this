@@ -43,7 +43,7 @@ test('card backs load lazily without priority on a narrow viewport', async ({ pa
   const requests: string[] = [];
   const hydrationErrors: string[] = [];
   page.on('request', (request) => {
-    if (request.url().includes('/pics/card-back.webp')) requests.push(request.url());
+    if (request.url().includes('card-back.webp')) requests.push(request.url());
   });
   page.on('pageerror', (error) => hydrationErrors.push(error.message));
   page.on('console', (message) => {

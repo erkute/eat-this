@@ -1,6 +1,6 @@
 import Image from '@/app/components/SiteImage';
 import { categoryArt } from '@/lib/categoryArt';
-import { formatPackPrice } from '@/lib/pack/packDetail';
+import PackPrice from '@/app/components/PackPrice';
 import { CATALOG } from '@/lib/stripe-catalog';
 import PackBuyButton from '@/app/[locale]/pack/[slug]/PackBuyButton';
 import { PaymentMarks, PAYMENT_MARK_NAMES } from './PaymentMarks';
@@ -107,11 +107,7 @@ export default function AllBerlinBoard({
         </div>)}
       </div>
       <div className={styles.actions}>
-        <p className={styles.paymentNote}>
-          <strong>{formatPackPrice(pack.amountCents)}</strong>
-          {' · '}
-          {locale === 'de' ? 'Einmalzahlung, kein Abo' : 'One-time payment, no subscription'}
-        </p>
+        <PackPrice amountCents={pack.amountCents} locale={locale} />
         <PackBuyButton
           className={styles.buyButton}
           packId={pack.packId}

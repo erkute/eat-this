@@ -1,0 +1,22 @@
+.price {
+  display: grid;
+  justify-items: inherit;
+  gap: 6px;
+  margin: 0 0 6px;
+}
+
+.amount {
+  color: var(--et-fg);
+  font-family: var(--et-font-display);
+  font-size: clamp(34px, 4vw, 48px);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.045em;
+  line-height: .95;
+}
+
+.note {
+  color: var(--et-muted);
+  font-size: 13px;
+  line-height: 1.3;
+}

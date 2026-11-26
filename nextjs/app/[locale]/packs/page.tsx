@@ -6,7 +6,7 @@ import { setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { CATALOG } from '@/lib/stripe-catalog';
 import { categoryArt } from '@/lib/categoryArt';
-import { formatPackPrice, packUrlSlug } from '@/lib/pack/packDetail';
+import { packUrlSlug } from '@/lib/pack/packDetail';
 import { getPackContents } from '@/lib/sanity.server';
 import { hreflangAlternates } from '@/lib/seo/metadata';
 import AllBerlinBoard from '@/app/components/AllBerlinBoard';
@@ -93,11 +93,9 @@ export default async function PacksOverviewPage({ params }: PageProps) {
                 const empty =
                   (pack.slug ? (packContents.byCategory[pack.slug]?.mustEats ?? 0) : 1) === 0;
 
-                const offer = empty ? t.soon : formatPackPrice(pack.amountCents);
-
                 return (
                   <li key={pack.packId}>
-                    <Link href={href} className={styles.tile} aria-label={`${pack.displayName} ${t.view.toLowerCase()} · ${offer}`}>
+                    <Link href={href} className={styles.tile} aria-label={empty ? `${pack.displayName} · ${t.soon}` : `${pack.displayName} ${t.view.toLowerCase()}`}>
                       <span className={styles.packLink} aria-hidden="true">
                         {art && (
                           <Image
@@ -115,12 +113,9 @@ export default async function PacksOverviewPage({ params }: PageProps) {
                         <p className={styles.spectrum}>{pack.spectrum[loc]}</p>
 
                         {empty ? (
-                          <span className={styles.soon}>{offer}</span>
+                          <span className={styles.soon}>{t.soon}</span>
                         ) : (
-                          <span className={styles.offer} aria-hidden="true">
-                            <span className={styles.price}>{offer}</span>
-                            <span className="et-btn et-btn-sm">{t.view}</span>
-                          </span>
+                          <span className={`et-btn et-btn-sm ${styles.view}`} aria-hidden="true">{t.view}</span>
                         )}
                       </div>
                     </Link>

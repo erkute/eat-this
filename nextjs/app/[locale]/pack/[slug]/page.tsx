@@ -8,7 +8,8 @@ import { getPackContents } from '@/lib/sanity.server';
 import { categoryArt } from '@/lib/categoryArt';
 import { hreflangAlternates } from '@/lib/seo/metadata';
 import { buildBrandedTitle } from '@/lib/seo/metadata-text';
-import { resolvePackByUrlSlug, formatPackPrice } from '@/lib/pack/packDetail';
+import { resolvePackByUrlSlug } from '@/lib/pack/packDetail';
+import PackPrice from '@/app/components/PackPrice';
 import PackBuyButton from './PackBuyButton';
 import AllBerlinBoard from '@/app/components/AllBerlinBoard';
 import { PaymentMarks, PAYMENT_MARK_NAMES } from '@/app/components/PaymentMarks';
@@ -128,11 +129,7 @@ export default async function PackDetailPage({ params }: PageProps) {
                 <p className={styles.soon}>{t.soon}</p>
               ) : (
                 <>
-                  <p className={styles.paymentNote}>
-                    <strong>{formatPackPrice(pack.amountCents)}</strong>
-                    {' · '}
-                    {loc === 'de' ? 'Einmalzahlung, kein Abo' : 'One-time payment, no subscription'}
-                  </p>
+                  <PackPrice amountCents={pack.amountCents} locale={loc} />
                   <PackBuyButton
                     packId={pack.packId}
                     packName={pack.displayName}

@@ -60,9 +60,15 @@
   .header { gap: 14px; }
   .header h1 { font-size: clamp(46px, 14vw, 68px); }
   .header p:not(.kicker) { font-size: 18px; }
-  .packs { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 28px; }
+  /* Zwei Spalten, damit die Packs groß genug bleiben; die letzte Kachel
+     einer ungeraden Zahl läuft quer über beide. */
+  .packs { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 28px; }
+  .packs li:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .packs li:last-child:nth-child(odd) a { aspect-ratio: 8 / 5; }
+  .packs li:nth-child(n) img { --tilt: -6deg; }
+  .packs li:nth-child(even) img { --tilt: 5deg; }
   .stage img { filter: drop-shadow(0 10px 12px rgb(0 0 0 / .3)); }
-  .label { font-size: clamp(14px, 4vw, 24px); }
+  .label { font-size: clamp(20px, 6vw, 28px); }
 }
 @media (prefers-reduced-motion: reduce) { .stage img { transition: none; } }
 
@@ -70,5 +76,7 @@
 
 .header h1 { font-size: 48px; }
 .packs { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 24px; }
+.packs li:last-child:nth-child(odd) { grid-column: auto; }
+.packs li:last-child:nth-child(odd) a { aspect-ratio: 4 / 5; }
 .label { font-size: 22px; }
 }

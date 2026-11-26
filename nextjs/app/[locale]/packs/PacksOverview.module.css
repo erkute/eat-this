@@ -156,17 +156,9 @@
   text-transform: none;
 }
 
-.offer {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px 12px;
+/* Der Preis steht erst auf der Pack-Seite. */
+.view {
   margin-top: 4px;
-}
-
-.price {
-  font-size: var(--et-type-button);
-  font-weight: 700;
 }
 
 @media (max-width: 980px) {

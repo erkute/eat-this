@@ -239,16 +239,23 @@ test('pack tiles navigate from their blank area and expose one keyboard target',
   await expect(page).toHaveURL(new RegExp(`${href}$`));
 });
 
-test('category packs use complete rows of three', async ({ page }) => {
+test('category packs: rows of three across, pairs upright with a full-width last tile', async ({ page }) => {
   await page.goto('/kategorie');
   const tiles = page.locator('[class*="CategoryGallery_packs_"] > li');
   await expect(tiles).toHaveCount(9);
-  for (const viewport of [{ width: 852, height: 393 }, { width: 393, height: 852 }]) {
-    await page.setViewportSize(viewport);
-    const rows = await tiles.evaluateAll(elements => elements.map(e => Math.round(e.getBoundingClientRect().top)));
-    expect(new Set(rows).size).toBe(3);
-    for (const y of new Set(rows)) expect(rows.filter(row => row === y)).toHaveLength(3);
-  }
+  const rowSizes = () => tiles.evaluateAll(elements => {
+    const tops = elements.map(e => Math.round(e.getBoundingClientRect().top));
+    return [...new Set(tops)].map(y => tops.filter(top => top === y).length);
+  });
+  await page.setViewportSize({ width: 852, height: 393 });
+  expect(await rowSizes()).toEqual([3, 3, 3]);
+  await page.setViewportSize({ width: 393, height: 852 });
+  expect(await rowSizes()).toEqual([2, 2, 2, 2, 1]);
+  const [list, last] = await Promise.all([
+    page.locator('[class*="CategoryGallery_packs_"]').boundingBox(),
+    tiles.last().boundingBox(),
+  ]);
+  expect(Math.round(last!.width)).toBe(Math.round(list!.width));
 });
 
 test('district hint stays above the landscape safe area, including a selected name', async ({ page }) => {

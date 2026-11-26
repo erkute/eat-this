@@ -46,6 +46,10 @@
     -webkit-background-clip: text;
     color: transparent;
   }
+  /* Startseite vor dem Laden: einfarbige Schrift (data-paper-later, globals.css). */
+  :global(html[data-vintage][data-paper-later]) :is(.title, .copy p) {
+    background-image: none;
+  }
 }
 @media (forced-colors: active) {
   :global(html[data-vintage]) :is(.title, .copy p) { background: none; color: CanvasText; }

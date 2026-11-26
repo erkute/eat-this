@@ -108,10 +108,10 @@ describe('MustEatTeaserSection', () => {
 
   it('shows the one-time Starter offer in the Spot HTML in both languages', () => {
     expect(render(mustEats('me-1'))).toContain(
-      'einmalig bis zu 20 kostenlose Must-Eat-Karten'
+      'ein Starter Pack mit 20 Must Eats'
     );
     const en = render(mustEats('me-1'), 'en');
-    expect(en).toContain('up to 20 free Must Eat cards, once per account');
+    expect(en).toContain('a Starter Pack of 20 Must Eats');
     expect(en).toContain('href="/en/map?me=me-1"');
   });
 

@@ -9,7 +9,7 @@ const FAQS: { de: LandingFaqEntry[]; en: LandingFaqEntry[] } = {
   de: [
     {
       q: 'Was ist ein Must Eat?',
-      a: 'Das eine Gericht, das du an einer Adresse unbedingt bestellen solltest. Ob Döner, Pizza oder ein verdammt gutes Croissant. Jedes Must Eat verrät dir, wo du hingehen und was du dort bestellen solltest.',
+      a: 'Unsere Empfehlung für einen Spot: das Gericht, das du dort bestellen solltest. Jedes Must Eat ist eine Karte, die du sammeln kannst.',
     },
     {
       q: 'Wer entscheidet, was ein Must Eat ist?',
@@ -17,11 +17,7 @@ const FAQS: { de: LandingFaqEntry[]; en: LandingFaqEntry[] } = {
     },
     {
       q: 'Warum sind die meisten Karten verdeckt?',
-      a: `Weil Entdecken mehr Spaß macht als Scrollen. Von aktuell {mustEatCount} Must Eats liegen 10 für alle offen. Mit deinem kostenlosen Starter Pack bekommst du einmalig bis zu ${STARTER_PACK_CARDS} weitere. Die restlichen Karten kannst du vor Ort sammeln oder mit Booster Packs aufdecken. Auch bei verdeckten Karten siehst du immer den Spot und den Bezirk.`,
-    },
-    {
-      q: 'Muss ich da wirklich hin?',
-      a: 'Zum kostenlosen Sammeln weiterer Karten schon. Eat This soll dich raus in die Stadt und an den Tisch bringen. Sobald du am Spot bist, kannst du die Karte aufdecken. Wer lieber vorher wissen möchte, was ihn erwartet, kann sich ein Booster Pack holen.',
+      a: `Weil Entdecken mehr Spaß macht als Scrollen. Von aktuell {mustEatCount} Must Eats liegen 10 für alle offen. Mit deinem Starter Pack bekommst du ${STARTER_PACK_CARDS} weitere. Die restlichen Karten kannst du vor Ort sammeln oder mit Booster Packs aufdecken. Auch bei verdeckten Karten siehst du immer den Spot und den Bezirk.`,
     },
     {
       q: 'Muss ich das Gericht bestellen, um die Karte aufzudecken?',
@@ -29,11 +25,11 @@ const FAQS: { de: LandingFaqEntry[]; en: LandingFaqEntry[] } = {
     },
     {
       q: 'Was kostet der Spaß?',
-      a: 'Die Map, alle Spots, dein Konto und das Sammeln vor Ort sind kostenlos. Wenn du Karten direkt aufdecken möchtest, gibt es Booster Packs. Ein Kategorie-Pack kostet 2,99 €, All Berlin kostet 9,99 € und enthält auch alle zukünftigen Must Eats. Einmal zahlen, kein Abo.',
+      a: 'Zahlen musst du nur, wenn du Karten direkt aufdecken möchtest. Dafür gibt es Booster Packs: Ein Kategorie-Pack kostet 2,99 €, All Berlin kostet 9,99 € und enthält auch alle zukünftigen Must Eats. Einmal zahlen, kein Abo.',
     },
     {
       q: 'Muss ich mich anmelden?',
-      a: 'Zum Entdecken nicht. Zum Sammeln schon. Dein kostenloses Konto speichert deine Karten geräteübergreifend. Melde dich einfach per E-Mail-Link oder mit deinem Google-Konto an. Ein Passwort brauchst du nicht.',
+      a: 'Zum Entdecken nicht. Zum Sammeln schon. Dein Konto speichert deine Karten geräteübergreifend. Melde dich einfach per E-Mail-Link oder mit deinem Google-Konto an. Ein Passwort brauchst du nicht.',
     },
     {
       q: 'Was bringt’s, Freunde einzuladen?',
@@ -55,7 +51,7 @@ const FAQS: { de: LandingFaqEntry[]; en: LandingFaqEntry[] } = {
   en: [
     {
       q: 'What’s a Must Eat?',
-      a: 'The one dish you really should order at a place. Whether it’s döner, pizza or a damn good croissant. Every Must Eat tells you where to go and what to order when you get there.',
+      a: 'Our pick for a spot: the dish you should order there. Every Must Eat is a card you can collect.',
     },
     {
       q: 'Who decides what a Must Eat is?',
@@ -63,11 +59,7 @@ const FAQS: { de: LandingFaqEntry[]; en: LandingFaqEntry[] } = {
     },
     {
       q: 'Why are most cards face down?',
-      a: `Because discovering beats scrolling. Of the {mustEatCount} Must Eats right now, 10 are open to everyone. Your free Starter Pack gives you up to ${STARTER_PACK_CARDS} more, once per account. The rest you can collect when you visit or reveal with Booster Packs. Even face down, a card always shows you the spot and the district.`,
-    },
-    {
-      q: 'Do I really have to go there?',
-      a: 'To collect more cards for free, yes. Eat This is meant to get you out into the city and to the table. Once you’re at the spot, you can reveal the card. If you’d rather know what’s waiting for you beforehand, grab a Booster Pack.',
+      a: `Because discovering beats scrolling. Of the {mustEatCount} Must Eats right now, 10 are open to everyone. Your Starter Pack gives you ${STARTER_PACK_CARDS} more. The rest you can collect when you visit or reveal with Booster Packs. Even face down, a card always shows you the spot and the district.`,
     },
     {
       q: 'Do I have to order the dish to reveal the card?',
@@ -75,11 +67,11 @@ const FAQS: { de: LandingFaqEntry[]; en: LandingFaqEntry[] } = {
     },
     {
       q: 'What’s the catch?',
-      a: 'The map, every spot, your account and collecting on the spot are free. If you want to reveal cards right away, there are Booster Packs. A category pack is €2.99, All Berlin is €9.99 and includes every future Must Eat too. Pay once, no subscription.',
+      a: 'You only pay if you want to reveal cards right away. That’s what Booster Packs are for: a category pack is €2.99, All Berlin is €9.99 and includes every future Must Eat too. Pay once, no subscription.',
     },
     {
       q: 'Do I have to sign up?',
-      a: 'Not to explore. To collect, yes. Your free account keeps your cards across devices. Just sign in with an email link or your Google account. No password needed.',
+      a: 'Not to explore. To collect, yes. Your account keeps your cards across devices. Just sign in with an email link or your Google account. No password needed.',
     },
     {
       q: 'What do I get for inviting friends?',

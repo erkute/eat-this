@@ -688,6 +688,8 @@ html[data-theme='dark'] .filterReturn {
   background-blend-mode: multiply;
   border-radius: 0;
 }
+/* Kategorien vor dem Laden: nur die Grundfarbe (data-paper-later, globals.css). */
+:global(html[data-paper-later]) .guideInterlude { background-image: none; }
 .guideInterlude .guides { gap: 28px; margin-top: 0; }
 .guideInterlude .guide { grid-template-columns: 110px minmax(0, 1fr); grid-template-rows: auto; gap: 18px; align-items: center; }
 .guideInterlude .guideCover { width: 110px; }

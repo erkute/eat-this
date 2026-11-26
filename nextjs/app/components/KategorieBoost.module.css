@@ -117,6 +117,11 @@
 .cta {
   width: 100%;
 }
+/* Vor dem Laden: Packfarbe ohne Butterbrotpapier, Knopf ohne Gebrauchsspuren
+   (data-paper-later, globals.css). */
+:global(html[data-paper-later]) :is(.boost, .cta) {
+  background-image: none;
+}
 
 /* Breit: Text und Knopf bleiben eine lesbare Spalte unter dem Pack. */
 @media (min-width: 768px) {

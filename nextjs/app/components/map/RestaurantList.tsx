@@ -174,7 +174,10 @@ const Item = memo(
           lazy-load off-screen card photos (backgrounds always fetch eagerly). */}
         <div className={styles.rcardImg}>
           {photos.length > 0 && (
-            <div ref={railRef} className={styles.rcardPhotos} {...handlers}>
+            /* Der Streifen ist Schmuck: Fingerwischen blättert, alle Fotos
+               stehen auch im Detail, das die Karte öffnet. Ohne `aria-hidden`
+               wäre er ein Scroll-Bereich ohne Tastaturzugang. */
+            <div ref={railRef} className={styles.rcardPhotos} aria-hidden="true" {...handlers}>
               {photos.map((img, index) => (
                 /* Far away the slots stay, empty: the rail keeps its width
                    and the photo the user had swiped to. */

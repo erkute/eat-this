@@ -6,9 +6,8 @@ import { REFERRER_COOKIE, COOKIE_MAX_AGE, UID_SHAPE } from '@/lib/referral/const
 import {
   GONE_SLUGS,
   NEWS_REDIRECTS,
-  EARLY_RESTAURANT_REDIRECTS,
+  staticRestaurantRedirect,
 } from '@/lib/seo/legacyRedirects';
-import { DELISTED_RESTAURANT_REDIRECTS } from '@/lib/seo/delistedSpots';
 
 const intlMiddleware = createMiddleware(routing);
 const INTERNAL_LOCALE_HEADER = 'x-eat-this-internal-locale';
@@ -208,19 +207,14 @@ export default async function middleware(req: NextRequest) {
       return finalizeResponse(goneSpotResponse());
     }
 
-    if (gone && Object.hasOwn(EARLY_RESTAURANT_REDIRECTS, gone[1])) {
+    // Old slugs, and spots taken off the map, which keep their search traffic
+    // on the nearest hub. Here and not in the route: see
+    // lib/seo/delistedSpots.ts.
+    const spotTarget = gone && staticRestaurantRedirect(gone[1]);
+    if (spotTarget) {
       const url = req.nextUrl.clone();
       url.search = '';
-      url.pathname = `${prefix}/restaurant/${EARLY_RESTAURANT_REDIRECTS[gone[1]]}`;
-      return finalizeResponse(NextResponse.redirect(url, 308));
-    }
-
-    // Spots taken off the map keep their search traffic on the nearest hub.
-    // Here and not in the route: see lib/seo/delistedSpots.ts.
-    if (gone && Object.hasOwn(DELISTED_RESTAURANT_REDIRECTS, gone[1])) {
-      const url = req.nextUrl.clone();
-      url.search = '';
-      url.pathname = `${prefix}${DELISTED_RESTAURANT_REDIRECTS[gone[1]]}`;
+      url.pathname = `${prefix}${spotTarget}`;
       return finalizeResponse(NextResponse.redirect(url, 308));
     }
 

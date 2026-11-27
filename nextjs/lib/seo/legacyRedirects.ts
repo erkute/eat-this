@@ -1,4 +1,5 @@
 import { oldStyleSlug } from './legacySlug';
+import { DELISTED_RESTAURANT_REDIRECTS } from './delistedSpots';
 
 // Redirects for spot URLs from before the re-slug of the catalogue, which
 // Google still has in its index. Three mechanisms:
@@ -21,8 +22,8 @@ export interface LegacyRestaurant {
 // `location` twice on EN (seen on Next 15.5), and App Hosting joins them to
 // `/en/restaurant/x,/en/restaurant/x` — a 404. The middleware sends one.
 // Because it answers before Sanity is asked, a key must never be a live slug
-// again; a target may be a spot taken off the map, whose own redirect
-// (delistedSpots.ts) then takes over.
+// again. A target may be a spot taken off the map: staticRestaurantRedirect()
+// then sends the old slug straight to that spot's hub, in one hop.
 export const EARLY_RESTAURANT_REDIRECTS: Readonly<Record<string, string>> = {
   // single → branch splits (flagship branch)
   'five-elephant': 'five-elephant-kreuzberg',
@@ -75,6 +76,22 @@ export const NEWS_REDIRECTS: Record<string, string> = {
   'michelin-berlin': '/news',
   'the-renaissance-of-the-food-court-why-you-need-to-visit-kalle-halle': '/news',
 };
+
+/**
+ * Locale-less path middleware.ts redirects an old or delisted spot slug to,
+ * or null. Always the final address: Google follows a chain of redirects
+ * reluctantly and reports the old URL meanwhile as not indexed.
+ */
+export function staticRestaurantRedirect(slug: string): string | null {
+  if (Object.hasOwn(EARLY_RESTAURANT_REDIRECTS, slug)) {
+    const target = EARLY_RESTAURANT_REDIRECTS[slug];
+    return Object.hasOwn(DELISTED_RESTAURANT_REDIRECTS, target)
+      ? DELISTED_RESTAURANT_REDIRECTS[target]
+      : `/restaurant/${target}`;
+  }
+  if (Object.hasOwn(DELISTED_RESTAURANT_REDIRECTS, slug)) return DELISTED_RESTAURANT_REDIRECTS[slug];
+  return null;
+}
 
 function pickPrimary(branches: LegacyRestaurant[]): string {
   const mitte = branches.find((b) => b.bezirk === 'mitte');

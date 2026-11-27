@@ -73,3 +73,17 @@ Bestehende Komponenten und die `--et-*`-Tokens in `globals.css` sind die Referen
 ## Inhalte
 
 Sanity ist die Inhaltsquelle. Entwürfe anlegen ja, veröffentlichen nur, wenn die Projektleitung „setz das live“ sagt; danach DE und EN abrufen, bevor „live“ gemeldet wird. Fakten müssen belegt sein. Eine Stilanleitung für Texte gibt es derzeit bewusst nicht. Must-Eat-Karten: `docs/must-eat-karten.md`.
+
+## Agent skills
+
+### Issue tracker
+
+Tickets liegen im privaten Repo `erkute/eat-this-tickets`, nie im öffentlichen Code-Repo. Siehe `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Die fünf Standard-Rollen (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`), dazu Themen und Dringlichkeit. Siehe `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: `GLOSSARY.md` und `docs/adr/` im Repo-Stamm, angelegt erst bei Bedarf. Siehe `docs/agents/domain.md`.

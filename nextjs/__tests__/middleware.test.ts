@@ -201,10 +201,24 @@ describe('middleware: legacy 404 cleanup (post-rebuild re-slug)', () => {
   it('confirmed restaurant rename returns one early Location in either locale', async () => {
     const middleware = await mw()
     for (const prefix of ['', '/en']) {
-      const res = await middleware(makeReq(`${prefix}/restaurant/der-weinlobbyist-restaurant-weinbar?utm_source=test`))
+      const res = await middleware(makeReq(`${prefix}/restaurant/knoedelwirtschaft-nord?utm_source=test`))
       expect(res.status).toBe(308)
-      expect(res.headers.get('location')).toBe(`https://staging.example.com${prefix}/restaurant/der-weinlobbyist`)
+      expect(res.headers.get('location')).toBe(`https://staging.example.com${prefix}/restaurant/knoedelwirtschaft-sued`)
       expect(res.headers.get('x-middleware-rewrite')).toBeNull()
+    }
+  })
+
+  it('renamed spot that later left the map → one 308 straight to its hub, in either locale', async () => {
+    const middleware = await mw()
+    for (const prefix of ['', '/en']) {
+      for (const [old, hub] of [
+        ['der-weinlobbyist-restaurant-weinbar', '/bezirk/schoeneberg'],
+        ['ch-let-suisse', '/kategorie/dinner'],
+      ]) {
+        const res = await middleware(makeReq(`${prefix}/restaurant/${old}`))
+        expect(res.status).toBe(308)
+        expect(res.headers.get('location')).toBe(`https://staging.example.com${prefix}${hub}`)
+      }
     }
   })
 

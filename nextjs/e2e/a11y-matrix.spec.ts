@@ -129,7 +129,7 @@ const STATES: State[] = [
         .click();
       await expect(
         page.getByRole('heading', {
-          name: locale === 'en' ? 'Discover your Starter Pack.' : 'Entdecke dein Starter Pack.',
+          name: locale === 'en' ? 'Reveal this card.' : 'Deck diese Karte auf.',
           exact: true,
         })
       ).toBeVisible();

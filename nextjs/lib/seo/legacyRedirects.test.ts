@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   resolveLegacyRestaurantSlug,
+  staticRestaurantRedirect,
   EARLY_RESTAURANT_REDIRECTS,
   GONE_SLUGS,
   NEWS_REDIRECTS,
@@ -109,5 +110,29 @@ describe('EARLY_RESTAURANT_REDIRECTS', () => {
     for (const [slug, target] of Object.entries(EARLY_RESTAURANT_REDIRECTS)) {
       expect(Object.hasOwn(EARLY_RESTAURANT_REDIRECTS, target), `${slug} → ${target}`).toBe(false);
     }
+  });
+});
+
+describe('staticRestaurantRedirect', () => {
+  it('sends an old slug to its current spot', () => {
+    expect(staticRestaurantRedirect('kur-me')).toBe('/restaurant/kureme');
+  });
+
+  it('sends a delisted spot to its hub', () => {
+    expect(staticRestaurantRedirect('piazza-bra')).toBe(DELISTED_RESTAURANT_REDIRECTS['piazza-bra']);
+  });
+
+  it('answers every old slug with the final address, never another redirect or a 410', () => {
+    for (const slug of Object.keys(EARLY_RESTAURANT_REDIRECTS)) {
+      const target = staticRestaurantRedirect(slug)!;
+      const spot = target.match(/^\/restaurant\/(.+)$/)?.[1];
+      if (!spot) continue;
+      expect(staticRestaurantRedirect(spot), `${slug} → ${target}`).toBeNull();
+      expect(GONE_SLUGS.has(spot), `${slug} → ${target}`).toBe(false);
+    }
+  });
+
+  it('leaves live and unknown slugs alone', () => {
+    expect(staticRestaurantRedirect('borchardt')).toBeNull();
   });
 });

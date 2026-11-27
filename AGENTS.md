@@ -76,6 +76,16 @@ Sanity ist die Inhaltsquelle. Entwürfe anlegen ja, veröffentlichen nur, wenn d
 
 ## Agent skills
 
+### Wann welcher Skill läuft
+
+Die Projektleitung tippt keine Skill-Befehle; du startest die Schritte selbst, je nach Größe der Aufgabe. `to-tickets`, `to-spec` und `triage` sind gegen Selbstaufruf gesperrt: lies dann ihre `SKILL.md` im Paket `mattpocock-skills` (unter `~/.claude/plugins/cache/`) und befolge sie, als wäre der Befehl getippt.
+
+- **Kleinigkeit** (ein Text, ein Fehler, eine Farbe, ein Einzeiler): direkt erledigen, ohne Interview und ohne Ticket.
+- **Neue Funktion oder größerer Umbau:** zuerst `grilling`. Steht die bestätigte Zusammenfassung, lege per `to-tickets` die Tickets an (ein einzelnes großes Vorhaben per `to-spec`) und arbeite sie der Reihe nach ab.
+- **Idee für später** („irgendwann mal …“): sofort ein Ticket mit `needs-triage`, die laufende Arbeit geht weiter.
+- **Fehler, der nicht jetzt behoben wird:** ein Ticket mit `bug`.
+- **Sessionbeginn mit Arbeit am Projekt:** einmal `gh issue list -R erkute/eat-this-tickets --search "no:label" --state open`; neue Tickets per `triage` einsortieren und in einer Zeile melden. Ohne Treffer kein Wort dazu.
+
 ### Issue tracker
 
 Tickets liegen im privaten Repo `erkute/eat-this-tickets`, nie im öffentlichen Code-Repo. Siehe `docs/agents/issue-tracker.md`.

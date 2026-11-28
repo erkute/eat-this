@@ -64,6 +64,17 @@ for (const [width, height, hour] of [[1440, 900, 10], [1440, 900, 12], [1440, 90
   });
 }
 
+test('Remy uses the portrait space on iPhone 16 with the browser toolbar visible', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-10-24T12:00:00Z'));
+  await page.setViewportSize({ width: 393, height: 700 });
+  await openRemy(page);
+  await expectSuggestionsToFit(page, 3);
+  await expectPortraitAtComposer(page);
+  const portrait = page.locator('[data-buddy-avatar="intro"]');
+  await expect.poll(() => portrait.evaluate(node => node.parentElement!.getBoundingClientRect().height))
+    .toBeGreaterThanOrEqual(235);
+});
+
 test('an open greeting refits on height, width and orientation changes', async ({ page }) => {
   await page.clock.setFixedTime(new Date('2026-10-24T06:00:00Z'));
   await page.setViewportSize({ width: 390, height: 844 });

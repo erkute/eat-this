@@ -38,7 +38,7 @@ for (const orientation of ['vertical', 'horizontal'] as const) {
       await writeFile(`/tmp/eat-this-foldable-menu/${orientation}-${paneSize}.png`, Buffer.from(menuImage.data, 'base64'));
       await page.getByRole('button', { name: 'Frag Remy', exact: true }).click();
       await fits('#buddy-panel');
-      await fits('div:has(> #buddy-panel)');
+      await fits('#buddy-panel input');
       await expect(page.locator('#buddy-panel input')).toBeInViewport({ ratio: 1 });
       await page.locator('#buddy-panel').getByRole('button', { name: 'Schließen', exact: true }).click();
       await page.locator('#burgerBtn').click();

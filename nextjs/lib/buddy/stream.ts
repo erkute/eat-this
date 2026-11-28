@@ -15,8 +15,8 @@ export function sanitizeLinks(text: string, allowedSlugs: Set<string>): string {
   );
 }
 
-// Remy ends a spot answer with `[[chips: a | b | c]]` — short tappable
-// follow-ups. Pull them out (and strip the marker from the visible text). An
+// Remy ends every answer with `[[chips: a | b | c]]` — short replies the
+// person can tap to keep the conversation going. Pull them out (and strip the marker from the visible text). An
 // incomplete marker mid-stream simply isn't matched yet, so nothing flashes.
 const CHIPS_MARKER = /\[\[chips:([^\]]*)\]\]/;
 

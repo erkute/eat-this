@@ -89,14 +89,11 @@ describe('BuddyWidget compose row', () => {
     expect(stop).toHaveBeenCalledTimes(1);
   });
 
-  /* Der Faden überlebt den Seitenwechsel (lib/buddy/thread.ts), also braucht es
-     einen Weg, ihn beiseitezulegen. Auf dem leeren Chat wäre der Knopf nur
-     Möblierung. */
-  it('offers a reset only once something has been said', () => {
+  /* Der kleine Remy oben links fängt neu an; auf dem leeren Chat steht er
+     nicht dort, also gibt es dann auch nichts zurückzusetzen. */
+  it('restarts the conversation from the small Remy in the header', () => {
     renderOpenWidget();
-    expect(
-      document.querySelector('#buddy-panel button[aria-label="Gespräch neu anfangen"]')
-    ).toBeNull();
+    expect(document.querySelector('#buddy-panel button[aria-label="Neues Gespräch mit Remy"]')).toBeNull();
 
     cleanup();
     chat.messages = [
@@ -105,10 +102,9 @@ describe('BuddyWidget compose row', () => {
     ];
     renderOpenWidget();
     const button = document.querySelector<HTMLButtonElement>(
-      '#buddy-panel button[aria-label="Gespräch neu anfangen"]'
+      '#buddy-panel button[aria-label="Neues Gespräch mit Remy"]'
     );
-    expect(button).not.toBeNull();
-    expect(button!.closest('form')).not.toBeNull();
+    expect(button?.querySelector('[data-buddy-avatar="header"]')).not.toBeNull();
     fireEvent.click(button!);
     expect(reset).toHaveBeenCalledTimes(1);
   });

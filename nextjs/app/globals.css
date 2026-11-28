@@ -707,11 +707,8 @@ html[data-auth='1'] [data-guest-only] {
 @media (max-width: 480px) {
   html[data-buddy-open],
   html[data-buddy-open] body {
-    background: #c0c0c0;
+    background: var(--et-red);
   }
-
-  html[data-theme='dark'][data-buddy-open],
-  html[data-theme='dark'][data-buddy-open] body { background: #383838; }
 
   html[data-buddy-open] body {
     visibility: hidden;

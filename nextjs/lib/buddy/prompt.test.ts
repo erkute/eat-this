@@ -22,13 +22,13 @@ describe('buildSystemPrompt', () => {
     expect(p).toMatch(/natürlich/i);
   });
 
-  it('puts the card first and keeps the prose short — the chat window shows ~540px', () => {
-    // Karte vor Absatz, kurze Absätze: sonst kommt die erste Karte spät, und
-    // lange Absätze machen eine Antwort mehrere Fenster lang.
+  it('puts the sentence above its card and keeps the prose short — the chat window shows ~540px', () => {
+    // Satz, dann seine Karte: so ist klar, was wozu gehört. Kurze Absätze,
+    // sonst kommt die erste Karte spät und eine Antwort wird mehrere Fenster lang.
     const p = buildSystemPrompt('de');
-    expect(p).toMatch(/Marker `\[\[spot:<slug>\]\]` VOR jeden Mini-Absatz/);
-    // Das Beispiel zeigt die Reihenfolge: Marker, dann Text.
-    expect(p.indexOf('[[spot:zola]]')).toBeLessThan(p.indexOf('**ZOLA**'));
+    expect(p).toMatch(/Marker `\[\[spot:<slug>\]\]` NACH jeden Mini-Absatz/);
+    // Das Beispiel zeigt die Reihenfolge: Text, dann Marker.
+    expect(p.indexOf('**ZOLA**')).toBeLessThan(p.indexOf('[[spot:zola]]'));
     expect(p).toMatch(/160 Zeichen/);
     expect(p).toMatch(/150 Zeichen/);
   });

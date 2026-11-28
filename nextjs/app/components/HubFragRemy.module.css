@@ -6,7 +6,7 @@
 /* Der Name ist das Erste, was man sieht. */
 .name { font-size: clamp(88px, 13vw, 184px); line-height: .9; letter-spacing: -.055em; }
 .intro { max-width: 30ch; margin: 0 0 24px; font-size: clamp(20px, 1.8vw, 26px); font-weight: 700; line-height: 1.25; text-wrap: pretty; }
-.prompt { margin: 0 0 14px; font-size: var(--et-type-caption); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.prompt { margin: 0 0 14px; font-size: 18px; font-weight: 700; line-height: 1.3; }
 .questions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
 /* Die Fragen sind Pillen auf dem Rot, damit sie sich vom weißen, eckigen
    Eingabefeld darunter abheben und als Knöpfe erkennbar sind. Die Fläche ist

@@ -62,7 +62,6 @@ const PIZZA_PACK: PackTeaser = {
   slug: 'pizza',
   name: 'Pizza',
   spectrum: 'Holzofen. Pinsa. NY-Slice.',
-  description: 'Berlins Pizza-Spots auf deiner Map.',
   art: '/pics/booster/booster_pizza.webp?v=2',
 };
 
@@ -89,14 +88,12 @@ describe('BuddyWidget pack teaser', () => {
     const card = packCards()[0] as HTMLAnchorElement;
     expect(card).toBeTruthy();
     expect(card.getAttribute('href')).toBe('/pack/pizza');
-    // Hierarchie wie eine Kachel auf /packs: Kicker, dann der Name als
-    // Überschrift, dann die Spectrum-Zeile.
-    expect(card.textContent).toContain('Booster Pack');
+    // Wie eine Kachel auf /packs: der Name, die Spectrum-Zeile, „Ansehen".
     expect(card.textContent).toContain('Pizza');
     expect(card.textContent).toContain('Holzofen. Pinsa. NY-Slice.');
-    expect(card.textContent).toContain('Berlins Pizza-Spots auf deiner Map.');
-    // Ein Ausgang pro Kachel: die Fläche ist der Link, kein „Ansehen" darin.
-    expect(card.textContent).not.toContain('Ansehen');
+    // „Ansehen" ist kein zweiter Ausgang: die Kachel ist der Link.
+    expect(card.querySelectorAll('a, button')).toHaveLength(0);
+    expect(card.textContent).toContain('Ansehen');
     expect(card.querySelector('img')?.getAttribute('src')).toBe('/pics/booster/booster_pizza.webp?v=2');
     // the chat teaser never names a price
     expect(card.textContent).not.toMatch(/€|\d,\d{2}/);

@@ -182,7 +182,6 @@ export function buildPackTeaser(pack: PackDef, locale: Locale): PackTeaser {
     slug: pack.slug ?? '',
     name: pack.displayName,
     spectrum: pack.spectrum[locale],
-    description: pack.description[locale],
     art: pack.slug ? categoryArt(pack.slug) : null,
   };
 }

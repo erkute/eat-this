@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import { loadThread, saveThread, clearThread, THREAD_KEY, MAX_STORED_MESSAGES } from './thread';
+import { loadThread, saveThread, THREAD_KEY, MAX_STORED_MESSAGES } from './thread';
 import type { StoredMessage } from './thread';
 
 const msg = (i: number): StoredMessage => ({ role: 'user', content: `Frage ${i}` });
@@ -56,7 +56,6 @@ describe('buddy thread storage', () => {
     saveThread([msg(1)]);
     saveThread([]);
     expect(window.sessionStorage.getItem(THREAD_KEY)).toBeNull();
-    clearThread();
     expect(loadThread()).toEqual([]);
   });
 

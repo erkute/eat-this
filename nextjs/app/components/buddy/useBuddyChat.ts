@@ -19,7 +19,7 @@ import {
   prefersReducedMotion,
   FRAME_MS,
 } from '@/lib/buddy/reveal';
-import { loadThread, saveThread, clearThread } from '@/lib/buddy/thread';
+import { loadThread, saveThread } from '@/lib/buddy/thread';
 import { auth } from '@/lib/firebase/config';
 
 export function parseNdjsonLines(buffer: string, onEvent: (e: BuddyStreamEvent) => void): string {
@@ -112,13 +112,13 @@ export function useBuddyChat() {
     saveThread(messages);
   }, [messages, isStreaming]);
 
-  /** Neu anfangen — Faden im Speicher und auf dem Schirm weg. */
+  /** Neu anfangen: Antwort abbrechen und den gesicherten Faden sofort leeren. */
   const reset = useCallback(() => {
     abortRef.current?.abort();
     abortRef.current = null;
     allowedSlugs.current = new Set();
-    clearThread();
     setMessages([]);
+    saveThread([]);
   }, []);
 
   // Laufender Aufdeck-Takt (siehe lib/buddy/reveal.ts). Beim Abräumen des
@@ -143,8 +143,10 @@ export function useBuddyChat() {
 
       const updateAssistant = (mut: (m: BuddyDisplayMessage) => void) =>
         setMessages((prev) => {
+          const current = prev.at(-1);
+          if (current?.role !== 'assistant') return prev;
           const next = [...prev];
-          const last = { ...next[next.length - 1] };
+          const last = { ...current };
           mut(last);
           next[next.length - 1] = last;
           return next;

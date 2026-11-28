@@ -139,8 +139,9 @@ test('home Remy keeps the questions and input together in landscape', async ({ p
   await page.goto('/');
   const remy = page.locator('[data-hub-fragremy]');
   await show(remy);
-  await remy.locator('input').scrollIntoViewIfNeeded();
-  await expect(remy.locator('input')).toBeInViewport({ ratio: 1 });
+  const input = remy.locator('input');
+  await input.evaluate(el => el.scrollIntoView({ block: 'center', behavior: 'instant' }));
+  await expect(input).toBeInViewport({ ratio: 1 });
   const form = (await remy.locator('form').boundingBox())!;
   const face = (await remy.locator('img[src*="buddy.webp"]').boundingBox())!;
   expect(face.x).toBeGreaterThanOrEqual(form.x + form.width);

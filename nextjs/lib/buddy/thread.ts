@@ -61,12 +61,3 @@ export function saveThread(messages: StoredMessage[]): void {
     // Voll oder gesperrt: dann eben ohne Gedächtnis, aber nie mit Absturz.
   }
 }
-
-export function clearThread(): void {
-  if (typeof window === 'undefined') return;
-  try {
-    window.sessionStorage.removeItem(THREAD_KEY);
-  } catch {
-    /* s.o. */
-  }
-}

@@ -31,8 +31,6 @@ export interface PackTeaser {
   slug: string;
   name: string;
   spectrum: string;
-  /** Editorial pack copy from the catalog (the Stripe checkout body). */
-  description: string;
   /** Booster-card artwork (public path), e.g. /pics/booster/booster_pizza.webp?v=2 */
   art: string | null;
 }

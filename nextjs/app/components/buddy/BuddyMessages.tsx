@@ -102,7 +102,7 @@ function TypingDots({ label }: { label: string }) {
   );
 }
 
-// Das gelbe 9px-Quadrat vor jedem Kicker — dasselbe Zeichen wie vor jedem
+// Das 9px-Quadrat vor jedem Kicker — dasselbe Zeichen wie vor jedem
 // Insider-Tipp.
 function Kicker({ children }: { children: React.ReactNode }) {
   return (
@@ -114,18 +114,17 @@ function Kicker({ children }: { children: React.ReactNode }) {
 }
 
 /**
- * Ein Spot als kleine Fakten-Tafel: Foto, Name, die harten Angaben, der
- * Offen-Zustand. Keine Beschreibung, solange Remy den Spot im Text vorstellt:
- * Er formuliert seinen Absatz aus genau diesem Feld, die Karte sagte darunter
- * also dasselbe ein zweites Mal. In der Sammelausgabe am Ende (`showDesc`) hat
- * er über die Spots nichts geschrieben; dort ist die Beschreibung die einzige
- * Auskunft.
+ * Ein Spot wie eine Karte in der Map-Liste: das Foto ist die Karte, Name und
+ * Bezirk · Küche · Preis stehen als Etiketten unten links darauf, der
+ * Offen-Zustand oben links. Keine Beschreibung, solange Remy den Spot im Text
+ * vorstellt: Er formuliert seinen Absatz aus genau diesem Feld. In der
+ * Sammelausgabe am Ende (`showDesc`) hat er über die Spots nichts geschrieben;
+ * dort steht die Beschreibung unter dem Foto.
  *
- * Die Fläche selbst ist der Weg zur Map, ohne „Auf der Map ansehen"-Balken:
- * kein Pfeil, kein Verb, kein Ring unter einer Fläche, die schon ein Knopf ist.
+ * Die Fläche selbst ist der Weg zur Map, ohne „Auf der Map ansehen"-Balken.
  */
 // Large landscape photos; wide chat windows show two cards side by side.
-export const SPOT_IMG_SIZES = '(max-width: 600px) calc(100vw - 76px), 390px';
+export const SPOT_IMG_SIZES = '(max-width: 600px) calc(100vw - 32px), 440px';
 export const spotSrcSet = (image: string) => sanitySrcSet(image, [400, 800, 1200], 82);
 
 function SpotCard({
@@ -145,9 +144,10 @@ function SpotCard({
   showDesc?: boolean;
 }) {
   const facts = [
-    spot.cuisineType ? localizedCuisine(spot.cuisineType, locale === 'en' ? 'en' : 'de') : null,
     spot.bezirk,
+    spot.cuisineType ? localizedCuisine(spot.cuisineType, locale === 'en' ? 'en' : 'de') : null,
     spot.priceRange,
+    spot.distanceLabel,
   ].filter(Boolean) as string[];
   const openLabel = locale === 'en' ? `Show ${spot.name} on the map` : `${spot.name} auf der Map`;
   /* Das Foto blendet ein, sobald es da ist, statt in die stehende Karte zu
@@ -166,9 +166,9 @@ function SpotCard({
         aria-label={openLabel}
         onClick={onSelect}
       >
-        {spot.image && (
-          <span className={styles.spotThumb}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
+        <span className={styles.spotThumb}>
+          {spot.image && (
+            // eslint-disable-next-line @next/next/no-img-element
             <img
               className={styles.spotImg}
               src={spot.image}
@@ -176,39 +176,37 @@ function SpotCard({
               sizes={SPOT_IMG_SIZES}
               alt=""
               width={640}
-              height={400}
+              height={480}
               decoding="async"
               ref={imgRef}
               data-ready={imgReady ? 'true' : 'false'}
               onLoad={() => setImgReady(true)}
               onError={() => setImgReady(true)}
             />
-          </span>
-        )}
-        <span className={styles.spotBody}>
-          <span className={styles.spotName}>{spot.name}</span>
-          {(facts.length > 0 || spot.distanceLabel) && (
-            <span className={styles.spotMeta}>
-              {facts.join(' · ')}
-              {/* Die Entfernung gelb: die einzige Angabe der Zeile, die vom
-                  Nutzer selbst abhängt. */}
-              {spot.distanceLabel && (
-                <span className={styles.spotDist}>
-                  {facts.length > 0 ? '· ' : ''}
-                  {spot.distanceLabel}
-                </span>
-              )}
-            </span>
           )}
+          {/* Geöffnet: schwarzes Band wie ein gesetzter Filter; geschlossen:
+              Rot. Getragen vom Wort, nicht von Grün gegen Rot. */}
           {spot.openLabel && (
-            <span className={styles.spotStatus} data-open={spot.openNow ? 'true' : 'false'}>
+            <span
+              className={`et-label ${spot.openNow ? 'et-label-open et-label-tape' : 'et-label-closed'} ${styles.spotStatus}`}
+            >
               {spot.openLabel}
             </span>
           )}
-          {showDesc && spot.shortDescription && (
-            <span className={styles.spotDesc}>{spot.shortDescription}</span>
-          )}
+          <span className={styles.spotLabels}>
+            <span className={styles.spotName}>
+              <span className="et-label-title et-label-tape">{spot.name}</span>
+            </span>
+            {facts.length > 0 && (
+              <span className={`et-label et-label-paper et-label-tape ${styles.spotMeta}`}>
+                {facts.join(' · ')}
+              </span>
+            )}
+          </span>
         </span>
+        {showDesc && spot.shortDescription && (
+          <span className={styles.spotDesc}>{spot.shortDescription}</span>
+        )}
       </Link>
       {onSave && (
         <button
@@ -245,11 +243,9 @@ function ArticleCard({
 }) {
   return (
     <Link className={styles.articleCard} href={`/news/${article.slug}`} prefetch onClick={onSelect}>
-      <span className={styles.spotBody}>
-        <Kicker>{locale === 'en' ? 'From the magazine' : 'Aus dem Magazin'}</Kicker>
-        <span className={styles.spotName}>{article.title}</span>
-        {article.excerpt && <span className={styles.spotDesc}>{article.excerpt}</span>}
-      </span>
+      <Kicker>{locale === 'en' ? 'From the magazine' : 'Aus dem Magazin'}</Kicker>
+      <span className={styles.articleTitle}>{article.title}</span>
+      {article.excerpt && <span className={styles.spotDesc}>{article.excerpt}</span>}
     </Link>
   );
 }
@@ -266,10 +262,11 @@ const PACK_INTRO: Record<Locale, (name: string) => string> = {
 // server picks at most one per request, see lib/buddy/packTeaser.ts). Remy's
 // streamed text never sells; this card does, with canonical catalog copy.
 //
-// Aufgebaut wie eine Kachel auf /packs: Die Karte steht frei mit dem
-// Sheet-Schatten, der Pack-Name ist die Überschrift, die Spectrum-Zeile die
-// Unterzeile. Kein „Ansehen" darunter: Die Kachel ist als Ganzes der Weg.
-function PackCard({ pack, onSelect }: { pack: PackTeaser; onSelect: () => void }) {
+// Wie eine Kachel auf /packs, nur ohne eigene Fläche auf dem Rot: das Pack
+// leicht gekippt links, rechts der Name groß, die Spectrum-Zeile und
+// „Ansehen". Die Kachel ist als Ganzes der Link; der Knopf zeigt nur, dass
+// sie einer ist.
+function PackCard({ pack, locale, onSelect }: { pack: PackTeaser; locale: Locale; onSelect: () => void }) {
   return (
     <Link
       className={styles.packCard}
@@ -289,11 +286,12 @@ function PackCard({ pack, onSelect }: { pack: PackTeaser; onSelect: () => void }
           loading="lazy"
         />
       )}
-      <span className={styles.spotBody}>
-        <Kicker>Booster Pack</Kicker>
-        <span className={`${styles.spotName} ${styles.packName}`}>{pack.name}</span>
+      <span className={styles.packInfo}>
+        <span className={styles.packName}>{pack.name}</span>
         <span className={styles.packSpectrum}>{pack.spectrum}</span>
-        <span className={styles.packDesc}>{pack.description}</span>
+        <span className={`et-btn et-btn-sm ${styles.packView}`} aria-hidden="true">
+          {locale === 'en' ? 'View' : 'Ansehen'}
+        </span>
       </span>
     </Link>
   );
@@ -388,7 +386,7 @@ export function BotMessage({
       {pack && !streaming && (
         <div className={styles.packBlock}>
           <p className={styles.packIntro}>{PACK_INTRO[locale](pack.name)}</p>
-          <PackCard pack={pack} onSelect={onSpotSelect} />
+          <PackCard pack={pack} locale={locale} onSelect={onSpotSelect} />
         </div>
       )}
       {showChips && (

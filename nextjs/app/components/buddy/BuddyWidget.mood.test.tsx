@@ -139,7 +139,7 @@ describe('BuddyWidget expression policy', () => {
 
     // Fakten ja, Beschreibung nein: Remys Absatz steht direkt darüber und
     // formuliert genau dieses Feld aus.
-    expect(document.body.textContent).toContain('Bar · Mitte · 30-80 €');
+    expect(document.body.textContent).toContain('Mitte · Bar · 30-80 €');
     expect(document.body.textContent).toContain('Offen · bis 01:00');
     expect(document.body.textContent).not.toContain('Steakhauskultur im Pressecafé.');
 
@@ -213,6 +213,6 @@ describe('BuddyWidget expression policy', () => {
     const img = document.querySelector('img[src*="cdn.sanity.io"]');
     // Full-width landscape photos need enough pixels for a 390px card at 2x.
     expect(img?.getAttribute('srcset')).toContain('w=800');
-    expect(img?.getAttribute('sizes')).toBe('(max-width: 600px) calc(100vw - 76px), 390px');
+    expect(img?.getAttribute('sizes')).toBe('(max-width: 600px) calc(100vw - 32px), 440px');
   });
 });

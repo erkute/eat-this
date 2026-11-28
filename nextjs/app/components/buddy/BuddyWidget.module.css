@@ -1,4 +1,6 @@
-/* Retro window chrome over Remy's own teal desktop. */
+/* Remys Chat ist ein rotes Blatt wie seine Bühne auf der Startseite
+   (HubFragRemy): Papierkorn, weiße Schrift, weiße Felder und Karten mit
+   Ink-Schrift. Das Rot bleibt in Hell und Dunkel gleich, wie dort. */
 .session {
   position: fixed;
   inset: var(--dialog-viewport-top, 0px) 0 auto;
@@ -11,208 +13,156 @@
 .scrim {
   position: absolute;
   inset: 0;
-  background: rgb(0 0 0 / .18);
-  backdrop-filter: blur(1px);
+  background: var(--et-scrim);
 }
-.screen {
-  position: relative;
-  width: min(1180px, calc(100vw - 96px));
-  height: min(900px, calc(var(--dialog-viewport-height, 100dvh) - 80px));
-  overflow: hidden;
-  border: 2px solid #c0c0c0;
-  box-shadow: 0 16px 64px rgb(0 0 0 / .4), inset 1px 1px #fff;
-}
-.desktopBackdrop { position: absolute; inset: 0; }
 
 .panel {
-  --buddy-ink: var(--et-ground);
-  --buddy-paper: var(--et-fg);
-  --buddy-surface: #c0c0c0;
-  --retro-edge: #808080;
-  --retro-deep: #000;
-  --retro-control-top: #fff;
-  --retro-control-bottom: #c0c0c0;
-  --buddy-accent: #000080;
-  --buddy-accent-text: #000080;
-  --buddy-soft: color-mix(in srgb, var(--et-fg) 78%, var(--et-ground));
-  --buddy-dim: color-mix(in srgb, var(--et-fg) 64%, var(--et-ground));
-  --buddy-quiet-hi: color-mix(in srgb, var(--et-fg) 9%, var(--et-ground));
-  --buddy-control-hi: color-mix(in srgb, var(--et-fg) 12%, var(--et-ground));
-  --buddy-open: #137b3f;
+  --buddy-card: #fff;
+  --buddy-card-fg: #15120e;
+  --buddy-card-muted: rgba(21, 18, 14, .66);
+  --buddy-chip: rgba(21, 18, 14, .22);
   --buddy-gap-tight: 10px;
   --buddy-gap-text: 14px;
   --buddy-gap-cut: 28px;
+  --buddy-gap-spot: 40px;
   --buddy-gap-close: 24px;
   --buddy-gap-turn: 36px;
-  --buddy-display: "Microsoft Sans Serif", "MS Sans Serif", Arial, sans-serif;
-  --buddy-copy: "Microsoft Sans Serif", "MS Sans Serif", Arial, sans-serif;
-  position: absolute;
-  inset: 12px 12px 56px 112px;
-  margin: auto;
+  /* Rollen für `et-btn` auf dem Rot: Ink-Knopf mit weißer Schrift. */
+  --et-ground: var(--et-red);
+  --et-fg: var(--et-white);
+  --et-solid: #15120e;
+  --et-on-solid: #fff;
+  --et-btn-hover: #2b2722;
+  --et-btn-hover-fg: #fff;
+  --et-focus: #fff;
+  position: relative;
   z-index: var(--et-z-remy);
-  width: min(840px, calc(100% - 144px));
-  height: calc(100% - 68px);
+  width: min(960px, calc(100vw - 64px));
+  height: min(880px, calc(var(--dialog-viewport-height, 100dvh) - 64px));
   container: remy / size;
-  max-height: 820px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  color: var(--buddy-paper);
-  background: var(--buddy-surface);
-  padding: 3px;
-  border: 1px solid;
-  border-color: #dfdfdf #000 #000 #dfdfdf;
-  border-radius: 0;
-  box-shadow: inset 1px 1px #fff, inset -1px -1px #808080, 4px 4px 0 rgb(0 0 0 / .35);
-  animation: buddyPanelIn 220ms ease-out;
+  color: var(--et-fg);
+  background-color: var(--et-ground);
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--et-ground) 38%, transparent), color-mix(in srgb, var(--et-ground) 38%, transparent)),
+    url('/pics/vintage/paper-grain.webp?v=4'),
+    url('/pics/vintage/section-wear.webp?v=7');
+  background-size: auto, 192px, 100% 100%;
+  background-repeat: no-repeat, repeat, no-repeat;
+  box-shadow: 0 24px 80px rgb(0 0 0 / .45);
+  font-family: var(--et-font-body);
+  animation: buddyPanelIn 260ms var(--ease-standard);
 }
-
-:global(html[data-theme='dark']) .panel {
-  --buddy-ink: color-mix(in srgb, var(--et-ground) 22%, #202020);
-  --buddy-paper: var(--et-fg);
-  --buddy-surface: #383838;
-  --buddy-accent-text: #b8d1ff;
-  --buddy-open: #80d99a;
-  --buddy-soft: #dedede;
-  --buddy-dim: #b0b0b0;
-  --retro-edge: #181818;
-  --retro-deep: #080808;
-  --retro-control-top: #747474;
-  --retro-control-bottom: #454545;
-  border-color: #858585 #080808 #080808 #858585;
-  box-shadow: inset 1px 1px #626262, inset -1px -1px #181818, 4px 4px 0 rgb(0 0 0 / .45);
-}
-:global(html[data-theme='dark']) .screen {
-  border-color: #555;
-  box-shadow: 0 16px 64px rgb(0 0 0 / .5), inset 1px 1px #747474;
-}
-:global(html[data-theme='dark']) .close {
-  color: var(--buddy-paper);
-  background: var(--retro-control-bottom);
-  border-color: var(--retro-control-top) var(--retro-deep) var(--retro-deep) var(--retro-control-top);
-  box-shadow: inset 1px 1px #626262, inset -1px -1px var(--retro-edge);
-}
-:global(html[data-theme='dark']) .close:active {
-  border-color: var(--retro-deep) var(--retro-control-top) var(--retro-control-top) var(--retro-deep);
-  box-shadow: inset 1px 1px var(--retro-edge);
-}
+.panel:focus { outline: none; }
+.panel :focus-visible { outline-color: #fff; }
 
 @keyframes buddyPanelIn {
-  from { transform: translateY(16px); }
+  from { transform: translateY(24px); }
   to { transform: translateY(0); }
 }
 
 .header {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   flex-shrink: 0;
-  gap: 6px;
-  height: 32px;
-  padding: 2px 3px 2px 5px;
-  color: #fff;
-  background: #000080;
-  border-radius: 0;
-  font-family: var(--buddy-copy);
+  gap: 12px;
+  min-height: 64px;
+  padding: 10px 12px 10px var(--buddy-pad, 32px);
 }
 
+/* Der kleine Remy ist der Knopf für ein neues Gespräch. */
+.restart {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  margin: -4px 0 -4px -6px;
+  padding: 2px 6px;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+.restart:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+/* Der Rahmen schneidet Remy unten ab: Er schaut über die Kante herein
+   (lib/buddy/portraitMotion.ts). */
 .avatarFrame {
   position: relative;
   z-index: 2;
   display: grid;
   place-items: center;
-  width: 24px;
-  height: 24px;
-  flex: 0 0 24px;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
   overflow: hidden;
   transform-origin: top left;
 }
+.avatarFrame[data-buddy-motion='leaving'] { overflow: visible; }
 
 .headerTitle { margin-right: auto; min-width: 0; }
 .headerTitle strong {
   display: block;
-  color: #fff;
-  font-family: var(--buddy-display);
-  font-size: 14px;
+  font-size: 22px;
   font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: 0;
-  text-shadow: none;
+  line-height: 1;
+  letter-spacing: -.02em;
 }
 
 .close {
   display: grid;
   place-items: center;
-  width: 24px;
-  height: 24px;
-  flex: 0 0 24px;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
   padding: 0;
-  background: #c0c0c0;
-  color: #000;
-  border: 1px solid;
-  border-color: #fff #404040 #404040 #fff;
-  border-radius: 0;
-  box-shadow: inset 1px 1px #fff, inset -1px -1px #808080;
+  color: #fff;
+  background: transparent;
+  border: 0;
+  border-radius: var(--et-radius-pill);
   cursor: pointer;
+  transition: background-color var(--et-motion-fast);
 }
-.close svg { width: 12px; height: 12px; }
-.close:active { border-color: #404040 #fff #fff #404040; box-shadow: inset 1px 1px #808080; }
-.reset { flex-shrink: 0; padding: 6px 10px; min-width: 44px; min-height: 44px; font: 13px / 1.2 var(--buddy-copy); cursor: pointer; }
-.statusBar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-  margin: 0 8px 6px;
-  padding: 5px 8px;
-  min-height: 28px;
-  border: 1px solid;
-  border-color: var(--retro-edge) var(--retro-control-top) var(--retro-control-top) var(--retro-edge);
-  color: var(--buddy-soft);
-  font: 12px / 1.4 var(--buddy-copy);
-}
-.statusLight {
-  width: 13px;
-  height: 13px;
-  flex-shrink: 0;
-  border: 1px solid #44830a;
-  border-radius: 50%;
-  background: #00b000;
-  box-shadow: inset 1px 1px #80ff80, inset -1px -1px #006000;
-}
+.close svg { width: 20px; height: 20px; }
 .close:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
-@media (hover: hover) { .close:hover { filter: brightness(1.12); } }
+@media (hover: hover) { .close:hover { background: var(--buddy-chip); } }
 
+/* Das gezeichnete Porträt reicht bis an die Eingabeleiste. Beim Abtauchen
+   deckt dieselbe Kante den nach unten gleitenden Teil der Figur ab. */
 .conversation {
+  --remy-height: 274px;
+  --remy-compact-height: 154px;
+  position: relative;
   display: flex;
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  margin: 8px 8px 0;
-  border: 2px solid;
-  border-color: var(--retro-edge) var(--retro-control-top) var(--retro-control-top) var(--retro-edge);
-  background: var(--buddy-ink);
-  box-shadow: inset 1px 1px var(--retro-deep);
-  overflow: hidden;
 }
 .portraitRail {
+  position: relative;
+  z-index: 0;
   display: flex;
   justify-content: center;
-  flex-shrink: 0;
-  height: 300px;
+  flex: 0 0 auto;
+  height: var(--remy-height);
+  max-height: 100%;
+  pointer-events: none;
 }
 .log {
+  position: relative;
+  z-index: 1;
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
   scroll-behavior: auto;
-  scrollbar-width: auto;
-  scrollbar-color: var(--retro-control-bottom) var(--buddy-surface);
-  padding: 24px;
-  background: var(--buddy-ink);
-  color: var(--buddy-paper);
-  font-family: var(--buddy-copy);
-  font-size: 15px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, .55) transparent;
+  padding: 16px var(--buddy-pad, 32px) 32px;
+  font-size: 16px;
 }
 .logContent {
   display: flex;
@@ -230,43 +180,80 @@
   padding: 8px 0;
   text-align: center;
 }
-.introPortrait { width: 300px; height: 300px; }
-.introFigure { width: 300px; height: 300px; transform-origin: top left; }
+.introPortrait {
+  flex-shrink: 0;
+  width: min(100%, var(--remy-side-width, var(--remy-height)));
+  height: 100%;
+  container-type: size;
+  clip-path: inset(0 -100vmax);
+}
+.introFigure {
+  /* Das Artwork ist auf 115 % skaliert. Ein schmaler Saum liegt hinter
+     dem Schreibfeld, damit die gezeichnete Unterkante verdeckt bleibt. */
+  --remy-figure-size: calc(100cqh / 1.125);
+  width: var(--remy-figure-size);
+  height: var(--remy-figure-size);
+  margin-inline: auto;
+}
 .introTitle {
-  margin: 0 0 14px;
-  color: var(--buddy-accent-text);
-  font-family: var(--buddy-display);
-  font-size: clamp(24px, 3vw, 32px);
+  margin: 0 0 16px;
+  font-size: clamp(36px, 5.4vw, 64px);
   font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: -0.02em;
+  line-height: .95;
+  letter-spacing: -.045em;
   text-wrap: balance;
 }
 .introGreeting {
-  max-width: 620px;
-  color: var(--buddy-soft);
-  font-size: 15px;
-  line-height: 1.6;
+  max-width: 34ch;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.3;
+  text-wrap: pretty;
 }
 .introSuggestions {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 10px;
   width: 100%;
-  max-width: 620px;
-  margin-top: 20px;
+  max-width: 680px;
+  margin-top: 24px;
+}
+
+/* Im breiten Dialog stehen Remy und die Begrüßung nebeneinander. */
+@container remy (min-width: 760px) and (min-height: 600px) {
+  .conversation {
+    --remy-side-width: 480px;
+    --remy-height: 518px;
+  }
+  .portraitRail {
+    position: absolute;
+    right: var(--buddy-pad, 32px);
+    bottom: 0;
+    width: var(--remy-side-width);
+  }
+  .intro {
+    align-items: flex-start;
+    width: calc(100% - var(--remy-side-width) * .8);
+    text-align: left;
+  }
+  .introSuggestions { justify-content: flex-start; }
+}
+@container remy (min-width: 760px) and (min-height: 760px) {
+  .conversation {
+    --remy-side-width: 555px;
+    --remy-height: 600px;
+  }
 }
 
 .msgUser {
   align-self: flex-end;
   max-width: 85%;
-  padding: 14px 18px;
-  color: var(--buddy-paper);
-  background: color-mix(in srgb, #75b5ff 20%, var(--buddy-ink));
-  border: 1px solid var(--retro-edge);
-  border-radius: 0;
-  font-weight: 400;
-  line-height: 1.5;
+  padding: 12px 16px;
+  color: var(--buddy-card-fg);
+  background: var(--buddy-card);
+  font-weight: 700;
+  line-height: 1.45;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
@@ -275,31 +262,18 @@
   align-self: stretch;
   min-width: 0;
   max-width: 100%;
-  color: var(--buddy-paper);
-  font-weight: 400;
-  line-height: 1.65;
+  font-size: 17px;
+  line-height: 1.55;
   overflow-wrap: anywhere;
 }
 .msgBotAnchored { min-height: var(--buddy-anchor-min, 0px); }
-.botP {
-  margin: 0 0 var(--buddy-gap-text);
-}
+.botP { margin: 0 0 var(--buddy-gap-text); }
+.botP:last-child { margin-bottom: 0; }
 
-.word {
-  animation: buddyFadeIn 0.5s ease-out both;
-}
-
+.word { animation: buddyFadeIn 0.5s ease-out both; }
 @keyframes buddyFadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.botP:last-child {
-  margin-bottom: 0;
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .botList {
@@ -307,73 +281,45 @@
   flex-direction: column;
   gap: 6px;
   margin: 0 0 10px;
-  padding-left: 18px;
+  padding-left: 20px;
 }
+.botList li { line-height: var(--et-leading-copy); }
+.botList li::marker { color: #fff; }
 
-.botList li {
-  line-height: var(--et-leading-copy);
-}
-
-.botList li::marker {
-  color: var(--buddy-accent-text);
-}
-
+/* Fragen-Pillen wie auf Remys Bühne: eine Spur dunkler als das Rot, damit
+   die weiße Schrift über 4,5:1 bleibt. */
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip {
-  padding: 13px 16px;
-  min-height: 48px;
-  border: 1px solid;
-  border-color: var(--retro-control-top) var(--retro-edge) var(--retro-edge) var(--retro-control-top);
-  border-radius: 0;
-  color: var(--buddy-paper);
-  background: var(--retro-control-bottom);
-  box-shadow: inset 1px 1px var(--retro-control-top), inset -1px -1px #c6c0ae;
-  font-family: var(--buddy-copy);
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 1.4;
+  min-height: var(--et-btn-h);
+  padding: 10px 20px;
+  color: #fff;
+  background: var(--buddy-chip);
+  border: 0;
+  border-radius: var(--et-radius-pill);
+  font: 700 16px / 1.25 var(--et-font-body);
   text-align: left;
   cursor: pointer;
-  transition: background var(--et-motion-fast);
+  transition: background-color var(--et-motion-fast), color var(--et-motion-fast);
 }
-.introSuggestions .chip { text-align: center; }
-.chip:focus-visible {
-  outline: 2px solid var(--buddy-paper);
-  outline-offset: 2px;
-}
+.chip:focus-visible { outline: 3px solid #15120e; outline-offset: 3px; }
 @media (hover: hover) {
-  .chip:hover { background: var(--buddy-control-hi); }
+  .chip:hover { color: var(--buddy-card-fg); background: #fff; }
 }
 
+/* Jeder Laden ist ein Block: Remys Satz, direkt darunter sein Foto, dann
+   viel Luft bis zum nächsten. So ist klar, welcher Satz zu welchem Foto
+   gehört. */
 .spots {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 10px;
-  margin: 0 0 var(--buddy-gap-tight);
+  gap: 12px;
+  margin: 0 0 var(--buddy-gap-spot);
 }
-
-.botP:has(+ .spots) {
-  margin-bottom: var(--buddy-gap-cut);
-}
-
-.spots:last-child {
-  margin-bottom: 0;
-}
-
-.spotCard,
-.articleCard,
-.packCard {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  color: var(--buddy-paper);
-  background: var(--buddy-ink);
-  border: 1px solid var(--retro-edge);
-  border-radius: 0;
-  text-decoration: none;
-  box-shadow: none;
-  transition: background var(--et-motion-card);
+.botP:has(+ .spots) { margin-bottom: var(--buddy-gap-tight); }
+.botP:has(+ .botP + .spots) { margin-bottom: var(--buddy-gap-cut); }
+.spots:last-child { margin-bottom: 0; }
+@container remy (min-width: 620px) {
+  .spots:has(.spotCard) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 .spotCard,
@@ -382,64 +328,100 @@
 .msgBot > .chips {
   animation: buddyBlockIn 0.6s ease-out both;
 }
-
 @keyframes buddyBlockIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
+/* Ein Spot wie eine Karte der Map-Liste: Das Foto ist die Karte, Name und
+   Angaben kleben als Etiketten (et-label, globals.css) darauf. Die Etiketten
+   behalten ihren festen Kontrast, auch im Dunkelmodus. */
 .spotCard {
-  overflow: hidden;
-  padding: 0;
-}
-
-.spotCardLink {
-  display: flex;
-  flex-direction: column;
+  --et-label-bg: var(--et-ink);
+  --et-wear: none;
+  position: relative;
   min-width: 0;
-  min-height: 100px;
-  align-items: stretch;
+}
+.spotCardLink {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
   color: inherit;
   text-decoration: none;
 }
+.spotCardLink:focus-visible { outline: none; }
+.spotCardLink:focus-visible .spotThumb { outline: 3px solid #fff; outline-offset: 3px; }
 
-.articleCard {
-  padding: 12px 14px 14px;
+.spotThumb {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  /* Ohne Foto (oder bis es da ist) steht eine Fläche da, kein Loch. */
+  background: var(--buddy-chip);
 }
-
-.packCard {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: 14px;
-  padding: 14px 16px 16px 14px;
+.spotImg {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
-
+.spotImg[data-ready='false'] { opacity: 0; }
 @media (hover: hover) {
-  .spotCard:hover,
-  .articleCard:hover,
-  .packCard:hover {
-    background: var(--buddy-quiet-hi);
-  }
+  .spotCardLink:hover .spotImg { transform: scale(1.04); }
 }
 
-.spotCard:has(:focus-visible),
-.articleCard:focus-visible,
-.packCard:focus-visible {
-  outline: 2px solid var(--buddy-accent);
-  outline-offset: 2px;
+/* Öffnungszustand oben links (Aussehen: et-label). */
+.spotStatus {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
+  max-width: calc(100% - 76px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* Name und Bezirk · Küche · Preis unten links im Foto. */
+.spotLabels {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 14px;
+  z-index: 2;
+  display: grid;
+  justify-items: start;
+  gap: 6px;
+}
+.spotName {
+  max-width: 100%;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.22;
+  overflow-wrap: anywhere;
+}
+.spotMeta {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.spotDesc {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: 15px;
+  line-height: 1.4;
 }
 
 .spotSave {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 4px;
+  right: 4px;
   z-index: 3;
   display: inline-grid;
   place-items: center;
@@ -449,10 +431,8 @@
   color: #fff;
   background: transparent;
   border: 0;
-  border-radius: 0;
   cursor: pointer;
 }
-
 .spotSave svg {
   width: 24px;
   height: 24px;
@@ -460,245 +440,121 @@
   color: currentColor;
   stroke: currentColor;
 }
+@media (hover: hover) { .spotSave:hover { color: var(--et-heart); } }
+.spotSave[data-saved='true'] { color: var(--et-heart); }
+.spotSave:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 
-@media (hover: hover) {
-  .spotSave:hover {
-    color: var(--et-heart);
-  }
-}
-
-.spotSave[data-saved='true'] {
-  color: var(--et-heart);
-}
-
-.spotSave:focus-visible {
-  outline: 2px solid var(--buddy-accent);
-  outline-offset: 2px;
-}
-
-.spotThumb {
-  position: relative;
-  display: block;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  flex-shrink: 0;
-  background: var(--buddy-quiet-hi);
-  border-radius: 0;
-  overflow: hidden;
-}
-
-.spotImg {
-  position: absolute;
-  inset: 0;
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border: none;
-  transition: opacity 0.3s ease;
-}
-
-.spotImg[data-ready='false'] {
-  opacity: 0;
-}
-
-.spotBody {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  justify-content: center;
-  gap: 5px;
+/* Ein Artikel als dunklere Fläche auf dem Rot, wie die Fragen-Pillen. */
+.articleCard {
+  display: grid;
+  gap: 6px;
   min-width: 0;
-  padding: 11px 14px 13px;
-}
-
-.spotCardLink .spotBody {
   padding: 14px 16px 16px;
+  color: #fff;
+  background: var(--buddy-chip);
+  text-decoration: none;
+  transition: background-color var(--et-motion-card), color var(--et-motion-card);
 }
-
-.spotCard:not(:has(.spotThumb)) .spotBody { padding-right: 56px; }
-.spotCard:not(:has(.spotThumb)) .spotSave { color: var(--buddy-paper); }
-.spotCard:not(:has(.spotThumb)) .spotSave svg { filter: none; }
-.spotCard:not(:has(.spotThumb)) .spotSave[data-saved='true'] { color: var(--et-heart); }
-
-@container remy (min-width: 620px) {
-  .spots:has(.spotCard) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-
-.articleCard .spotBody,
-.packCard .spotBody {
-  padding: 0;
-}
-
-.spotName {
-  color: var(--buddy-paper);
-  font-family: var(--buddy-display);
+.articleTitle {
+  font-size: 1.15rem;
   font-weight: 700;
-  font-size: 1.125rem;
-  line-height: 1.25;
-  letter-spacing: var(--et-tracking-title);
-  transition: color var(--et-motion-fast);
+  line-height: 1.2;
 }
-
 @media (hover: hover) {
-  .spotCardLink:hover .spotName,
-  .articleCard:hover .spotName,
-  .packCard:hover .spotName {
-    color: var(--buddy-accent-text);
-  }
+  .articleCard:hover { color: var(--buddy-card-fg); background: #fff; }
 }
-
-.spotCardLink:focus-visible {
-  outline: none;
-}
-
-.spotCardLink:focus-visible .spotName {
-  color: var(--buddy-accent-text);
-}
-
-.spotMeta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 4px 7px;
-  min-width: 0;
-  color: var(--buddy-dim);
-  font-family: var(--buddy-display);
-  font-size: 0.75rem;
-  font-weight: 400;
-  line-height: 1.4;
-}
-
-.spotDist {
-  color: var(--buddy-accent-text);
-}
-
-.spotDesc,
-.packDesc {
-  color: var(--buddy-soft);
-  font-size: 0.88em;
-  line-height: 1.35;
-}
-
-.spotDesc {
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-}
-
-.spotStatus {
-  display: inline-flex;
-  align-items: center;
-  width: fit-content;
-  font-family: var(--buddy-display);
-  font-size: 0.78em;
-  font-weight: 700;
-}
-
-.spotStatus[data-open='true'] {
-  color: var(--buddy-open);
-}
-
-.spotStatus[data-open='false'] {
-  color: var(--buddy-dim);
-}
+.articleCard:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 
 .packBlock {
   display: flex;
   flex-direction: column;
-  gap: var(--buddy-gap-tight);
+  gap: 14px;
   margin: var(--buddy-gap-cut) 0 0;
 }
-
-.msgBot > .chips {
-  margin-top: var(--buddy-gap-close);
-}
-
-.msgBot + .msgUser {
-  margin-top: calc(var(--buddy-gap-turn) - 20px);
-}
-
+.msgBot > .chips { margin-top: var(--buddy-gap-close); }
+.msgBot + .msgUser { margin-top: calc(var(--buddy-gap-turn) - 20px); }
 .packIntro {
   margin: 0;
-  color: var(--buddy-paper);
-  font-size: 0.96em;
   font-weight: 700;
   line-height: var(--et-leading-copy);
 }
-
+/* Wie eine Kachel auf /packs, ohne eigene Fläche: das Pack links leicht
+   gekippt, rechts Name, Spectrum-Zeile und „Ansehen". */
+.packCard {
+  --pack-w: 120px;
+  display: grid;
+  grid-template-columns: var(--pack-w) minmax(0, 1fr);
+  align-items: center;
+  gap: 24px;
+  padding: 4px 0 4px 6px;
+  color: #fff;
+  text-decoration: none;
+}
 .packArt {
-  width: 78px;
+  display: block;
+  width: 100%;
   height: auto;
-  flex-shrink: 0;
-  object-fit: contain;
-  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
-  transform: rotate(-3deg);
-  transition: transform var(--et-motion-card);
+  rotate: -2deg;
+  filter: drop-shadow(0 16px 18px rgb(0 0 0 / .3));
+  transition: rotate 350ms var(--ease-standard), translate 350ms var(--ease-standard);
 }
-
-@media (hover: hover) {
-  .packCard:hover .packArt {
-    transform: translateY(-4px) rotate(-5deg) scale(1.03);
-  }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .packCard:hover .packArt { rotate: 0deg; translate: 0 -8px; }
 }
-
-.packCard:focus-visible .packArt {
-  transform: translateY(-4px) rotate(-5deg) scale(1.03);
+.packCard:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
+.packInfo {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  min-width: 0;
 }
-
 .packName {
-  font-size: 1.62rem;
-}
-
-.packSpectrum {
-  color: var(--buddy-soft);
-  font-family: var(--buddy-display);
-  font-size: 0.95em;
+  font-size: clamp(30px, 4cqw, 40px);
   font-weight: 700;
-  line-height: 1.25;
+  letter-spacing: -.045em;
+  line-height: 1;
 }
-
-.packDesc {
-  color: var(--buddy-dim);
+.packSpectrum {
+  margin-bottom: 6px;
+  font-weight: 700;
+  line-height: 1.3;
+  text-wrap: balance;
 }
+/* Aussehen kommt von `et-btn`; die ganze Kachel ist der Link. */
+.packView { margin-top: 2px; }
 
 .kicker {
   display: flex;
   align-items: center;
   gap: 7px;
-  color: var(--buddy-accent-text);
-  font-family: var(--buddy-display);
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: var(--et-tracking-meta);
   line-height: 1;
   text-transform: uppercase;
 }
-
-.spotBody > .kicker {
-  margin-bottom: 6px;
-}
-
 .mk {
   display: inline-block;
   width: 9px;
   height: 9px;
   flex: 0 0 9px;
-  background: var(--buddy-accent);
-  color: var(--et-on-accent);
+  background: currentColor;
 }
 
+/* Das Eingabefeld wie auf der Bühne: eine weiße Leiste, darin Feld und
+   Ink-Knopf. */
 .form {
+  position: relative;
+  z-index: 2;
   display: flex;
   align-items: center;
   flex-shrink: 0;
-  gap: 10px;
-  margin: 0;
-  padding: 14px 10px;
-  background: var(--buddy-surface);
+  gap: 4px;
+  margin: 0 var(--buddy-pad, 32px) calc(var(--buddy-pad, 32px) * .75);
+  padding: 7px;
+  color: var(--buddy-card-fg);
+  background: var(--buddy-card);
 }
-.form:focus-within { outline: none; }
 .geo {
   display: grid;
   place-items: center;
@@ -706,115 +562,62 @@
   height: 48px;
   flex: 0 0 44px;
   padding: 0;
-  color: var(--buddy-accent-text);
+  color: var(--buddy-card-fg);
+  background: transparent;
+  border: 0;
+  border-radius: 2px;
   cursor: pointer;
+  transition: background-color var(--et-motion-fast);
 }
-.geo svg { width: 21px; height: 21px; }
-.geo[data-on='true'] { color: var(--buddy-accent-text); background: var(--buddy-control-hi); cursor: default; }
-.geo[data-on='false']:disabled { cursor: wait; }
-.geo:focus-visible { outline: 2px solid var(--buddy-paper); outline-offset: -2px; }
-@media (hover: hover) { .geo:not(:disabled):hover { color: var(--buddy-paper); background: var(--buddy-control-hi); } }
+.geo svg { width: 22px; height: 22px; }
+.geo[data-on='true'] { color: #fff; background: var(--buddy-card-fg); cursor: default; }
+.geo[data-on='false']:disabled { cursor: wait; opacity: .5; }
+.geo:focus-visible { outline: 2px solid var(--buddy-card-fg); outline-offset: -2px; }
+@media (hover: hover) {
+  .geo:not(:disabled):hover { background: #ece7df; }
+}
 .input {
   flex: 1;
   min-width: 0;
   min-height: 48px;
-  padding: 10px 12px;
-  color: var(--buddy-paper);
-  caret-color: var(--buddy-paper);
-  background: var(--buddy-ink);
-  border: 2px solid;
-  border-color: var(--retro-edge) var(--retro-control-top) var(--retro-control-top) var(--retro-edge);
+  padding: 12px 8px;
+  color: var(--buddy-card-fg);
+  caret-color: var(--buddy-card-fg);
+  background: transparent;
+  border: 0;
   border-radius: 0;
-  box-shadow: inset 1px 1px var(--retro-deep);
-  font-family: var(--buddy-copy);
-  font-size: 16px;
-  line-height: 1.5;
+  font: 400 16px / 1.4 var(--et-font-body);
 }
-.input::placeholder { color: var(--buddy-dim); opacity: 1; }
-.input:focus { outline: 1px solid var(--buddy-accent); outline-offset: -3px; }
+.input::placeholder { color: var(--buddy-card-muted); opacity: 1; }
+/* Kein Rahmen beim Schreiben: die Schreibmarke im Feld zeigt den Fokus. */
+.input:focus-visible { outline: none; }
+/* Die leicht eckige Form entspricht dem Knopf auf Remys Startseiten-Bühne. */
 .send {
-  display: grid;
-  place-items: center;
-  min-width: 88px;
-  min-height: 48px;
-  padding: 0 18px;
   flex-shrink: 0;
-  color: var(--buddy-paper);
-  font-family: var(--buddy-copy);
-  font-size: 14px;
-  font-weight: 400;
-  cursor: pointer;
+  min-width: 96px;
+  border-radius: 2px;
 }
-.send:disabled { color: var(--buddy-dim); cursor: default; }
-.send:focus-visible { outline: 2px solid var(--buddy-paper); outline-offset: 2px; }
-@media (hover: hover) { .send:hover:not(:disabled) { box-shadow: inset 0 0 0 1px var(--buddy-paper); } }
-.stop { color: var(--buddy-accent-text); }
-@media (hover: hover) { .stop:hover:not(:disabled) { color: var(--buddy-ink); background: var(--buddy-paper); } }
-.reset, .geo, .send {
-  border: 1px solid;
-  border-color: var(--retro-control-top) var(--retro-edge) var(--retro-edge) var(--retro-control-top);
-  border-radius: 0;
-  background: var(--retro-control-bottom);
-  box-shadow: inset 1px 1px var(--retro-control-top), inset -1px -1px color-mix(in srgb, var(--retro-edge) 55%, transparent);
-}
-.reset:focus-visible, .geo:focus-visible, .send:focus-visible {
-  outline: 2px dotted var(--buddy-paper);
-  outline-offset: -5px;
-}
-.reset:active, .geo:not(:disabled):active, .send:not(:disabled):active {
-  background: var(--retro-control-bottom);
-  box-shadow: inset 1px 1px 2px var(--retro-edge);
-}
-@media (hover: hover) {
-  .reset:hover { box-shadow: inset 0 0 0 1px var(--buddy-paper); }
-}
-.panel:focus { outline: none; }
 
+/* Gesetzt wie Remys Antworten. */
 .typing {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 4px 0;
-  color: var(--buddy-accent-text);
-  font-family: var(--buddy-display);
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-meta);
-  text-transform: uppercase;
+  gap: 10px;
 }
-
-.typingDots {
-  display: inline-flex;
-  gap: 4px;
-}
-
+.typingDots { display: inline-flex; gap: 4px; }
 .typingDots i {
   display: block;
-  width: 5px;
-  height: 5px;
-  background: var(--buddy-accent);
+  width: 6px;
+  height: 6px;
+  background: #fff;
   border-radius: var(--et-radius-pill);
   animation: buddyDot 0.9s ease-in-out infinite;
-  color: var(--et-on-accent);
 }
-
-.typingDots i:nth-child(2) {
-  animation-delay: 0.15s;
-}
-
-.typingDots i:nth-child(3) {
-  animation-delay: 0.3s;
-}
-
+.typingDots i:nth-child(2) { animation-delay: 0.15s; }
+.typingDots i:nth-child(3) { animation-delay: 0.3s; }
 @keyframes buddyDot {
-  0%,
-  60%,
-  100% {
-    transform: translateY(0);
-  }
-  30% {
-    transform: translateY(-4px);
-  }
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-4px); }
 }
 
 .srOnly {
@@ -833,147 +636,164 @@
 @media (prefers-reduced-motion: reduce) {
   .panel, .word, .spotCard, .articleCard, .packBlock, .msgBot > .chips, .typingDots i { animation: none; }
   .panel * { transition: none; }
-  .packCard:hover .packArt, .packCard:focus-visible .packArt { transform: rotate(-3deg); }
 }
 
+/* Dieselben Telefonformate wie das bildschirmfüllende Blatt, auch quer. */
+@media (max-width: 600px), (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
+  .introSuggestions > :nth-child(n + 4) { display: none; }
+}
+
+/* Telefon: das Blatt füllt den Bildschirm. */
 @media (max-width: 600px) {
-  .screen {
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    width: calc(100vw - 16px);
-    height: calc(var(--dialog-viewport-height, 100dvh) - 16px);
-  }
   .panel {
-    inset: 6px 6px 56px;
-    margin: 0;
-    width: calc(100% - 12px);
-    height: calc(100% - 62px);
-    max-height: none;
+    --buddy-pad: 16px;
+    width: 100%;
+    height: 100%;
     box-shadow: none;
   }
-  .portraitRail { height: 240px; }
-  .introPortrait { width: 240px; height: 240px; }
-  .introFigure { transform: scale(0.8); }
-  .header { height: calc(44px + env(safe-area-inset-top, 0px)); padding: calc(2px + env(safe-area-inset-top, 0px)) 4px 2px 6px; gap: 6px; }
-  .headerTitle strong { font-size: 15px; }
-  .close { width: 36px; height: 36px; flex-basis: 36px; }
-  .conversation { margin: 6px 5px 0; }
-  .log { padding: 20px 14px; }
-  .intro { padding: 8px 0 24px; }
-  .introTitle { font-size: 27px; }
-  .introGreeting { font-size: 14px; }
-  .introSuggestions { gap: 8px; margin-top: 24px; }
-  .introSuggestions .chip { padding: 12px 10px; font-size: 13px; }
-  .msgUser { max-width: 90%; padding: 12px 16px; }
-  .spotName { font-size: 1.08rem; }
-  .spotMeta { letter-spacing: 0.03em; }
-  .spotBody { padding-left: 12px; }
-  .packArt { width: 66px; }
-  .packName { font-size: 1.44rem; }
-  .form { gap: 6px; margin: 0; padding: 10px 6px; }
-  .statusBar { margin-bottom: calc(4px + env(safe-area-inset-bottom, 0px)); font-size: 11px; }
-
-  .geo { width: 36px; flex-basis: 36px; }
-  .send { min-width: 72px; padding: 0 12px; }
+  .header {
+    min-height: calc(56px + env(safe-area-inset-top, 0px));
+    padding: calc(6px + env(safe-area-inset-top, 0px)) 6px 6px var(--buddy-pad);
+  }
+  .headerTitle strong { font-size: 20px; }
+  .conversation {
+    --remy-height: calc(234px - env(safe-area-inset-bottom, 0px));
+    --remy-compact-height: calc(174px - env(safe-area-inset-bottom, 0px));
+  }
+  .log { padding: 12px var(--buddy-pad) 24px; }
+  .intro { padding: 8px 0 16px; }
+  .introTitle { font-size: clamp(34px, 10vw, 44px); margin-bottom: 12px; }
+  .introGreeting { font-size: 17px; }
+  .introSuggestions { gap: 8px; margin-top: 20px; }
+  .chip { min-height: 44px; padding: 10px 16px; font-size: 15px; }
+  .msgUser { max-width: 90%; }
+  .msgBot { font-size: 16px; }
+  .spotName { font-size: 20px; }
+  .packCard { --pack-w: 96px; gap: 18px; }
+  .packName { font-size: 28px; }
+  .form {
+    margin: 0 8px calc(8px + env(safe-area-inset-bottom, 0px));
+    padding: 5px;
+    gap: 2px;
+  }
+  .geo { width: 40px; flex-basis: 40px; }
+  .send { min-width: 0; padding-inline: 16px; }
 }
 
-/* Respond to the actual nested chat window, including short laptops. */
-@container remy (max-height: 640px) {
-  .log { padding: 12px 20px; }
+/* Kurze Fenster oder schmale Telefone: Remy und die Begrüßung werden kleiner. */
+@container remy (max-height: 640px) or ((max-height: 800px) and (max-width: 420px)) {
+  .header { min-height: 52px; padding-block: 4px; }
+  .log { padding-block: 8px 16px; }
   .intro { padding: 0; }
-  .introTitle { font-size: 26px; margin-bottom: 8px; }
-  .introGreeting { max-width: 620px; font-size: 14px; line-height: 1.45; }
-  .introSuggestions { gap: 8px; margin-top: 16px; }
-  .introSuggestions .chip { min-height: 44px; padding: 8px 12px; }
-  .portraitRail { height: 180px; }
-  .introPortrait { width: 180px; height: 180px; }
-  .introFigure { transform: scale(0.6); }
-  .form { padding-block: 8px; }
-  .statusBar { min-height: 22px; padding-block: 3px; margin-bottom: 4px; font-size: 11px; }
+  .introTitle { font-size: 32px; margin-bottom: 8px; }
+  .introGreeting { max-width: 60ch; font-size: 16px; line-height: 1.35; }
+  .introSuggestions { gap: 8px; margin-top: 14px; }
+  .introSuggestions .chip { min-height: 40px; padding: 8px 14px; font-size: 14px; }
+  .conversation { --remy-height: var(--remy-compact-height); }
 }
 
 @container remy (max-height: 520px) {
-  .portraitRail { height: 140px; }
-  .introPortrait { width: 140px; height: 140px; }
-  .introFigure { transform: scale(0.4666667); }
+  .conversation { --remy-height: calc(var(--remy-compact-height) - 30px); }
   .introGreeting { display: none; }
-  .introTitle { font-size: 22px; }
-  .introSuggestions { margin-top: 12px; }
-  .introSuggestions .chip { padding: 6px 8px; font-size: 12px; line-height: 1.25; }
+  .introTitle { font-size: 24px; }
+  .introSuggestions { margin-top: 10px; }
+  .introSuggestions .chip { min-height: 36px; padding: 6px 12px; font-size: 13px; line-height: 1.25; }
 }
 
-@media (min-width: 601px) and (max-width: 1050px) {
-  .panel { left: 104px; right: 12px; width: calc(100% - 116px); }
+@container remy (height > 640px) and (max-height: 800px) and (max-width: 420px) {
+  .conversation { --remy-height: calc(var(--remy-compact-height) - 15px); }
 }
 
+@container remy (height > 640px) and (max-height: 720px) and (width > 420px) and (max-width: 600px) {
+  .conversation { --remy-height: var(--remy-compact-height); }
+}
+
+/* Kleine Telefone: die Vorschläge brauchen jede Zeile. */
+@container remy (max-height: 640px) and (max-width: 420px) {
+  .conversation { --remy-height: calc(var(--remy-compact-height) - 30px); }
+  .introGreeting { display: none; }
+}
+
+@container remy (max-height: 360px) and (max-width: 420px) {
+  .conversation { --remy-height: calc(var(--remy-compact-height) - 90px); }
+}
+
+@container remy (360px <= width <= 600px) and (min-height: 760px) {
+  .conversation {
+    --remy-height: clamp(234px, 100cqh - 520px - env(safe-area-inset-bottom, 0px), 312px);
+  }
+  .log:has(.intro) { padding-bottom: 10px; }
+  .intro { padding-bottom: 4px; }
+}
+
+/* Telefon quer: Remy steht neben dem Gespräch. */
 @media (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
-
-.screen { position: absolute; top: 0; left: 0; width: 100%; height: var(--dialog-viewport-height, 100dvh); }
-.screen .panel { inset: 6px max(6px, env(safe-area-inset-right)) 48px max(6px, env(safe-area-inset-left)); width: auto; height: auto; max-height: none; margin: 0; }
-.conversation { flex-direction: row; box-shadow: none; }
-.log { min-width: 0; padding: 6px 10px; }
-.portraitRail { width: 140px; height: auto; align-items: end; }
-.intro { justify-content: center; }
-.introTitle { font-size: 18px; margin-bottom: 4px; }
-.introSuggestions { margin-top: 0; gap: 6px; }
-.form { padding: 6px 8px; }
-.statusBar { margin-bottom: 0; }
+  .panel {
+    --buddy-pad: 16px;
+    width: 100%;
+    height: 100%;
+    box-shadow: none;
+    padding-inline: env(safe-area-inset-left, 0px) env(safe-area-inset-right, 0px);
+  }
+  .header { min-height: 44px; padding-block: 2px; }
+  .headerTitle strong { font-size: 18px; }
+  .conversation {
+    --remy-side-width: 270px;
+    --remy-height: 242px;
+    flex-direction: row;
+  }
+  .log { min-width: 0; padding: 4px var(--buddy-pad); }
+  .portraitRail {
+    align-self: flex-end;
+    width: var(--remy-side-width);
+    margin-inline-end: 8px;
+  }
+  .introTitle { font-size: 22px; margin-bottom: 4px; }
+  .introSuggestions { margin-top: 6px; gap: 6px; }
+  .form { margin: 0 8px 6px; padding: 3px; }
 }
 
 @media (orientation: landscape) and (max-height: 350px) and (min-width: 600px) {
   .log { padding-block: 2px; }
-  .portraitRail { width: 96px; }
-  .introPortrait { width: 96px; height: 96px; }
-  .introFigure { transform: scale(.32); }
-  .introSuggestions { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .conversation {
+    --remy-side-width: 120px;
+    --remy-height: 111px;
+  }
 }
 
-/* The chat and its taskbar stay together on the right/lower display. */
+/* Faltgeräte: das Blatt bleibt auf einer Hälfte. */
 @media (horizontal-viewport-segments: 2), (vertical-viewport-segments: 2) {
-  .screen {
+  .panel {
     position: fixed;
     left: calc(var(--et-pane-left) + 8px);
     top: calc(var(--et-pane-top) + 8px);
     width: calc(var(--et-pane-width) - 16px);
     height: calc(var(--et-pane-height) - 16px);
   }
-  .screen .panel {
-    inset: 6px 6px 56px;
-    width: auto;
-    height: auto;
-    max-height: none;
-    margin: 0;
-  }
 }
 
-/* Leave the visible space to the conversation while typing, on phones and tablets. */
-.session[data-keyboard] .screen {
-  position: absolute;
-  top: 0;
-  left: max(6px, env(safe-area-inset-left, 0px));
-  width: calc(100% - max(6px, env(safe-area-inset-left, 0px)) - max(6px, env(safe-area-inset-right, 0px)));
+/* Beim Tippen auf Telefon und Tablet gehört der sichtbare Platz dem Gespräch. */
+.session[data-keyboard] .panel {
+  --buddy-pad: 12px;
+  width: 100%;
   height: 100%;
+  box-shadow: none;
 }
-.session[data-keyboard] .screen .panel { inset: 0; padding: 0; width: auto; height: auto; max-height: none; margin: 0; }
-.session[data-keyboard] .desktopBackdrop,
-.session[data-keyboard] .portraitRail,
-.session[data-keyboard] .statusBar,
-.session[data-keyboard] .screen > :last-child { display: none; }
-.session[data-keyboard] .header { height: 36px; padding: 2px 4px; }
-.session[data-keyboard] .form { padding-block: 4px; }
+.session[data-keyboard] .portraitRail { display: none; }
+.session[data-keyboard] .header { min-height: 44px; padding-block: 2px; }
+.session[data-keyboard] .form { margin: 0 4px 4px; padding: 3px; }
 
 @media (horizontal-viewport-segments: 2) {
-  .session[data-keyboard] .screen {
+  .session[data-keyboard] .panel {
     left: calc(var(--et-pane-left) + 8px);
     width: calc(var(--et-pane-width) - 16px);
   }
 }
 
 @container remy (max-height: 120px) {
-  .header { position: absolute; top: 2px; right: 2px; height: 36px; background: transparent; }
-  .headerTitle, .avatarFrame, .conversation { display: none; }
-  .form { padding: 2px 44px 2px 2px; }
+  .header { position: absolute; top: 2px; right: 2px; min-height: 36px; padding: 0; }
+  .headerTitle, .restart, .conversation { display: none; }
+  .form { margin: 2px 44px 2px 2px; padding: 2px; }
   .input { min-height: 36px; height: 36px; padding-block: 4px; }
   .send, .geo { min-height: 36px; height: 36px; }
 }

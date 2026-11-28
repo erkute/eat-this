@@ -144,10 +144,9 @@ describe('buildPackTeaser', () => {
       slug: 'pizza',
       name: 'Pizza',
       spectrum: pack.spectrum.de,
-      description: pack.description.de,
       art: '/pics/booster/booster_pizza.webp?v=20261030',
     });
     expect('priceLabel' in de).toBe(false);
-    expect(buildPackTeaser(pack, 'en').description).toBe(pack.description.en);
+    expect(buildPackTeaser(pack, 'en').spectrum).toBe(pack.spectrum.en);
   });
 });

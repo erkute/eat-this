@@ -15,6 +15,8 @@ const BASE_SRC: Record<BuddyMood, string> = {
   greeting: '/buddy/buddy-smile.webp?v=feinripp',
 };
 
+type BuddyAvatarProps = { mood: BuddyMood; size?: number | '100%'; breathe?: boolean };
+
 const MOUTH: Record<BuddyMood, BuddyMouthShape> = {
   idle: 'closed',
   talking: 'talk',
@@ -27,12 +29,8 @@ export function BuddyAvatarFallback({
   mood,
   size = 56,
   breathe = true,
-}: {
-  mood: BuddyMood;
-  size?: number;
-  /** Off in the 56px header, where the swell reads as jitter. */
-  breathe?: boolean;
-}) {
+}: BuddyAvatarProps) {
+  const imageSize = typeof size === 'number' ? size : 1024;
   return (
     <div
       className={styles.wrap}
@@ -43,13 +41,13 @@ export function BuddyAvatarFallback({
     >
       <div className={styles.stage}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className={styles.face} src={BASE_SRC[mood]} alt="" width={size} height={size} />
+        <img className={styles.face} src={BASE_SRC[mood]} alt="" width={imageSize} height={imageSize} />
         <BuddyMouth shape={MOUTH[mood]} />
       </div>
     </div>
   );
 }
 
-export default function BuddyAvatar(props: { mood: BuddyMood; size?: number; breathe?: boolean }) {
+export default function BuddyAvatar(props: BuddyAvatarProps) {
   return <BuddyAvatarFallback {...props} />;
 }

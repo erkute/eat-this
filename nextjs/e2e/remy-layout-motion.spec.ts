@@ -15,30 +15,71 @@ async function openRemy(page: Page) {
   await expect(page.locator('#buddy-panel')).toBeVisible();
 }
 
-for (const [width, height, hour] of [[1440, 900, 10], [1440, 900, 12], [1440, 900, 16], [1440, 900, 20], [1440, 900, 1], [1366, 768, 10], [1280, 720, 10], [1280, 600, 10], [390, 844, 6], [320, 568, 6]]) {
+async function expectSuggestionsToFit(page: Page, min: number, max = min) {
+  const intro = page.locator('[data-buddy-intro]');
+  await expect(async () => {
+    const { count, overflow, inside } = await intro.evaluate(el => {
+      const log = el.parentElement!.parentElement!;
+      const view = log.getBoundingClientRect();
+      const buttons = [...el.querySelectorAll('button')].filter(button => button.getClientRects().length);
+      const inside = [el.querySelector('h2')!, ...buttons].every(node => {
+        const rect = node.getBoundingClientRect();
+        return rect.top >= view.top - 1 && rect.bottom <= view.bottom + 1
+          && rect.left >= view.left - 1 && rect.right <= view.right + 1;
+      });
+      return { count: buttons.length, overflow: log.scrollHeight - log.clientHeight, inside };
+    });
+    expect(count).toBeGreaterThanOrEqual(min);
+    expect(count).toBeLessThanOrEqual(max);
+    expect(overflow).toBe(0);
+    expect(inside).toBe(true);
+  }).toPass({ timeout: 5000 });
+}
+
+async function expectPortraitAtComposer(page: Page) {
+  const portrait = page.locator('[data-buddy-avatar="intro"]');
+  await expect.poll(() => portrait.evaluate(node => {
+    const canvas = node.parentElement!;
+    const composer = node.closest('#buddy-panel')!.querySelector('form')!;
+    const field = composer.getBoundingClientRect();
+    const mask = canvas.getBoundingClientRect();
+    const picture = node.querySelector('img')!.getBoundingClientRect();
+    const visible = (field.top - picture.top) / picture.height;
+    return getComputedStyle(canvas).clipPath !== 'none'
+      && Math.abs(mask.bottom - field.top) < 1
+      && mask.left >= field.left - 1
+      && mask.right <= field.right + 1
+      && visible >= 0.97
+      && visible < 0.99;
+  })).toBe(true);
+}
+
+for (const [width, height, hour] of [[1440, 900, 10], [1440, 900, 12], [1440, 900, 16], [1440, 900, 20], [1440, 900, 1], [1366, 768, 10], [1280, 720, 10], [1280, 600, 10], [390, 844, 6], [431, 804, 20], [320, 568, 6]]) {
   test(`Remy suggestions fit without scrolling at ${width}×${height}, hour ${hour}`, async ({ page }) => {
     await page.setViewportSize({ width, height });
     await page.clock.setFixedTime(new Date(`2026-10-24T${String(hour).padStart(2, '0')}:00:00Z`));
     await openRemy(page);
-    const buttons = page.locator('[data-buddy-intro] button');
-    await expect(buttons).toHaveCount(4);
-    for (const button of await buttons.all()) {
-      const result = await button.evaluate(el => {
-        let scroller = el.parentElement;
-        while (scroller && !['auto', 'scroll'].includes(getComputedStyle(scroller).overflowY)) scroller = scroller.parentElement;
-        if (!scroller) throw new Error('No chat scroller found');
-        const view = scroller.getBoundingClientRect();
-        const rect = el.getBoundingClientRect();
-        return { name: el.textContent, inside: rect.top >= view.top && rect.bottom <= view.bottom && rect.left >= view.left && rect.right <= view.right };
-      });
-      expect(result.inside, `Suggestion clipped: ${result.name}`).toBe(true);
-    }
-    await expect(page.getByText('Eat This · Berlin', { exact: true })).toHaveCount(0);
+    await expectSuggestionsToFit(page, width <= 600 ? 3 : 4);
+    await expectPortraitAtComposer(page);
   });
 }
 
-test('Remy sinks without an upward jump or a moving cut edge', async ({ page }) => {
-  await page.setViewportSize({ width: 1280, height: 720 });
+test('an open greeting refits on height, width and orientation changes', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-10-24T06:00:00Z'));
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openRemy(page);
+  for (const [width, height, min, max] of [
+    [390, 844, 3, 3], [320, 385, 1, 2], [320, 640, 3, 3], [320, 641, 3, 3],
+    [320, 650, 3, 3], [600, 650, 3, 3], [600, 385, 3, 3], [320, 385, 1, 2],
+    [874, 294, 3, 3], [1440, 900, 4, 4], [390, 844, 3, 3],
+  ]) {
+    await page.setViewportSize({ width, height });
+    await expectSuggestionsToFit(page, min, max);
+    await expectPortraitAtComposer(page);
+  }
+});
+
+test('Remy sinks behind the composer without an upward jump', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.route('**/api/buddy', route => route.fulfill({
     contentType: 'application/x-ndjson',
@@ -48,9 +89,11 @@ test('Remy sinks without an upward jump or a moving cut edge', async ({ page }) 
   const panel = page.locator('#buddy-panel');
   await panel.evaluate(el => Promise.all(el.getAnimations().map(animation => animation.finished)));
   await panel.locator('input').fill('Pizza?');
+  await expectPortraitAtComposer(page);
   const probe = page.evaluate(() => {
     const origin = document.querySelector('[data-buddy-avatar="intro"]')!.getBoundingClientRect();
-    return new Promise<{ sourceY: number; sourceBottom: number; samples: { y: number; bottom: number }[] }>(resolve => {
+    const composerTop = document.querySelector('#buddy-panel form')!.getBoundingClientRect().top;
+    return new Promise<{ sourceY: number; composerTop: number; samples: { y: number; bottom: number }[] }>(resolve => {
       const samples: { y: number; bottom: number }[] = [];
       const deadline = performance.now() + 5000;
       const sample = () => {
@@ -62,7 +105,7 @@ test('Remy sinks without an upward jump or a moving cut edge', async ({ page }) 
           const bottom = inset.length >= 3 ? inset[2] : inset[0];
           samples.push({ y: rect.y, bottom: rect.bottom - bottom * rect.height / parseFloat(style.height) });
         } else if (samples.length || performance.now() >= deadline) {
-          resolve({ sourceY: origin.y, sourceBottom: origin.bottom, samples });
+          resolve({ sourceY: origin.y, composerTop, samples });
           return;
         }
         requestAnimationFrame(sample);
@@ -73,14 +116,16 @@ test('Remy sinks without an upward jump or a moving cut edge', async ({ page }) 
   await panel.getByRole('button', { name: 'Senden', exact: true }).click();
   const motion = await probe;
   expect(motion.samples.length).toBeGreaterThan(2);
+  let previousY = motion.sourceY;
   for (const frame of motion.samples) {
-    expect(frame.y).toBeGreaterThanOrEqual(motion.sourceY - 0.5);
-    expect(Math.abs(frame.bottom - motion.sourceBottom)).toBeLessThan(1);
+    expect(frame.y).toBeGreaterThanOrEqual(previousY - 0.5);
+    expect(Math.abs(frame.bottom - motion.composerTop)).toBeLessThan(1);
+    previousY = frame.y;
   }
+  expect(previousY).toBeGreaterThan(motion.sourceY);
 });
 
 test('Remy enters the title bar in one continuous movement', async ({ page }) => {
-  await page.setViewportSize({ width: 1280, height: 720 });
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.route('**/api/buddy', route => route.fulfill({ contentType: 'application/x-ndjson', body: '{"type":"text","value":"Hier ist dein Tipp."}\n{"type":"done"}\n' }));
   await openRemy(page);
@@ -112,4 +157,29 @@ test('Remy enters the title bar in one continuous movement', async ({ page }) =>
     expect(current.y).toBeLessThanOrEqual(previous.y + 0.5);
   }
   expect(longestPause, 'Remy pauses mid-entry before starting again').toBeLessThan(45);
+});
+
+test('reduced motion places Remy directly in the header after a suggestion', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.clock.setFixedTime(new Date('2026-10-24T12:00:00Z'));
+  await page.route('**/api/buddy', route => route.fulfill({
+    contentType: 'application/x-ndjson',
+    body: '{"type":"text","value":"Hier ist dein Tipp."}\n{"type":"done"}\n',
+  }));
+  await openRemy(page);
+  const panel = page.locator('#buddy-panel');
+  expect(await panel.evaluate(el => el.getAnimations({ subtree: true }).length)).toBe(0);
+  // Auch kurz gesetzte Bewegungsphasen erkennen, während React das Porträt wechselt.
+  const phases = await panel.evaluateHandle(el => {
+    const records: string[] = [];
+    new MutationObserver(mutations => records.push(...mutations.map(m => m.attributeName!)))
+      .observe(el, { subtree: true, attributes: true, attributeFilter: ['data-buddy-motion'] });
+    return records;
+  });
+  await panel.getByRole('button', { name: 'Schnelles Mittagessen' }).click();
+  await expect(panel.getByRole('status')).toHaveText('Hier ist dein Tipp.');
+  await expect(panel.locator('[data-buddy-avatar="header"]')).toBeVisible();
+  expect(await phases.jsonValue()).toEqual([]);
+  await panel.getByRole('button', { name: 'Neues Gespräch mit Remy' }).click();
+  await expectSuggestionsToFit(page, page.viewportSize()!.width <= 600 ? 3 : 4);
 });

@@ -1,9 +1,7 @@
 'use client';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useLocale } from 'next-intl';
 import BuddyAvatar, { type BuddyMood } from './BuddyAvatar';
-import RemyDesktop from './RemyDesktop';
-import RemyStartMenu from './RemyStartMenu';
 import { BotMessage, FormattedText, SPOT_IMG_SIZES, spotSrcSet } from './BuddyMessages';
 import { useBuddyChat } from './useBuddyChat';
 import { extractFollowups } from '@/lib/buddy/stream';
@@ -33,12 +31,11 @@ const T = {
     placeholder: 'Schreib Remy…',
     send: 'Senden',
     stop: 'Stopp',
-    reset: 'Neu',
-    resetAria: 'Gespräch neu anfangen',
     geoOff: 'Standort teilen — dann sortiert Remy nach Entfernung',
     geoOn: 'Remy kennt deinen Standort',
     geoBusy: 'Standort wird ermittelt …',
     answered: 'Remy hat geantwortet.',
+    restart: 'Neues Gespräch mit Remy',
   },
   en: {
     open: 'Open Remy',
@@ -47,12 +44,11 @@ const T = {
     placeholder: 'Message Remy…',
     send: 'Send',
     stop: 'Stop',
-    reset: 'New',
-    resetAria: 'Start a new conversation',
     geoOff: 'Share your location — then Remy sorts by distance',
     geoOn: 'Remy knows where you are',
     geoBusy: 'Getting your location …',
     answered: 'Remy has answered.',
+    restart: 'New conversation with Remy',
   },
 } satisfies Record<Locale, Record<string, string>>;
 
@@ -69,29 +65,29 @@ export default function BuddyWidget() {
     window.addEventListener('resize', update);
     return () => window.removeEventListener('resize', update);
   }, []);
-  // Capture the old position before React removes the greeting portrait.
-  // Only the newly mounted header portrait moves; there is never a duplicate.
-  const previousPortrait = useRef<{ rect: DOMRect; position: string | undefined } | null>(null);
-  // React Strict Mode reattaches the same ref after a cleanup. Keep its
-  // original source so the replacement GSAP timeline can restart correctly.
-  const portraitOrigins = useRef(new WeakMap<HTMLElement, DOMRect>());
+  // Das Kopfporträt beginnt dort, wo das große Bild am Eingabefeld endet.
+  const previousPortrait = useRef<{ rect: DOMRect; edge: number } | null>(null);
+  // Strict Mode attaches the same header ref again after cleanup.
+  const portraitOrigins = useRef(new WeakMap<HTMLElement, { rect: DOMRect; edge: number }>());
   const placePortrait = useCallback((node: HTMLDivElement | null) => {
     if (!node) return;
-    const previous = previousPortrait.current;
-    const origin = previous?.position === 'intro'
-      ? previous.rect
-      : portraitOrigins.current.get(node);
-    if (node.dataset.buddyAvatar === 'header' && origin) portraitOrigins.current.set(node, origin);
-    const stopMotion = node.dataset.buddyAvatar === 'header' && origin
-      ? animatePortraitHandoff(node, origin)
-      : undefined;
-    return () => {
-      previousPortrait.current = {
-        rect: node.getBoundingClientRect(),
-        position: node.dataset.buddyAvatar,
+    if (node.dataset.buddyAvatar === 'intro') {
+      return () => {
+        const canvas = node.parentElement;
+        if (canvas) {
+          previousPortrait.current = {
+            rect: node.getBoundingClientRect(),
+            edge: canvas.getBoundingClientRect().bottom,
+          };
+        }
       };
-      stopMotion?.();
-    };
+    }
+
+    const origin = previousPortrait.current ?? portraitOrigins.current.get(node);
+    previousPortrait.current = null;
+    if (!origin) return;
+    portraitOrigins.current.set(node, origin);
+    return animatePortraitHandoff(node, origin.rect, origin.edge);
   }, []);
   useEffect(() => {
     if (!open) previousPortrait.current = null;
@@ -101,10 +97,6 @@ export default function BuddyWidget() {
      Laden schon im Faden stand, wird nicht verankert (siehe das Scrollen
      unten). `null` heißt: nichts zu verankern. */
   const [restoredCount, setRestoredCount] = useState(() => messages.length);
-  const startOver = useCallback(() => {
-    setRestoredCount(0);
-    reset();
-  }, [reset]);
   let anchorIdx: number | null = null;
   for (let i = messages.length - 1; i >= restoredCount; i--) {
     if (messages[i].role === 'user') {
@@ -327,6 +319,30 @@ export default function BuddyWidget() {
       glideRef.current = 0;
     };
   }, [open]);
+  const intro = open && messages.length === 0 ? greetingFor(new Date().getHours(), locale) : null;
+  const greeting = intro?.greeting;
+  useLayoutEffect(() => {
+    const log = logRef.current;
+    if (!greeting || !log) return;
+    const buttons = Array.from(log.querySelectorAll<HTMLButtonElement>('[data-buddy-intro] button'));
+    // Mit der ganzen Auswahl beginnen, damit bei mehr Platz auch zuvor
+    // ausgeblendete Fragen zurückkehren. Die Telefon-Obergrenze setzt CSS.
+    const fit = () => {
+      for (const button of buttons) button.hidden = false;
+      for (let i = buttons.length - 1; i >= 0 && log.scrollHeight > log.clientHeight; i--) {
+        buttons[i].hidden = true;
+      }
+    };
+    fit();
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(fit);
+    observer?.observe(log);
+    document.fonts?.addEventListener('loadingdone', fit);
+    return () => {
+      observer?.disconnect();
+      document.fonts?.removeEventListener('loadingdone', fit);
+    };
+  }, [greeting]);
+
   // Eine neue Frage in dieser Sitzung: an den oberen Rand mit ihr.
   useEffect(() => {
     if (anchorIdx !== null) goToQuestionRef.current?.();
@@ -471,6 +487,19 @@ export default function BuddyWidget() {
     void sendWithLocationIfNeeded(draft);
   };
 
+  /* Neu anfangen über den kleinen Remy. Der Knopf verschwindet mit dem
+     Gespräch, der Fokus geht darum ins Feld (am Telefon an die Hülle, sonst
+     käme die Tastatur). */
+  const startOver = () => {
+    setRestoredCount(0);
+    setDraft('');
+    reset();
+    const touch =
+      typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches;
+    if (touch) panelRef.current?.focus({ preventScroll: true });
+    else inputRef.current?.focus();
+  };
+
   const ask = (text: string) => {
     void sendWithLocationIfNeeded(text);
   };
@@ -510,8 +539,6 @@ export default function BuddyWidget() {
       {open && (
         <div className={styles.session} ref={dialogRef} role="dialog" aria-modal="true" aria-label={title} onKeyDown={onPanelKeyDown}>
           <div className={styles.scrim} onClick={closePanel} aria-hidden="true" />
-          <div className={styles.screen}>
-            <div className={styles.desktopBackdrop} aria-hidden="true"><RemyDesktop en={locale === 'en'} /></div>
           <div
             ref={panelRef}
             id="buddy-panel"
@@ -520,10 +547,13 @@ export default function BuddyWidget() {
             tabIndex={-1}
           >
             <div className={styles.header}>
+              {/* Der kleine Remy fängt das Gespräch neu an. */}
               {messages.length > 0 && (
-                <div className={styles.avatarFrame} ref={placePortrait} data-buddy-avatar="header" aria-hidden="true">
-                  <BuddyAvatar mood={panelMood} size={24} breathe={false} />
-                </div>
+                <button className={styles.restart} type="button" aria-label={t.restart} onClick={startOver}>
+                  <div className={styles.avatarFrame} ref={placePortrait} data-buddy-avatar="header" aria-hidden="true">
+                    <BuddyAvatar mood={panelMood} size={40} breathe={false} />
+                  </div>
+                </button>
               )}
               <span className={styles.headerTitle}>
                 <strong>{locale === 'en' ? 'Ask Remy' : 'Frag Remy'}</strong>
@@ -534,8 +564,8 @@ export default function BuddyWidget() {
                 aria-label={t.close}
                 onClick={closePanel}
               >
-                <svg viewBox="0 0 12 12" aria-hidden="true" shapeRendering="crispEdges">
-                  <path fill="currentColor" d="M1 1h2v1h1v1h1v1h2V3h1V2h1V1h2v2h-1v1H9v1H8v2h1v1h1v1h1v2H9v-1H8V9H7V8H5v1H4v1H3v1H1V9h1V8h1V7h1V5H3V4H2V3H1z" />
+                <svg viewBox="0 0 20 20" aria-hidden="true">
+                  <path d="M4 4l12 12M16 4L4 16" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" />
                 </svg>
               </button>
             </div>
@@ -546,35 +576,28 @@ export default function BuddyWidget() {
             <div className={styles.conversation}>
               <div className={styles.log} ref={logRef} onScroll={onLogScroll}>
                 <div className={styles.logContent} ref={logContentRef}>
-                  {messages.length === 0 &&
-                    (() => {
-                      // Time-of-day opener + starter chips (computed client-side; the
-                      // intro only renders after the user opens the panel).
-                      const intro = greetingFor(new Date().getHours(), locale);
-                      return (
-                        <div className={styles.intro} data-buddy-intro="">
-                          <h2 className={styles.introTitle}>
-                            {locale === 'en' ? 'What are you craving?' : 'Worauf hast du Lust?'}
-                          </h2>
-                          <div className={styles.introGreeting}>
-                            <FormattedText text={intro.greeting} />
-                          </div>
-                          <div className={styles.introSuggestions}>
-                            {intro.suggestions.map((s) => (
-                              <button
-                                key={s}
-                                type="button"
-                                className={styles.chip}
-                                onClick={() => ask(s)}
-                              >
-                                {s}
-                              </button>
-                            ))}
-
-                          </div>
-                        </div>
-                      );
-                    })()}
+                  {intro && (
+                    <div className={styles.intro} data-buddy-intro="">
+                      <h2 className={styles.introTitle}>
+                        {locale === 'en' ? 'What are you craving?' : 'Worauf hast du Lust?'}
+                      </h2>
+                      <div className={styles.introGreeting}>
+                        <FormattedText text={intro.greeting} />
+                      </div>
+                      <div className={styles.introSuggestions}>
+                        {intro.suggestions.map((s) => (
+                          <button
+                            key={s}
+                            type="button"
+                            className={styles.chip}
+                            onClick={() => ask(s)}
+                          >
+                            {s}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   {messages.map((m, i) =>
                     m.role === 'user' ? (
                       <div
@@ -614,7 +637,7 @@ export default function BuddyWidget() {
                 <div className={styles.portraitRail}>
                   <div className={styles.introPortrait} aria-hidden="true">
                     <div className={styles.introFigure} ref={placePortrait} data-buddy-avatar="intro">
-                      <BuddyAvatar mood={panelMood} size={300} />
+                      <BuddyAvatar mood={panelMood} size="100%" breathe={false} />
                     </div>
                   </div>
                 </div>
@@ -636,12 +659,6 @@ export default function BuddyWidget() {
               >
                 <PinIcon />
               </button>
-              {messages.length > 0 && (
-                <button className={styles.reset} type="button" aria-label={t.resetAria}
-                  title={t.resetAria} onClick={startOver}>
-                  <span aria-hidden="true">{t.reset}</span>
-                </button>
-              )}
               {/* Das Feld bleibt schreibbar, solange Remy antwortet: Die
                   nächste Frage muss nicht warten, bis er fertig ist. */}
               <input
@@ -661,7 +678,7 @@ export default function BuddyWidget() {
               {/* Derselbe Knopf ist der Abbruch, solange er schreibt. */}
               {isStreaming ? (
                 <button
-                  className={`${styles.send} ${styles.stop}`}
+                  className={`et-btn ${styles.send}`}
                   type="button"
                   onClick={stop}
                   aria-label={t.stop}
@@ -670,7 +687,7 @@ export default function BuddyWidget() {
                 </button>
               ) : (
                 <button
-                  className={styles.send}
+                  className={`et-btn ${styles.send}`}
                   type="submit"
                   disabled={!draft.trim()}
                   aria-label={t.send}
@@ -679,15 +696,9 @@ export default function BuddyWidget() {
                 </button>
               )}
             </form>
-            <div className={styles.statusBar}>
-              <span className={styles.statusLight} aria-hidden="true" />
-              <span>{isStreaming ? t.thinking : locating ? t.geoBusy : locale === 'en' ? 'Remy is here for you.' : 'Remy ist für dich da.'}</span>
-            </div>
             <p className={styles.srOnly} role="status">
               {srStatus}
             </p>
-          </div>
-            <RemyStartMenu en={locale === 'en'} onLeave={closePanel} onChat={() => inputRef.current?.focus()} />
           </div>
         </div>
       )}

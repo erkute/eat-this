@@ -700,7 +700,7 @@
   .introSuggestions .chip { min-height: 36px; padding: 6px 12px; font-size: 13px; line-height: 1.25; }
 }
 
-@container remy (height > 640px) and (max-height: 800px) and (max-width: 420px) {
+@container remy (height > 640px) and (max-height: 800px) and (width < 360px) {
   .conversation { --remy-height: calc(var(--remy-compact-height) - 15px); }
 }
 
@@ -724,6 +724,13 @@
   }
   .log:has(.intro) { padding-bottom: 10px; }
   .intro { padding-bottom: 4px; }
+}
+
+/* Auch mit ausgeklappter Browserleiste bleibt unter den Fragen Platz für Remy. */
+@container remy (360px <= width <= 420px) and (640px < height <= 800px) {
+  .conversation {
+    --remy-height: calc(clamp(190px, 100cqh - 430px, 280px) - env(safe-area-inset-bottom, 0px));
+  }
 }
 
 /* Telefon quer: Remy steht neben dem Gespräch. */
